@@ -1,0 +1,1 @@
+//DetailsScreen.tsx
