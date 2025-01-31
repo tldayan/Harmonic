@@ -1,0 +1,13 @@
+<svg width="16" height="13" viewBox="0 0 16 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="flags / AE">
+<rect id="Mask" x="0.25" y="1.15039" width="15.5" height="10.7" rx="1.75" fill="white" stroke="#F5F5F5" stroke-width="0.5"/>
+<mask id="mask0_2055_1254" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="13">
+<rect id="Mask_2" x="0.25" y="1.15039" width="15.5" height="10.7" rx="1.75" fill="white" stroke="white" stroke-width="0.5"/>
+</mask>
+<g mask="url(#mask0_2055_1254)">
+<path id="Rectangle 2" fill-rule="evenodd" clip-rule="evenodd" d="M4.57129 4.63372H15.9999V0.900391H4.57129V4.63372Z" fill="#12833B"/>
+<path id="Rectangle 2_2" fill-rule="evenodd" clip-rule="evenodd" d="M4.57129 12.1005H15.9999V8.36719H4.57129V12.1005Z" fill="#262626"/>
+<path id="Rectangle 2_3" fill-rule="evenodd" clip-rule="evenodd" d="M0 12.1004H4.57143V0.900391H0V12.1004Z" fill="#FF323E"/>
+</g>
+</g>
+</svg>

@@ -1,0 +1,1 @@
+//src/screens/Permissions/PermissionsScreen.tsx

@@ -1,1 +1,10 @@
-//colors.ts 
+export const colors = {
+  PRIMARY_COLOR: "#F3A46D",
+  ACCENT_COLOR: "#1C64f2",
+  TEXT_COLOR: "#6b7280",
+  BACKGROUND_COLOR: "#f9fafb",
+  BORDER_COLOR: "#d1d5db",
+  ACTIVE_ACCENT_COLOR: "#1A56DB",
+  LIGHT_TEXT_COLOR: "#9CA3AF",
+  RED_SHADE: "#FFEBF1"
+};
