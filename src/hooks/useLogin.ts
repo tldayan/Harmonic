@@ -46,7 +46,7 @@ const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | nu
       if (!isResend && confirm && userNumber) {
 
         if(code.length !== 6) {
-          setErrorMessage((prev) => ({ ...prev, otpCode: "Enter OTP" }));
+          setErrorMessage((prev) => ({ ...prev, otpCode: "Please enter OTP" }));
           return
         }
 
@@ -115,7 +115,7 @@ const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | nu
     } catch (error: any) {
       if (error?.code === "auth/invalid-verification-code") {
         console.log(error.code)
-        setErrorMessage(prev => ({ ...prev, otpCode: "Invalid Verification Code" }));
+        setErrorMessage(prev => ({ ...prev, otpCode: "Invalid OTP" }));
       }
     } finally {
       setLoading(false);

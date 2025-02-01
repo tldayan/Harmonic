@@ -12,5 +12,6 @@ export type CustomTextInputFieldProps = {
     setCountryCode?: (code: string | null) => void
     countryCode?: string | null
     inputMode?: "none" | "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url";
+    modalOpen?: boolean
     
 }

@@ -102,7 +102,7 @@ export const handleLogin = async(email:string, password:string) => {
 
       await firebase.auth().signInWithRedirect(provider);
     } catch (error: any) {
-      console.error('Microsoft login error:', error);
+      console.log('Microsoft login error:', error);
     }
   };
 

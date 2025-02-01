@@ -6,5 +6,6 @@ export const colors = {
   BORDER_COLOR: "#d1d5db",
   ACTIVE_ACCENT_COLOR: "#1A56DB",
   LIGHT_TEXT_COLOR: "#9CA3AF",
-  RED_SHADE: "#FFEBF1"
+  RED_SHADE: "#FFEBF1",
+  BLACK_TEXT_COLOR: "#111928"
 };

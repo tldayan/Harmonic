@@ -41,14 +41,14 @@ const LoginScreen = ({navigation}: LoginScreenProps) => {
 		handleMicrosoftLoginClick,
 	  } = useLogin();
 	
-
+	  
   return (
 	<TouchableWithoutFeedback onPress={Keyboard.dismiss} >
 		<View style={styles.container}>
 			<Image style={styles.logo} source={require('../../assets/images/Harmonic-Logo-Horizontal-02.png')} />
 			<View style={styles.mainSignupContainer}>
 				<Text style={styles.title}>Welcome back</Text>
-				<View style={styles.signupContainer}>
+				<View style={styles.signupContainer}> 
 					<Text style={styles.signUpPrompt}>Don't have an account? </Text>
 					<CustomButton title="Sign up" textStyle={styles.signupText} onPress={() => {navigation.navigate(ROUTES.SIGNUP)}} />
 				</View>
@@ -75,7 +75,7 @@ const LoginScreen = ({navigation}: LoginScreenProps) => {
 				<View style={styles.separator} />
 			</View>}
 
-			{(!confirm && signinByEmail) && <View style={styles.socialsContainer}>
+			{!confirm && <View style={styles.socialsContainer}>
 				<CustomButton textStyle={styles.socialsButtonText} buttonStyle={styles.socialButtons} icon={<GoogleIcon />} title="Sign in with Google" onPress={handleGoogleLoginClick} />
 				<CustomButton textStyle={styles.socialsButtonText} buttonStyle={styles.socialButtons} icon={<MicrosoftIcon/>} title="Sign in with Microsoft" onPress={handleMicrosoftLoginClick} />
 			</View>}
@@ -109,7 +109,6 @@ const styles = StyleSheet.create({
 		backgroundColor : "#FFFFFF"
 	},
 	container: {
-	/* 	borderWidth: 1, */
 		height: 602,
 		padding : 32,
 		width: "100%",
@@ -119,7 +118,8 @@ const styles = StyleSheet.create({
 	logo: {
 		alignSelf : "center",
 		marginBottom : 20,
-		resizeMode: "contain",
+		height: 27,
+		width: 107
 	},
 	mainSignupContainer: {
 		alignItems: "center",
@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		height: 24, 
 		gap: 20,
-		marginBottom : 20
 	  },
 	orText: {
 		fontSize: 16,
@@ -233,6 +232,7 @@ const styles = StyleSheet.create({
 		backgroundColor: "#e5e7eb",
 	  },
 	socialsContainer: {
+		marginTop: 20,
 		gap : 20
 	  },
 	socialButtons : {

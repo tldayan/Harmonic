@@ -1,116 +1,86 @@
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { CustomTextInputFieldProps } from "../types/text-input.types";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { colors } from "../styles/colors";
-import UsFlag from "../assets/icons/US.svg"
-import CanadaFlag from "../assets/icons/CA.svg"
-import UKFlag from "../assets/icons/GB.svg"
 import ChevronDown from "../assets/icons/chevron-down.svg"
-import AEFlag from "../assets/icons/AE.svg"
-
-export const CustomTextInput: React.FC<CustomTextInputFieldProps> = ({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-  secureTextEntry,
-  inputStyle,
-  labelStyle,
-  placeholderTextColor,
-  errorMessage,
-  rightIcon,
-  inputMode,
-  countryCode,
-  setCountryCode
-}) => {
-  
-  const [isFocused, setIsFocused] = useState(false);
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<{ code: string; country: string; flagIcon: React.ReactNode }>({
-    code: "+1",
-    country: "United States",
-    flagIcon: <UsFlag width={19.6} height={14} />
-  });
-
-  const numberInputRef = useRef<any>(null);
-  const countryCodes = [
-    { id : "1", code: "+1", country: "United States", flagIcon: <UsFlag width={19.6} height={14} /> },
-    { id : "2", code: "+1", country: "Canada", flagIcon: <CanadaFlag width={19.6} height={14} /> },
-    { id : "3", code: "+44", country: "United Kingdom", flagIcon: <UKFlag width={19.6} height={14} /> },
-    { id : "4", code: "+971", country: "UAE", flagIcon: <AEFlag width={19.6} height={14} /> }
-  ];
-
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownVisible(!isDropdownVisible);
-  };
-
-  const handleCountryCodeSelect = (code: string, country: string, flagIcon: React.ReactNode) => {
-    if (setCountryCode) {
-      setCountryCode(code); 
-    }
-    setSelectedCountry({ code, country, flagIcon });
-    setIsDropdownVisible(false);
-  };
+import { COUNTRY_CODES } from "../utils/constants";
+import { CustomModal } from "./CustomModal";
+import { CountryCodes } from "../modals/CountryCodes";
 
 
-  return (
-    <View style={[styles.container]}>
-      {label && <Text style={[labelStyle, isFocused && {color: "#111928"}]}>{label}</Text>}
-      <View style={styles.inputWrapper}>
-        {inputMode === "tel" && 
-        <TouchableOpacity style={styles.numberInput} ref={numberInputRef} onPress={toggleDropdown}>
-          {selectedCountry.flagIcon}
-          <Text style={styles.countryCode}>{countryCode}</Text>
-          <ChevronDown width={10} height={10} />
-        </TouchableOpacity>}
-        <TextInput
-          inputMode={inputMode}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor={placeholderTextColor}
-          secureTextEntry={secureTextEntry}
-          style={[
-            styles.input,
-            inputStyle,
-            errorMessage && { backgroundColor: colors.RED_SHADE, borderColor: "red" },
-            isFocused && !errorMessage && { borderColor: colors.ACTIVE_ACCENT_COLOR }
-          ]}
-          
-          onFocus={handleFocus} 
-          onBlur={handleBlur} 
-        />
-        {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
-      </View>
-      {isDropdownVisible && <View style={[styles.dropdown, { top: (numberInputRef.current?.offsetHeight || 0) + 70 }]}>
-          <FlatList
-            data={countryCodes}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleCountryCodeSelect(item.code, item.country, item.flagIcon)} style={styles.countryOption}>
-                <View style={styles.countryContent}>
-                  {item.flagIcon}
-                  <View >
-                    <Text style={styles.countryText}>{item.country} ({item.code})</Text>
-                  </View>
-                </View>
-                
-              </TouchableOpacity>
-            )}
+  export const CustomTextInput: React.FC<CustomTextInputFieldProps> = ({
+    label,
+    value,
+    onChangeText,
+    placeholder,
+    secureTextEntry,
+    inputStyle,
+    labelStyle,
+    placeholderTextColor,
+    errorMessage,
+    rightIcon,
+    inputMode,
+    countryCode,
+    setCountryCode
+  }) => {
+    
+    const [isFocused, setIsFocused] = useState(false);
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const numberInputRef = useRef<any>(null);
+
+
+    const handleFocus = () => {
+      setIsFocused(true);
+    };
+
+    const handleBlur = () => {
+      setIsFocused(false);
+    };
+
+    const toggleDropdown = () => {
+      setIsDropdownVisible(!isDropdownVisible);
+    };
+
+    
+    const getFlagByCode = useMemo(() => COUNTRY_CODES.find((eachCountry) => eachCountry.code === countryCode),[countryCode])
+
+    return (
+      <View style={[styles.container]}>
+        {label && <Text style={[labelStyle, isFocused && {color: colors.BLACK_TEXT_COLOR}]}>{label}</Text>}
+        <View style={styles.inputWrapper}>
+          {inputMode === "tel" && 
+          <TouchableOpacity style={styles.numberInput} ref={numberInputRef} onPress={toggleDropdown}>
+            <Text>{getFlagByCode?.flagIcon}</Text>
+            <Text style={styles.countryCode}>{countryCode}</Text>
+            <ChevronDown width={10} height={10} />
+          </TouchableOpacity>}
+          <TextInput
+            inputMode={inputMode}
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            placeholderTextColor={placeholderTextColor}
+            secureTextEntry={secureTextEntry}
+            style={[
+              styles.input,
+              inputStyle,
+              errorMessage && { backgroundColor: colors.RED_SHADE, borderColor: "red" },
+              isFocused && !errorMessage && { borderColor: colors.ACTIVE_ACCENT_COLOR }
+            ]}
+            
+            onFocus={handleFocus} 
+            onBlur={handleBlur} 
           />
-        </View>}
-      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
-    </View>
-  );
-};
+          {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
+        </View>
+
+          <CustomModal withInput isOpen={isDropdownVisible} >
+              <CountryCodes setIsDropdownVisible={setIsDropdownVisible} setCountryCode={setCountryCode || (() => {})} />
+          </CustomModal>
+        {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+      </View>
+    );
+  };
 
 
 
