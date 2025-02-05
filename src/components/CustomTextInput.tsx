@@ -1,33 +1,37 @@
+import React, { forwardRef, useMemo, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { CustomTextInputFieldProps } from "../types/text-input.types";
-import { useMemo, useRef, useState } from "react";
 import { colors } from "../styles/colors";
-import ChevronDown from "../assets/icons/chevron-down.svg"
+import ChevronDown from "../assets/icons/chevron-down.svg";
 import { COUNTRY_CODES } from "../utils/constants";
 import { CustomModal } from "./CustomModal";
 import { CountryCodes } from "../modals/CountryCodes";
+import { convertUnicodeToEmoji } from "../utils/helpers";
 
-
-  export const CustomTextInput: React.FC<CustomTextInputFieldProps> = ({
-    label,
-    value,
-    onChangeText,
-    placeholder,
-    secureTextEntry,
-    inputStyle,
-    labelStyle,
-    placeholderTextColor,
-    errorMessage,
-    rightIcon,
-    inputMode,
-    countryCode,
-    setCountryCode
-  }) => {
-    
+export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
+  (
+    {
+      label,
+      value,
+      onChangeText,
+      placeholder,
+      secureTextEntry,
+      inputStyle,
+      labelStyle,
+      placeholderTextColor,
+      errorMessage,
+      setErrorMessage,
+      rightIcon,
+      inputMode,
+      countryCode,
+      setCountryCode,
+      password,
+      confirmedPassword
+    },
+    ref 
+  ) => {
     const [isFocused, setIsFocused] = useState(false);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const numberInputRef = useRef<any>(null);
-
 
     const handleFocus = () => {
       setIsFocused(true);
@@ -41,23 +45,48 @@ import { CountryCodes } from "../modals/CountryCodes";
       setIsDropdownVisible(!isDropdownVisible);
     };
 
-    
-    const getFlagByCode = useMemo(() => COUNTRY_CODES.find((eachCountry) => eachCountry.code === countryCode),[countryCode])
+    const handleTextChange = (text: string) => {
+      if (errorMessage && setErrorMessage) {
+        setErrorMessage({
+          email: "",
+          password: "",
+          confirmedPassword: "",
+          otpCode: "",
+          phone: "",
+        });
+      }
+      onChangeText(text);
+    };
+
+    const confirmedPasswordCheck = useMemo(() => password === confirmedPassword, [confirmedPassword]);
+
+    const getFlagByCode = useMemo(
+      () => COUNTRY_CODES.find((eachCountry) => eachCountry.PhoneCode === countryCode),
+      [countryCode]
+    );
 
     return (
       <View style={[styles.container]}>
-        {label && <Text style={[labelStyle, isFocused && {color: colors.BLACK_TEXT_COLOR}]}>{label}</Text>}
+        {label && <Text style={[labelStyle, isFocused && { color: colors.BLACK_TEXT_COLOR }]}>{label}</Text>}
         <View style={styles.inputWrapper}>
-          {inputMode === "tel" && 
-          <TouchableOpacity style={styles.numberInput} ref={numberInputRef} onPress={toggleDropdown}>
-            <Text>{getFlagByCode?.flagIcon}</Text>
-            <Text style={styles.countryCode}>{countryCode}</Text>
+          {inputMode === "tel" && (
+            <TouchableOpacity 
+            style={styles.numberInput} 
+            onPress={toggleDropdown}
+          >
+            <Text style={{ fontSize: 15 }}>
+              {getFlagByCode ? convertUnicodeToEmoji(getFlagByCode.PhoneCountryEmoji) : ''}
+            </Text>
+            <Text style={styles.countryCode}>+{countryCode}</Text>
             <ChevronDown width={10} height={10} />
-          </TouchableOpacity>}
+          </TouchableOpacity>
+          
+          )}
           <TextInput
+            ref={ref}
             inputMode={inputMode}
             value={value}
-            onChangeText={onChangeText}
+            onChangeText={handleTextChange}
             placeholder={placeholder}
             placeholderTextColor={placeholderTextColor}
             secureTextEntry={secureTextEntry}
@@ -65,24 +94,26 @@ import { CountryCodes } from "../modals/CountryCodes";
               styles.input,
               inputStyle,
               errorMessage && { backgroundColor: colors.RED_SHADE, borderColor: "red" },
-              isFocused && !errorMessage && { borderColor: colors.ACTIVE_ACCENT_COLOR }
+              isFocused && !errorMessage && { borderColor: colors.ACTIVE_ACCENT_COLOR },
+              value === confirmedPassword && confirmedPasswordCheck && {
+                backgroundColor: "#f3faf7",
+                borderColor: "#0e9f6e",
+              },
             ]}
-            
-            onFocus={handleFocus} 
-            onBlur={handleBlur} 
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
           {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
         </View>
 
-          <CustomModal withInput isOpen={isDropdownVisible} >
-              <CountryCodes setIsDropdownVisible={setIsDropdownVisible} setCountryCode={setCountryCode || (() => {})} />
-          </CustomModal>
+        <CustomModal fullScreen isOpen={isDropdownVisible}>
+          <CountryCodes setIsDropdownVisible={setIsDropdownVisible} setCountryCode={setCountryCode || (() => {})} />
+        </CustomModal>
         {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
       </View>
     );
-  };
-
-
+  }
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -93,6 +124,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
+    marginTop: 8,
   },
   input: {
     height: 40,
@@ -109,14 +141,13 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 50,
     borderWidth: 1,
     backgroundColor: "#F3F4F6",
-/*     width : "30%", */
     fontWeight: 500,
     height : "100%",
     paddingHorizontal: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent :"center",
-    gap : 8
+    gap : 6
   },
   dropdown: {
     position: 'absolute',

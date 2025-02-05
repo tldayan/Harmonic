@@ -9,3 +9,4 @@ export const colors = {
   RED_SHADE: "#FFEBF1",
   BLACK_TEXT_COLOR: "#111928"
 };
+

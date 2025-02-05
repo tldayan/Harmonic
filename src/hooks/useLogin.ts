@@ -1,20 +1,24 @@
-import { useState } from "react";
-import { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { useMemo, useState } from "react";
+import { firebase, FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { handleGoogleLogin, handleLogin, handleMicrosoftLogin, signInWithPhoneNumber, verifyOtpCode } from "../services/auth-service";
+import { ErrorMessageType } from "../types/text-input.types";
 
 export const useLogin = () => {
   
+const [authMode, setAuthMode] = useState("login")
 const [signinByEmail, setSigninByEmail] = useState<boolean>(true);
 const [email, setEmail] = useState<string>("");
 const [password, setPassword] = useState<string>("");
+const [confirmedPassword, setConfirmedPassword] = useState<string>("")
 const [hidePassword, setHidePassword] = useState<boolean>(true);
 const [rememberUser, setRememberUser] = useState<boolean>(false);
-const [errorMessage, setErrorMessage] = useState<{ email: string; password: string; otpCode: string; phone: string }>({email: "",password: "",otpCode: "",phone: ""});
+const [errorMessage, setErrorMessage] = useState<ErrorMessageType>({email: "",password: "", confirmedPassword: "",otpCode: "",phone: ""});
 const [loading, setLoading] = useState<boolean>(false);
+const [forgotPasswordIntiated, setForgotPasswordIntiated] = useState(false)
 
 // Phone Auth
 const [userNumber, setUserNumber] = useState<string>("");
-const [countryCode, setCountryCode] = useState<string | null>("+1"); 
+const [countryCode, setCountryCode] = useState<string | null>("1"); 
 const [code, setCode] = useState<string>(''); 
 const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | null>(null);
 
@@ -22,8 +26,69 @@ const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | nu
     setHidePassword(!hidePassword);
   };
 
-  const initializeLogin = async (isResend = false) => {
-    if (signinByEmail) {
+
+  const passwordCheck = useMemo(() => {
+      const symbolsRegex = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/;  
+      const numbersRegex = /[0-9]/;  
+      const lowerCaseRegex = /[a-z]/; 
+      const upperCaseRegex = /[A-Z]/; 
+      const minLength = 8; 
+      
+      const checks = {
+        hasSymbol: symbolsRegex.test(password),
+        hasNumber: numbersRegex.test(password),
+        hasLowerCase: (lowerCaseRegex.test(password) && upperCaseRegex.test(password)),
+        isLongEnough: password.length >= minLength,
+      };
+      
+      const passedChecks = Object.values(checks).filter(Boolean).length;
+      
+      return { ...checks, passedChecks };
+  }, [password]);
+
+
+
+  const initializeAuth = async (isResend = false) => {
+    setErrorMessage({email: "",password: "", confirmedPassword: "",otpCode: "",phone: ""})
+
+    //SIGNUP
+    if(authMode === "signup") {
+
+      if(!password) {
+        setErrorMessage((prev) => ({...prev, password : "Please create a password"}))
+        return  
+      } else if (passwordCheck.passedChecks !== 4) {
+        setErrorMessage((prev) => ({...prev, password : "Your password must pass the below requirements"}))
+      }
+
+      if(password !== confirmedPassword) {
+        setErrorMessage((prev) => ({...prev, confirmedPassword : "Enter correct password"}))
+        return
+      }
+
+      try {
+        setLoading(true)
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+  
+        console.log("User created:", userCredential.user);
+
+      } catch (error: any) {
+        if (error.code === 'auth/email-already-in-use') {
+          setErrorMessage((prev) => ({...prev, email: "The email address is already in use by another account."}))
+        } else if (error.code === 'auth/invalid-email') {
+          setErrorMessage((prev) => ({...prev, email: "The email address is not valid."}))
+        } else if (error.code === 'auth/weak-password') {
+          setErrorMessage((prev) => ({...prev, password: "The password is too weak."}))
+        } else {
+          console.error("Error creating user:", error.message);
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    //LOGIN
+    if (signinByEmail && authMode === "login") {
 
       setErrorMessage((prev) => ({ ...prev, email: "", password: "" }));
   
@@ -65,7 +130,6 @@ const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | nu
         const phoneAuthConfirmation = await signInWithPhoneNumber(countryCode, userNumber);
         setConfirm(phoneAuthConfirmation);
       } catch (error: any) {
-        console.log(error.code);
   
         if (error.code === "auth/too-many-requests") {
           setErrorMessage((prev) => ({
@@ -128,23 +192,27 @@ const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | nu
   };
 
   const handleMicrosoftLoginClick = () => {
-    
     setLoading(true)
     handleMicrosoftLogin();
     setLoading(false)
   };
 
   return {
+    authMode,
+    setAuthMode,
     signinByEmail,
     setSigninByEmail,
     email,
     setEmail,
     password,
     setPassword,
+    confirmedPassword,
+    setConfirmedPassword,
     hidePassword,
     togglePasswordVisibility,
     rememberUser,
     setRememberUser,
+    setErrorMessage,
     errorMessage,
     loading,
     userNumber,
@@ -154,8 +222,12 @@ const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | nu
     code,
     setCode,
     confirm,
-    initializeLogin,
+    initializeAuth,
     handleGoogleLoginClick,
     handleMicrosoftLoginClick,
+    passwordCheck,
+    forgotPasswordIntiated,
+    setForgotPasswordIntiated,
+    setLoading,
   };
 };

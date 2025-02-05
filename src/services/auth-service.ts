@@ -16,6 +16,7 @@ export const handleLogin = async(email:string, password:string) => {
     try {
 
       const user = await firebase.auth().signInWithEmailAndPassword(email,password)
+      console.log(user.user.getIdToken())
 
     } catch (error: any) {
       let errorResponse = { email: "", password: "" };
@@ -54,7 +55,7 @@ export const handleLogin = async(email:string, password:string) => {
         setLoading(false)
         throw new Error('No ID token found');
       }
-      console.log(idToken)
+ /*      console.log(idToken) */
       const googleCredential = firebase.auth.GoogleAuthProvider.credential(idToken);
       return firebase.auth().signInWithCredential(googleCredential);
 
@@ -100,7 +101,10 @@ export const handleLogin = async(email:string, password:string) => {
 
     try {
 
-      await firebase.auth().signInWithRedirect(provider);
+      const signinResult = await firebase.auth().signInWithRedirect(provider);
+
+    /*   console.log(signinResult.user.getIdToken()) */
+
     } catch (error: any) {
       console.log('Microsoft login error:', error);
     }
@@ -137,6 +141,23 @@ export const handleLogin = async(email:string, password:string) => {
       
     } catch (error) {
       throw error
+    }
+  };
+  
+
+
+
+//RESET PASSWORD BY EMAIL
+ export const handleResetPassword = async (email: string) => {
+    try {
+      if (!email) {
+        throw new Error("Email is required for password reset.");
+      }
+
+     await firebase.auth().sendPasswordResetEmail(email);
+
+    } catch (error: any) {
+      throw new Error(error.message);
     }
   };
   

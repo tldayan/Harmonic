@@ -3,6 +3,7 @@ import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { ANDROID_GOOGLE_CLIENT_ID, IOS_GOOGLE_CLIENT_ID} from '../utils/constants';
 import { Platform } from 'react-native';
+import * as Keychain from 'react-native-keychain';
 
 type UserContextType = {
   user: FirebaseAuthTypes.User | null;
@@ -24,12 +25,25 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     console.log('CHECKING FOR USER'); 
 
+/*     const storeUserToken = async(userToken) => {
+      
+      const credentials = await Keychain.setGenericPassword("userToken", userToken)
+
+    } */
+
     // Firebase authentication state change listener
     const subscriber = auth().onAuthStateChanged((authUser) => {
       if (!authUser) {
         console.log('No user is logged in'); // Log when no user is logged in
       }
+
       setUser(authUser); // Update user state
+      console.log("checking")
+
+      const userToken = authUser?.getIdToken()
+
+
+      
       setInitializing(false); // Stop initializing once Firebase auth state is resolved
     });
 

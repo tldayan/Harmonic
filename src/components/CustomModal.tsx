@@ -1,21 +1,23 @@
-import { Modal, ModalProps, StyleSheet, Text, View } from 'react-native'
+import { Modal, ModalProps, StyleSheet, View } from 'react-native'
 import React from 'react'
 
 interface Props extends ModalProps {
     isOpen: boolean;
     children: React.ReactNode;
-    withInput?: boolean;
+    fullScreen?: boolean;
 }
 
-export const CustomModal: React.FC<Props> = ({ isOpen, children, withInput}) => {
-
+export const CustomModal: React.FC<Props> = ({ isOpen, children, fullScreen}) => {
     
   return (
-    <Modal statusBarTranslucent animationType="slide" visible={isOpen} >
+    <>
+      <Modal transparent={fullScreen ? false : true} statusBarTranslucent animationType={fullScreen ? "slide" : "fade"} visible={isOpen} >
         {children}
-    </Modal>
+      </Modal>
+    </>
 
   )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+})

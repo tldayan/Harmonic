@@ -2,8 +2,9 @@ import { Button, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View }
 import React, { useCallback, useMemo, useState } from 'react'
 import { COUNTRY_CODES } from '../utils/constants'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import CloseIcon from "../assets/icons/close.svg"
 import { colors } from '../styles/colors';
+import { convertUnicodeToEmoji } from '../utils/helpers';
+import ModalsHeader from '../modals/ModalsHeader';
 
 interface CountryCodesProps {
     setCountryCode: (value: string | null) => void | undefined;
@@ -11,10 +12,12 @@ interface CountryCodesProps {
   }
   
 type Country = {
-    id: string;
-    code: string;
-    country: string;
-    flagIcon: string;
+    PhoneCountryId: number,
+    PhoneCountryName: string,
+    PhoneCountryISO2: string,
+    PhoneCountryISO3: string,
+    PhoneCode: string,
+    PhoneCountryEmoji: string
 };
 
 export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setIsDropdownVisible }) => {
@@ -24,7 +27,7 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
     const filteredCountries = useMemo(() => {
         console.log(search)
         return COUNTRY_CODES.filter((eachCountry) => {
-            return eachCountry.country.toLowerCase().includes(search.toLowerCase()) || eachCountry.code.includes(search)
+            return eachCountry.PhoneCountryName.toLowerCase().includes(search.toLowerCase()) || eachCountry.PhoneCode.includes(search)
         })
     }, [search])
 
@@ -35,11 +38,11 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
 
 
     const renderItem = useCallback(({item} : {item: Country}) => (
-        <TouchableOpacity style={styles.countryOption} onPress={() => handleCountryCodeSelect(item.code)}>
+        <TouchableOpacity style={styles.countryOption} onPress={() => handleCountryCodeSelect(item.PhoneCode)}>
             <View style={styles.countryContent} >
-            <Text>{item.flagIcon}</Text>
+           <Text style={{ fontSize: 20 }}>{convertUnicodeToEmoji(item.PhoneCountryEmoji)}</Text>
             <View>
-                <Text style={styles.countryText}>{item.country} ({item.code})</Text>
+                <Text style={styles.countryText}>{item.PhoneCountryName} ({item.PhoneCode})</Text>
             </View>
             </View>
         </TouchableOpacity>
@@ -50,17 +53,13 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
 
     <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.title}>Country code</Text>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setIsDropdownVisible(false)}>
-                    <CloseIcon />
-                </TouchableOpacity>
-            </View>
+            <ModalsHeader title='Country Code' onClose={() => setIsDropdownVisible(false)} />
             
             <TextInput placeholderTextColor={colors.LIGHT_TEXT_COLOR} style={styles.input} placeholder='Search for a country' value={search} onChangeText={setSearch} />
             <FlatList 
+                keyboardShouldPersistTaps="handled"
                 style={styles.list}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.PhoneCountryId.toString()}
                 renderItem={renderItem}
                 data={filteredCountries.length > 0 ? filteredCountries : COUNTRY_CODES}
             />
