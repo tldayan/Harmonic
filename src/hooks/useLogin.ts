@@ -11,7 +11,6 @@ const [email, setEmail] = useState<string>("");
 const [password, setPassword] = useState<string>("");
 const [confirmedPassword, setConfirmedPassword] = useState<string>("")
 const [hidePassword, setHidePassword] = useState<boolean>(true);
-const [rememberUser, setRememberUser] = useState<boolean>(false);
 const [errorMessage, setErrorMessage] = useState<ErrorMessageType>({email: "",password: "", confirmedPassword: "",otpCode: "",phone: ""});
 const [loading, setLoading] = useState<boolean>(false);
 const [forgotPasswordIntiated, setForgotPasswordIntiated] = useState(false)
@@ -210,8 +209,6 @@ const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | nu
     setConfirmedPassword,
     hidePassword,
     togglePasswordVisibility,
-    rememberUser,
-    setRememberUser,
     setErrorMessage,
     errorMessage,
     loading,

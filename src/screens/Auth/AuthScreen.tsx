@@ -32,8 +32,6 @@ const AuthScreen = () => {
 		setPassword,
 		hidePassword,
 		togglePasswordVisibility,
-		rememberUser,
-		setRememberUser,
 		setErrorMessage,
 		errorMessage,
 		loading,
@@ -129,6 +127,7 @@ const AuthScreen = () => {
 					{confirm && <OTPInput errorMessage={errorMessage.otpCode} setCode={setCode} />}
 				</View>
 			}
+			
 			{(signinByEmail && confirm || !signinByEmail && !confirm || !confirm ) && <View style={styles.separatorContainer}>
 				<View style={styles.separator} />
 					<Text style={styles.orText}>or</Text>
@@ -140,18 +139,9 @@ const AuthScreen = () => {
 				<CustomButton textStyle={styles.socialsButtonText} buttonStyle={styles.socialButtons} icon={<MicrosoftIcon/>} title={`Sign ${authMode === "login" ? "in" : "up"} with Microsoft`} onPress={handleMicrosoftLoginClick} />
 			</View>}
 			
-			{(signinByEmail && authMode === "login") && <View style={styles.authOptionsContainer}>
-				<View style={styles.rememberMeContainer}>
-					<TouchableOpacity onPress={() => setRememberUser(prev => !prev)} style={[styles.checkbox, rememberUser && {...styles.rememberMeActive}]}>
-						{rememberUser && <CheckIcon width={10} height={10} />}
-					</TouchableOpacity>
-					<Text style={styles.rememberMe}>Remember me</Text>
-				</View>
 				
-				<CustomButton textStyle={styles.forgotPassword} onPress={() => setForgotPasswordIntiated(true)} title="Forgot password?" />
-				
-				
-			</View>}
+			{(signinByEmail && authMode === "login") && <CustomButton textStyle={styles.forgotPassword} onPress={() => setForgotPasswordIntiated(true)} title="Forgot password?" />}
+
 			{authMode === "signup" && <Text style={styles.termsAndConditions}>By continuing, you acknowledge that you understand and agree to the Terms and Conditions</Text>}
 			<CustomButton buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={styles.signinText} onPress={initializeAuth} title={loading ? null : authMode === "login" ? "Log in" : "Sign up"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null}/>
 			{confirm && <View style={styles.resendCodeContainer}>
@@ -317,37 +307,10 @@ const styles = StyleSheet.create({
 	socialsButtonText : {
 		fontWeight: 500
 	},
-	checkbox: {
-		width: 16,
-		height: 16,
-		borderWidth: 1,
-		borderColor: colors.BORDER_COLOR,
-		borderRadius: 4,
-		justifyContent: "center",
-		alignItems: "center",
-		backgroundColor : "transparent",
-		marginRight: 8,
-	},
-	authOptionsContainer : {
-		marginTop : 20,
-		flexDirection : "row",
-		alignItems : "center",
-		justifyContent: "space-between"
-	},
-	rememberMeContainer : {
-		flexDirection : "row",
-		alignItems : "center",
-	},
-	rememberMe : {
-		fontWeight : 500,
-		color : colors.TEXT_COLOR
-	},
-	rememberMeActive:  {
-		backgroundColor: colors.ACTIVE_ACCENT_COLOR,
-		 borderWidth: 0
-	},
 	forgotPassword : {
 		fontWeight : "500",
+		textAlign:"right",
+		marginTop: 20,
 		color: colors.ACCENT_COLOR
 	},
 	termsAndConditions : {

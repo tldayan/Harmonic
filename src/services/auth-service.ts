@@ -1,6 +1,11 @@
 import { firebase } from "@react-native-firebase/auth"
 import { GoogleSignin } from "@react-native-google-signin/google-signin"
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import * as Keychain from 'react-native-keychain';
+import { deleteDataMMKV } from "./storage-service";
+
+
+
 
 //HANDLE LOGIN BY EMAIL & PASSWORD
 export const handleLogin = async(email:string, password:string) => {
@@ -76,6 +81,9 @@ export const handleLogin = async(email:string, password:string) => {
       }
       
       await firebase.auth().signOut()
+      
+      deleteDataMMKV("UserUUID")
+      deleteDataMMKV("OrganizationUUID")
       
       console.log("user signed out")
     } catch(error) {
@@ -160,4 +168,22 @@ export const handleLogin = async(email:string, password:string) => {
       throw new Error(error.message);
     }
   };
-  
+
+
+//STORE USER TOKEN IN KEYCHAIN SERVICE
+export const storeUserToken = async (userToken: string) => {
+  try {
+    
+    const result = await Keychain.setGenericPassword("userToken", userToken);
+    
+    if (result) {
+      console.log("Token stored successfully");
+
+    } else {
+      console.log("Failed to store token");
+    }
+
+  } catch (error) {
+    console.error("Failed to access Keychain", error);
+  }
+};
