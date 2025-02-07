@@ -14,7 +14,7 @@ const RealmContext = createContext<RealmContextType | undefined>(undefined);
 export const RealmProvider = ({children}: {children: React.ReactNode}) => {
 
 
-    const [data, setData] = useState<any[]>([]); // Now setData expects an array
+    const [data, setData] = useState<any[]>([]); 
 
 
     const updateData = (newData: any) => {
@@ -50,7 +50,6 @@ export const useRealm = (schema: string) => {
         throw new Error("useRealm must be used within a RealmProvider")
     }
 
-
     const {data, setData, updateData} = context
 
 
@@ -62,18 +61,13 @@ export const useRealm = (schema: string) => {
           setData(dataArray);
         };
       
-        // Add the listener
         dataResults.addListener(dataListener);
       
-
         return () => {
           dataResults.removeListener(dataListener); 
         };
       }, [schema]);
       
-      
-      
 
       return {data, setData, updateData}
-
 }

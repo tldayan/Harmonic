@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, StyleSheet, View, Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard, ActivityIndicator, Alert, ScrollView } from "react-native";
+import { Image, StyleSheet, View, Text, TouchableWithoutFeedback, Keyboard, ActivityIndicator, ScrollView } from "react-native";
 import CustomButton from "../../components/CustomButton";
 import { colors } from "../../styles/colors";
 import { CustomTextInput } from "../../components/CustomTextInput";
@@ -7,7 +7,6 @@ import { CustomIconButton } from "../../components/CustomIconButton";
 import EyeSlash from "../../assets/icons/eye-slash.svg"
 import GoogleIcon from "../../assets/icons/google.svg"
 import MicrosoftIcon from "../../assets/icons/microsoft.svg"
-import CheckIcon from "../../assets/icons/check.svg"
 import OTPInput from "../../components/OPTInput";;
 import { useLogin } from "../../hooks/useLogin";
 import checkIcon from '../../assets/images/check.png';
@@ -47,6 +46,7 @@ const AuthScreen = () => {
 		passwordCheck,
 		forgotPasswordIntiated,
 		setForgotPasswordIntiated,
+		setConfirm
 	  } = useLogin();
 	
 	
@@ -65,8 +65,9 @@ const AuthScreen = () => {
 	
 
   return (
+	
 	<TouchableWithoutFeedback onPress={Keyboard.dismiss} >
-		<ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+		<ScrollView contentContainerStyle={{padding: 32}} style={styles.container} keyboardShouldPersistTaps="handled">
 			<Image style={styles.logo} source={require('../../assets/images/Harmonic-Logo-Horizontal-02.png')} />
 			<View style={styles.mainSignupContainer}>
 				<Text style={styles.title}>{authMode === "login" ? "Welcome back" : "Create Account"}</Text>
@@ -77,8 +78,8 @@ const AuthScreen = () => {
 			</View>
 			
 			<View style={styles.signinMethodContainer}>
-				<CustomButton buttonStyle={[styles.signinMethodButtons, signinByEmail && styles.activeButtonState]} textStyle={[styles.signinMehtodButtonText, signinByEmail && styles.activeTextState]} title="Email" onPress={() => { setSigninByEmail(true)}}/>
-				<CustomButton buttonStyle={[styles.signinMethodButtons, !signinByEmail && styles.activeButtonState]} textStyle={[styles.signinMehtodButtonText, !signinByEmail && styles.activeTextState]} title="Phone Number" onPress={() => { setSigninByEmail(false)}} />
+				<CustomButton buttonStyle={[styles.signinMethodButtons, signinByEmail && styles.activeButtonState]} textStyle={[styles.signinMehtodButtonText, signinByEmail && styles.activeTextState]} title="Email" onPress={() => { setSigninByEmail(true); setConfirm(null); setUserNumber("")}}/>
+				<CustomButton buttonStyle={[styles.signinMethodButtons, !signinByEmail && styles.activeButtonState]} textStyle={[styles.signinMehtodButtonText, !signinByEmail && styles.activeTextState]} title="Phone Number" onPress={() => { setSigninByEmail(false); setConfirm(null); setUserNumber("")}} />
 			</View>
 			{signinByEmail ? 
 				<View>
@@ -143,8 +144,8 @@ const AuthScreen = () => {
 			{(signinByEmail && authMode === "login") && <CustomButton textStyle={styles.forgotPassword} onPress={() => setForgotPasswordIntiated(true)} title="Forgot password?" />}
 
 			{authMode === "signup" && <Text style={styles.termsAndConditions}>By continuing, you acknowledge that you understand and agree to the Terms and Conditions</Text>}
-			<CustomButton buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={styles.signinText} onPress={initializeAuth} title={loading ? null : authMode === "login" ? "Log in" : "Sign up"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null}/>
-			{confirm && <View style={styles.resendCodeContainer}>
+			<CustomButton buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={styles.signinText} onPress={initializeAuth} title={loading ? null : confirm ? "Verify OTP" : userNumber ? "Send OTP" : authMode === "login" ? "Log in" : "Sign up"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null}/>
+			{(confirm && !signinByEmail) && <View style={styles.resendCodeContainer}>
 				<Text style={styles.resendCodePrompt}>Didn’t receive OTP? </Text>
 				<CustomButton title="Resend code" textStyle={styles.resendText} onPress={() => initializeAuth(true)}/>
 			</View>}
@@ -167,7 +168,6 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		height: 602,
-		padding : 32,
 		width: "100%",
 		backgroundColor : "#FFFFFF",
 		flex: 1,
@@ -302,10 +302,11 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 		gap: 8,
-		overflow: "hidden"
+		overflow: "hidden",
 	},
 	socialsButtonText : {
-		fontWeight: 500
+		fontWeight: 500,
+		marginLeft: 8
 	},
 	forgotPassword : {
 		fontWeight : "500",

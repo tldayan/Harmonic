@@ -3,10 +3,8 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-nativ
 import { CustomTextInputFieldProps } from "../types/text-input.types";
 import { colors } from "../styles/colors";
 import ChevronDown from "../assets/icons/chevron-down.svg";
-import { COUNTRY_CODES } from "../utils/constants";
 import { CustomModal } from "./CustomModal";
 import { CountryCodes } from "../modals/CountryCodes";
-import { convertUnicodeToEmoji } from "../utils/helpers";
 
 export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
   (
@@ -60,11 +58,6 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
 
     const confirmedPasswordCheck = useMemo(() => password === confirmedPassword, [confirmedPassword]);
 
-    const getFlagByCode = useMemo(
-      () => COUNTRY_CODES.find((eachCountry) => eachCountry.PhoneCode === countryCode),
-      [countryCode]
-    );
-
     return (
       <View style={[styles.container]}>
         {label && <Text style={[labelStyle, isFocused && { color: colors.BLACK_TEXT_COLOR }]}>{label}</Text>}
@@ -74,9 +67,6 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
             style={styles.numberInput} 
             onPress={toggleDropdown}
           >
-            <Text style={{ fontSize: 15 }}>
-              {getFlagByCode ? convertUnicodeToEmoji(getFlagByCode.PhoneCountryEmoji) : ''}
-            </Text>
             <Text style={styles.countryCode}>+{countryCode}</Text>
             <ChevronDown width={10} height={10} />
           </TouchableOpacity>

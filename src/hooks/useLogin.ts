@@ -226,5 +226,6 @@ const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | nu
     forgotPasswordIntiated,
     setForgotPasswordIntiated,
     setLoading,
+    setConfirm
   };
 };

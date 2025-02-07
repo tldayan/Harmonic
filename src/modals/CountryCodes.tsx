@@ -1,9 +1,8 @@
-import { Button, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useCallback, useMemo, useState } from 'react'
 import { COUNTRY_CODES } from '../utils/constants'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../styles/colors';
-import { convertUnicodeToEmoji } from '../utils/helpers';
 import ModalsHeader from '../modals/ModalsHeader';
 
 interface CountryCodesProps {
@@ -40,7 +39,6 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
     const renderItem = useCallback(({item} : {item: Country}) => (
         <TouchableOpacity style={styles.countryOption} onPress={() => handleCountryCodeSelect(item.PhoneCode)}>
             <View style={styles.countryContent} >
-           <Text style={{ fontSize: 20 }}>{convertUnicodeToEmoji(item.PhoneCountryEmoji)}</Text>
             <View>
                 <Text style={styles.countryText}>{item.PhoneCountryName} ({item.PhoneCode})</Text>
             </View>

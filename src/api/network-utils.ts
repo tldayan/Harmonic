@@ -1,5 +1,8 @@
+
 import { FirebaseAuthTypes } from "@react-native-firebase/auth"
 import { userAuthType } from "../types/user-types";
+import { apiClient } from "./api-client";
+import { ENDPOINTS } from "./endpoints";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -41,3 +44,47 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     return 'Unknown';
   };
   
+
+
+  export const getUserProfile = async(UserUUID: string) => {
+
+    try {
+
+      const response = await apiClient(ENDPOINTS.USER.PROFILE, {}, {}, "GET", {UserUUID: UserUUID ?? "", LoggedInUserUUID: UserUUID ?? ""})
+      return response
+
+    } catch (err) {
+      console.log("Error fetching USER PROFILE")
+    }
+
+  }
+
+
+
+
+  export const getOrganizationBasedModules = async(UserUUID: string, OrganizationUUID: string  ) => {
+    
+    try {
+
+      const response = await apiClient(ENDPOINTS.ORGANIZATION.FETCH_MODULES, {}, {}, "GET", {userUUID: UserUUID ?? "", organizationUUID: OrganizationUUID ?? ""});
+      return response
+
+    } catch (error) {
+      console.log("Error fetching organization based modules")
+    }
+  }
+
+
+  export const getUuidBySignIn = async(authUser: FirebaseAuthTypes.User) => {
+    
+    try {
+
+      const response = await apiClient(ENDPOINTS.AUTH.SIGN_IN, transformFirebaseUser(authUser), {}, 'POST');
+
+      return {UserUUID: response.Payload.UserUUID, OrganizationUUID: response.Payload.OrganizationUUID}
+
+    } catch (error) {
+      console.log("Error fetching organization based modules")
+      return { UserUUID: null, OrganizationUUID: null }
+    }
+  }

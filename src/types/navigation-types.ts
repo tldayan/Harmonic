@@ -2,7 +2,7 @@
 export type RootStackParamList = {
     Tabs: undefined
     Auth: undefined
-    ForgotPassword: undefined
+    Hero: undefined
 }
 
 export type ProfileStackParamList = {
@@ -13,6 +13,10 @@ export type ProfileStackParamList = {
 
 export type TabParamList = {
     Home: undefined
-    ProfileTab: undefined
-    Settings: undefined
+    WorkRequests: undefined
+    Messages: undefined
+    Chat: undefined
+    Store: undefined
+    Modules: undefined
+    Departments: undefined
 }

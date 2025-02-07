@@ -1,5 +1,3 @@
-
-import { getDataMMKV } from "../services/storage-service";
 import * as Keychain from 'react-native-keychain';
 
 
@@ -9,7 +7,6 @@ export const apiClient = async(url: string, bodyData: object, options: RequestIn
     let token = ""
 
     if(tokenObj) {
-        console.log(tokenObj.password)
         token = tokenObj.password
     }
     
@@ -23,9 +20,7 @@ export const apiClient = async(url: string, bodyData: object, options: RequestIn
 
     const finalUrl = queryString? `${url}?${queryString}` : url
 
-/*     const UserUUID = getDataMMKV("UserUUID")
-    const OrganizationUUID = getDataMMKV("OrganizationUUID") */
-/*     const queryParams = (UserUUID && OrganizationUUID) ? `?userUUID=${UserUUID}&organizationUUID=${OrganizationUUID}` : "" */
+
     console.log(`${finalUrl}`)
 
 

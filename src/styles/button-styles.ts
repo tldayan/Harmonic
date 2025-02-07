@@ -8,5 +8,6 @@ export const PRIMARY_BUTTON_STYLES: ViewStyle = {
     justifyContent: "center",
     alignItems: "center", 
     backgroundColor: colors.PRIMARY_COLOR,
-    flexDirection: "row"
+    flexDirection: "row",
+    gap: 8
 }

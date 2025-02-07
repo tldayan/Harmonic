@@ -4,10 +4,8 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { ANDROID_GOOGLE_CLIENT_ID, IOS_GOOGLE_CLIENT_ID} from '../utils/constants';
 import { Platform } from 'react-native';
 import { storeUserToken } from '../services/auth-service';
-import { transformFirebaseUser } from '../api/network-utils';
-import { apiClient } from '../api/api-client';
-import { ENDPOINTS } from '../api/endpoints';
-import { getDataMMKV, saveDataMMKV } from '../services/storage-service';
+import { getOrganizationBasedModules, getUserProfile, getUuidBySignIn } from '../api/network-utils';
+import { saveDataMMKV } from '../services/storage-service';
 import { saveUserProfileToRealm } from '../utils/realmUtils/saveUserProfileToRealm';
 import realmInstance from '../services/realm';
 import { saveOrganizationBasedModules } from '../utils/realmUtils/saveOrganizationBasedModules';
@@ -55,23 +53,18 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       if(authUser !== null) {
 
         try {
-          const response = await apiClient(ENDPOINTS.AUTH.SIGN_IN, transformFirebaseUser(authUser), {}, 'POST');
-          saveDataMMKV({"UserUUID": response.Payload.UserUUID, "OrganizationUUID" : response.Payload.OrganizationUUID}) 
-          console.log(response)
-
-          const response2 = await apiClient(ENDPOINTS.USER.PROFILE, {},{}, "GET", {UserUUID: getDataMMKV("UserUUID") ?? "", LoggedInUserUUID: getDataMMKV("UserUUID") ?? ""})
-          /* console.log(response2) */
-
-          saveUserProfileToRealm(response2.Payload)
-          const userProfile = realmInstance.objects('UserProfile').filtered('UserUUID == $0', getDataMMKV("UserUUID"));
-          console.log("Saved UserProfile from Realm:", userProfile.toJSON());
-
-
-          const response3 = await apiClient(ENDPOINTS.ORGANIZATION.FETCH_MODULES, {}, {}, "GET", {userUUID: getDataMMKV("UserUUID") ?? "", organizationUUID: getDataMMKV("OrganizationUUID") ?? ""});
-          /* console.log(response3); */
+          const {UserUUID, OrganizationUUID} = await getUuidBySignIn(authUser)
           
-          //TO BE REFACTORED
-          saveOrganizationBasedModules(response3.Payload)
+          saveDataMMKV({"UserUUID": UserUUID, "OrganizationUUID" : OrganizationUUID})
+
+          const [userProfileResposne, OrganizationBasedModulesResponse] =  await Promise.all([getUserProfile(UserUUID), getOrganizationBasedModules(UserUUID, OrganizationUUID)])
+
+          saveUserProfileToRealm(userProfileResposne.Payload)
+          saveOrganizationBasedModules(OrganizationBasedModulesResponse.Payload)
+
+          const userProfile = realmInstance.objects('UserProfile')[0]; 
+          console.log("Saved UserProfile from Realm:", userProfile?.toJSON());
+          
           const modules = realmInstance.objects('OrganizationBasedModules');
           console.log("Saved Modules from Realm:", modules.toJSON());
 

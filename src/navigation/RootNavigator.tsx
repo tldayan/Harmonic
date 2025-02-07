@@ -4,6 +4,7 @@ import { Stack } from "./navigationUtils"
 import TabNavigator from "./TabNavigator"
 import { globalScreenOptions } from "./navigationConfig/globalScreenOptions"
 import { useUser } from "../context/AuthContext"
+import HeroScreen from "../screens/Hero/HeroScreen"
 
 
 export const RootNavigator: React.FC = () => {
@@ -17,6 +18,7 @@ export const RootNavigator: React.FC = () => {
                 <Stack.Screen name="Tabs" component={TabNavigator} />
             ): (
             <>
+                <Stack.Screen name="Hero" component={HeroScreen} />
                 <Stack.Screen name="Auth" component={AuthScreen} />
             </>
             )

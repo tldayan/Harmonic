@@ -7,12 +7,14 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   onPress,
   buttonStyle,
   textStyle,
-  icon
+  icon,
+  iconPosition = "left"
 }) => {
   return (
     <TouchableOpacity style={[buttonStyle]} onPress={() => onPress?.()}>
-      {icon && <View style={styles.icon}>{icon}</View>}
+      {(icon && iconPosition === "left") && <View style={styles.icon}>{icon}</View>}
       <Text style={[styles.text, textStyle]}>{title}</Text>
+      {(icon && iconPosition === "right") && <View style={styles.icon}>{icon}</View>}
     </TouchableOpacity>
   );
 };
@@ -23,9 +25,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   icon: {
-    marginRight: 8,
-    width : 20,
-    height: 20
+   /*  marginRight: 8, */
   },
 });
 

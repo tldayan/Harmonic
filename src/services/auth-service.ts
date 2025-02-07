@@ -21,7 +21,6 @@ export const handleLogin = async(email:string, password:string) => {
     try {
 
       const user = await firebase.auth().signInWithEmailAndPassword(email,password)
-      console.log(user.user.getIdToken())
 
     } catch (error: any) {
       let errorResponse = { email: "", password: "" };
