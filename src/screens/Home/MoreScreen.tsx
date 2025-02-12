@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-export default function ModulesScreen() {
+export default function MoreScreen() {
   return (
     <View>
       <Text>ModulesScreen</Text>

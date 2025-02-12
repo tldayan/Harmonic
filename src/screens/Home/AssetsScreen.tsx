@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-export default function WorkRequestScreen() {
+export default function AssetsScreen() {
   return (
     <View>
-      <Text>WorkRequestScreen</Text>
+      <Text>DepartmentsScreen</Text>
     </View>
   )
 }

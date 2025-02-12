@@ -8,4 +8,5 @@ export const globalScreenOptions = {
   tabBarStyle: {
     height: height * 0.07,
   },
+
 };

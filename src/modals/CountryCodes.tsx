@@ -1,7 +1,7 @@
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useCallback, useMemo, useState } from 'react'
 import { COUNTRY_CODES } from '../utils/constants'
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../styles/colors';
 import ModalsHeader from '../modals/ModalsHeader';
 
@@ -48,8 +48,6 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
     
 
   return (
-
-    <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
             <ModalsHeader title='Country Code' onClose={() => setIsDropdownVisible(false)} />
             
@@ -62,7 +60,6 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
                 data={filteredCountries.length > 0 ? filteredCountries : COUNTRY_CODES}
             />
         </SafeAreaView>
-    </SafeAreaProvider>
   )
 }
 

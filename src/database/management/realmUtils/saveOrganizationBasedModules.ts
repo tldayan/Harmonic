@@ -1,5 +1,5 @@
 import { UpdateMode } from 'realm';
-import realmInstance from '../../services/realm';
+import realmInstance from '../../../services/realm';
 
 
 export const saveOrganizationBasedModules = (modulesData: any) => {

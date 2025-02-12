@@ -14,7 +14,7 @@ import xIcon from "../../assets/images/x.png";
 import { getRectangleColor } from "../../utils/helpers";
 import { CustomModal } from "../../components/CustomModal";
 import ForgotPassword from "../../modals/ForgotPassword";
-import { PRIMARY_BUTTON_STYLES } from "../../styles/button-styles";
+import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from "../../styles/button-styles";
 
 const AuthScreen = () => {
 
@@ -144,14 +144,14 @@ const AuthScreen = () => {
 			{(signinByEmail && authMode === "login") && <CustomButton textStyle={styles.forgotPassword} onPress={() => setForgotPasswordIntiated(true)} title="Forgot password?" />}
 
 			{authMode === "signup" && <Text style={styles.termsAndConditions}>By continuing, you acknowledge that you understand and agree to the Terms and Conditions</Text>}
-			<CustomButton buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={styles.signinText} onPress={initializeAuth} title={loading ? null : confirm ? "Verify OTP" : userNumber ? "Send OTP" : authMode === "login" ? "Log in" : "Sign up"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null}/>
+			<CustomButton buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={PRIMARY_BUTTON_TEXT_STYLES} onPress={initializeAuth} title={loading ? null : confirm ? "Verify OTP" : userNumber ? "Send OTP" : authMode === "login" ? "Log in" : "Sign up"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null}/>
 			{(confirm && !signinByEmail) && <View style={styles.resendCodeContainer}>
 				<Text style={styles.resendCodePrompt}>Didn’t receive OTP? </Text>
 				<CustomButton title="Resend code" textStyle={styles.resendText} onPress={() => initializeAuth(true)}/>
 			</View>}
 
-			<CustomModal isOpen={forgotPasswordIntiated}>
-				<ForgotPassword errorMessage={errorMessage.email} onClose={() => {setForgotPasswordIntiated(false); setErrorMessage(prev => ({ ...prev, email: "", password: ""})); }} email={email} setEmail={setEmail} setErrorMessage={setErrorMessage}/>
+			<CustomModal onClose={() => setForgotPasswordIntiated(false)} isOpen={forgotPasswordIntiated}>
+				<ForgotPassword errorMessage={errorMessage.email} onClose={() => { setErrorMessage(prev => ({ ...prev, email: "", password: ""})); }} email={email} setEmail={setEmail} setErrorMessage={setErrorMessage}/>
 			</CustomModal>
 		</ScrollView>
 		
@@ -216,7 +216,6 @@ const styles = StyleSheet.create({
 		justifyContent : "center",
 		padding : 5.76,
 		gap: 3.66,
-		marginBottom: 20
 	},
 	signinMethodButtons: {
 		borderRadius: 50,
@@ -245,11 +244,13 @@ const styles = StyleSheet.create({
 		color : colors.ACTIVE_ACCENT_COLOR
 	},
 	inputLabel : {
+		marginTop:20,
 		color : colors.LIGHT_TEXT_COLOR,
 		fontWeight : 500,
 		lineHeight: 21,
 		fontSize: 14,
-		paddingBottom: 2
+		paddingBottom: 2,
+		marginBottom: 8
 	},
 	inputField : {
 		borderRadius: 50,
@@ -257,22 +258,24 @@ const styles = StyleSheet.create({
 		borderStyle: "solid",
 		borderColor: colors.BORDER_COLOR,
 		borderWidth: 1,
-		width: "100%",
+		flex: 1,
 		height: 42,
 		paddingHorizontal: 16,
-		color: "black"
+		color: "black",
 	},
 	numberField : { 
 		borderTopLeftRadius: 0, 
 		borderBottomLeftRadius: 0, 
 		borderTopRightRadius: 50, 
-		borderBottomRightRadius: 50 
+		borderBottomRightRadius: 50, 
+		marginBottom: 0
 	},
 	separatorContainer: {
 		flexDirection: 'row', 
 		alignItems: 'center',  
 		justifyContent: 'center',
 		gap: 20,
+		marginTop: 20
 	  },
 	orText: {
 		fontSize: 16,
@@ -329,10 +332,6 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.PRIMARY_COLOR,
 		flexDirection: "row", 
 	  },
-	signinText: {
-		fontWeight: 500,
-		color : "#FFFFFF"
-	},
 	resendCodeContainer : {
 		marginTop: 20,
 		flexDirection : "row",
@@ -353,6 +352,7 @@ const styles = StyleSheet.create({
 
 	//PASSWORD VALIDATION
 	contentFlexBox: {
+		marginTop: 20,
 		justifyContent: "center",
 		alignItems: "center"
 	},
@@ -406,7 +406,6 @@ const styles = StyleSheet.create({
 	},
 		content: {
 		shadowColor: "rgba(0, 0, 0, 0.1)",
-		marginBottom : 20,
 		shadowOffset: {
 		width: 0,
 		height: 1

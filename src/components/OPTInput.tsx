@@ -49,7 +49,7 @@ export default function OTPInput({ setCode, errorMessage }: OTPInputProps) {
 
 const styles = StyleSheet.create({
     mainContainer : {
-        
+        marginTop: 20,
     },
     container: {
 /*     borderWidth : 1, */
@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
     gap : 5
   },
   enterOTP: {
+    marginBottom: 8,
     fontWeight: 500
   },
   alert: {

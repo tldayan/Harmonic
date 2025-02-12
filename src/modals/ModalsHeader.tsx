@@ -1,20 +1,21 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import CloseIcon from "../assets/icons/close.svg"
+import CloseIconDark from "../assets/icons/close-dark.svg"
+import CloseIconLight from "../assets/icons/close-light.svg"
+import CustomButton from '../components/CustomButton'
 
 interface ModalsHeaderProps {
     title : string,
     onClose: () => void
+    lightCloseIcon?: boolean 
 }
 
 
-export default function ModalsHeader({title, onClose}: ModalsHeaderProps) {
+export default function ModalsHeader({title, onClose, lightCloseIcon}: ModalsHeaderProps) {
   return (
     <View style={styles.headerContainer}>
         <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <CloseIcon />
-        </TouchableOpacity>
+        <CustomButton buttonStyle={styles.closeButton} onPress={onClose} icon={lightCloseIcon ? <CloseIconLight /> : <CloseIconDark /> } />
     </View>
   )
 }

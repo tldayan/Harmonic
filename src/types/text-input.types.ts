@@ -9,12 +9,12 @@ export type ErrorMessageType = {
 
 
 export type CustomTextInputFieldProps = {
-    label: string
+    label?: string
     value: string
     onChangeText: (text:string) => void
     placeholder?: string
     secureTextEntry?: boolean,
-    labelStyle: object,
+    labelStyle?: object,
     inputStyle?: object,
     errorMessage?: string
     setErrorMessage?: React.Dispatch<React.SetStateAction<ErrorMessageType>>;
@@ -26,5 +26,6 @@ export type CustomTextInputFieldProps = {
     modalOpen?: boolean
     password?: string
     confirmedPassword?: string
-    
+    onPress?: () => void
+    multiline?: boolean
 }

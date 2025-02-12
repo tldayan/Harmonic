@@ -24,7 +24,9 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
       countryCode,
       setCountryCode,
       password,
-      confirmedPassword
+      confirmedPassword,
+      onPress,
+      multiline
     },
     ref 
   ) => {
@@ -73,7 +75,9 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
           
           )}
           <TextInput
+            onPress={onPress}
             ref={ref}
+            multiline={multiline}
             inputMode={inputMode}
             value={value}
             onChangeText={handleTextChange}
@@ -96,7 +100,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
           {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
         </View>
 
-        <CustomModal fullScreen isOpen={isDropdownVisible}>
+        <CustomModal fullScreen={true} isOpen={isDropdownVisible}>
           <CountryCodes setIsDropdownVisible={setIsDropdownVisible} setCountryCode={setCountryCode || (() => {})} />
         </CustomModal>
         {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
@@ -107,14 +111,16 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+/*     borderWidth: 2, */
+    flexGrow: 1
   },
   inputWrapper: {
+/*     borderWidth:1, */
     borderRadius : 50,
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
-    marginTop: 8,
+    width: "100%"
   },
   input: {
     height: 40,
@@ -123,7 +129,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingRight: 40,
-    flex: 1,
+/*     flex: 1, */
   },
   numberInput: {
     borderColor: colors.BORDER_COLOR,

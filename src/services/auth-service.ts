@@ -127,7 +127,7 @@ export const handleLogin = async(email:string, password:string) => {
     }
     console.log(phoneNumber)
     if (phoneNumber === "") {
-      throw new Error("Please a phone number");
+      throw new Error("Please enter a phone number");
     }
   
     const joinedNumber = `+${countryCode}${phoneNumber}`;

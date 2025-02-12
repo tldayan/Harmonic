@@ -6,9 +6,9 @@ import { Platform } from 'react-native';
 import { storeUserToken } from '../services/auth-service';
 import { getOrganizationBasedModules, getUserProfile, getUuidBySignIn } from '../api/network-utils';
 import { saveDataMMKV } from '../services/storage-service';
-import { saveUserProfileToRealm } from '../utils/realmUtils/saveUserProfileToRealm';
+import { saveUserProfileToRealm } from '../database/management/realmUtils/saveUserProfileToRealm';
 import realmInstance from '../services/realm';
-import { saveOrganizationBasedModules } from '../utils/realmUtils/saveOrganizationBasedModules';
+import { saveOrganizationBasedModules } from '../database/management/realmUtils/saveOrganizationBasedModules';
 
 type UserContextType = {
   user: FirebaseAuthTypes.User | null;
@@ -58,7 +58,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           saveDataMMKV({"UserUUID": UserUUID, "OrganizationUUID" : OrganizationUUID})
 
           const [userProfileResposne, OrganizationBasedModulesResponse] =  await Promise.all([getUserProfile(UserUUID), getOrganizationBasedModules(UserUUID, OrganizationUUID)])
-
+          
           saveUserProfileToRealm(userProfileResposne.Payload)
           saveOrganizationBasedModules(OrganizationBasedModulesResponse.Payload)
 
@@ -96,7 +96,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 export const useUser = (): UserContextType => {
   const context = useContext(UserContext);
 
-  if (!context) {
+  if (!context) { 
     throw new Error('useUser must be used within a UserProvider');
   }
 

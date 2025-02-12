@@ -1,7 +1,5 @@
-import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { handleResetPassword } from '../services/auth-service'
 import { CustomTextInput } from '../components/CustomTextInput'
 import { colors } from '../styles/colors'
@@ -55,11 +53,7 @@ export default function ForgotPassword({onClose, email, setEmail, setErrorMessag
 
 
   return (
-    <TouchableWithoutFeedback onPressOut={onClose}>
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.safeArea}>
-        <SafeAreaView>
-            <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
-            <TouchableWithoutFeedback>
+    <TouchableWithoutFeedback onPress={onClose}>
             <View style={styles.container}>
                 <Image style={styles.logo} source={require('../assets/images/Harmonic-Logo-Horizontal-02.png')} />
                 <Text style={styles.title}>Reset Password</Text>
@@ -73,7 +67,7 @@ export default function ForgotPassword({onClose, email, setEmail, setErrorMessag
                 <CustomTextInput ref={emailInputRef} errorMessage={errorMessage} labelStyle={styles.inputLabel} inputStyle={styles.inputField} label='Email' value={email} onChangeText={(e) => setEmail(e)} />
                 {emailSent && <Text style={styles.success}>Link to reset your password has been sent to the above email address. The link will expire in 15 minutes.</Text>}
                 {emailSent && <TouchableOpacity onPress={initializeResetPassword}><Text style={styles.resend}>Resend link</Text></TouchableOpacity>}
-                <CustomButton textStyle={{fontWeight: 500,color : "#FFFFFF"}} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: 0}]} title={!loading ? 'Reset Password' : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} onPress={initializeResetPassword} />
+                <CustomButton textStyle={{fontWeight: 500,color : "#FFFFFF"}} buttonStyle={PRIMARY_BUTTON_STYLES} title={!loading ? 'Reset Password' : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} onPress={initializeResetPassword} />
                 <View style={styles.supportContainer}>
                     <Text style={styles.support}>If you still need help, contact</Text>
                     <TouchableOpacity onPress={() => {}}>
@@ -81,26 +75,11 @@ export default function ForgotPassword({onClose, email, setEmail, setErrorMessag
                     </TouchableOpacity>
                 </View>
             </View>
-            </TouchableWithoutFeedback>
-            </ScrollView>
-        </SafeAreaView>
-    </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   )
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        flexGrow: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-    },
-    scrollView: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     container : {
         backgroundColor: "white",
         borderRadius: 50,
@@ -123,6 +102,7 @@ const styles = StyleSheet.create({
         color : colors.LIGHT_TEXT_COLOR,
         fontWeight : 500,
         fontSize: 14,
+        marginBottom: 8
     },
     inputField : {
         borderRadius: 50,

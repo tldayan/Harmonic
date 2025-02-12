@@ -11,10 +11,13 @@ type Props = NativeStackScreenProps<RootStackParamList, "Hero">;
 export default function HeroScreen({navigation}: Props) {
   return (
     <View style={styles.container}>
-      <View style={styles.bar} />
-      <Text style={styles.heading}>We invest in the world’s potential</Text>
-      <Text style={styles.subHeading}>Be a part of a community you could only dream of.</Text>
-      <CustomButton iconPosition='right' buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: 0,backgroundColor : "#EF863C", height: 48, width: 151, borderWidth: 1, borderColor: "#B4652E"}]} textStyle={{fontWeight : 500, fontSize: 16, color: "white"}} onPress={() => {navigation.navigate("Auth")}} title="Learn more" icon={<Image height={10} width={10} source={require("../../assets/images/arrow-right.png")} />} />
+      <View style={styles.subHeadingContainer}>
+        <View style={styles.bar} />
+        <Text style={styles.heading}>We invest in the world’s potential</Text>
+        <Text style={styles.subHeading}>Be a part of a community you could only dream of.</Text>
+        <CustomButton iconPosition='right' buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: 0,backgroundColor : "#EF863C", height: 48, width: 151, borderWidth: 1, borderColor: "#B4652E"}]} textStyle={{fontWeight : 500, fontSize: 16, color: "white"}} onPress={() => {navigation.navigate("Auth")}} title="Learn more" icon={<Image height={10} width={10} source={require("../../assets/images/arrow-right.png")} />} />
+      </View>
+      
       <View style={styles.socialsContainer}>
         <Text style={styles.featured}>FEATURED IN</Text>
         <View style={styles.youtubeContainer}>
@@ -28,7 +31,6 @@ export default function HeroScreen({navigation}: Props) {
         </View>
       </View>
       
-      
     </View>
   )
 }
@@ -39,7 +41,9 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor : "white",
         alignItems: "center",
-        paddingHorizontal: 16,
+        justifyContent: "space-around",
+        paddingHorizontal: 32,
+        paddingBottom: 32
     },
     bar: {
         marginTop: 20,
@@ -54,6 +58,9 @@ const styles = StyleSheet.create({
         fontSize: 36,
         textAlign: "center",
         marginBottom: 24,
+    },
+    subHeadingContainer : {
+        alignItems: "center"
     },
     subHeading: {
         color: colors.LIGHT_TEXT_COLOR,

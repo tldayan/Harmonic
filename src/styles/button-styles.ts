@@ -1,5 +1,5 @@
 import { colors } from "./colors";
-import { ViewStyle } from "react-native";
+import { TextStyle, ViewStyle } from "react-native";
 
 export const PRIMARY_BUTTON_STYLES: ViewStyle = {
     height: 41,
@@ -10,4 +10,9 @@ export const PRIMARY_BUTTON_STYLES: ViewStyle = {
     backgroundColor: colors.PRIMARY_COLOR,
     flexDirection: "row",
     gap: 8
+}
+
+export const PRIMARY_BUTTON_TEXT_STYLES: TextStyle = {
+    fontWeight: 500,
+	color : "#FFFFFF"
 }
