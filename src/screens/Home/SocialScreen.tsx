@@ -6,17 +6,18 @@ import { CustomTextInput } from '../../components/CustomTextInput'
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import PostItem from '../../components/PostItem'
-import { shadowStyles } from '../../styles/global-styles'
 import { CustomModal } from '../../components/CustomModal'
-import CreatePost from '../../modals/CreatePost'
-import DeletePost from '../../modals/DeletePost'
+import CreatePost from '../../modals/Post/CreatePost'
+import DeletePost from '../../modals/Post/DeletePost'
 import ImageView from '../../modals/ImageView'
+import { CreatingPostState } from '../../types/post-types'
+import { categories } from '../../modals/Post/constants'
 
 
 export default function SocialScreen() {
 
   const {user} = useUser()
-  const [creatingPost, setCreatingPost] = useState({state: false, action: ""})
+  const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})
   const [isDeletingPost, setIsDeletingPost] = useState(true)
   const [viewingImageUrl, setViewingImageUrl] = useState("")
   
@@ -32,7 +33,7 @@ export default function SocialScreen() {
               />
             )}
 
-            <CustomTextInput onPress={() => setCreatingPost({state: true, action: ""})} onChangeText={() => {}} value={""} inputStyle={styles.postInput} placeholder={`What’s on your mind, ${user?.displayName}?`} placeholderTextColor={colors.LIGHT_TEXT} />
+            <CustomButton buttonStyle={styles.postInputButton} textStyle={styles.placeholderText} title={`What’s on your mind, ${user?.displayName}?`} onPress={() => setCreatingPost({state: true, action: ""})} />
             <CustomButton buttonStyle={styles.postActionsButton} textStyle={styles.postActionText} title={""} onPress={() => setCreatingPost({state: true, action: "media"})} icon={<Image source={require("../../assets/images/frame.png")} />} />
           </View>
 
@@ -48,12 +49,11 @@ export default function SocialScreen() {
 
         <View style={styles.mainCategoryButtonsContainer}>
           <ScrollView scrollEnabled horizontal contentContainerStyle={styles.categoryButtonsContainer} indicatorStyle='black' showsHorizontalScrollIndicator={true}>
-            <CustomButton buttonStyle={styles.categoryButton} textStyle={styles.categoryText} title={"All"} onPress={() => {}} />
-            <CustomButton buttonStyle={styles.categoryButton} textStyle={styles.categoryText} title={"Event"} onPress={() => {}} />
-            <CustomButton buttonStyle={styles.categoryButton} textStyle={styles.categoryText} title={"Survery/Polls"} onPress={() => {}} />
-            <CustomButton buttonStyle={styles.categoryButton} textStyle={styles.categoryText} title={"News & update"} onPress={() => {}} />
-            <CustomButton buttonStyle={styles.categoryButton} textStyle={styles.categoryText} title={"Promotions"} onPress={() => {}} />
-            <CustomButton buttonStyle={styles.categoryButton} textStyle={styles.categoryText} title={"General"} onPress={() => {}} />
+          {categories.map((eachCategory) => {
+                        return (
+                            <CustomButton key={eachCategory.value} buttonStyle={styles.categoryButton} textStyle={styles.categoryText} title={eachCategory.title} onPress={() => {}} />
+                        )
+                    })}
           </ScrollView>
         </View>
 
@@ -63,7 +63,7 @@ export default function SocialScreen() {
         <PostItem setViewingImageUrl={setViewingImageUrl} user={user} />
         
         <CustomModal fullScreen onClose={() => setCreatingPost({state: false, action: ""})} isOpen={creatingPost.state}>
-          <CreatePost onClose={() => setCreatingPost({state: false, action: ""})} />
+          <CreatePost creatingPost={creatingPost} onClose={() => setCreatingPost({state: false, action: ""})} />
         </CustomModal>
 
         <CustomModal onClose={() => setIsDeletingPost(false)} isOpen={isDeletingPost}>
@@ -106,18 +106,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-/*     paddingVertical: 10, */
   },
-  postInput: {
-    borderRadius: 50,
-/* 		backgroundColor: "#F0F2F5", */
-		borderStyle: "solid",
-		borderColor: colors.BORDER_COLOR,
-		borderWidth: 0,
+  postInputButton: {
+    flexDirection :"row",
+    alignItems :"center",
     flex: 1,
-		height: 42,
-		color: "black",
-  }, 
+    height: 42,
+    justifyContent: "flex-start",
+},
+placeholderText: {
+    color: colors.LIGHT_TEXT,  // Placeholder color
+    fontSize: 14, // Adjust font size to match TextInput
+},
+
   profilePicture: {
     width: 34,
     height: 34,

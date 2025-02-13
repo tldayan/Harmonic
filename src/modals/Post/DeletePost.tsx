@@ -1,9 +1,9 @@
 import { Image, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
 import React from 'react'
-import CustomButton from '../components/CustomButton'
-import { colors } from '../styles/colors'
-import ModalsHeader from './ModalsHeader'
-import { useUser } from '../context/AuthContext'
+import CustomButton from '../../components/CustomButton'
+import { colors } from '../../styles/colors'
+import ModalsHeader from '../ModalsHeader'
+import { useUser } from '../../context/AuthContext'
 
 
 interface DeletePostProps {
@@ -21,7 +21,7 @@ export default function DeletePost({onClose}: DeletePostProps) {
     <View style={styles.container}>
         <ModalsHeader onClose={onClose} title='' />
         <View style={styles.innerContainer}>
-            <Image style={styles.trash} source={require("../assets/images/trash.png")} />
+            <Image style={styles.trash} source={require("../../assets/images/trash.png")} />
             <Text style={styles.notice}><Text style={styles.name}>@{user?.displayName}</Text>, are you sure you want to reject this product from platform?</Text>
             <Text style={styles.warning}>Please, rethink your decision because you will not be able to undo this action.</Text>
         

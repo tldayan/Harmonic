@@ -28,4 +28,5 @@ export type CustomTextInputFieldProps = {
     confirmedPassword?: string
     onPress?: () => void
     multiline?: boolean
+    scrollEnabled?: boolean
 }

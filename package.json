@@ -19,6 +19,7 @@
     "@realm/react": "^0.11.0",
     "react": "18.3.1",
     "react-native": "0.77.0",
+    "react-native-image-picker": "^8.0.0",
     "react-native-keychain": "^9.2.2",
     "react-native-mmkv-storage": "^0.11.2",
     "react-native-otp-entry": "^1.8.2",

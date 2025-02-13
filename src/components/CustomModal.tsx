@@ -39,7 +39,7 @@ export const CustomModal: React.FC<Props> = ({ onClose, isOpen, children, fullSc
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.safeArea}>
               <SafeAreaView>
                 <ScrollView 
-                  scrollEnabled={true} 
+                  scrollEnabled={fullScreen ? true : false} 
                   contentContainerStyle={styles.scrollView} 
                   keyboardShouldPersistTaps="handled"
                 >

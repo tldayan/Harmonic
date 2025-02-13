@@ -30,7 +30,7 @@ export default function ImageView({ onClose, imageUrl }: ImageViewProps) {
               styles.image,
               isPortrait ? styles.portraitImage : styles.landscapeImage
             ]}
-            source={{ uri: imageUrl }}
+            source={{ uri: imageUrl ? imageUrl : undefined }}
           />
         </View>
       </View>

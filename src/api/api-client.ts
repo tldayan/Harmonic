@@ -36,7 +36,13 @@ export const apiClient = async(url: string, bodyData: object, options: RequestIn
         throw new Error(`error: ${response.status}`)
     }
 
-    return response.json()
+    const data = await response.json();
+
+    return {
+        ok: response.ok, 
+        status: response.status, 
+        data, 
+    };
 
 }
 

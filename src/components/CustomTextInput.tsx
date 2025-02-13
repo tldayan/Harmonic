@@ -26,7 +26,8 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
       password,
       confirmedPassword,
       onPress,
-      multiline
+      multiline,
+      scrollEnabled
     },
     ref 
   ) => {
@@ -76,6 +77,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
           )}
           <TextInput
             onPress={onPress}
+            scrollEnabled={scrollEnabled}
             ref={ref}
             multiline={multiline}
             inputMode={inputMode}

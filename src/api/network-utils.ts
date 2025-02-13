@@ -81,7 +81,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
       const response = await apiClient(ENDPOINTS.AUTH.SIGN_IN, transformFirebaseUser(authUser), {}, 'POST');
 
-      return {UserUUID: response.Payload.UserUUID, OrganizationUUID: response.Payload.OrganizationUUID}
+      return {UserUUID: response.data.Payload.UserUUID, OrganizationUUID: response.data.Payload.OrganizationUUID}
 
     } catch (error) {
       console.log("Error fetching organization based modules")
