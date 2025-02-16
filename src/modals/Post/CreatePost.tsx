@@ -32,6 +32,13 @@ export default function CreatePost({onClose, creatingPost}: CreatePostProps) {
     const [postCategory, setPostCategory] = useState("all")
     const [creatingPoll, setCreatingPoll] = useState(false)
 
+
+    const handlePostClose = () => {
+        setTimeout(() => {
+            onClose()
+        }, 0)
+    }
+
     useEffect(() => {
         
 
@@ -172,8 +179,8 @@ export default function CreatePost({onClose, creatingPost}: CreatePostProps) {
             <ImageView imageUrl={viewingImageUrl} onClose={() => setViewingImageUrl("")} />
         </CustomModal>
         
-        <CustomModal fullScreen isOpen={creatingPoll} onClose={() => setCreatingPoll(false)} >
-            <Poll onClose={() => setCreatingPoll(false)} />
+        <CustomModal fullScreen isOpen={creatingPoll} >
+            <Poll onClose={() => {setCreatingPoll(false)}} closeAllModals={() => {setCreatingPoll(false); handlePostClose()}} />
         </CustomModal>
 
     </SafeAreaView>

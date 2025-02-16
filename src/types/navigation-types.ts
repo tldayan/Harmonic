@@ -12,10 +12,14 @@ export type ProfileStackParamList = {
 }
 
 export type TabParamList = {
-    Social: undefined
-    Assets: undefined
-    Tasks: undefined
-    Stores: undefined
-    Chat: undefined
-    More: undefined // Modules
-}
+    Social: { 
+        question?: string | null; 
+        options?: { optionId: number; value: string; errorMessage: string }[] | null 
+    };
+    Assets: undefined;
+    Tasks: undefined;
+    Stores: undefined;
+    Chat: undefined;
+    More: undefined; // Modules
+};
+

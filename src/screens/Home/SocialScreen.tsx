@@ -1,8 +1,7 @@
 import { Button, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useUser } from '../../context/AuthContext'
 import { handleSignOut } from '../../services/auth-service'
-import { CustomTextInput } from '../../components/CustomTextInput'
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import PostItem from '../../components/PostItem'
@@ -12,15 +11,34 @@ import DeletePost from '../../modals/Post/DeletePost'
 import ImageView from '../../modals/ImageView'
 import { CreatingPostState } from '../../types/post-types'
 import { categories } from '../../modals/Post/constants'
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { TabParamList } from '../../types/navigation-types'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-
+ 
 export default function SocialScreen() {
+
+  const route = useRoute<RouteProp<TabParamList, 'Social'>>(); 
 
   const {user} = useUser()
   const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})
-  const [isDeletingPost, setIsDeletingPost] = useState(true)
+  const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [viewingImageUrl, setViewingImageUrl] = useState("")
+  const {question, options} = route?.params ?? {}
+  const navigation = useNavigation<NativeStackNavigationProp<TabParamList>>();
+  console.log(question,options)
+
+  useEffect(() => {
+    if(question) {
+      console.log("Sending poll req to backend")
+    }
+
+      console.log("clear poll params")
+      navigation.setParams({ question: null, options: null });
+
+  }, [route?.params?.question]);
   
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

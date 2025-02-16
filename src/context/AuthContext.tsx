@@ -59,8 +59,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
           const [userProfileResposne, OrganizationBasedModulesResponse] =  await Promise.all([getUserProfile(UserUUID), getOrganizationBasedModules(UserUUID, OrganizationUUID)])
           
-          saveUserProfileToRealm(userProfileResposne.Payload)
-          saveOrganizationBasedModules(OrganizationBasedModulesResponse.Payload)
+          saveUserProfileToRealm(userProfileResposne?.data)
+          saveOrganizationBasedModules(OrganizationBasedModulesResponse?.data)
 
           const userProfile = realmInstance.objects('UserProfile')[0]; 
           console.log("Saved UserProfile from Realm:", userProfile?.toJSON());

@@ -11,6 +11,7 @@ export default function Notifications({onClose}: NotificationsProps) {
   return (
             <SafeAreaView style={styles.container}>
                 <ModalsHeader title='Notifications' lightCloseIcon={false} onClose={onClose} />
+                
                 <Text>notis</Text>
                 <Text>notis</Text>
                 <Text>notis</Text>
