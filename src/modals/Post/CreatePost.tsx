@@ -31,6 +31,7 @@ export default function CreatePost({onClose, creatingPost}: CreatePostProps) {
     const [viewingImageUrl, setViewingImageUrl] = useState("")
     const [postCategory, setPostCategory] = useState("all")
     const [creatingPoll, setCreatingPoll] = useState(false)
+    const [link, setLink] = useState("")
 
 
     const handlePostClose = () => {
@@ -152,6 +153,14 @@ export default function CreatePost({onClose, creatingPost}: CreatePostProps) {
             
             <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedImages} renderItem={imageItem} keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddImageButton />} />
             
+
+
+            {/* <CustomTextInput onChangeText={(e) => setLink(e)} value={link} inputStyle={styles.linkField} onPress={() => {}} label='Link' /> */}
+       {/*      <View>
+                <Text>Link Metadata</Text>
+            </View> */}
+
+
             <View style={styles.mainActionButtonsContainer}>
                 <ScrollView scrollEnabled horizontal contentContainerStyle={styles.actionButtonsContainer} indicatorStyle='black' showsHorizontalScrollIndicator>
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => handleAddMedia()} title={"Add Media"} icon={<Image width={5} height={5} source={require("../../assets/images/frame.png")} />} />
@@ -231,8 +240,13 @@ const styles = StyleSheet.create({
         /* height: "100%", */
         textAlignVertical: "top",
       },
-
-      
+      linkField: {
+        borderColor: colors.ACCENT_COLOR,
+        flex: 1,
+        height: "auto",
+        padding: 3,
+        color: colors.ACTIVE_ACCENT_COLOR
+      },
 
       mainCategoryButtonsContainer: {
           marginVertical: 5,

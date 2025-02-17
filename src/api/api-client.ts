@@ -37,7 +37,7 @@ export const apiClient = async(url: string, bodyData: object, options: RequestIn
     }
 
     const data = await response.json();
-
+    console.log(data)
     return {
         ok: response.ok, 
         status: response.status, 

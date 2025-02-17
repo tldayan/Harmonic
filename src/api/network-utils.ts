@@ -88,3 +88,39 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
       return { UserUUID: null, OrganizationUUID: null }
     }
   }
+
+
+  export const getMBMessages = async(userUUID: string, organizationUUID: string) => {
+    try {
+      const bodyData = {
+        "organizationUUID": organizationUUID,
+        "loggedInUserUUID": userUUID,
+        "categoryItemUUIds": [],
+        "isPrivate": false,
+        "startIndex": 0,
+        "pageSize": 10
+      }
+
+      const response = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGES, bodyData,{} ,"POST")
+
+      return response.data.Payload
+
+    } catch(err) {
+      console.error(err)
+    }
+
+  }
+
+  export const getMBMessageAttacment = async(messageBoardUUID: string) => {
+
+  try {
+
+    const attachmentData = await apiClient(ENDPOINTS.SOCIAL.MBATTACHMENTS,{},{},"GET", {messageBoardUUID}) 
+
+    return attachmentData.data.Payload
+
+  } catch(err) {
+    console.error(err)
+  }
+
+  }

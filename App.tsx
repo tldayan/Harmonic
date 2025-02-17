@@ -6,23 +6,27 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { UserProvider } from './src/context/AuthContext';
 import { CustomSafeAreaView } from './src/components/CustomSafeAreaView';
 import { RealmProvider } from '@realm/react';
+import { Provider } from 'react-redux';
+import { store } from './src/store/store';
 
 function App(): React.JSX.Element {
   return (
-  <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, flexGrow : 1 }}>
-    <CustomSafeAreaView>   
-      <RealmProvider>     
-        <UserProvider>
-          <SafeAreaProvider>
-            <NavigationContainer>
-              <StatusBar translucent barStyle="dark-content" backgroundColor="white" />
-                <RootNavigator />
-            </NavigationContainer>
-          </SafeAreaProvider>
-        </UserProvider>
-      </RealmProvider>
-    </CustomSafeAreaView>
-  </KeyboardAvoidingView>
+  <Provider store={store}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, flexGrow : 1 }}>
+      <CustomSafeAreaView>   
+        <RealmProvider>     
+          <UserProvider>
+            <SafeAreaProvider>
+              <NavigationContainer>
+                <StatusBar translucent barStyle="dark-content" backgroundColor="white" />
+                  <RootNavigator />
+              </NavigationContainer>
+            </SafeAreaProvider>
+          </UserProvider>
+        </RealmProvider>
+      </CustomSafeAreaView>
+    </KeyboardAvoidingView>
+  </Provider>
   );
 }
 

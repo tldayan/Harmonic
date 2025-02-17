@@ -1,4 +1,4 @@
-import { Button, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Button, FlatList, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useUser } from '../../context/AuthContext'
 import { handleSignOut } from '../../services/auth-service'
@@ -9,12 +9,14 @@ import { CustomModal } from '../../components/CustomModal'
 import CreatePost from '../../modals/Post/CreatePost'
 import DeletePost from '../../modals/Post/DeletePost'
 import ImageView from '../../modals/ImageView'
-import { CreatingPostState } from '../../types/post-types'
+import { CreatingPostState, PostItemProps } from '../../types/post-types'
 import { categories } from '../../modals/Post/constants'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { TabParamList } from '../../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-
+import { getMBMessages } from '../../api/network-utils'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../store/store'
  
 export default function SocialScreen() {
 
@@ -24,10 +26,10 @@ export default function SocialScreen() {
   const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})
   const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [viewingImageUrl, setViewingImageUrl] = useState("")
+  const [socialMessages, setSocialMessages] = useState<PostItemProps[]>([]);
   const {question, options} = route?.params ?? {}
   const navigation = useNavigation<NativeStackNavigationProp<TabParamList>>();
-  console.log(question,options)
-
+  const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
   useEffect(() => {
     if(question) {
       console.log("Sending poll req to backend")
@@ -38,67 +40,98 @@ export default function SocialScreen() {
 
   }, [route?.params?.question]);
   
+  useEffect(() => {
+  
+    
+    const fetchMBMessages = async() => {
+      const allMBMessages = await getMBMessages(userUUID, organizationUUID)
+      console.log(allMBMessages)
+      setSocialMessages(allMBMessages)
+    }
+    if(userUUID&& organizationUUID) {
+      fetchMBMessages()
+    }
+    
+
+  }, [])
 
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.createPostContainer}>
-          <View style={styles.postInputContainer}>
-              {user?.photoURL && (
-              <Image 
-                source={{ uri: user.photoURL }} 
-                style={styles.profilePicture} 
-              />
+    <View style={{ flex: 1 }}>
+        <FlatList
+            ListHeaderComponent={
+                <View style={styles.container}>
+                    <View style={styles.createPostContainer}>
+                        <View style={styles.postInputContainer}>
+                            {user?.photoURL && (
+                                <Image 
+                                    source={{ uri: user.photoURL }} 
+                                    style={styles.profilePicture} 
+                                />
+                            )}
+
+                            <CustomButton 
+                                buttonStyle={styles.postInputButton} 
+                                textStyle={styles.placeholderText} 
+                                title={`What’s on your mind, ${user?.displayName}?`} 
+                                onPress={() => setCreatingPost({ state: true, action: "" })} 
+                            />
+                            <CustomButton 
+                                buttonStyle={styles.postActionsButton} 
+                                textStyle={styles.postActionText} 
+                                title={""} 
+                                onPress={() => setCreatingPost({ state: true, action: "media" })} 
+                                icon={<Image source={require("../../assets/images/frame.png")} />} 
+                            />
+                        </View>
+                    </View>
+
+                    <View style={styles.mainCategoryButtonsContainer}>
+                        <ScrollView 
+                            scrollEnabled 
+                            horizontal 
+                            contentContainerStyle={styles.categoryButtonsContainer} 
+                            indicatorStyle="black" 
+                            showsHorizontalScrollIndicator={true}
+                        >
+                            {categories.map((eachCategory) => (
+                                <CustomButton 
+                                    key={eachCategory.value} 
+                                    buttonStyle={styles.categoryButton} 
+                                    textStyle={styles.categoryText} 
+                                    title={eachCategory.title} 
+                                    onPress={() => {}} 
+                                />
+                            ))}
+                        </ScrollView>
+                    </View>
+                </View>
+            }
+            data={socialMessages}
+            renderItem={({ item }) => (
+                <PostItem setViewingImageUrl={setViewingImageUrl} post={item} />
             )}
+            keyExtractor={(item) => item.MessageBoardUUID}
+        />
 
-            <CustomButton buttonStyle={styles.postInputButton} textStyle={styles.placeholderText} title={`What’s on your mind, ${user?.displayName}?`} onPress={() => setCreatingPost({state: true, action: ""})} />
-            <CustomButton buttonStyle={styles.postActionsButton} textStyle={styles.postActionText} title={""} onPress={() => setCreatingPost({state: true, action: "media"})} icon={<Image source={require("../../assets/images/frame.png")} />} />
-          </View>
-
-         {/*  <View style={styles.seperator} /> */}
-
-          {/* <ScrollView scrollEnabled contentContainerStyle={styles.postActionsContainer} horizontal showsHorizontalScrollIndicator={false}>
-            <CustomButton buttonStyle={styles.postActionsButton} textStyle={styles.postActionText} title={"Photos/video"} onPress={() => setCreatingPost({state: true, action: "media"})} icon={<Image source={require("../../assets/images/frame.png")} />} />
-            <CustomButton buttonStyle={styles.postActionsButton} textStyle={styles.postActionText} title={"Link"} onPress={() => {}} icon={<Image source={require("../../assets/images/link.png")} />} />
-            <CustomButton buttonStyle={styles.postActionsButton} textStyle={styles.postActionText} title={"Survey/poll"} onPress={() => {}} icon={<Image source={require("../../assets/images/ordored-list.png")} />} />
-            <CustomButton buttonStyle={styles.postActionsButton} textStyle={styles.postActionText} title={"Live event"} onPress={() => {}} icon={<Image source={require("../../assets/images/calendar.png")} />} />
-          </ScrollView> */}
-        </View>
-
-        <View style={styles.mainCategoryButtonsContainer}>
-          <ScrollView scrollEnabled horizontal contentContainerStyle={styles.categoryButtonsContainer} indicatorStyle='black' showsHorizontalScrollIndicator={true}>
-          {categories.map((eachCategory) => {
-                        return (
-                            <CustomButton key={eachCategory.value} buttonStyle={styles.categoryButton} textStyle={styles.categoryText} title={eachCategory.title} onPress={() => {}} />
-                        )
-                    })}
-          </ScrollView>
-        </View>
-
-          
-        <PostItem setViewingImageUrl={setViewingImageUrl} user={user} />
-        <PostItem setViewingImageUrl={setViewingImageUrl} user={user} />
-        <PostItem setViewingImageUrl={setViewingImageUrl} user={user} />
-        
-        <CustomModal fullScreen onClose={() => setCreatingPost({state: false, action: ""})} isOpen={creatingPost.state}>
-          <CreatePost creatingPost={creatingPost} onClose={() => setCreatingPost({state: false, action: ""})} />
+        <CustomModal fullScreen onClose={() => setCreatingPost({ state: false, action: "" })} isOpen={creatingPost.state}>
+            <CreatePost creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
         </CustomModal>
 
         <CustomModal onClose={() => setIsDeletingPost(false)} isOpen={isDeletingPost}>
-          <DeletePost onClose={() => setIsDeletingPost(false)} />
+            <DeletePost onClose={() => setIsDeletingPost(false)} />
         </CustomModal>
-        
+
         <CustomModal onClose={() => setViewingImageUrl("")} isOpen={viewingImageUrl.length > 0}>
             <ImageView onClose={() => setViewingImageUrl("")} imageUrl={viewingImageUrl} />
         </CustomModal>
 
-
-      <Text>
-        HOME SCREEN {user ? user.email : 'No user signed in'}
-      </Text>
-      <Button title='Sign Out' onPress={handleSignOut} />
-    </ScrollView>
-  )
+        <Text>
+            HOME SCREEN {user ? user.email : 'No user signed in'}
+        </Text>
+        <Button title="Sign Out" onPress={handleSignOut} />
+    </View>
+)
 }
 
 const styles = StyleSheet.create({
@@ -133,8 +166,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
 },
 placeholderText: {
-    color: colors.LIGHT_TEXT,  // Placeholder color
-    fontSize: 14, // Adjust font size to match TextInput
+    color: colors.LIGHT_TEXT,  
+    fontSize: 14,
 },
 
   profilePicture: {

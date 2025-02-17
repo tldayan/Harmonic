@@ -9,5 +9,9 @@ export const ENDPOINTS = {
   },
   USER: {
     PROFILE: `${BASE_URL}/user/getUserProfile`
+  },
+  SOCIAL: {
+    MBMESSAGES: `${BASE_URL}/social/getMBMessages`,
+    MBATTACHMENTS: `${BASE_URL}/social/getAllMBMessageAttachments`
   }
 };

@@ -9,6 +9,8 @@ import { saveDataMMKV } from '../services/storage-service';
 import { saveUserProfileToRealm } from '../database/management/realmUtils/saveUserProfileToRealm';
 import realmInstance from '../services/realm';
 import { saveOrganizationBasedModules } from '../database/management/realmUtils/saveOrganizationBasedModules';
+import { useDispatch } from 'react-redux';
+import { setUUIDs } from '../store/slices/authSlice';
 
 type UserContextType = {
   user: FirebaseAuthTypes.User | null;
@@ -20,6 +22,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [initializing, setInitializing] = useState(true);
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     // Initialize Google Sign-In
@@ -45,7 +49,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
 
       const userToken = await authUser?.getIdToken(); 
+      
       if(userToken) {
+        console.log(userToken)
         await storeUserToken(userToken)
       }
       
@@ -54,13 +60,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         try {
           const {UserUUID, OrganizationUUID} = await getUuidBySignIn(authUser)
-          
+
+          dispatch(setUUIDs({organizationUUID: OrganizationUUID, userUUID: UserUUID}))
           saveDataMMKV({"UserUUID": UserUUID, "OrganizationUUID" : OrganizationUUID})
 
           const [userProfileResposne, OrganizationBasedModulesResponse] =  await Promise.all([getUserProfile(UserUUID), getOrganizationBasedModules(UserUUID, OrganizationUUID)])
           
-          saveUserProfileToRealm(userProfileResposne?.data)
-          saveOrganizationBasedModules(OrganizationBasedModulesResponse?.data)
+          saveUserProfileToRealm(userProfileResposne?.data.Payload)
+          saveOrganizationBasedModules(OrganizationBasedModulesResponse?.data.Payload)
 
           const userProfile = realmInstance.objects('UserProfile')[0]; 
           console.log("Saved UserProfile from Realm:", userProfile?.toJSON());

@@ -1,29 +1,44 @@
 import { Image, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ThreeDots from "../assets/icons/three-dots-horizontal.svg"
 import CustomButton from './CustomButton'
-import { FirebaseAuthTypes } from '@react-native-firebase/auth'
 import { colors } from '../styles/colors'
 import { shadowStyles } from '../styles/global-styles'
+import { formatDate } from '../utils/helpers'
+import { PostItemProps } from '../types/post-types'
+import { getMBMessageAttacment } from '../api/network-utils'
 
-interface PostItemProps {
-  user: FirebaseAuthTypes.User | null;
-  setViewingImageUrl: (url: string) => void
+interface PostItemChildProps {
+  setViewingImageUrl: (url: string) => void;
+  post: PostItemProps
 }
 
-export default function PostItem({ user, setViewingImageUrl }: PostItemProps) {
+
+export default function PostItem({ post, setViewingImageUrl }: PostItemChildProps) {
+
+  const [attachmentData, setAttachmentData] = useState([])
+
+  useEffect(() => {
+
+    const fetchPostAttachments = async() => {
+      const attachemntDataResponse = await getMBMessageAttacment(post.MessageBoardUUID)
+      setAttachmentData(attachemntDataResponse) 
+    }
+
+    fetchPostAttachments()
+  }, [])
 
 
   return (
     <View style={[styles.mainContainer, shadowStyles]}>
       <View>
         <View style={styles.mainProfileDetialsContainer}>
-        <Image source={{ uri: user?.photoURL ?? "https://i.pravatar.cc/150" }}  style={styles.profilePicture} />
+{/*         <Image source={{ uri: post.ProfilePic ?? "https://i.pravatar.cc/150" }}  style={styles.profilePicture} /> */}
 
           <View style={styles.userNameContainer}>
-              <Text style={styles.name}>Akil Hussain</Text>
+              <Text style={styles.name}>{post.FirstName}</Text>
               <View style={styles.dateContainer}>
-              <Text style={styles.postDate}>7 September 2024 • 12:32</Text>
+              <Text style={styles.postDate}>{formatDate(post.CreatedDateTime)}</Text>
               </View>
           </View>
           
@@ -32,9 +47,9 @@ export default function PostItem({ user, setViewingImageUrl }: PostItemProps) {
         </View>
       </View>
 
-      <Text style={styles.postText}>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Incidunt nulla velit minima. Consectetur quia aspernatur reiciendis dolorem accusamus! Animi voluptatibus illum fuga minus quaerat accusantium odio quam deleniti porro explicabo!</Text>
-      <CustomButton onPress={() => setViewingImageUrl("https://wallpapercat.com/w/full/e/9/4/150403-1080x1920-samsung-1080p-virat-kohli-background-photo.jpg")} buttonStyle={[styles.postImageContainer, shadowStyles]} icon={<Image style={styles.postImage} source={{uri: "https://wallpapercat.com/w/full/e/9/4/150403-1080x1920-samsung-1080p-virat-kohli-background-photo.jpg"}} />} /> 
-      
+      <Text style={styles.postText}>{post.Message}</Text>
+      {/* <CustomButton onPress={() => setViewingImageUrl("https://wallpapercat.com/w/full/e/9/4/150403-1080x1920-samsung-1080p-virat-kohli-background-photo.jpg")} buttonStyle={[styles.postImageContainer, shadowStyles]} icon={<Image style={styles.postImage} source={{uri: attachmentData[0]?.Attachment}} />} />  */}
+      {/* ABOVE */}
      
       <View style={styles.postActionButtonsContainer}>
         <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/like.png")} />} />
