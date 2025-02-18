@@ -12,6 +12,7 @@ export const ENDPOINTS = {
   },
   SOCIAL: {
     MBMESSAGES: `${BASE_URL}/social/getMBMessages`,
-    MBATTACHMENTS: `${BASE_URL}/social/getAllMBMessageAttachments`
+    MBATTACHMENTS: `${BASE_URL}/social/getAllMBMessageAttachments`,
+    MBMESSAGE_DETAILS: `${BASE_URL}/social/getMBMessageDetails`
   }
 };

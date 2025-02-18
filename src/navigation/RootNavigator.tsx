@@ -5,6 +5,7 @@ import TabNavigator from "./TabNavigator"
 import { globalScreenOptions } from "./navigationConfig/globalScreenOptions"
 import { useUser } from "../context/AuthContext"
 import HeroScreen from "../screens/Hero/HeroScreen"
+import CommentsScreen from "../screens/Others/CommentsScreen"
 
 
 export const RootNavigator: React.FC = () => {
@@ -15,7 +16,11 @@ export const RootNavigator: React.FC = () => {
         <Stack.Navigator screenOptions={globalScreenOptions}>
         {
             user ? (
+            <>
                 <Stack.Screen name="Tabs" component={TabNavigator} />
+                <Stack.Screen name="Comments" component={CommentsScreen} options={{animation: "slide_from_right"}} />
+            </>
+
             ): (
             <>
                 <Stack.Screen name="Hero" component={HeroScreen} />

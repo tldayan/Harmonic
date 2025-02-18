@@ -3,12 +3,11 @@ export type RootStackParamList = {
     Tabs: undefined
     Auth: undefined
     Hero: undefined
+    Comments: {postUUID?: string}
 }
 
 export type ProfileStackParamList = {
     Profile: undefined,
-    Wishist: undefined,
-    Reviews: undefined
 }
 
 export type TabParamList = {

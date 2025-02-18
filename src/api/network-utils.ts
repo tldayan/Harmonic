@@ -90,14 +90,14 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const getMBMessages = async(userUUID: string, organizationUUID: string) => {
+  export const getMBMessages = async(userUUID: string, organizationUUID: string, startIndex: number) => {
     try {
       const bodyData = {
         "organizationUUID": organizationUUID,
         "loggedInUserUUID": userUUID,
         "categoryItemUUIds": [],
         "isPrivate": false,
-        "startIndex": 0,
+        "startIndex": startIndex,
         "pageSize": 10
       }
 
@@ -113,14 +113,34 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
   export const getMBMessageAttacment = async(messageBoardUUID: string) => {
 
-  try {
+    try {
 
-    const attachmentData = await apiClient(ENDPOINTS.SOCIAL.MBATTACHMENTS,{},{},"GET", {messageBoardUUID}) 
+      const attachmentData = await apiClient(ENDPOINTS.SOCIAL.MBATTACHMENTS,{},{},"GET", {messageBoardUUID}) 
 
-    return attachmentData.data.Payload
+    if (attachmentData.data.Payload?.length) {
+      return attachmentData.data.Payload;
+    }
 
-  } catch(err) {
-    console.error(err)
+    return undefined;
+
+    } catch(err) {
+      console.error(err)
+    }
+
   }
+
+  
+
+  export const getMBMessageDetails = async(messageBoardUUID: string) => {
+
+    try {
+
+      const messageDetails = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGE_DETAILS, {}, {}, "GET", {messageBoardUUID})
+
+      return messageDetails.data.Payload
+
+    } catch (err) {
+      console.error(err)
+    }
 
   }

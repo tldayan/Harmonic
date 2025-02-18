@@ -31,16 +31,14 @@ export const apiClient = async(url: string, bodyData: object, options: RequestIn
         ...(Object.keys(bodyData).length > 0 ? {body: JSON.stringify(bodyData)} : {})
     })
 
-
-    if(!response.ok) {
+    
+/*     if(!response.ok) {
         throw new Error(`error: ${response.status}`)
-    }
+    } */
 
     const data = await response.json();
-    console.log(data)
+
     return {
-        ok: response.ok, 
-        status: response.status, 
         data, 
     };
 

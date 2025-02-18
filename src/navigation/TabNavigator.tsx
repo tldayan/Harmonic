@@ -1,12 +1,12 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { TabParamList } from "../types/navigation-types";
 import { globalScreenOptions } from "./navigationConfig/globalScreenOptions";
-import StoresScreen from "../screens/Home/StoresScreen";
-import ChatScreen from "../screens/Home/ChatScreen";
-import ModulesScreen from "../screens/Home/MoreScreen";
-import TasksScreen from "../screens/Home/TasksScreen";
-import AssetsScreen from "../screens/Home/AssetsScreen";
-import SocialScreen from "../screens/Home/SocialScreen";
+import StoresScreen from "../screens/Tabs/StoresScreen";
+import ChatScreen from "../screens/Tabs/ChatScreen";
+import ModulesScreen from "../screens/Tabs/MoreScreen";
+import TasksScreen from "../screens/Tabs/TasksScreen";
+import AssetsScreen from "../screens/Tabs/AssetsScreen";
+import SocialScreen from "../screens/Tabs/SocialScreen";
 import SocialIcon from "../assets/icons/social.svg";
 import AssetIcon from "../assets/icons/asset.svg";
 import ChatIcon from "../assets/icons/messages.svg";

@@ -16,25 +16,19 @@ import { PasswordCheck } from "../types/password.types";
 
 
   //APPLY DATE FORMAT 
-  export const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-  
+export const formatDate = (dateString: string) => {
+  console.log(dateString)
+  const date = new Date(dateString);
 
-    const options = {
-      day: 'numeric',    
-      month: 'long',   
-      year: 'numeric',    
-      hour: '2-digit',    
-      minute: '2-digit', 
-    } as const;
-  
+  const options = {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false, 
+    timeZone: "UTC", 
+  } as const;
 
-    const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(date);
-  
-
-    const [dayMonthYear, time] = formattedDate.split(', ');
-  
-    // Format: "7 September 2024 • 12:32"
-    return `${dayMonthYear} • ${time}`;
-  };
-  
+  return new Intl.DateTimeFormat("en-GB", options).format(date);
+};

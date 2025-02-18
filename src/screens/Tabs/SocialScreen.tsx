@@ -27,9 +27,12 @@ export default function SocialScreen() {
   const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [viewingImageUrl, setViewingImageUrl] = useState("")
   const [socialMessages, setSocialMessages] = useState<PostItemProps[]>([]);
+  const [loading, setLoading] = useState(false)
+  const [startIndex, setStartIndex] = useState(0)
   const {question, options} = route?.params ?? {}
   const navigation = useNavigation<NativeStackNavigationProp<TabParamList>>();
   const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
+  
   useEffect(() => {
     if(question) {
       console.log("Sending poll req to backend")
@@ -41,24 +44,31 @@ export default function SocialScreen() {
   }, [route?.params?.question]);
   
   useEffect(() => {
-  
-    
-    const fetchMBMessages = async() => {
-      const allMBMessages = await getMBMessages(userUUID, organizationUUID)
-      console.log(allMBMessages)
-      setSocialMessages(allMBMessages)
-    }
-    if(userUUID&& organizationUUID) {
-      fetchMBMessages()
-    }
-    
-
+    fetchMBMessages()
   }, [])
+
+  const fetchMBMessages = async() => {
+
+      if(loading) return
+
+      setLoading(true)
+
+      try {
+        const allMBMessages = await getMBMessages(userUUID, organizationUUID, startIndex)
+        console.log(allMBMessages)
+        setSocialMessages(prevMessages => [...prevMessages, ...allMBMessages])
+        setStartIndex(prevIndex => prevIndex + 10)
+      } catch(err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+  }
 
 
   return (
-    <View style={{ flex: 1 }}>
-        <FlatList
+    <View style={{ flex: 1}}>
+        <FlatList 
             ListHeaderComponent={
                 <View style={styles.container}>
                     <View style={styles.createPostContainer}>
@@ -107,11 +117,15 @@ export default function SocialScreen() {
                     </View>
                 </View>
             }
+            style={styles.mainPostsContainerList}
+            contentContainerStyle={styles.postsContainerList}
             data={socialMessages}
             renderItem={({ item }) => (
                 <PostItem setViewingImageUrl={setViewingImageUrl} post={item} />
             )}
             keyExtractor={(item) => item.MessageBoardUUID}
+            onEndReached={fetchMBMessages}
+            onEndReachedThreshold={0.5}
         />
 
         <CustomModal fullScreen onClose={() => setCreatingPost({ state: false, action: "" })} isOpen={creatingPost.state}>
@@ -149,6 +163,17 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingTop: 16,
     paddingHorizontal: 12,
+  },
+
+  mainPostsContainerList: {
+/*     borderWidth: 2, */
+    flex: 1,
+  },
+
+  postsContainerList: {
+/*     borderWidth: 2,
+    borderColor: "aqua", */
+    flexGrow: 1,
   },
 
   
@@ -223,9 +248,5 @@ placeholderText: {
     fontSize: 12,
     color: colors.BLACK_TEXT_COLOR
   }
-
-
-
-
 
 })
