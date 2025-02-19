@@ -30,3 +30,26 @@ export interface PostItemProps {
         CategoryItemName: string;          
       }>;
   }
+
+  export interface AttachmentData {
+    MessageBoardAttachmentUUID: string;
+    AttachmentUUID: string;
+    Attachment: string;
+    AttachmentTypeUUID: string;
+    AttachmentType: string;
+    CanBeDownloaded: boolean;
+    AllowDownload: boolean;
+  }
+
+  export interface CommentItemProps {
+    MessageBoardCommentUUID: string;
+    Comment: string;
+    TotalRepliesCount: number;
+    CreatedDateTime: string;
+    CreatedBy: string;
+    UserName: string | null;
+    FirstName: string;
+    LastName: string | null;
+    ProfilePicURL: string;
+  }
+  

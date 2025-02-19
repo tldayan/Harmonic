@@ -1,9 +1,10 @@
+import { AttachmentData } from "./post-types"
 
 export type RootStackParamList = {
     Tabs: undefined
     Auth: undefined
     Hero: undefined
-    Comments: {postUUID?: string}
+    Comments: {postUUID?: string, attachmentData?: AttachmentData[] }
 }
 
 export type ProfileStackParamList = {

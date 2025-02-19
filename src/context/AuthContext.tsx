@@ -70,10 +70,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           saveOrganizationBasedModules(OrganizationBasedModulesResponse?.data.Payload)
 
           const userProfile = realmInstance.objects('UserProfile')[0]; 
-          console.log("Saved UserProfile from Realm:", userProfile?.toJSON());
+/*           console.log("Saved UserProfile from Realm:", userProfile?.toJSON()); */
           
           const modules = realmInstance.objects('OrganizationBasedModules');
-          console.log("Saved Modules from Realm:", modules.toJSON());
+/*           console.log("Saved Modules from Realm:", modules.toJSON()); */
 
 
         } catch (error) {

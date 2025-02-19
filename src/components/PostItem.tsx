@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import CustomButton from './CustomButton'
 import { colors } from '../styles/colors'
 import { shadowStyles } from '../styles/global-styles'
-import { PostItemProps } from '../types/post-types'
+import { AttachmentData, PostItemProps } from '../types/post-types'
 import { getMBMessageAttacment } from '../api/network-utils'
 import { useNavigation } from '@react-navigation/native'
 import { RootStackParamList } from '../types/navigation-types'
@@ -11,24 +11,18 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ProfileHeader from './ProfileHeader'
 
 interface PostItemChildProps {
-  setViewingImageUrl: (url: string) => void;
+  setViewingImageUrl: (url: string) => void
   post: PostItemProps
-}
-interface AttachmentData {
-  MessageBoardAttachmentUUID: string;
-  AttachmentUUID: string;
-  Attachment: string;
-  AttachmentTypeUUID: string;
-  AttachmentType: string;
-  CanBeDownloaded: boolean;
-  AllowDownload: boolean;
+  showProfileHeader: boolean
+  childAttachmentData?: AttachmentData[]
 }
 
-export default function PostItem({ post, setViewingImageUrl }: PostItemChildProps) {
 
-  const [attachmentData, setAttachmentData] = useState<AttachmentData[]>([])
+export default function PostItem({ post, setViewingImageUrl, showProfileHeader, childAttachmentData }: PostItemChildProps) {
+
+  const [attachmentData, setAttachmentData] = useState<AttachmentData[]>(childAttachmentData || [])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
+/*   console.log(post.MessageBoardUUID) */
   useEffect(() => {
     const fetchPostAttachments = async () => {
       try {
@@ -42,8 +36,11 @@ export default function PostItem({ post, setViewingImageUrl }: PostItemChildProp
         console.error("Error fetching attachments:", error);
       }
     };
-  
-    fetchPostAttachments();
+/*     console.log("CHILD ATTACHMENT",childAttachmentData) */
+    if(!childAttachmentData) {
+      fetchPostAttachments();
+    }
+
   }, []);
   
   
@@ -64,15 +61,14 @@ export default function PostItem({ post, setViewingImageUrl }: PostItemChildProp
 
 
   return (
-    <View style={[styles.mainContainer, shadowStyles]}>
+    <View style={[styles.mainContainer]}>
 
-        <TouchableOpacity onPress={() => {}}> 
+        {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
           <ProfileHeader FirstName={post.FirstName} CreatedDateTime={post.CreatedDateTime} ProfilePic={post.ProfilePic} />
-        </TouchableOpacity>
+        </TouchableOpacity>}
 
 
       {post.Message && <Text style={styles.postText}>{post.Message}</Text>}
-      
       
 
       {attachmentData.length >= 1 && <FlatList indicatorStyle='black' horizontal style={styles.mainImagesList} contentContainerStyle={styles.imagesList} data={attachmentData} renderItem={imageItem} keyExtractor={(item) => item.AttachmentUUID} />}
@@ -83,8 +79,8 @@ export default function PostItem({ post, setViewingImageUrl }: PostItemChildProp
         })}
       </ScrollView>
       <View style={styles.postActionButtonsContainer}>
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={post.NoofLikes} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/like.png")} />} />
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={post.NoOfComments} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID})} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/comment.png")} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={post.NoofLikes.toString() || "0"} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/like.png")} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={post.NoOfComments.toString() || "0"} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData})} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/comment.png")} />} />
         <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/share.png")} />} />
       </View>
 
@@ -95,10 +91,13 @@ export default function PostItem({ post, setViewingImageUrl }: PostItemChildProp
 const styles = StyleSheet.create({
 
   mainContainer :{
+    borderBottomColor: "#C8C8C8",
+    borderBottomWidth: 3,
 /*     borderRadius: 24, */
     backgroundColor: "white",
     width: "100%",
-    paddingVertical: 16,
+    paddingBottom: 1,
+    paddingTop: 10,
     paddingHorizontal: 12
   },
   categoryContainerList : {
@@ -128,7 +127,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   mainImagesList : {
-    flex: 1,
+/*     flex: 1, */
     height: 'auto',
     paddingBottom: 10,
   },
@@ -137,6 +136,9 @@ const styles = StyleSheet.create({
     flexGrow: 1
   },
   postText: {
+    fontSize: 13,
+    fontWeight: 300,
+    marginTop: 3,
     paddingTop: 8
   },
   postActionButtonsContainer: {
@@ -154,18 +156,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 5,
     flex: 1,
-    backgroundColor: "#F3F4F6",
-    borderRadius: 50,
+/*     backgroundColor: colors.LIGHT_COLOR,
+    borderRadius: 50, */
     paddingVertical: 4
   },
   postActionButtonText: {
     fontSize: 12,
+    fontWeight:300
   },
   postActionButtonIcon: {
     width: 20,
     height: 20
   }
-
-
 
 })

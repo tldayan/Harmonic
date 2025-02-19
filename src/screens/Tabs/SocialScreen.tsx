@@ -43,9 +43,7 @@ export default function SocialScreen() {
 
   }, [route?.params?.question]);
   
-  useEffect(() => {
-    fetchMBMessages()
-  }, [])
+
 
   const fetchMBMessages = async() => {
 
@@ -54,17 +52,24 @@ export default function SocialScreen() {
       setLoading(true)
 
       try {
-        const allMBMessages = await getMBMessages(userUUID, organizationUUID, startIndex)
-        console.log(allMBMessages)
-        setSocialMessages(prevMessages => [...prevMessages, ...allMBMessages])
-        setStartIndex(prevIndex => prevIndex + 10)
+
+        if(organizationUUID && userUUID) {
+          const allMBMessages = await getMBMessages(userUUID, organizationUUID, startIndex)
+          setSocialMessages(prevMessages => [...prevMessages, ...allMBMessages])
+          setStartIndex(prevIndex => prevIndex + 10)
+        
+        }
+        
+        
       } catch(err) {
         console.error(err)
       } finally {
         setLoading(false)
       }
   }
-
+  useEffect(() => {
+    fetchMBMessages()
+  }, [userUUID, organizationUUID])
 
   return (
     <View style={{ flex: 1}}>
@@ -89,7 +94,6 @@ export default function SocialScreen() {
                             <CustomButton 
                                 buttonStyle={styles.postActionsButton} 
                                 textStyle={styles.postActionText} 
-                                title={""} 
                                 onPress={() => setCreatingPost({ state: true, action: "media" })} 
                                 icon={<Image source={require("../../assets/images/frame.png")} />} 
                             />
@@ -121,7 +125,7 @@ export default function SocialScreen() {
             contentContainerStyle={styles.postsContainerList}
             data={socialMessages}
             renderItem={({ item }) => (
-                <PostItem setViewingImageUrl={setViewingImageUrl} post={item} />
+                <PostItem showProfileHeader={true} setViewingImageUrl={setViewingImageUrl} post={item} />
             )}
             keyExtractor={(item) => item.MessageBoardUUID}
             onEndReached={fetchMBMessages}

@@ -9,10 +9,10 @@ export const colors = {
   RED_SHADE: "#FFEBF1",
   BLACK_TEXT_COLOR: "#111928",
   ACTIVE_ORANGE: "#FF8A4C",
+
   //SOCIALS SCREEN
   DARK_TEXT: "#4D4D4D",
   LIGHT_TEXT: "#7D7D7D",
-
   LIGHT_COLOR:"#F3F4F6"
 
 };

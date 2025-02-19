@@ -144,3 +144,23 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     }
 
   }
+
+  export const getListOfComments =  async(messageBoardUUID: string) => {
+
+    const bodyData = {
+      "messageBoardUUID": `${messageBoardUUID}`,
+      "startIndex": "0",
+      "pageSize": "10"
+    }
+
+    try {
+
+      const comments = await apiClient(ENDPOINTS.SOCIAL.COMMENTS, bodyData , {}, "POST")
+
+      return comments.data.Payload
+
+    } catch (err) {
+      console.error(err)
+    }
+
+  }
