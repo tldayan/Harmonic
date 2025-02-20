@@ -115,9 +115,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end", 
   },
   postImageContainer : {
-/*     borderWidth: 2, */
     marginTop: 10,
-  /*   width: "100%", */
     width: 150,
     height: 150,
   },
@@ -136,7 +134,6 @@ const styles = StyleSheet.create({
     flexGrow: 1
   },
   postText: {
-    fontSize: 13,
     fontWeight: 300,
     marginTop: 3,
     paddingTop: 8

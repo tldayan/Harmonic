@@ -148,7 +148,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   export const getListOfComments =  async(messageBoardUUID: string) => {
 
     const bodyData = {
-      "messageBoardUUID": `${messageBoardUUID}`,
+      "messageBoardUUID": messageBoardUUID,
       "startIndex": "0",
       "pageSize": "10"
     }
@@ -162,5 +162,55 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     } catch (err) {
       console.error(err)
     }
+
+  }
+
+
+  export const getAllCategories = async(organizationUUID: string) => {
+
+    
+    const bodyData = {
+      "OrganizationUUID": organizationUUID,
+      "ParentCategoryUUID": null,
+      "SearchExpression": "",
+      "StartIndex": 0,
+      "PageSize": 0,
+      "ShowInFilter": true
+    }
+
+    try {
+
+      const categories = await apiClient(ENDPOINTS.COMMON.CATEGORIES, bodyData, {}, "POST")
+      /* console.log(categories.data.Payload) */
+      return categories.data.Payload
+
+    } catch(err) {
+      console.error(err)
+    }
+
+  }
+
+
+  export const getCategoryItemsForACategory = async(OragnizationUUID: string,CategoryItemUUId: string) => {
+
+    const bodyData = {
+        "OrganizationUUID": OragnizationUUID,
+        "ParentCategoryItemUUID": "",
+        "CategoryUUID": CategoryItemUUId,
+        "SearchExpression": "",
+        "StartIndex": 0,
+        "PageSize": 5
+    }
+
+    try {
+
+      const categoryItems = await apiClient(ENDPOINTS.COMMON.CATEGORY_ITEMS,  bodyData, {}, "POST")
+
+      return categoryItems.data.Payload
+
+    } catch (err) {
+      console.error(err)
+    }
+    
 
   }

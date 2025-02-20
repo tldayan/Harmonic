@@ -73,7 +73,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 /*           console.log("Saved UserProfile from Realm:", userProfile?.toJSON()); */
           
           const modules = realmInstance.objects('OrganizationBasedModules');
-/*           console.log("Saved Modules from Realm:", modules.toJSON()); */
+          console.log("Saved Modules from Realm:", modules.toJSON());
 
 
         } catch (error) {

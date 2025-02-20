@@ -1,4 +1,4 @@
-import { Button, FlatList, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, Button, FlatList, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useUser } from '../../context/AuthContext'
 import { handleSignOut } from '../../services/auth-service'
@@ -10,13 +10,13 @@ import CreatePost from '../../modals/Post/CreatePost'
 import DeletePost from '../../modals/Post/DeletePost'
 import ImageView from '../../modals/ImageView'
 import { CreatingPostState, PostItemProps } from '../../types/post-types'
-import { categories } from '../../modals/Post/constants'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { TabParamList } from '../../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { getMBMessages } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
+import Filters from '../../modals/Filters'
  
 export default function SocialScreen() {
 
@@ -27,6 +27,8 @@ export default function SocialScreen() {
   const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [viewingImageUrl, setViewingImageUrl] = useState("")
   const [socialMessages, setSocialMessages] = useState<PostItemProps[]>([]);
+  const [filteredMessages, setFilteredMessages] = useState<PostItemProps[]>(socialMessages)
+  const [filtering, setFiltering] = useState<{state: boolean; filters: string[]}>({state: false, filters: []})
   const [loading, setLoading] = useState(false)
   const [startIndex, setStartIndex] = useState(0)
   const {question, options} = route?.params ?? {}
@@ -57,7 +59,6 @@ export default function SocialScreen() {
           const allMBMessages = await getMBMessages(userUUID, organizationUUID, startIndex)
           setSocialMessages(prevMessages => [...prevMessages, ...allMBMessages])
           setStartIndex(prevIndex => prevIndex + 10)
-        
         }
         
         
@@ -67,9 +68,23 @@ export default function SocialScreen() {
         setLoading(false)
       }
   }
+
   useEffect(() => {
     fetchMBMessages()
   }, [userUUID, organizationUUID])
+
+  useEffect(() => {
+    if (filtering.filters.length > 0) {
+      setFilteredMessages(
+        socialMessages.filter((eachMessage) =>
+          eachMessage.AllMBCategoryItems.some((categoryItem) =>
+            filtering.filters.includes(categoryItem.CategoryItemUUID)
+      )));
+
+    } else {
+      setFilteredMessages(socialMessages);
+    }
+  }, [filtering.filters, socialMessages]);
 
   return (
     <View style={{ flex: 1}}>
@@ -84,7 +99,6 @@ export default function SocialScreen() {
                                     style={styles.profilePicture} 
                                 />
                             )}
-
                             <CustomButton 
                                 buttonStyle={styles.postInputButton} 
                                 textStyle={styles.placeholderText} 
@@ -100,39 +114,24 @@ export default function SocialScreen() {
                         </View>
                     </View>
 
-                    <View style={styles.mainCategoryButtonsContainer}>
-                        <ScrollView 
-                            scrollEnabled 
-                            horizontal 
-                            contentContainerStyle={styles.categoryButtonsContainer} 
-                            indicatorStyle="black" 
-                            showsHorizontalScrollIndicator={true}
-                        >
-                            {categories.map((eachCategory) => (
-                                <CustomButton 
-                                    key={eachCategory.value} 
-                                    buttonStyle={styles.categoryButton} 
-                                    textStyle={styles.categoryText} 
-                                    title={eachCategory.title} 
-                                    onPress={() => {}} 
-                                />
-                            ))}
-                        </ScrollView>
+                    <View style={styles.filterButtonsContainer}>
+                      <CustomButton buttonStyle={styles.filterButton} textStyle={styles.filter} onPress={() => setFiltering((prev) => ({...prev, state: true}))} title={`Filters${filtering.filters.length > 0 ? `(${filtering.filters.length})` : ""}`} />
+                      {filtering.filters.length ? <CustomButton textStyle={styles.clearFilter} onPress={() => setFiltering({state: false, filters: []})} title={"Clear Filters"} /> : null}
                     </View>
                 </View>
             }
             style={styles.mainPostsContainerList}
             contentContainerStyle={styles.postsContainerList}
-            data={socialMessages}
+            data={filteredMessages}
             renderItem={({ item }) => (
-                <PostItem showProfileHeader={true} setViewingImageUrl={setViewingImageUrl} post={item} />
+              <PostItem showProfileHeader={true} setViewingImageUrl={setViewingImageUrl} post={item} />
             )}
             keyExtractor={(item) => item.MessageBoardUUID}
             onEndReached={fetchMBMessages}
             onEndReachedThreshold={0.5}
         />
 
-        <CustomModal fullScreen onClose={() => setCreatingPost({ state: false, action: "" })} isOpen={creatingPost.state}>
+        <CustomModal fullScreen isOpen={creatingPost.state}>
             <CreatePost creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
         </CustomModal>
 
@@ -142,6 +141,10 @@ export default function SocialScreen() {
 
         <CustomModal onClose={() => setViewingImageUrl("")} isOpen={viewingImageUrl.length > 0}>
             <ImageView onClose={() => setViewingImageUrl("")} imageUrl={viewingImageUrl} />
+        </CustomModal>
+
+        <CustomModal fullScreen onClose={() => setFiltering((prev) => ({...prev, state: false}))} isOpen={filtering.state}>
+          <Filters filtering={filtering} setFiltering={setFiltering} onClose={() => setFiltering((prev) => ({...prev, state: false}))}  />
         </CustomModal>
 
         <Text>
@@ -160,9 +163,6 @@ const styles = StyleSheet.create({
 		flexGrow: 1
 	},
   createPostContainer : {
-/*     borderWidth: 1, */
-/*     marginTop: 20, *0
-/*     borderRadius: 24, */
     backgroundColor: "white",
     width: "100%",
     paddingTop: 16,
@@ -170,19 +170,15 @@ const styles = StyleSheet.create({
   },
 
   mainPostsContainerList: {
-/*     borderWidth: 2, */
     flex: 1,
   },
 
   postsContainerList: {
-/*     borderWidth: 2,
-    borderColor: "aqua", */
     flexGrow: 1,
   },
 
   
   postInputContainer :  {
-   /*  borderWidth: 1, */
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
@@ -218,11 +214,9 @@ placeholderText: {
   postActionsButton: {
     flexDirection: "row",
     alignItems: "center",
-/*     paddingHorizontal: 8, */
     marginVertical: 5,
     gap: 5,
     alignSelf: "stretch",
-/*     backgroundColor: "red" */
   },
   postActionText: {
     color: colors.DARK_TEXT,
@@ -230,27 +224,21 @@ placeholderText: {
   },
 
 
-  mainCategoryButtonsContainer: {
-/*     borderWidth: 1, */
+  filterButtonsContainer: {
     width: "95%",
     marginTop: 16,
     flexDirection: "row",
-    gap: 20,
+    gap: 5,
+    justifyContent: "flex-end"
   },
-  categoryButtonsContainer: {
-    gap: 10,
-    paddingBottom: 10
+  filter: {
+    color: colors.PRIMARY_COLOR,
   },
-  categoryButton: {
-    backgroundColor: colors.LIGHT_COLOR,
-    paddingHorizontal: 20,
-    paddingVertical: 4,
-    borderRadius: 24,
+  clearFilter: {
+    color: "red"
   },
-  categoryText: {
-    fontWeight: 300,
-    fontSize: 12,
-    color: colors.BLACK_TEXT_COLOR
+  filterButton : {
+/*     marginLeft: "auto" */
   }
 
 })
