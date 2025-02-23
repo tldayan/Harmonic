@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import auth, { FirebaseAuthTypes, getAuth } from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { ANDROID_GOOGLE_CLIENT_ID, IOS_GOOGLE_CLIENT_ID} from '../utils/constants';
 import { Platform } from 'react-native';
@@ -11,6 +11,7 @@ import realmInstance from '../services/realm';
 import { saveOrganizationBasedModules } from '../database/management/realmUtils/saveOrganizationBasedModules';
 import { useDispatch } from 'react-redux';
 import { setUUIDs } from '../store/slices/authSlice';
+import { getApp } from '@react-native-firebase/app';
 
 type UserContextType = {
   user: FirebaseAuthTypes.User | null;
@@ -37,7 +38,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     
 
     // Firebase authentication state change listener
-    const subscriber = auth().onAuthStateChanged( async(authUser) => {
+    const authInstance = getAuth(getApp())
+    const subscriber = authInstance.onAuthStateChanged( async(authUser) => {
       if (!authUser) {
         console.log('No user is logged in'); 
       }

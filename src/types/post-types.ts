@@ -53,3 +53,15 @@ export interface PostItemProps {
     ProfilePicURL: string;
   }
   
+  export interface MessageAttachmentData {
+    Attachment: string,
+    AttachmentType: string, 
+    CanBeDownloaded: boolean,
+    AllowDownload: boolean,
+    IsDeleted: boolean,
+    MessageBoardUUID: string | null,  
+    LoggedInUserUUID: string | null, 
+    AttachmentUUID: string | null, 
+    AttachmentTypeUUID: string | null, 
+    MessageBoardCommentUUID: string | null,
+  }

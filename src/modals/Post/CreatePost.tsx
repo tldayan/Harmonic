@@ -1,4 +1,4 @@
-import { Alert, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import ModalsHeader from '../ModalsHeader'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -13,25 +13,32 @@ import { CreatingPostState } from '../../types/post-types'
 import { CustomModal } from '../../components/CustomModal'
 import ImageView from '../ImageView'
 import { categories } from './constants'
-import { apiClient } from '../../api/api-client'
 import Poll from './CreatePoll'
+import { uploadImages } from './postUtils'
+import { saveMBMessage } from '../../api/network-utils'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../store/store'
+import Filters from '../Filters'
 
 
 interface CreatePostProps {
     onClose: () => void
     creatingPost: CreatingPostState
+    categories: Category[]
 }
 
-export default function CreatePost({onClose, creatingPost}: CreatePostProps) {
+export default function CreatePost({onClose, creatingPost, categories}: CreatePostProps) {
 
     const {user} = useUser()
     const [postText, setPostText] = useState("")
     const inputRef = useRef<any>(null)
     const [selectedImages, setSelectedImages] = useState<Asset[]>([])
     const [viewingImageUrl, setViewingImageUrl] = useState("")
-    const [postCategory, setPostCategory] = useState("all")
+    const [postCategories, setPostCategories] = useState<{state: boolean, categories: string[]}>({state: false, categories:[]})
     const [creatingPoll, setCreatingPoll] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [link, setLink] = useState("")
+    const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth);
 
 
     const handlePostClose = () => {
@@ -78,6 +85,8 @@ export default function CreatePost({onClose, creatingPost}: CreatePostProps) {
                     console.log(`Image Pick Error: ${result.errorMessage}`);
                 } else {
                     setSelectedImages((prev) => ([...prev, ...result.assets ?? []]));
+                    
+                    
                     console.log(result.assets)
                 }
             } catch (error) {
@@ -110,29 +119,23 @@ export default function CreatePost({onClose, creatingPost}: CreatePostProps) {
 
     const handlePost = async() => {
 
-        const formData = new FormData()
-
-        formData.append("postText", postText)
-
-        selectedImages.forEach((image) => {
-            formData.append("images", {
-                uri: image.uri,
-                type: image.type,
-                name: image.fileName
-            })
-        })
+        setLoading(true)
 
         try {
 
-            const response = await apiClient("/backendUrlForPostingUserPost", formData, {}, "POST") // may need to send queryParams here, Check!
+        const imageUrls = await uploadImages(selectedImages)
 
-            if(response.data.ok) {
-                onClose() // create setLoading state heree
+
+        const response = await saveMBMessage(postText,imageUrls, organizationUUID, userUUID, postCategories.categories)
+
+            if(response === "Message created successfully") {
+                onClose()
             }
-            
 
         } catch (err: any) {
-            console.log(err.message)
+            console.error(err.message)
+        } finally {
+            setLoading(false)
         }
 
     }
@@ -160,6 +163,12 @@ export default function CreatePost({onClose, creatingPost}: CreatePostProps) {
                 <Text>Link Metadata</Text>
             </View> */}
 
+            <ScrollView>
+                {postCategories.categories.map((eachCategory) => {
+                    return ( <Text key={eachCategory}>{eachCategory}</Text>)
+                })}
+            </ScrollView>
+            
 
             <View style={styles.mainActionButtonsContainer}>
                 <ScrollView scrollEnabled horizontal contentContainerStyle={styles.actionButtonsContainer} indicatorStyle='black' showsHorizontalScrollIndicator>
@@ -169,19 +178,13 @@ export default function CreatePost({onClose, creatingPost}: CreatePostProps) {
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => {}} title={"Add Event"} icon={<Image width={5} height={5} source={require("../../assets/images/calendar.png")} />} />
                 </ScrollView>
             </View>
+            <CustomButton onPress={() => setPostCategories((prev) => ({...prev, state: true}))} textStyle={{color: colors.PRIMARY_COLOR}} title={postCategories.categories.length ? "Edit Categories" : "Add Categories"} />
+            
+            <CustomModal isOpen={postCategories.state} fullScreen onClose={() => setPostCategories((prev) => ({...prev, state: false}))}>
+                <Filters setPostCategories={setPostCategories} postCategories={postCategories.categories} categories={categories} onClose={() => setPostCategories((prev) => ({...prev, state: false}))} />
+            </CustomModal>
 
-            <View style={styles.mainCategoryButtonsContainer}>
-                <ScrollView scrollEnabled horizontal contentContainerStyle={styles.categoryButtonsContainer} indicatorStyle='black' showsHorizontalScrollIndicator>
-                    
-                    {categories.map((eachCategory) => {
-                        return (
-                            <CustomButton key={eachCategory.value} buttonStyle={[styles.categoryButton, postCategory === eachCategory.value && styles.activeCategory]} textStyle={[styles.categoryText, postCategory === eachCategory.value && styles.activeCategoryText]} title={eachCategory.title} onPress={() => setPostCategory(eachCategory.value)} />
-                        )
-                    })}
-                </ScrollView>
-            </View>
-
-            <CustomButton onPress={handlePost} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]} title={"Post"} />
+            <CustomButton onPress={handlePost} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]} title={!loading ? "Post" : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />
         </View>
 
         <CustomModal isOpen={viewingImageUrl !== ""} onClose={() => setViewingImageUrl("")} >
@@ -248,34 +251,8 @@ const styles = StyleSheet.create({
         color: colors.ACTIVE_ACCENT_COLOR
       },
 
-      mainCategoryButtonsContainer: {
-          marginVertical: 5,
-          flexDirection: "row",
-        },
-        categoryButtonsContainer: {
-          gap: 10,
-          paddingBottom: 10
-        },
-        categoryButton: {
-          backgroundColor: colors.LIGHT_COLOR,
-          paddingHorizontal: 20,
-          paddingVertical: 4,
-          borderRadius: 24,
-        },
-        categoryText: {
-          fontWeight: 500,
-          color: colors.BLACK_TEXT_COLOR
-        },
-        activeCategory: {
-            backgroundColor: colors.ACTIVE_ORANGE,
-        },
-        activeCategoryText: {
-            color: "white"
-        },
         mainActionButtonsContainer :{
- /*            borderWidth: 1, */
             width: "100%",
-     /*        marginTop: 100, */
             flexDirection: "row",
             gap: 5,
         },

@@ -2,7 +2,6 @@ import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View }
 import React, { useEffect, useState } from 'react'
 import CustomButton from './CustomButton'
 import { colors } from '../styles/colors'
-import { shadowStyles } from '../styles/global-styles'
 import { AttachmentData, PostItemProps } from '../types/post-types'
 import { getMBMessageAttacment } from '../api/network-utils'
 import { useNavigation } from '@react-navigation/native'
@@ -22,7 +21,7 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
 
   const [attachmentData, setAttachmentData] = useState<AttachmentData[]>(childAttachmentData || [])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-/*   console.log(post.MessageBoardUUID) */
+
   useEffect(() => {
     const fetchPostAttachments = async () => {
       try {
@@ -36,8 +35,8 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
         console.error("Error fetching attachments:", error);
       }
     };
-/*     console.log("CHILD ATTACHMENT",childAttachmentData) */
-    if(!childAttachmentData) {
+
+    if(!childAttachmentData && post.HasAttachment) {
       fetchPostAttachments();
     }
 
@@ -91,8 +90,8 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
 const styles = StyleSheet.create({
 
   mainContainer :{
-    borderBottomColor: "#C8C8C8",
-    borderBottomWidth: 3,
+    borderBottomColor: "#ECECEC",
+    borderBottomWidth: 2,
 /*     borderRadius: 24, */
     backgroundColor: "white",
     width: "100%",

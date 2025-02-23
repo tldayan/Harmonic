@@ -3,6 +3,7 @@ import { FirebaseAuthTypes } from "@react-native-firebase/auth"
 import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
 import { ENDPOINTS } from "./endpoints";
+import { AttachmentData, MessageAttachmentData } from "../types/post-types";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -212,5 +213,45 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
       console.error(err)
     }
     
+
+  }
+
+
+  export const saveMBMessage = async(message: string,imageUrls: string[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: string[]) => {
+
+    const allMBAttachments = imageUrls?.map((url) => ({
+      Attachment: url, 
+      AttachmentType: "image", 
+      CanBeDownloaded: true,
+      AllowDownload: true,
+      IsDeleted: false,
+      MessageBoardUUID: null,
+      LoggedInUserUUID: UserUUID, 
+      AttachmentUUID: null,
+      AttachmentTypeUUID: null, 
+      MessageBoardCommentUUID: null, 
+  }));
+
+  let allMBCategoryItems = postCategories.map((eachCategory) => {
+    return {
+      "CategoryItemUUID" : eachCategory,
+        "IsDeleted": false,
+        "MessageBoardCategoryUUID" : null
+    }
+  })
+
+    const bodyData = {
+      "AllMBAttachments": allMBAttachments,
+      "AllMBCategoryItems": allMBCategoryItems,
+      "LoggedInUserUUID": UserUUID,
+      "Message": message,
+      "OrganizationUUID": OragnizationUUID,
+      "SharedMessageBoardUUID": null
+    }
+    
+
+    const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE, bodyData, {}, "POST",{})
+
+    return response.data.Message
 
   }
