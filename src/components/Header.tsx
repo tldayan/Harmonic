@@ -15,7 +15,7 @@ const Header = () => {
     const [notificationsOpen, setNotificationsOpen] = useState(false)
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container}> 
         <HarmonicLogo />
         <CustomButton buttonStyle={styles.bell} onPress={() => setNotificationsOpen(true)} icon={<BellIcon width={20} height={20} />} />
         <CustomButton onPress={() => {}} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />

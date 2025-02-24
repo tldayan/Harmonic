@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import ModalsHeader from '../ModalsHeader'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -9,10 +9,9 @@ import { colors } from '../../styles/colors'
 import { shadowStyles } from '../../styles/global-styles'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
 import { Asset, launchImageLibrary } from 'react-native-image-picker'
-import { CreatingPostState } from '../../types/post-types'
+import { CategoryProps, CreatingPostState } from '../../types/post-types'
 import { CustomModal } from '../../components/CustomModal'
 import ImageView from '../ImageView'
-import { categories } from './constants'
 import Poll from './CreatePoll'
 import { uploadImages } from './postUtils'
 import { saveMBMessage } from '../../api/network-utils'
@@ -27,6 +26,8 @@ interface CreatePostProps {
     categories: Category[]
 }
 
+  
+
 export default function CreatePost({onClose, creatingPost, categories}: CreatePostProps) {
 
     const {user} = useUser()
@@ -34,7 +35,7 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
     const inputRef = useRef<any>(null)
     const [selectedImages, setSelectedImages] = useState<Asset[]>([])
     const [viewingImageUrl, setViewingImageUrl] = useState("")
-    const [postCategories, setPostCategories] = useState<{state: boolean, categories: string[]}>({state: false, categories:[]})
+    const [postCategories, setPostCategories] = useState<{state: boolean, categories: CategoryProps[]}>({state: false, categories:[]})
     const [creatingPoll, setCreatingPoll] = useState(false)
     const [loading, setLoading] = useState(false)
     const [link, setLink] = useState("")
@@ -163,9 +164,9 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
                 <Text>Link Metadata</Text>
             </View> */}
 
-            <ScrollView>
+            <ScrollView horizontal contentContainerStyle={styles.categoryList} style={styles.categoryListContainer}>
                 {postCategories.categories.map((eachCategory) => {
-                    return ( <Text key={eachCategory}>{eachCategory}</Text>)
+                    return ( <Text style={styles.category} key={eachCategory.categoryUUID}>{eachCategory.categoryName}</Text>)
                 })}
             </ScrollView>
             
@@ -178,13 +179,15 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => {}} title={"Add Event"} icon={<Image width={5} height={5} source={require("../../assets/images/calendar.png")} />} />
                 </ScrollView>
             </View>
+
             <CustomButton onPress={() => setPostCategories((prev) => ({...prev, state: true}))} textStyle={{color: colors.PRIMARY_COLOR}} title={postCategories.categories.length ? "Edit Categories" : "Add Categories"} />
+            <CustomButton onPress={handlePost} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]} title={!loading ? "Post" : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />
             
             <CustomModal isOpen={postCategories.state} fullScreen onClose={() => setPostCategories((prev) => ({...prev, state: false}))}>
                 <Filters setPostCategories={setPostCategories} postCategories={postCategories.categories} categories={categories} onClose={() => setPostCategories((prev) => ({...prev, state: false}))} />
             </CustomModal>
 
-            <CustomButton onPress={handlePost} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]} title={!loading ? "Post" : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />
+
         </View>
 
         <CustomModal isOpen={viewingImageUrl !== ""} onClose={() => setViewingImageUrl("")} >
@@ -317,6 +320,23 @@ const styles = StyleSheet.create({
         backgroundColor : "white",
         height: 30,
         width: 30
+    },
+    categoryListContainer: {
+/*         borderWidth: 1 */
+    },
+    categoryList: {
+        gap: 10
+    },
+    category: {
+        borderWidth: 0.5,
+        borderColor: colors.ACTIVE_ORANGE,
+        fontSize: 12,
+        fontWeight: 300,
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        marginVertical: 5,
+        borderRadius: 50,
+        color: colors.ACTIVE_ORANGE
     }
         
 })

@@ -100,18 +100,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   categoryContainerList : {
+    paddingBottom: 5,
     gap: 5
   },
   categoryText: {
     marginTop: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderRadius: 24,
+    alignSelf: "flex-end", 
+    borderWidth: 0.5,
+    borderColor: colors.ACTIVE_ORANGE,
     fontSize: 10,
     fontWeight: 300,
-    borderColor: colors.LIGHT_COLOR,
-    alignSelf: "flex-end", 
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    marginVertical: 5,
+    borderRadius: 50,
+    color: colors.ACTIVE_ORANGE
   },
   postImageContainer : {
     marginTop: 10,

@@ -31,3 +31,34 @@ export const formatDate = (dateString: string) => {
 
   return new Intl.DateTimeFormat("en-GB", options).format(date);
 };
+
+
+export function timeAgo(dateString: string): string {
+  const now = new Date();
+  const pastDate = new Date(dateString);
+  
+  const diffInMs: number = now.getTime() - pastDate.getTime();
+
+  const diffInSec = Math.floor(diffInMs / 1000);
+  const diffInMin = Math.floor(diffInSec / 60);
+  const diffInHours = Math.floor(diffInMin / 60);
+  const diffInDays = Math.floor(diffInHours / 24);
+  const diffInWeeks = Math.floor(diffInDays / 7);
+  const diffInYears = Math.floor(diffInDays / 365);
+
+  if (diffInSec < 60) {
+    return `${diffInSec}sec`;
+  } else if (diffInMin < 60) {
+    return `${diffInMin}min`;
+  } else if (diffInHours < 24) {
+    return `${diffInHours}hr`;
+  } else if (diffInDays < 7) {
+    return `${diffInDays}d`;
+  } else if (diffInWeeks < 4) {
+    return `${diffInWeeks}wk`;
+  } else if (diffInYears < 1) {
+    return `${Math.floor(diffInDays / 30)}mo`;
+  } else {
+    return `${diffInYears}y`;
+  }
+}

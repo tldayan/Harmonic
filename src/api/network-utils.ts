@@ -3,7 +3,7 @@ import { FirebaseAuthTypes } from "@react-native-firebase/auth"
 import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
 import { ENDPOINTS } from "./endpoints";
-import { AttachmentData, MessageAttachmentData } from "../types/post-types";
+import { AttachmentData, CategoryProps, MessageAttachmentData } from "../types/post-types";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -157,7 +157,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     try {
 
       const comments = await apiClient(ENDPOINTS.SOCIAL.COMMENTS, bodyData , {}, "POST")
-
+      console.log(comments)
       return comments.data.Payload
 
     } catch (err) {
@@ -217,7 +217,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const saveMBMessage = async(message: string,imageUrls: string[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: string[]) => {
+  export const saveMBMessage = async(message: string,imageUrls: string[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[]) => {
 
     const allMBAttachments = imageUrls?.map((url) => ({
       Attachment: url, 
@@ -234,9 +234,9 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
   let allMBCategoryItems = postCategories.map((eachCategory) => {
     return {
-      "CategoryItemUUID" : eachCategory,
-        "IsDeleted": false,
-        "MessageBoardCategoryUUID" : null
+      "CategoryItemUUID" : eachCategory.categoryUUID,
+      "IsDeleted": false,
+      "MessageBoardCategoryUUID" : null
     }
   })
 
@@ -251,7 +251,28 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     
 
     const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE, bodyData, {}, "POST",{})
-
+    console.log(response.data)
     return response.data.Message
+
+  }
+
+
+
+  export const getAllCommentReplies = async(messageBoardCommentUUID: string) => {
+
+    const bodyData = {
+      "MessageBoardCommentUUID": messageBoardCommentUUID,
+      "startIndex": 0,
+      "pageSize": 10,
+    }
+
+    try {
+      const replies = await apiClient(ENDPOINTS.SOCIAL.COMMENT_REPLIES, bodyData, {} , "POST", {})
+          
+      return replies.data.Payload
+
+    } catch (err) {
+      console.error(err)
+    }
 
   }

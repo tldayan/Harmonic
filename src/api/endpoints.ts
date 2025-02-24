@@ -15,7 +15,8 @@ export const ENDPOINTS = {
     MBATTACHMENTS: `${BASE_URL}/social/getAllMBMessageAttachments`,
     MBMESSAGE_DETAILS: `${BASE_URL}/social/getMBMessageDetails`,
     COMMENTS: `${BASE_URL}/social/getListOfComments`,
-    SAVE_MBMESSAGE: `${BASE_URL}/social/saveMBMessage`
+    SAVE_MBMESSAGE: `${BASE_URL}/social/saveMBMessage`,
+    COMMENT_REPLIES: `${BASE_URL}/social/getAllCommentReplies`
   },
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,

@@ -3,6 +3,7 @@ import React from 'react'
 import { formatDate } from '../utils/helpers'
 import CustomButton from './CustomButton'
 import ThreeDots from "../assets/icons/three-dots-horizontal.svg"
+import { CustomModal } from './CustomModal'
 
 interface ProfileHeaderProps {
     FirstName?: string
@@ -16,7 +17,7 @@ export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic} : 
 
   return (
     <View style={styles.mainProfileDetialsContainer}>
-        <Image source={{ uri: ProfilePic || "https://i.pravatar.cc/150" }}   style={styles.profilePicture} />
+        <Image source={{ uri: ProfilePic || "https://i.pravatar.cc/150" }} style={styles.profilePicture} />
         <View style={styles.userNameContainer}>
             <Text style={styles.name}>{FirstName}</Text>
             <View style={styles.dateContainer}>
@@ -24,6 +25,8 @@ export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic} : 
             </View>
         </View>
         <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => {}} />
+    
+        {/* <CustomModal  /> */}
     </View>
   )
 }

@@ -52,6 +52,19 @@ export interface PostItemProps {
     LastName: string | null;
     ProfilePicURL: string;
   }
+
+  export interface ReplyItemProps {
+    MessageBoardCommentUUID: string;
+    Comment: string;
+    TotalRepliesCount: number;
+    CreatedDateTime: string;
+    CreatedBy: string;
+    UserName?: string | null;
+    FirstName: string;
+    LastName?: string | null;
+    ProfilePicURL: string;
+  }
+  
   
   export interface MessageAttachmentData {
     Attachment: string,
@@ -64,4 +77,10 @@ export interface PostItemProps {
     AttachmentUUID: string | null, 
     AttachmentTypeUUID: string | null, 
     MessageBoardCommentUUID: string | null,
+  }
+
+  
+  export interface CategoryProps {
+    categoryUUID: string;
+    categoryName: string;
   }

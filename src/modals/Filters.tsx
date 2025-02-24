@@ -1,36 +1,36 @@
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { getAllCategories, getCategoryItemsForACategory } from '../api/network-utils'
+import React from 'react'
 import ModalsHeader from './ModalsHeader'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useSelector } from 'react-redux'
-import { RootState } from '../store/store'
 import { colors } from '../styles/colors'
 import CheckIcon from "../assets/icons/check.svg"
 import CustomButton from '../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../styles/button-styles'
+import { CategoryProps } from '../types/post-types'
 
 interface FiltersProps {
     onClose: () => void
     setFiltering?: React.Dispatch<React.SetStateAction<{state: boolean, categories: string[]}>>
     filtering?: { state: boolean; categories: string[] };
     categories: Category[]
-    postCategories?: string[]
-    setPostCategories?: React.Dispatch<React.SetStateAction<{state: boolean, categories: string[]}>>
+    postCategories?: CategoryProps[]
+    setPostCategories?: React.Dispatch<React.SetStateAction<{state: boolean, categories: CategoryProps[]}>>
 }
 
 
 export default function Filters({onClose, setFiltering, filtering, categories, setPostCategories, postCategories} : FiltersProps) {
         
-      const handleFilter = (categoryUUID: string) => {
+      const handleFilter = (categoryUUID: string, categoryName: string) => {
 
         if(setPostCategories) {
 
-            let isCategoryExisiting = postCategories?.some(eachCategory => eachCategory === categoryUUID)
+            const newCategory = { categoryUUID: categoryUUID, categoryName: categoryName}
+
+            let isCategoryExisiting = postCategories?.some((eachCategory) => eachCategory.categoryUUID === categoryUUID)
             if(isCategoryExisiting) {
-                setPostCategories((prev) => ({...prev, categories: prev.categories.filter(eachCategory => eachCategory !== categoryUUID)}))
+                setPostCategories((prev) => ({...prev, categories: prev.categories.filter((eachCategory) => eachCategory.categoryUUID !== categoryUUID)}))
             } else {
-                  setPostCategories((prev) => ({...prev, categories: [...prev.categories, categoryUUID]}))
+                  setPostCategories((prev) => ({...prev, categories: [...prev.categories, newCategory]}))
             }
           
             return
@@ -63,14 +63,14 @@ export default function Filters({onClose, setFiltering, filtering, categories, s
                     <View style={styles.mainChildCategoryContainer}>
                         {eachCategory.nestedCategories.map((eachChildCategory: NestedCategory) => {
                         const isSelected = filtering?.categories.includes(eachChildCategory.CategoryItemUUID) 
-                        ?? postCategories?.some(category => category === eachChildCategory.CategoryItemUUID);
+                        ?? postCategories?.some(category => category.categoryUUID === eachChildCategory.CategoryItemUUID);
               
                         return (
-                            <TouchableOpacity key={eachChildCategory.CategoryItemUUID} onPress={() => handleFilter(eachChildCategory.CategoryItemUUID)} style={[styles.childCategoryContainer]}>
+                            <TouchableOpacity key={eachChildCategory.CategoryItemUUID} onPress={() => handleFilter(eachChildCategory.CategoryItemUUID, eachChildCategory.CategoryItemName)} style={[styles.childCategoryContainer]}>
                                 <View style={[styles.checkbox, isSelected && {backgroundColor : colors.PRIMARY_COLOR, borderWidth: 0}]}>
                                   {isSelected && <CheckIcon />}
                                 </View>
-                                <Text>{eachChildCategory.CategoryItemName}</Text>
+                                <Text style={styles.categoryText}>{eachChildCategory.CategoryItemName}</Text>
                             </TouchableOpacity>
                         )
                     })}
@@ -93,16 +93,18 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     mainCategory: {
-        borderTopWidth: 2,
-        borderColor: colors.LIGHT_COLOR,
         fontSize: 16,
-        fontWeight: 500,
+        fontWeight: 300,
         paddingTop: 20,
-        paddingBottom: 10
+        paddingBottom: 5
     },
     mainChildCategoryContainer: {
+/*         borderWidth: 1, */
+        backgroundColor: colors.BACKGROUND_COLOR,
+        borderRadius: 5,
+        padding: 10,
         gap: 10,
-        paddingLeft: 20
+      /*   paddingLeft: 20 */
     },
     childCategoryContainer: {
         flexDirection: "row",
@@ -112,6 +114,9 @@ const styles = StyleSheet.create({
     categoryContainer: {
 /*         borderWidth: 1, */
         gap: 10
+    },
+    categoryText: {
+        fontWeight: 300
     },
     checkbox: {
         alignItems: "center",
