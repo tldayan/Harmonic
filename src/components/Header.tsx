@@ -1,28 +1,56 @@
-import React, { useState } from "react";
-import { View, Image, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Image, StyleSheet, Text } from "react-native";
 import BellIcon from "../assets/icons/bell.svg"
-import HarmonicLogo from "../assets/icons/harmonic-logo.svg"
 import { useUser } from "../context/AuthContext";
 import CustomButton from "./CustomButton";
 import { CustomModal } from "./CustomModal";
 import Notifications from "../modals/Notifications";
+import { getOrganizationList } from "../api/network-utils";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import OrganizationsList from "../modals/OrganizationsList";
+import { colors } from "../styles/colors";
+import Switch from "../assets/icons/switch.svg"
 
 
 const Header = () => {
 
     const {user} = useUser()
+    const userUUID = useSelector((state: RootState) => state.auth.userUUID)
 
     const [notificationsOpen, setNotificationsOpen] = useState(false)
+    const [organizationsList, setOrganizationsList] = useState([])
+    const [organization, setOrganization] = useState<Organization | null>(null);
+    const [switchingOrganization, setSwitchingOrganization] = useState(false)
+
+
+
+      const fetchOranizatoinslist = async() => {
+        if(!userUUID) return
+        const organizationsList = await getOrganizationList(userUUID)
+        setOrganizationsList(organizationsList)
+        setOrganization(organizationsList[0])
+      }
+
+    useEffect(() => {
+      fetchOranizatoinslist()
+    }, [userUUID])
 
   return (
     <View style={styles.container}> 
-        <HarmonicLogo />
+        <CustomButton buttonStyle={styles.organization} onPress={() => setSwitchingOrganization(true)} icon={<Switch width={20} height={20} />} />
+
         <CustomButton buttonStyle={styles.bell} onPress={() => setNotificationsOpen(true)} icon={<BellIcon width={20} height={20} />} />
         <CustomButton onPress={() => {}} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
 
         <CustomModal fullScreen={true} isOpen={notificationsOpen}>
             <Notifications onClose={() => setNotificationsOpen(false)} />
         </CustomModal>
+
+        <CustomModal isOpen={switchingOrganization} onClose={() => setSwitchingOrganization(false)} fullScreen={false} >
+          <OrganizationsList onClose={() => setSwitchingOrganization(false)} setOrganization={setOrganization} organizationsList={organizationsList} />
+        </CustomModal>
+
     </View>
   );
 };
@@ -35,6 +63,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     backgroundColor: "white",
+  },
+  organization:  {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    borderWidth: 1,
+    borderColor: colors.LIGHT_COLOR,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5
   },
   bell: {
     marginLeft: "auto",

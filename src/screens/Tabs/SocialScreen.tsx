@@ -24,7 +24,7 @@ export default function SocialScreen() {
 
   const {user} = useUser()
   const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})
-  const [isDeletingPost, setIsDeletingPost] = useState(false)
+  const [isDeletingPost, setIsDeletingPost] = useState(true)
   const [viewingImageUrl, setViewingImageUrl] = useState("")
   const [socialMessages, setSocialMessages] = useState<PostItemProps[]>([]);
   const [filteredMessages, setFilteredMessages] = useState<PostItemProps[]>(socialMessages)
@@ -190,7 +190,7 @@ export default function SocialScreen() {
             <ImageView onClose={() => setViewingImageUrl("")} imageUrl={viewingImageUrl} />
         </CustomModal>
 
-        <CustomModal fullScreen onClose={() => setFiltering((prev) => ({...prev, state: false}))} isOpen={filtering.state}>
+        <CustomModal presentationStyle="formSheet" fullScreen onClose={() => setFiltering((prev) => ({...prev, state: false}))} isOpen={filtering.state}>
           <Filters categories={categories} filtering={filtering} setFiltering={setFiltering} onClose={() => setFiltering((prev) => ({...prev, state: false}))}  />
         </CustomModal>
 

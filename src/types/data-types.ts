@@ -24,4 +24,18 @@ interface NestedCategory {
     CategoryItemBanner: string | null;
     CategoryItemURL: string;
   }
+
+  interface Organization {
+    OrganizationUUID: string;
+    OrganizationName: string;
+    OrganizationURL: string;
+    OrganizationLogo: string | null;
+    OrganizationShortLogo: string | null;
+    StatusItemUUID: string | null;
+    StatusItemName: string | null;
+    CreatedDateTime: string | null;
+    ModifiedDateTime: string | null;
+    IsDeleted: boolean;
+  }
+  
   

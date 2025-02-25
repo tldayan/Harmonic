@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         borderRadius: 8,
         width: "95%", 
-     /*    padding: 32, */
+        padding: 32,
     },
     innerContainer :{
         paddingHorizontal: 32

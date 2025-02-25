@@ -17,11 +17,13 @@ interface Props extends ModalProps {
     children: React.ReactNode;
     fullScreen?: boolean;
     onClose?: () => void;
+    presentationStyle?: "fullScreen" | "pageSheet" | "formSheet" | "overFullScreen";
 }
 
-export const CustomModal: React.FC<Props> = ({ onClose, isOpen, children, fullScreen }) => {
+export const CustomModal: React.FC<Props> = ({ onClose, isOpen, children, fullScreen,presentationStyle}) => {
   return (
     <Modal
+    presentationStyle={presentationStyle}
       transparent={!fullScreen}
       statusBarTranslucent
       animationType={fullScreen ? "slide" : "fade"}
@@ -29,24 +31,30 @@ export const CustomModal: React.FC<Props> = ({ onClose, isOpen, children, fullSc
     >
       <SafeAreaProvider>
         {fullScreen ? (
-          // For full-screen modal
+          // Full-screen modal
           <View style={{ flex: 1 }}>
             {children}
           </View>
         ) : (
-          // For non-full-sccreen modal
+          // Non-full-screen modal
           <TouchableWithoutFeedback onPress={onClose}>
-            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.safeArea}>
-              <SafeAreaView>
-                <ScrollView 
-                  scrollEnabled={fullScreen ? true : false} 
-                  contentContainerStyle={styles.scrollView} 
-                  keyboardShouldPersistTaps="handled"
-                >
-                    {children} 
-                </ScrollView>
-              </SafeAreaView>
-            </KeyboardAvoidingView>
+            <View style={styles.safeArea}>
+              <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                <SafeAreaView>
+                  <ScrollView 
+                    scrollEnabled={false} 
+                    contentContainerStyle={styles.scrollView} 
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                      <View /* style={styles.modalContent} */>
+                        {children}
+                      </View>
+                    </TouchableWithoutFeedback>
+                  </ScrollView>
+                </SafeAreaView>
+              </KeyboardAvoidingView>
+            </View>
           </TouchableWithoutFeedback>
         )}
       </SafeAreaProvider>
@@ -57,13 +65,19 @@ export const CustomModal: React.FC<Props> = ({ onClose, isOpen, children, fullSc
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    flexGrow: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollView: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+/*   modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    minWidth: 300,
+  }, */
 });

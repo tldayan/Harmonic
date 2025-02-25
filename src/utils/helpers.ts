@@ -47,7 +47,7 @@ export function timeAgo(dateString: string): string {
   const diffInYears = Math.floor(diffInDays / 365);
 
   if (diffInSec < 60) {
-    return `${diffInSec}sec`;
+    return `now`;
   } else if (diffInMin < 60) {
     return `${diffInMin}min`;
   } else if (diffInHours < 24) {

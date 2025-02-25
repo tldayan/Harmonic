@@ -276,3 +276,52 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     }
 
   }
+
+
+  export const saveMBMessageComment = async(comment: string, LoggedInUserUUID: string, MessageBoardUUID?: string, ReplyToMessageBoardCommentUUID?: string) => {
+
+    const bodyData = {
+      "MessageBoardCommentId": null,
+      "MessageBoardCommentUUID": null,
+      "MessageBoardUUID": MessageBoardUUID,
+      "Comment": comment,
+      "ReplyToMessageBoardCommentUUID": ReplyToMessageBoardCommentUUID ? ReplyToMessageBoardCommentUUID : null,
+      "LoggedInUserUUID": LoggedInUserUUID
+  }
+
+  try {
+
+    const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE_COMMENT, bodyData, {}, "POST")
+
+    if(response.data.Message === "Comment saved successfully") {
+      return response.data.Payload
+    }
+
+  } catch(err) {
+    console.error(err)
+  }
+
+  }
+
+
+  export const getOrganizationList = async(userUUID: string) => {
+
+    let bodyData = {
+      "UserUUID": userUUID,
+      "SearchExpression": ""
+    }
+
+    try {
+
+      const oragnizationList = await apiClient(ENDPOINTS.ORGANIZATION.ORGANIZATIONS_LIST, bodyData, {}, "POST")
+      
+      console.log(oragnizationList.data.Payload)
+      return oragnizationList.data.Payload
+      
+    } catch(err) {
+      console.error(err)
+    }
+    
+
+
+  }
