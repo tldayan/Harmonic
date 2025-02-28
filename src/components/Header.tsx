@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Image, StyleSheet, Text } from "react-native";
+import { View, Image, StyleSheet, Text, Button } from "react-native";
 import BellIcon from "../assets/icons/bell.svg"
 import { useUser } from "../context/AuthContext";
 import CustomButton from "./CustomButton";
@@ -11,7 +11,9 @@ import { RootState } from "../store/store";
 import OrganizationsList from "../modals/OrganizationsList";
 import { colors } from "../styles/colors";
 import Switch from "../assets/icons/switch.svg"
-
+import { handleSignOut } from "../services/auth-service";
+import Send from "../assets/icons/send-horizontal.svg"
+import Like from "../assets/icons/like.svg"
 
 const Header = () => {
 
@@ -40,6 +42,7 @@ const Header = () => {
     <View style={styles.container}> 
         <CustomButton buttonStyle={styles.organization} onPress={() => setSwitchingOrganization(true)} icon={<Switch width={20} height={20} />} />
 
+        <CustomButton buttonStyle={styles.signOut} title="Sign Out" onPress={handleSignOut} />
         <CustomButton buttonStyle={styles.bell} onPress={() => setNotificationsOpen(true)} icon={<BellIcon width={20} height={20} />} />
         <CustomButton onPress={() => {}} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
 
@@ -83,6 +86,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginLeft: 14,
   },
+  signOut: {
+    marginLeft: "auto"
+  }
 });
 
 export default Header;

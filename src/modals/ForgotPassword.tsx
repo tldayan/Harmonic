@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
         color : colors.TEXT_COLOR,
     },
     supportContainer: {
-        marginTop: 20,
+/*         marginTop: 20, */
         flexDirection: "row",
         alignItems: "center",
         flexWrap:"wrap",

@@ -4,6 +4,7 @@ import { TextStyle, ViewStyle } from "react-native";
 export const PRIMARY_BUTTON_STYLES: ViewStyle = {
     height: 41,
     marginTop: 20,
+    marginBottom: 20,
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center", 

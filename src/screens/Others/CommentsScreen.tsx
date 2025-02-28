@@ -24,6 +24,8 @@ export default function CommentsScreen() {
   const [messageDetails, setMessageDetails] = useState<PostItemProps | null>(null)
   const [comment, setComment] = useState<string>("")
   const [comments, setComments] = useState<CommentItemProps[]>([])
+  const [startIndex, setStartIndex] = useState(0)
+  const [loading, setLoading] = useState(false)
   const [replyingTo, setReplyingTo] = useState({name: "", MessageBoardCommentUUID: ""})
   const [replies, setReplies] = useState<{ [key: string]: ReplyItemProps[] }>({})
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({})
@@ -38,6 +40,33 @@ export default function CommentsScreen() {
   const route = useRoute<CommentsScreenRouteProp>()
   const { postUUID, attachmentData } = route.params || {}
 
+
+
+
+  const fetchComments = async() => {
+
+    setLoading(true)
+
+    if(!postUUID) return
+
+    try {
+
+      const comments = await getListOfComments(postUUID, startIndex)
+      setComments((prev) => {
+        const commentsMap = new Map([...prev, ...comments].map((comment) => [comment.MessageBoardCommentUUID, comment]))
+        return Array.from(commentsMap.values())
+      })
+      setStartIndex((prev) => prev + 10)
+
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+
+  }
+
+
   useEffect(() => {
     if (!postUUID) return
 
@@ -46,18 +75,14 @@ export default function CommentsScreen() {
       setMessageDetails(messageDetails)
     }
 
-    const fetchComments = async() => {
-      const comments = await getListOfComments(postUUID)
-      console.log(comments)
-      setComments(comments)
-    }
-
     if(postUUID) {
       fetchMBMessageDetails()
-      fetchComments()
+    /*   fetchComments()  */// CALLED TWICE
     }
 
   }, [])
+
+
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -134,9 +159,8 @@ export default function CommentsScreen() {
             <Text style={styles.comment}>{item.Comment}</Text>
           </View>
           <View style={styles.commentActionsContainer}>
-            <Text style={styles.commentDateTime}>{timeAgo(item.CreatedDateTime)}</Text>
-            {item.TotalRepliesCount > 0 ? <CustomButton buttonStyle={styles.commentCount} textStyle={styles.commentCountText} onPress={() => toggleReplies(item.MessageBoardCommentUUID)} title={`${item.TotalRepliesCount} Replies`} />  : null}
-            <CustomButton textStyle={[styles.commentCountText, {fontWeight: 500}]} onPress={() => initiateReply(item.FirstName,item.MessageBoardCommentUUID, index)} title={"Reply"} />
+            {item.TotalRepliesCount > 0 ? <CustomButton buttonStyle={styles.commentCount} textStyle={styles.commentCountText} onPress={() => toggleReplies(item.MessageBoardCommentUUID)} title={`${expandedComments[item.MessageBoardCommentUUID] === true ? "Hide" : "Show"} ${item.TotalRepliesCount} ${item.TotalRepliesCount > 1 ? "Replies" : "Reply"}`} />  : null}
+            <CustomButton textStyle={[styles.replyButton, {fontWeight: 300}]} onPress={() => initiateReply(item.FirstName,item.MessageBoardCommentUUID, index)} title={"Reply"} />
           </View>
           
           {expandedComments[item.MessageBoardCommentUUID] && replies[item.MessageBoardCommentUUID] && (
@@ -147,9 +171,11 @@ export default function CommentsScreen() {
                 <Text style={styles.name}>{reply.FirstName}</Text>
                 <Text style={styles.reply}>{reply.Comment}</Text>
               </View>
+              <Text style={styles.commentDateTime}>{timeAgo(reply.CreatedDateTime)}</Text>
             </View>
           )))}
         </View>
+        <Text style={styles.commentDateTime}>{timeAgo(item.CreatedDateTime)}</Text>
       </View>
     )
 
@@ -159,12 +185,22 @@ export default function CommentsScreen() {
     <View style={styles.container} >
       <View style={styles.headerProfileContainer}>
         <CustomButton onPress={() => navigation.goBack()} icon={<ChevronLeft />} />
-        {messageDetails && <ProfileHeader FirstName={messageDetails?.FirstName} CreatedDateTime={messageDetails?.CreatedDateTime} />}
+        {messageDetails && <ProfileHeader MessageBoardUUID={messageDetails.MessageBoardUUID} FirstName={messageDetails?.FirstName} CreatedDateTime={messageDetails?.CreatedDateTime} />}
       </View>
 
       {messageDetails && <PostItem setViewingImageUrl={() => {}} childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
 
-        <FlatList ref={flatListRef} showsVerticalScrollIndicator={false} style={styles.commentListContainer} contentContainerStyle={styles.commentList} keyExtractor={(item) => item.MessageBoardCommentUUID} renderItem={commentItem} data={comments} />
+        <FlatList 
+          ref={flatListRef} 
+          showsVerticalScrollIndicator={false} 
+          style={styles.commentListContainer} 
+          contentContainerStyle={styles.commentList} 
+          keyExtractor={(item) => item.MessageBoardCommentUUID} 
+          renderItem={commentItem} 
+          data={comments}
+          onEndReached={fetchComments} 
+          onEndReachedThreshold={0.5}
+        />
 
 
       <View style={[styles.mainCommentContainer, {paddingBottom: isKeyboardVisible ? 0 : 20}]}>
@@ -192,7 +228,8 @@ export default function CommentsScreen() {
               placeholderTextColor={colors.LIGHT_TEXT_COLOR}
               placeholder={replyingTo.MessageBoardCommentUUID ? `Reply to ${replyingTo.name}...` : "Write a comment..."} 
             />
-            {comment && <CustomButton onPress={handleComment} icon={<SendIcon />} />}
+          <CustomButton onPress={handleComment}icon={<SendIcon stroke={comment ? colors.ACTIVE_ORANGE : "grey"} />} />
+
           </View>
         </View>
       </View>
@@ -234,6 +271,7 @@ const styles = StyleSheet.create({
     alignItems :"center",
   },
   commentInputContainer: {
+    gap: 10,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -261,17 +299,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.LIGHT_COLOR,
     paddingHorizontal: 12, 
     paddingVertical: 8,
+    flexGrow:1,
     gap: 5,
     justifyContent: "space-between",
     borderRadius: 5,
     fontSize: 12,
-    alignSelf: "flex-start",
+/*     alignSelf: "flex-start", */
   },  
   name : {
-    fontSize: 12,
+    fontSize: 14,
   },
   comment: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: "300",
     paddingRight: 8,  
     flexWrap: "wrap", 
@@ -283,57 +322,61 @@ const styles = StyleSheet.create({
   commentCountText: {
     fontSize: 10,
     fontWeight: 300,
-    color: colors.ACTIVE_ORANGE
+    color: colors.ACCENT_COLOR
   },
   commentActionsContainer: {
-/*     borderWidth : 1, */
+    justifyContent: "flex-end",
     flexDirection: "row",
     gap: 5
   },
   commentDateTime: {
     fontSize: 10,
     fontWeight: 300,
-    color: colors.ACTIVE_ACCENT_COLOR
+    color: colors.ACTIVE_ACCENT_COLOR,
   },
   commentListContainer :{
 /*     borderWidth: 1, */
     padding: 5,
+    paddingTop: 20,
     width: "96%",
     marginHorizontal: "2%",
-    marginTop: 20,
     flex: 1,
-    marginBottom: 80
   },
   commentList: {
 /*     borderWidth: 2, */
     gap: 20,
     flexGrow: 1,
-
+    paddingBottom: 80
   },
   replyProfilePic: {
     width: 25,
     height: 25,
     borderRadius: 50
   },
+  replyButton: {
+    fontSize: 10,
+    fontWeight: 300,
+    color: colors.ACTIVE_ORANGE
+  },
   repliesContainer: {
     marginVertical: 10,
     flexDirection: "row",
     gap: 10,
+    width: "100%",
     flex: 1,
   },
   replyContainer: {
+/*     borderWidth: 1, */
 /*     flex: 1, */
     backgroundColor: colors.LIGHT_COLOR,
     paddingHorizontal: 12, 
     paddingVertical: 8,
     gap: 5,
-    justifyContent: "space-between",
     borderRadius: 5,
-    fontSize: 12,
-    maxWidth: "95%", 
+    flex: 1,
   },
   reply : {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: 300,
     paddingRight: 8,  
     flexWrap: "wrap", 

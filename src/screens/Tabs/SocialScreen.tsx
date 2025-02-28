@@ -1,7 +1,6 @@
 import { Alert, Button, FlatList, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useUser } from '../../context/AuthContext'
-import { handleSignOut } from '../../services/auth-service'
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import PostItem from '../../components/PostItem'
@@ -24,7 +23,7 @@ export default function SocialScreen() {
 
   const {user} = useUser()
   const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})
-  const [isDeletingPost, setIsDeletingPost] = useState(true)
+  const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [viewingImageUrl, setViewingImageUrl] = useState("")
   const [socialMessages, setSocialMessages] = useState<PostItemProps[]>([]);
   const [filteredMessages, setFilteredMessages] = useState<PostItemProps[]>(socialMessages)
@@ -62,7 +61,7 @@ export default function SocialScreen() {
           setSocialMessages((prevMessages) => {
 
             const messageMap = new Map([...prevMessages, ...allMBMessages].map(msg => [msg.MessageBoardUUID, msg]));
-    
+
             return Array.from(messageMap.values());
           });
           setStartIndex(prevIndex => prevIndex + 10)
@@ -122,6 +121,7 @@ export default function SocialScreen() {
 
   const fetchLatestMessages = async() => {
     const allMBMessages = await getMBMessages(userUUID, organizationUUID, 0)
+
     setSocialMessages(allMBMessages)
   }
 
@@ -130,6 +130,7 @@ export default function SocialScreen() {
     await fetchLatestMessages()
     setRefreshing(false)
   } 
+
 
   return (
     <View style={styles.mainContainer}>
@@ -194,12 +195,6 @@ export default function SocialScreen() {
           <Filters categories={categories} filtering={filtering} setFiltering={setFiltering} onClose={() => setFiltering((prev) => ({...prev, state: false}))}  />
         </CustomModal>
 
-        
-
-        <Text>
-            HOME SCREEN {user ? user.email : 'No user signed in'}
-        </Text>
-        <Button title="Sign Out" onPress={handleSignOut} />
     </View>
 )
 }
@@ -207,7 +202,7 @@ export default function SocialScreen() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "white"
+    backgroundColor: colors.MAIN_BACKGROUND_COLOR
   },
   container: {
 		width: "100%",
@@ -228,6 +223,7 @@ const styles = StyleSheet.create({
 
   postsContainerList: {
     flexGrow: 1,
+/*     gap: 10 */
   },
 
   
@@ -285,10 +281,10 @@ placeholderText: {
     justifyContent: "flex-end"
   },
   filter: {
-    color: colors.PRIMARY_COLOR,
+    color: colors.ACCENT_COLOR,
   },
   clearFilter: {
-    color: "red"
+    color: colors.RED_TEXT
   },
   filterButton : {
 /*     marginLeft: "auto" */

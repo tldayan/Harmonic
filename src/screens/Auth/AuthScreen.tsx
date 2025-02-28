@@ -333,7 +333,6 @@ const styles = StyleSheet.create({
 		flexDirection: "row", 
 	  },
 	resendCodeContainer : {
-		marginTop: 20,
 		flexDirection : "row",
 		lineHeight: 21,
 		fontWeight: "500",

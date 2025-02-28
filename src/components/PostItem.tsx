@@ -3,11 +3,14 @@ import React, { useEffect, useState } from 'react'
 import CustomButton from './CustomButton'
 import { colors } from '../styles/colors'
 import { AttachmentData, PostItemProps } from '../types/post-types'
-import { getMBMessageAttacment } from '../api/network-utils'
+import { getMBMessageAttacment, saveMBMessageLike } from '../api/network-utils'
 import { useNavigation } from '@react-navigation/native'
 import { RootStackParamList } from '../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ProfileHeader from './ProfileHeader'
+import { useSelector } from 'react-redux'
+import { RootState } from '../store/store'
+import LikeButton from "../assets/icons/heart.svg"
 
 interface PostItemChildProps {
   setViewingImageUrl: (url: string) => void
@@ -21,6 +24,10 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
 
   const [attachmentData, setAttachmentData] = useState<AttachmentData[]>(childAttachmentData || [])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+  const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+  const [hasLiked, setHasLiked] = useState(post.HasLiked);
+  const [noOfLikes, setNoOfLikes] = useState(post.NoofLikes);
+
 
   useEffect(() => {
     const fetchPostAttachments = async () => {
@@ -41,7 +48,28 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
     }
 
   }, []);
+
+  useEffect(() => {
+    setHasLiked(post.HasLiked);
+    setNoOfLikes(post.NoofLikes);
+  }, [post]); 
   
+
+  const handlePostLike = async () => {
+    
+    try {
+      const newLikedState = !hasLiked;
+      setHasLiked(newLikedState);
+      setNoOfLikes((prevLikes) => prevLikes + (newLikedState ? 1 : -1));
+
+      await saveMBMessageLike(post.MessageBoardUUID, userUUID, newLikedState ? 1 : 0);
+    } catch (error) {
+      console.error("Error liking post:", error);
+
+      setHasLiked((prev) => !prev);
+      setNoOfLikes((prevLikes) => prevLikes + (hasLiked ? -1 : 1));
+    }
+  };
   
   const imageItem = ({item}: {item : AttachmentData}) => {
 
@@ -63,7 +91,7 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
     <View style={[styles.mainContainer]}>
 
         {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
-          <ProfileHeader FirstName={post.FirstName} CreatedDateTime={post.CreatedDateTime} ProfilePic={post.ProfilePic} />
+          <ProfileHeader FirstName={post.FirstName} CreatedDateTime={post.CreatedDateTime} ProfilePic={post.ProfilePic} MessageBoardUUID={post.MessageBoardUUID} CreatedBy={post.CreatedBy} />
         </TouchableOpacity>}
 
 
@@ -77,8 +105,9 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
           return <Text key={eachCategory.CategoryItemUUID} style={styles.categoryText}>{eachCategory.CategoryItemName}</Text>
         })}
       </ScrollView>
+      
       <View style={styles.postActionButtonsContainer}>
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={post.NoofLikes.toString() || "0"} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/like.png")} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={noOfLikes.toString() || "0"} onPress={handlePostLike} icon={<LikeButton fill={hasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={hasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
         <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={post.NoOfComments.toString() || "0"} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData})} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/comment.png")} />} />
         <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/share.png")} />} />
       </View>
@@ -91,12 +120,10 @@ const styles = StyleSheet.create({
 
   mainContainer :{
     borderBottomColor: "#ECECEC",
-    borderBottomWidth: 2,
-/*     borderRadius: 24, */
     backgroundColor: "white",
     width: "100%",
-    paddingBottom: 1,
-    paddingTop: 10,
+    marginBottom: 10,
+    paddingTop: 15,
     paddingHorizontal: 12
   },
   categoryContainerList : {
@@ -137,6 +164,7 @@ const styles = StyleSheet.create({
   },
   postText: {
     fontWeight: 300,
+    fontSize: 15,
     marginTop: 3,
     paddingTop: 8
   },
@@ -165,7 +193,7 @@ const styles = StyleSheet.create({
   },
   postActionButtonIcon: {
     width: 20,
-    height: 20
+    height: 20,
   }
 
 })

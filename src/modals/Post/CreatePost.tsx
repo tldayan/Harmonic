@@ -123,13 +123,18 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
         setLoading(true)
 
         try {
+        
+            let imageUrls: any[] = [];
 
-        const imageUrls = await uploadImages(selectedImages)
+            if (selectedImages && selectedImages.length > 0) {
+              imageUrls = (await uploadImages(selectedImages)) || [];
+            }
+        
 
 
         const response = await saveMBMessage(postText,imageUrls, organizationUUID, userUUID, postCategories.categories)
 
-            if(response === "Message created successfully") {
+            if(response === 2) {
                 onClose()
             }
 

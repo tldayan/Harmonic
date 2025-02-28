@@ -79,7 +79,7 @@ export default function Filters({onClose, setFiltering, filtering, categories, s
             )
         })}
       </ScrollView>
-      <CustomButton onPress={onClose} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, {width: "70%", marginHorizontal: "15%" }]} title={"Done"} />
+      <CustomButton onPress={onClose} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, {width: "70%", marginHorizontal: "15%"}]} title={"Done"} />
     </SafeAreaView>
   )
 }

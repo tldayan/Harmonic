@@ -62,6 +62,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         try {
           const {UserUUID, OrganizationUUID} = await getUuidBySignIn(authUser)
+          console.log(UserUUID)
 
           dispatch(setUUIDs({organizationUUID: OrganizationUUID, userUUID: UserUUID}))
           saveDataMMKV({"UserUUID": UserUUID, "OrganizationUUID" : OrganizationUUID})

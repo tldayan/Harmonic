@@ -2,7 +2,7 @@
 import { FirebaseAuthTypes } from "@react-native-firebase/auth"
 import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
-import { ENDPOINTS } from "./endpoints";
+import { ENDPOINTS, STATUS_CODE } from "./endpoints";
 import { AttachmentData, CategoryProps, MessageAttachmentData } from "../types/post-types";
 
 
@@ -103,7 +103,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
       }
 
       const response = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGES, bodyData,{} ,"POST")
-
+      console.log(response.data.Payload)
       return response.data.Payload
 
     } catch(err) {
@@ -146,18 +146,18 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
   }
 
-  export const getListOfComments =  async(messageBoardUUID: string) => {
+  export const getListOfComments =  async(messageBoardUUID: string, startIndex: number) => {
 
     const bodyData = {
       "messageBoardUUID": messageBoardUUID,
-      "startIndex": "0",
+      "startIndex": startIndex,
       "pageSize": "10"
     }
 
     try {
 
       const comments = await apiClient(ENDPOINTS.SOCIAL.COMMENTS, bodyData , {}, "POST")
-      console.log(comments)
+
       return comments.data.Payload
 
     } catch (err) {
@@ -252,7 +252,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
     const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE, bodyData, {}, "POST",{})
     console.log(response.data)
-    return response.data.Message
+    return response.data.status
 
   }
 
@@ -293,7 +293,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
     const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE_COMMENT, bodyData, {}, "POST")
 
-    if(response.data.Message === "Comment saved successfully") {
+    if(response.data.status === STATUS_CODE.SUCCESS) {
       return response.data.Payload
     }
 
@@ -325,3 +325,43 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
 
   }
+
+
+
+  export const saveMBMessageLike = async(MessageBoardUUID: string, LoggedInUserUUID: string, LikedValue: number) => {
+
+    let bodyData = {
+      "MessageBoardUUID": MessageBoardUUID, //-- Non-nullable
+      "LoggedInUserUUID": LoggedInUserUUID, //- For UserUUID, CreatedBy, ModifiedBy
+      "IsDeleted" : LikedValue, //-- Liked = 0, Removed like = 1
+    }
+
+    try {
+
+      const messageResponse = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE_LIKE, bodyData, {}, "POST")
+      console.log(messageResponse.data)
+      return messageResponse.data.Payload
+
+    } catch(err) {
+      console.error(err)
+    }
+  }
+
+
+
+export const deleteMBMessage = async(messageBoardUUID:string, loggedInUserUUID:string) => {
+
+
+  try {
+
+    const deleteMBCommentResponse = await apiClient(ENDPOINTS.SOCIAL.DELETE_MBMESSAGE, {}, {}, "GET", {messageBoardUUID, loggedInUserUUID})
+
+    return deleteMBCommentResponse.data
+    
+
+  } catch (err) {
+    console.error(err)
+  }
+
+
+}

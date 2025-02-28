@@ -1,19 +1,25 @@
 import { Image, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { formatDate } from '../utils/helpers'
 import CustomButton from './CustomButton'
 import ThreeDots from "../assets/icons/three-dots-horizontal.svg"
 import { CustomModal } from './CustomModal'
+import PostActions from '../modals/Post/PostActions'
 
 interface ProfileHeaderProps {
     FirstName?: string
     CreatedDateTime?: string
     ProfilePic?: string
+    MessageBoardUUID :string
+    CreatedBy?: string
 }
 
-export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic} : ProfileHeaderProps) {
+export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic, MessageBoardUUID, CreatedBy} : ProfileHeaderProps) {
+
+    const [isEditingPost, setIsEditingPost] = useState(false)
 
     const formattedDate = formatDate(CreatedDateTime || "")
+
 
   return (
     <View style={styles.mainProfileDetialsContainer}>
@@ -24,9 +30,11 @@ export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic} : 
                 <Text style={styles.postDate}>{formattedDate}</Text>
             </View>
         </View>
-        <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => {}} />
+        <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />
     
-        {/* <CustomModal  /> */}
+        <CustomModal isOpen={isEditingPost} halfModal onClose={() => setIsEditingPost(false)}>
+          <PostActions MessageBoardUUID={MessageBoardUUID} CreatedBy={CreatedBy} onClose={() => setIsEditingPost(false)} />
+        </CustomModal>
     </View>
   )
 }
@@ -48,6 +56,7 @@ const styles = StyleSheet.create({
       },
       name: {
         fontWeight: 500,
+        fontSize: 15,
         color: "#000000"
       },
       dateContainer : {
@@ -62,6 +71,7 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     flexDirection: "row", 
     alignItems: 'center',
-    padding: 5
+    padding: 5,
+    opacity: 0.7
   },
 })

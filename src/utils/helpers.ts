@@ -16,21 +16,36 @@ import { PasswordCheck } from "../types/password.types";
 
 
   //APPLY DATE FORMAT 
-export const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
+  export const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const timeDiff = now.getTime() - date.getTime(); 
+  
+    if (timeDiff < 3600000) { 
+      const minutes = Math.floor(timeDiff / 60000); 
+      return `${minutes}m`;
+    }
+  
 
-  const options = {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false, 
-    timeZone: "UTC", 
-  } as const;
-
-  return new Intl.DateTimeFormat("en-GB", options).format(date);
-};
+    if (timeDiff < 86400000) {
+      const hours = Math.floor(timeDiff / 3600000);
+      return `${hours}h`;
+    }
+  
+    const options = {
+      day: "numeric",
+      month: "short", 
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true, 
+    } as const;
+  
+    const formattedDate = new Intl.DateTimeFormat("en-GB", options).format(date);
+    
+    return formattedDate.replace(" at", ",");
+  };
+  
 
 
 export function timeAgo(dateString: string): string {
