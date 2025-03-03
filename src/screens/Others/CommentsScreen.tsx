@@ -4,7 +4,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
 import { getAllCommentReplies, getListOfComments, getMBMessageDetails, saveMBMessageComment } from '../../api/network-utils'
-import { CommentItemProps, PostItemProps, ReplyItemProps } from '../../types/post-types'
+import { CommentItemProps, EditPostState, PostItemProps, ReplyItemProps } from '../../types/post-types'
 import ProfileHeader from '../../components/ProfileHeader'
 import ChevronLeft from "../../assets/icons/chevron-left.svg"
 import CustomButton from '../../components/CustomButton'
@@ -16,6 +16,8 @@ import { timeAgo } from '../../utils/helpers'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { useUser } from '../../context/AuthContext'
+import PostActions from '../../modals/Post/PostActions'
+import { CustomModal } from '../../components/CustomModal'
 
 type CommentsScreenRouteProp = RouteProp<RootStackParamList, "Comments">
 
@@ -24,6 +26,8 @@ export default function CommentsScreen() {
   const [messageDetails, setMessageDetails] = useState<PostItemProps | null>(null)
   const [comment, setComment] = useState<string>("")
   const [comments, setComments] = useState<CommentItemProps[]>([])
+  const [editPost, setEditPost] = useState<EditPostState>({state: false, updatedEdit: "", postUUID: ""})
+  const [focusedComment, setFocusedComment] = useState({state: false, comment: "", MessageBoardCommentUUID: "", CreatedBy: ""})
   const [startIndex, setStartIndex] = useState(0)
   const [loading, setLoading] = useState(false)
   const [replyingTo, setReplyingTo] = useState({name: "", MessageBoardCommentUUID: ""})
@@ -39,7 +43,6 @@ export default function CommentsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const route = useRoute<CommentsScreenRouteProp>()
   const { postUUID, attachmentData } = route.params || {}
-
 
 
 
@@ -101,7 +104,7 @@ export default function CommentsScreen() {
 
   const fetchCommentReplies = async(MessageBoardCommentUUID: string) => {
     const commentReplies = await getAllCommentReplies(MessageBoardCommentUUID)
-    console.log(commentReplies)
+/*     console.log(commentReplies) */
     setReplies((prev) => ({...prev, [MessageBoardCommentUUID] : commentReplies}))
   }
 
@@ -110,12 +113,12 @@ export default function CommentsScreen() {
     fetchCommentReplies(MessageBoardCommentUUID)
   }
 
-  const handleComment = async() => {
-
-    if(!comment) return
-
+  const handleComment = async(postUUID?: string) => {
+    console.log("initiated edit comment")
+    if(!comment && !postUUID) return
+    console.log("reached")
     const newReplyorComment = {
-          "MessageBoardCommentUUID": replyingTo.MessageBoardCommentUUID, 
+          "MessageBoardCommentUUID": Date.now().toString(), 
           "Comment": comment,
           "TotalRepliesCount": 0,
           "CreatedDateTime": new Date().toISOString(),
@@ -126,10 +129,17 @@ export default function CommentsScreen() {
           "ProfilePicURL": user?.photoURL ?? ""
       }
 
-      const commentResponse = await saveMBMessageComment( comment, userUUID, messageDetails?.MessageBoardUUID,replyingTo.MessageBoardCommentUUID)
-
+      let response = await saveMBMessageComment( comment, userUUID, messageDetails?.MessageBoardUUID,replyingTo.MessageBoardCommentUUID)
+      console.log(response)
     if(replyingTo.MessageBoardCommentUUID && messageDetails?.MessageBoardUUID) {
       setReplies((prev) => ({...prev, [newReplyorComment.MessageBoardCommentUUID] : [newReplyorComment, ...prev[newReplyorComment.MessageBoardCommentUUID] || []]}))
+    } else if (postUUID) {
+
+      setComments((prev) => {
+        const updatedComments = prev.map((eachComment) => eachComment.MessageBoardCommentUUID === postUUID ? {...eachComment, Comment: editPost.updatedEdit} : eachComment)
+        return updatedComments
+      })
+
     } else if(messageDetails?.MessageBoardUUID) {
       setComments((prev) => ([newReplyorComment,...prev]))
     }
@@ -143,7 +153,6 @@ export default function CommentsScreen() {
     commentInput?.current?.focus();
   };
 
-
   const commentItem = ({ item, index }: { item: CommentItemProps; index: number }) => {
 
     if(!item) {
@@ -154,13 +163,19 @@ export default function CommentsScreen() {
       <View style={styles.commentItemContainer}>
         <CustomButton onPress={() => {}} icon={<Image style={styles.profilePic} source={{uri: item.ProfilePicURL || "https://i.pravatar.cc/150"}} />} />
         <View style={{flex: 1}}>       
-          <View style={styles.commentDetailsContainer}>
+          <TouchableOpacity onLongPress={() => setFocusedComment({state: true, comment: item.Comment, MessageBoardCommentUUID: item.MessageBoardCommentUUID, CreatedBy: item.CreatedBy})} style={styles.commentDetailsContainer}>
             <Text style={styles.name}>{item.FirstName}</Text>
-            <Text style={styles.comment}>{item.Comment}</Text>
-          </View>
+            {!editPost.state && <Text style={styles.comment}>{item.Comment}</Text>}
+            {(editPost.state && editPost.postUUID === item.MessageBoardCommentUUID) && <CustomTextInput multiline inputStyle={styles.editField} onChangeText={(e) => setEditPost((prev) => ({...prev, updatedEdit: e}))} value={editPost.updatedEdit} placeholder='Edit your comment...' />}
+            {(editPost.state && editPost.postUUID === item.MessageBoardCommentUUID) && <View style={styles.editButtonsContainer}>
+             <CustomButton textStyle={styles.cancelText} buttonStyle={styles.cancel} title={"Cancel"} onPress={() => setEditPost({state: false, updatedEdit: "", postUUID: ""})} />
+             <CustomButton textStyle={styles.updateText} buttonStyle={styles.update} title={"Update"} onPress={() => handleComment(item.MessageBoardCommentUUID)} />
+            </View>}
+            
+          </TouchableOpacity>
           <View style={styles.commentActionsContainer}>
             {item.TotalRepliesCount > 0 ? <CustomButton buttonStyle={styles.commentCount} textStyle={styles.commentCountText} onPress={() => toggleReplies(item.MessageBoardCommentUUID)} title={`${expandedComments[item.MessageBoardCommentUUID] === true ? "Hide" : "Show"} ${item.TotalRepliesCount} ${item.TotalRepliesCount > 1 ? "Replies" : "Reply"}`} />  : null}
-            <CustomButton textStyle={[styles.replyButton, {fontWeight: 300}]} onPress={() => initiateReply(item.FirstName,item.MessageBoardCommentUUID, index)} title={"Reply"} />
+            <CustomButton textStyle={styles.replyButton} onPress={() => initiateReply(item.FirstName,item.MessageBoardCommentUUID, index)} title={"Reply"} />
           </View>
           
           {expandedComments[item.MessageBoardCommentUUID] && replies[item.MessageBoardCommentUUID] && (
@@ -233,6 +248,11 @@ export default function CommentsScreen() {
           </View>
         </View>
       </View>
+
+      <CustomModal halfModal  isOpen={focusedComment.state} onClose={() => setFocusedComment({state: false, comment: "", MessageBoardCommentUUID: "", CreatedBy: ""})}>
+        <PostActions focusedComment={focusedComment.comment} setEditPost={setEditPost} CreatedBy={focusedComment.CreatedBy} MessageBoardCommentUUID={focusedComment.MessageBoardCommentUUID}  onClose={() => setFocusedComment({state: false, comment: "" ,MessageBoardCommentUUID: "", CreatedBy: ""})} />
+      </CustomModal>
+
     </View>
   )
 }
@@ -320,8 +340,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start'
   },
   commentCountText: {
-    fontSize: 10,
-    fontWeight: 300,
+    fontSize: 12,
+    fontWeight: 500,
     color: colors.ACCENT_COLOR
   },
   commentActionsContainer: {
@@ -330,7 +350,7 @@ const styles = StyleSheet.create({
     gap: 5
   },
   commentDateTime: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 300,
     color: colors.ACTIVE_ACCENT_COLOR,
   },
@@ -354,8 +374,8 @@ const styles = StyleSheet.create({
     borderRadius: 50
   },
   replyButton: {
-    fontSize: 10,
-    fontWeight: 300,
+    fontSize: 12,
+    fontWeight: 500,
     color: colors.ACTIVE_ORANGE
   },
   repliesContainer: {
@@ -390,7 +410,6 @@ const styles = StyleSheet.create({
 /*     borderWidth: 1, */
     marginRight: "auto",
     paddingBottom: 5,
-    fontSize: 12,
     fontWeight: 300,
     flexDirection: "row",
     alignItems: "center",
@@ -409,6 +428,39 @@ const styles = StyleSheet.create({
   separator: {
     fontSize: 16,
     color: "#888",
+  },
+  editField: {
+    backgroundColor: colors.MAIN_BACKGROUND_COLOR,
+    fontSize: 12,
+    fontWeight: "300",
+    flex: 1,
+  },
+  editButtonsContainer :{
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  cancel: {
+    borderColor: colors.LIGHT_TEXT,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 3,
+  },
+  cancelText: {
+    fontSize: 12,
+    color: colors.RED_TEXT,
+    justifyContent: "center"
+  },
+  update: {
+    borderColor: colors.LIGHT_TEXT,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 3,
+    backgroundColor: colors.ACTIVE_ORANGE,
+    justifyContent: "center"
+  },
+  updateText: {
+    color: "white",
+    fontSize: 12
   }
   
 })

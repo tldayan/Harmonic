@@ -84,3 +84,9 @@ export interface PostItemProps {
     categoryUUID: string;
     categoryName: string;
   }
+
+  export interface EditPostState  {
+    state: boolean;
+    updatedEdit: string;
+    postUUID: string;
+  };

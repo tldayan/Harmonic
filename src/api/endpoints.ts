@@ -26,7 +26,10 @@ export const ENDPOINTS = {
     COMMENT_REPLIES: `${BASE_URL}/social/getAllCommentReplies`,
     SAVE_MBMESSAGE_COMMENT: `${BASE_URL}/social/saveMBMessageComment`,
     SAVE_MBMESSAGE_LIKE: `${BASE_URL}/social/saveMBMessageLike`,
-    DELETE_MBMESSAGE: `${BASE_URL}/social/deleteMBMessage`
+    DELETE_MBMESSAGE: `${BASE_URL}/social/deleteMBMessage`,
+    REPORT_MBMESSAGE: `${BASE_URL}/social/reportMBMessageInappropriate`,
+    REPORT_MBMESSAGE_COMMENT: `${BASE_URL}/social/reportMBCommentInappropriate`,
+    DELETE_MBMESSAGE_COMMENT: `${BASE_URL}/social/deleteMBComment`
   },
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,

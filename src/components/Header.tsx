@@ -12,8 +12,6 @@ import OrganizationsList from "../modals/OrganizationsList";
 import { colors } from "../styles/colors";
 import Switch from "../assets/icons/switch.svg"
 import { handleSignOut } from "../services/auth-service";
-import Send from "../assets/icons/send-horizontal.svg"
-import Like from "../assets/icons/like.svg"
 
 const Header = () => {
 

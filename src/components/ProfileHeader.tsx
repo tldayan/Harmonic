@@ -35,6 +35,7 @@ export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic, Me
         <CustomModal isOpen={isEditingPost} halfModal onClose={() => setIsEditingPost(false)}>
           <PostActions MessageBoardUUID={MessageBoardUUID} CreatedBy={CreatedBy} onClose={() => setIsEditingPost(false)} />
         </CustomModal>
+
     </View>
   )
 }

@@ -5,30 +5,51 @@ import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
-import { deleteMBMessage } from '../../api/network-utils'
+import { deleteMBComment, deleteMBMessage } from '../../api/network-utils'
 import { STATUS_CODE } from '../../api/endpoints'
+import { CustomModal } from '../../components/CustomModal'
+import ReportForm from './ReportForm'
+import { EditPostState } from '../../types/post-types'
 
 interface PostActionsProps {
+  focusedComment?: string,
   onClose: () => void
-  MessageBoardUUID: string
+  MessageBoardUUID?: string
+  MessageBoardCommentUUID?: string
   CreatedBy?: string
+  setEditPost?: React.Dispatch<React.SetStateAction<EditPostState>>;
 }
 
-export default function PostActions({onClose, MessageBoardUUID, CreatedBy} : PostActionsProps) {
+export default function PostActions({onClose, MessageBoardUUID, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment} : PostActionsProps) {
 
   const [loading, setLoading] = useState(false)
+  const [isReportingPost, setIsReportingPost] = useState(false)
 
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
 
   const handleDeletePost = async() => {
 
+    if(!MessageBoardUUID && !MessageBoardCommentUUID) return
+
     setLoading(true)
+
     try {
-      const deleteMessageResponse = await deleteMBMessage(MessageBoardUUID,userUUID)
-      if(deleteMessageResponse.Status === STATUS_CODE.SUCCESS) {
+      if(MessageBoardUUID) {
+        const deleteMessageResponse = await deleteMBMessage(MessageBoardUUID,userUUID)
+
+        if(deleteMessageResponse.Status === STATUS_CODE.SUCCESS) {
         onClose()
-      } else{
-        Alert.alert(deleteMessageResponse.Message)
+        } else{
+          Alert.alert(deleteMessageResponse.Message)
+        }
+      } else if(MessageBoardCommentUUID) {
+        const deleteCommentResponse = await deleteMBComment(MessageBoardCommentUUID, userUUID)
+
+        if(deleteCommentResponse.Status === STATUS_CODE.SUCCESS) {
+          onClose()
+        } else{
+          Alert.alert(deleteCommentResponse.Message)
+        }
       }
 
     } catch (err) {
@@ -40,14 +61,33 @@ export default function PostActions({onClose, MessageBoardUUID, CreatedBy} : Pos
 
   const isUserMessageOwner = CreatedBy === userUUID
 
+  const handleCloseAllModals = () => {
+    setIsReportingPost(false)
+    setTimeout(() => {
+      onClose()
+    },0)
+
+  }
+
   return (
       <View style={styles.container}>
         <ModalsHeader onClose={onClose} title={"Post Actions"} />
         <View style={styles.postActionButtonsContainer}>
-          <CustomButton onPress={() => {}} textStyle={styles.reportText} buttonStyle={styles.report} title={"Report"} />
-          {isUserMessageOwner && <CustomButton onPress={() => {}} textStyle={styles.editText} buttonStyle={styles.edit} title={"Edit"} />}
+          <CustomButton onPress={() => setIsReportingPost(true)} textStyle={styles.reportText} buttonStyle={styles.report} title={"Report"} />
+          {isUserMessageOwner && <CustomButton onPress={() => {setEditPost?.({state: true, updatedEdit: focusedComment ?? "", postUUID: MessageBoardCommentUUID ?? ""}); onClose()}} textStyle={styles.editText} buttonStyle={styles.edit} title={"Edit"} />}
           {isUserMessageOwner && <CustomButton onPress={handleDeletePost} textStyle={styles.deleteText} buttonStyle={styles.delete} title={loading ? null : "Delete"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />}
         </View>
+
+
+        <CustomModal fullScreen presentationStyle="formSheet" isOpen={isReportingPost} onClose={() => setIsReportingPost(false)} >
+          <ReportForm MessageBoardCommentUUID={MessageBoardCommentUUID} MessageBoardUUID={MessageBoardUUID} onClose={handleCloseAllModals} />
+        </CustomModal>
+{/* 
+        <CustomModal>
+          
+        </CustomModal> */}
+
+
       </View>
   )
 }

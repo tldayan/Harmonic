@@ -133,7 +133,7 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
 
 
         const response = await saveMBMessage(postText,imageUrls, organizationUUID, userUUID, postCategories.categories)
-
+            console.log(response)
             if(response === 2) {
                 onClose()
             }
@@ -188,7 +188,7 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
             <CustomButton onPress={() => setPostCategories((prev) => ({...prev, state: true}))} textStyle={{color: colors.PRIMARY_COLOR}} title={postCategories.categories.length ? "Edit Categories" : "Add Categories"} />
             <CustomButton onPress={handlePost} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]} title={!loading ? "Post" : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />
             
-            <CustomModal isOpen={postCategories.state} fullScreen onClose={() => setPostCategories((prev) => ({...prev, state: false}))}>
+            <CustomModal isOpen={postCategories.state} fullScreen presentationStyle='formSheet' onClose={() => setPostCategories((prev) => ({...prev, state: false}))}>
                 <Filters setPostCategories={setPostCategories} postCategories={postCategories.categories} categories={categories} onClose={() => setPostCategories((prev) => ({...prev, state: false}))} />
             </CustomModal>
 

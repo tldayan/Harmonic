@@ -34,7 +34,7 @@ export default function ForgotPassword({onClose, email, setEmail, setErrorMessag
 
     const initializeResetPassword = async() => {
         setErrorMessage((prev) => ({...prev, email: ""}))
-        setEmailSent(false)
+        setEmailSent(false) 
 
         try {
             setLoading(true)

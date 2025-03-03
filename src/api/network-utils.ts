@@ -252,7 +252,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
     const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE, bodyData, {}, "POST",{})
     console.log(response.data)
-    return response.data.status
+    return response.data.Status
 
   }
 
@@ -279,7 +279,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
 
   export const saveMBMessageComment = async(comment: string, LoggedInUserUUID: string, MessageBoardUUID?: string, ReplyToMessageBoardCommentUUID?: string) => {
-
+    // EDIT THE PARAMS SO THAT IF THE USER IS EDITING THEIR COMMENT, MessageBoardCommentId OR MessageBoardCommentUUID IS NOT NULL. CHECK DOCS
     const bodyData = {
       "MessageBoardCommentId": null,
       "MessageBoardCommentUUID": null,
@@ -292,7 +292,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   try {
 
     const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE_COMMENT, bodyData, {}, "POST")
-
+    console.log(response)
     if(response.data.status === STATUS_CODE.SUCCESS) {
       return response.data.Payload
     }
@@ -350,8 +350,6 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
 
 export const deleteMBMessage = async(messageBoardUUID:string, loggedInUserUUID:string) => {
-
-
   try {
 
     const deleteMBCommentResponse = await apiClient(ENDPOINTS.SOCIAL.DELETE_MBMESSAGE, {}, {}, "GET", {messageBoardUUID, loggedInUserUUID})
@@ -363,5 +361,55 @@ export const deleteMBMessage = async(messageBoardUUID:string, loggedInUserUUID:s
     console.error(err)
   }
 
+}
+
+
+export const reportMBMessageInappropriate = async(loggedInUserUUID:string, MessageBoardUUID: string,reason: string, ) => {
+
+  const bodyData = {
+    "LoggedInUserUUID": loggedInUserUUID,
+    "MessageBoardUUID": MessageBoardUUID,
+    "Reason": reason,
+  }
+
+  try {
+      const reportMBMessageResponse = await apiClient(ENDPOINTS.SOCIAL.REPORT_MBMESSAGE, bodyData, {}, "POST")
+      console.log(reportMBMessageResponse)
+    return reportMBMessageResponse.data.Status
+  } catch(err) {
+    console.log(err)
+  }
+}
+
+
+export const reportMBCommentInappropriate = async(loggedInUserUUID:string, MessageBoardCommentUUID: string,reason: string) => {
+
+  const bodyData = {
+    "LoggedInUserUUID": loggedInUserUUID,
+    "MessageBoardCommentUUID": MessageBoardCommentUUID,
+    "Reason": reason,
+  }
+
+  try {
+      const reportMBCommentResponse = await apiClient(ENDPOINTS.SOCIAL.REPORT_MBMESSAGE_COMMENT, bodyData, {}, "POST")
+      console.log(reportMBCommentResponse)
+    return reportMBCommentResponse.data.Status
+  } catch(err) {
+    console.log(err)
+  }
+}
+
+
+export const deleteMBComment = async(messageBoardCommentUUID:string, loggedInUserUUID:string) => {
+
+  try {
+
+    const deleteMBCommentResponse = await apiClient(ENDPOINTS.SOCIAL.DELETE_MBMESSAGE_COMMENT, {}, {}, "GET", {messageBoardCommentUUID, loggedInUserUUID})
+
+    return deleteMBCommentResponse.data
+    
+  } catch (err) {
+    console.error(err)
+  }
 
 }
