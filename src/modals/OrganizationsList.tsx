@@ -14,8 +14,7 @@ interface OrganizationsListProps {
 export default function OrganizationsList({organizationsList, onClose, setOrganization}: OrganizationsListProps) {
   return (
     <View style={styles.container}>
-        <ModalsHeader onClose={onClose} title='' />
-        <Text style={styles.title}>Switch Organization</Text>
+        <ModalsHeader onClose={onClose} title='Switch Organization' />
         <View style={styles.organizationList}>
             {organizationsList?.map((oraganization) => (
                 <CustomButton buttonStyle={styles.organization} key={oraganization.OrganizationUUID}  onPress={() => setOrganization?.(oraganization)} title={oraganization.OrganizationName}/>

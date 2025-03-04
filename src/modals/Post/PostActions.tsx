@@ -9,7 +9,7 @@ import { deleteMBComment, deleteMBMessage } from '../../api/network-utils'
 import { STATUS_CODE } from '../../api/endpoints'
 import { CustomModal } from '../../components/CustomModal'
 import ReportForm from './ReportForm'
-import { EditPostState } from '../../types/post-types'
+import { CommentItemProps, EditPostState } from '../../types/post-types'
 
 interface PostActionsProps {
   focusedComment?: string,
@@ -18,9 +18,10 @@ interface PostActionsProps {
   MessageBoardCommentUUID?: string
   CreatedBy?: string
   setEditPost?: React.Dispatch<React.SetStateAction<EditPostState>>;
+  setComments?: React.Dispatch<React.SetStateAction<CommentItemProps[]>>
 }
 
-export default function PostActions({onClose, MessageBoardUUID, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment} : PostActionsProps) {
+export default function PostActions({onClose, MessageBoardUUID, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment, setComments} : PostActionsProps) {
 
   const [loading, setLoading] = useState(false)
   const [isReportingPost, setIsReportingPost] = useState(false)
@@ -38,8 +39,8 @@ export default function PostActions({onClose, MessageBoardUUID, CreatedBy, Messa
         const deleteMessageResponse = await deleteMBMessage(MessageBoardUUID,userUUID)
 
         if(deleteMessageResponse.Status === STATUS_CODE.SUCCESS) {
-        onClose()
-        } else{
+          onClose()
+        } else {
           Alert.alert(deleteMessageResponse.Message)
         }
       } else if(MessageBoardCommentUUID) {
@@ -47,7 +48,9 @@ export default function PostActions({onClose, MessageBoardUUID, CreatedBy, Messa
 
         if(deleteCommentResponse.Status === STATUS_CODE.SUCCESS) {
           onClose()
-        } else{
+          setComments?.((prev) => prev.filter((eachComment) => eachComment.MessageBoardCommentUUID !== MessageBoardCommentUUID))
+
+        } else {
           Alert.alert(deleteCommentResponse.Message)
         }
       }
@@ -73,7 +76,7 @@ export default function PostActions({onClose, MessageBoardUUID, CreatedBy, Messa
       <View style={styles.container}>
         <ModalsHeader onClose={onClose} title={"Post Actions"} />
         <View style={styles.postActionButtonsContainer}>
-          <CustomButton onPress={() => setIsReportingPost(true)} textStyle={styles.reportText} buttonStyle={styles.report} title={"Report"} />
+          {!isUserMessageOwner && <CustomButton onPress={() => setIsReportingPost(true)} textStyle={styles.reportText} buttonStyle={styles.report} title={"Report"} />}
           {isUserMessageOwner && <CustomButton onPress={() => {setEditPost?.({state: true, updatedEdit: focusedComment ?? "", postUUID: MessageBoardCommentUUID ?? ""}); onClose()}} textStyle={styles.editText} buttonStyle={styles.edit} title={"Edit"} />}
           {isUserMessageOwner && <CustomButton onPress={handleDeletePost} textStyle={styles.deleteText} buttonStyle={styles.delete} title={loading ? null : "Delete"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />}
         </View>
@@ -82,11 +85,6 @@ export default function PostActions({onClose, MessageBoardUUID, CreatedBy, Messa
         <CustomModal fullScreen presentationStyle="formSheet" isOpen={isReportingPost} onClose={() => setIsReportingPost(false)} >
           <ReportForm MessageBoardCommentUUID={MessageBoardCommentUUID} MessageBoardUUID={MessageBoardUUID} onClose={handleCloseAllModals} />
         </CustomModal>
-{/* 
-        <CustomModal>
-          
-        </CustomModal> */}
-
 
       </View>
   )

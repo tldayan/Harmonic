@@ -14,6 +14,7 @@ import StoreIcon from "../assets/icons/store.svg";
 import TaskIcon from "../assets/icons/clipboard.svg";
 import HamburgerIcon from "../assets/icons/hamburger.svg"
 import Header from "../components/Header";
+import { colors } from "../styles/colors";
 
 export const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -39,8 +40,8 @@ export default function TabNavigator(): JSX.Element {
 
         return {
           ...globalScreenOptions,
-          tabBarIcon: ({ color }) =>
-            IconComponent ? <IconComponent width={16} height={16} fill={color} /> : null, headerShown : true, header: () => <Header />
+          tabBarIcon: ({ color, focused}) =>
+            IconComponent ? <IconComponent width={16} height={16} fill={focused ? colors.ACTIVE_ORANGE : color}/> : null, headerShown : true, header: () => <Header />
         };
       }}
     >

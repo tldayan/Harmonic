@@ -177,6 +177,7 @@ export default function SocialScreen() {
             onEndReachedThreshold={0.5}
             onRefresh={handleRefresh}
             refreshing={refreshing}
+            showsVerticalScrollIndicator={false}
         />
 
         <CustomModal fullScreen isOpen={creatingPost.state}>

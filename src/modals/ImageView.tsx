@@ -1,4 +1,4 @@
-import { Image, StyleSheet, TouchableWithoutFeedback, View, Dimensions } from 'react-native'
+import { Image, StyleSheet, TouchableWithoutFeedback, View, Dimensions, ActivityIndicator } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import ModalsHeader from './ModalsHeader'
 
@@ -8,7 +8,8 @@ interface ImageViewProps {
 }
 
 export default function ImageView({ onClose, imageUrl }: ImageViewProps) {
-  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [imageDimensions, setImageDimensions] = useState<{ width: number, height: number } | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const screenWidth = Dimensions.get('window').width;
 
@@ -18,24 +19,35 @@ export default function ImageView({ onClose, imageUrl }: ImageViewProps) {
     });
   }, [imageUrl]);
 
-
-  const aspectRatio = imageDimensions.width / imageDimensions.height;
+  const aspectRatio = imageDimensions ? imageDimensions.width / imageDimensions.height : 1;
 
   return (
     <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.container}>
-        <ModalsHeader onClose={onClose} lightCloseIcon={true} title='' />
+
         <View style={styles.innerContainer}>
-          <Image
-            style={[
-              styles.image,
-              {
-                width: screenWidth * 0.9,
-                height: screenWidth * 0.9 / aspectRatio,
-              }
-            ]}
-            source={{ uri: imageUrl || undefined }}
-          />
+        {imageLoaded && (
+
+          <ModalsHeader onClose={onClose} lightCloseIcon={true} title='' />
+
+        )}
+
+          {!imageLoaded && <ActivityIndicator style={styles.loadingSpinner} size="small" color="white" />}
+          
+          {imageDimensions && (
+            <Image
+              onLoad={() => setImageLoaded(true)}
+              style={[
+                styles.image,
+                {
+                  width: screenWidth * 0.9,
+                  height: screenWidth * 0.9 / aspectRatio,
+                  opacity: imageLoaded ? 1 : 0, 
+                },
+              ]}
+              source={{ uri: imageUrl }}
+            />
+          )}
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -44,16 +56,24 @@ export default function ImageView({ onClose, imageUrl }: ImageViewProps) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-/*     backgroundColor: "black", */
+    flex: 1, 
     justifyContent: "center",
     alignItems: "center",
   },
   innerContainer: {
-    alignItems: 'center', 
+    flex: 1, 
+    width: "100%",
     justifyContent: 'center',
+    alignItems: 'center', 
+    position: 'relative', 
   },
   image: {
     resizeMode: 'contain',
   },
+  loadingSpinner: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -25 }, { translateY: -25 }]
+  }
 });

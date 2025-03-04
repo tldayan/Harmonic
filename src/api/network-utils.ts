@@ -137,7 +137,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     try {
 
       const messageDetails = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGE_DETAILS, {}, {}, "GET", {messageBoardUUID})
-
+      console.log(messageDetails)
       return messageDetails.data.Payload
 
     } catch (err) {
@@ -157,7 +157,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     try {
 
       const comments = await apiClient(ENDPOINTS.SOCIAL.COMMENTS, bodyData , {}, "POST")
-
+      console.log(comments)
       return comments.data.Payload
 
     } catch (err) {
@@ -278,11 +278,11 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const saveMBMessageComment = async(comment: string, LoggedInUserUUID: string, MessageBoardUUID?: string, ReplyToMessageBoardCommentUUID?: string) => {
-    // EDIT THE PARAMS SO THAT IF THE USER IS EDITING THEIR COMMENT, MessageBoardCommentId OR MessageBoardCommentUUID IS NOT NULL. CHECK DOCS
+  export const saveMBMessageComment = async(comment: string, LoggedInUserUUID: string, MessageBoardUUID?: string, ReplyToMessageBoardCommentUUID?: string, PostUUID?: string) => {
+
     const bodyData = {
-      "MessageBoardCommentId": null,
-      "MessageBoardCommentUUID": null,
+/*       "MessageBoardCommentId": null, */
+      "MessageBoardCommentUUID": PostUUID ? PostUUID : null,
       "MessageBoardUUID": MessageBoardUUID,
       "Comment": comment,
       "ReplyToMessageBoardCommentUUID": ReplyToMessageBoardCommentUUID ? ReplyToMessageBoardCommentUUID : null,
@@ -292,11 +292,9 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   try {
 
     const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE_COMMENT, bodyData, {}, "POST")
-    console.log(response)
-    if(response.data.status === STATUS_CODE.SUCCESS) {
-      return response.data.Payload
-    }
 
+    return response.data.Status
+    
   } catch(err) {
     console.error(err)
   }

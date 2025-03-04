@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, KeyboardAvoidingView, Platform, Image, Alert, FlatList, TouchableOpacity, Keyboard } from 'react-native'
+import { StyleSheet, Text, View, KeyboardAvoidingView, Platform, Image, Alert, FlatList, TouchableOpacity, Keyboard, ActivityIndicator } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -18,6 +18,7 @@ import { RootState } from '../../store/store'
 import { useUser } from '../../context/AuthContext'
 import PostActions from '../../modals/Post/PostActions'
 import { CustomModal } from '../../components/CustomModal'
+import { STATUS_CODE } from '../../api/endpoints'
 
 type CommentsScreenRouteProp = RouteProp<RootStackParamList, "Comments">
 
@@ -50,6 +51,8 @@ export default function CommentsScreen() {
 
     setLoading(true)
 
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     if(!postUUID) return
 
     try {
@@ -75,6 +78,7 @@ export default function CommentsScreen() {
 
     const fetchMBMessageDetails = async() => {
       const messageDetails = await getMBMessageDetails(postUUID)
+      console.log(messageDetails)
       setMessageDetails(messageDetails)
     }
 
@@ -114,9 +118,9 @@ export default function CommentsScreen() {
   }
 
   const handleComment = async(postUUID?: string) => {
-    console.log("initiated edit comment")
+
     if(!comment && !postUUID) return
-    console.log("reached")
+
     const newReplyorComment = {
           "MessageBoardCommentUUID": Date.now().toString(), 
           "Comment": comment,
@@ -129,10 +133,30 @@ export default function CommentsScreen() {
           "ProfilePicURL": user?.photoURL ?? ""
       }
 
-      let response = await saveMBMessageComment( comment, userUUID, messageDetails?.MessageBoardUUID,replyingTo.MessageBoardCommentUUID)
-      console.log(response)
+      let response = await saveMBMessageComment( comment ? comment : editPost.updatedEdit, userUUID, messageDetails?.MessageBoardUUID,replyingTo.MessageBoardCommentUUID, postUUID)
+      if(response === STATUS_CODE.SUCCESS) {
+        console.log("comment update successfull")
+      }
+
     if(replyingTo.MessageBoardCommentUUID && messageDetails?.MessageBoardUUID) {
-      setReplies((prev) => ({...prev, [newReplyorComment.MessageBoardCommentUUID] : [newReplyorComment, ...prev[newReplyorComment.MessageBoardCommentUUID] || []]}))
+
+      setReplies((prev) => {
+        const updatedReplies = { ...prev };
+        updatedReplies[replyingTo.MessageBoardCommentUUID] = [
+          newReplyorComment,
+          ...(updatedReplies[replyingTo.MessageBoardCommentUUID] || []),
+        ];
+        return updatedReplies;
+      });
+
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.MessageBoardCommentUUID === replyingTo.MessageBoardCommentUUID
+            ? { ...comment, TotalRepliesCount: comment.TotalRepliesCount + 1 }
+            : comment
+        )
+      );
+      
     } else if (postUUID) {
 
       setComments((prev) => {
@@ -145,6 +169,9 @@ export default function CommentsScreen() {
     }
 
     setComment("")
+    if(postUUID) {
+      setEditPost({state: false, updatedEdit: "", postUUID: ""})
+    }
   }
 
   const initiateReply = (firstName: string, messageBoardCommentUUID: string, index: number) => {
@@ -182,10 +209,10 @@ export default function CommentsScreen() {
           replies[item.MessageBoardCommentUUID].map((reply) => (
             <View key={reply.MessageBoardCommentUUID} style={styles.repliesContainer}>
               <Image style={styles.replyProfilePic} source={{uri: reply.ProfilePicURL || "https://i.pravatar.cc/150"}} />
-              <View style={styles.replyContainer}>
+              <TouchableOpacity onPress={() => {}} style={styles.replyContainer}>
                 <Text style={styles.name}>{reply.FirstName}</Text>
                 <Text style={styles.reply}>{reply.Comment}</Text>
-              </View>
+              </TouchableOpacity>
               <Text style={styles.commentDateTime}>{timeAgo(reply.CreatedDateTime)}</Text>
             </View>
           )))}
@@ -204,6 +231,7 @@ export default function CommentsScreen() {
       </View>
 
       {messageDetails && <PostItem setViewingImageUrl={() => {}} childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
+{/*       {loading && startIndex === 0 ? <ActivityIndicator size="small" color="black" /> : null} */}
 
         <FlatList 
           ref={flatListRef} 
@@ -215,6 +243,7 @@ export default function CommentsScreen() {
           data={comments}
           onEndReached={fetchComments} 
           onEndReachedThreshold={0.5}
+          ListFooterComponent={ (loading && startIndex >= 10 && comments.length % 10 === 0) ? <ActivityIndicator size="small" color="black" /> : null }
         />
 
 
@@ -250,7 +279,7 @@ export default function CommentsScreen() {
       </View>
 
       <CustomModal halfModal  isOpen={focusedComment.state} onClose={() => setFocusedComment({state: false, comment: "", MessageBoardCommentUUID: "", CreatedBy: ""})}>
-        <PostActions focusedComment={focusedComment.comment} setEditPost={setEditPost} CreatedBy={focusedComment.CreatedBy} MessageBoardCommentUUID={focusedComment.MessageBoardCommentUUID}  onClose={() => setFocusedComment({state: false, comment: "" ,MessageBoardCommentUUID: "", CreatedBy: ""})} />
+        <PostActions setComments={setComments} focusedComment={focusedComment.comment} setEditPost={setEditPost} CreatedBy={focusedComment.CreatedBy} MessageBoardCommentUUID={focusedComment.MessageBoardCommentUUID}  onClose={() => setFocusedComment({state: false, comment: "" ,MessageBoardCommentUUID: "", CreatedBy: ""})} />
       </CustomModal>
 
     </View>

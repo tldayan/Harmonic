@@ -21,12 +21,15 @@ import { PasswordCheck } from "../types/password.types";
     const now = new Date();
     const timeDiff = now.getTime() - date.getTime(); 
   
+    if (timeDiff < 60000) { 
+      return "now";
+    }
+  
     if (timeDiff < 3600000) { 
       const minutes = Math.floor(timeDiff / 60000); 
       return `${minutes}m`;
     }
   
-
     if (timeDiff < 86400000) {
       const hours = Math.floor(timeDiff / 3600000);
       return `${hours}h`;
@@ -45,6 +48,7 @@ import { PasswordCheck } from "../types/password.types";
     
     return formattedDate.replace(" at", ",");
   };
+  
   
 
 
