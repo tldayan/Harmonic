@@ -14,27 +14,26 @@ export default function ImageView({ onClose, imageUrl }: ImageViewProps) {
   const screenWidth = Dimensions.get('window').width;
 
   useEffect(() => {
-    Image.getSize(imageUrl, (width, height) => {
-      setImageDimensions({ width, height });
-    });
+    if (imageUrl) {
+      Image.getSize(imageUrl, (width, height) => {
+        setImageDimensions({ width, height });
+      });
+    }
   }, [imageUrl]);
 
   const aspectRatio = imageDimensions ? imageDimensions.width / imageDimensions.height : 1;
 
+  const isImageUrlValid = imageUrl && imageUrl.trim() !== ''; // Check if the imageUrl is valid
+
   return (
     <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.container}>
-
         <View style={styles.innerContainer}>
-        {imageLoaded && (
-
-          <ModalsHeader onClose={onClose} lightCloseIcon={true} title='' />
-
-        )}
+          {imageLoaded && <ModalsHeader onClose={onClose} lightCloseIcon={true} title='' />}
 
           {!imageLoaded && <ActivityIndicator style={styles.loadingSpinner} size="small" color="white" />}
           
-          {imageDimensions && (
+          {isImageUrlValid && imageDimensions && (
             <Image
               onLoad={() => setImageLoaded(true)}
               style={[

@@ -79,6 +79,17 @@ export interface PostItemProps {
     MessageBoardCommentUUID: string | null,
   }
 
+  export interface PostLikeProps {
+    MessageBoardLikeUUID: string;
+    TotalLikesCount: number;
+    CreatedDateTime: string;
+    CreatedBy: string;
+    UserName: string | null;
+    FirstName: string;
+    LastName: string | null;
+    ProfilePicURL: string;
+  }
+
   
   export interface CategoryProps {
     categoryUUID: string;

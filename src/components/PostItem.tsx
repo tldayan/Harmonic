@@ -3,14 +3,17 @@ import React, { useEffect, useState } from 'react'
 import CustomButton from './CustomButton'
 import { colors } from '../styles/colors'
 import { AttachmentData, PostItemProps } from '../types/post-types'
-import { getMBMessageAttacment, saveMBMessageLike } from '../api/network-utils'
-import { useNavigation } from '@react-navigation/native'
+import { getListOfLikes, getMBMessageAttacment, saveMBMessageLike } from '../api/network-utils'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ProfileHeader from './ProfileHeader'
 import { useSelector } from 'react-redux'
 import { RootState } from '../store/store'
 import LikeButton from "../assets/icons/heart.svg"
+import Comment from "../assets/icons/comment.svg"
+import { CustomModal } from './CustomModal'
+import PostLikes from '../modals/Post/PostLikes'
 
 interface PostItemChildProps {
   setViewingImageUrl: (url: string) => void
@@ -25,8 +28,11 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
   const [attachmentData, setAttachmentData] = useState<AttachmentData[]>(childAttachmentData || [])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+  const [viewingLikes, setViewingLikes] = useState(false)
   const [hasLiked, setHasLiked] = useState(post.HasLiked);
   const [noOfLikes, setNoOfLikes] = useState(post.NoofLikes);
+  const route = useRoute()
+  
 
 
   useEffect(() => {
@@ -70,6 +76,11 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
       setNoOfLikes((prevLikes) => prevLikes + (hasLiked ? -1 : 1));
     }
   };
+
+  const handleGetLikes = async() => {
+    if(route.name !== "Comments") return
+    setViewingLikes(true)
+  }
   
   const imageItem = ({item}: {item : AttachmentData}) => {
 
@@ -81,7 +92,7 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
         <CustomButton 
           onPress={() => setViewingImageUrl(item.Attachment)} 
           buttonStyle={[styles.postImageContainer, attachmentData.length === 1 && {width: "100%", height: 200}]} 
-          icon={<Image style={styles.postImage} source={{uri: item?.Attachment}} />} 
+          icon={<Image style={styles.postImage} source={{uri: item?.Attachment}} />}
         />
       )
   }
@@ -101,16 +112,24 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
       {attachmentData.length >= 1 && <FlatList indicatorStyle='black' horizontal style={styles.mainImagesList} contentContainerStyle={styles.imagesList} data={attachmentData} renderItem={imageItem} keyExtractor={(item) => item.AttachmentUUID} />}
     
      <ScrollView horizontal contentContainerStyle={styles.categoryContainerList}>
-        {post.AllMBCategoryItems.map(eachCategory => {
+        {post.AllMBCategoryItems?.map(eachCategory => {
           return <Text key={eachCategory.CategoryItemUUID} style={styles.categoryText}>{eachCategory.CategoryItemName}</Text>
         })}
       </ScrollView>
       
       <View style={styles.postActionButtonsContainer}>
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={noOfLikes.toString() || "0"} onPress={handlePostLike} icon={<LikeButton fill={hasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={hasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={post.NoOfComments.toString() || "0"} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData})} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/comment.png")} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={handlePostLike} icon={<LikeButton fill={hasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={hasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData})} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/comment.png")} />} />
         <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/share.png")} />} />
       </View>
+      <View style={styles.postStatsContainer}>
+        {noOfLikes > 0 && <CustomButton textStyle={styles.likeStats} icon={<LikeButton fill={colors.ACTIVE_COLOR} stroke='none' width={15} height={15} />} title={noOfLikes} onPress={handleGetLikes} buttonStyle={styles.likeStatsContainer} />}
+        {post.NoOfComments > 0 && <CustomButton textStyle={styles.commentStats} icon={<Comment stroke='none' fill={colors.ACTIVE_ORANGE} width={15} height={15} />} title={post.NoOfComments} onPress={() => {}} buttonStyle={styles.commentStatsContainer} />}
+      </View>
+        
+      <CustomModal presentationStyle="formSheet" fullScreen isOpen={viewingLikes} onClose={() => setViewingLikes(false)}>
+        <PostLikes MessageBoardUUID={post.MessageBoardUUID} onClose={() => setViewingLikes(false)} />
+      </CustomModal>
 
     </View>
   )
@@ -169,7 +188,8 @@ const styles = StyleSheet.create({
     paddingTop: 8
   },
   postActionButtonsContainer: {
-    borderColor: "#0000001A",
+/*     borderColor: "#0000001A",
+    borderWidth: 2, */
     flexDirection: "row",
     width: "100%",
     justifyContent: "space-around",
@@ -183,8 +203,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 5,
     flex: 1,
-/*     backgroundColor: colors.LIGHT_COLOR,
-    borderRadius: 50, */
+    borderColor: colors.LIGHT_COLOR,
+    borderWidth: 0.75,
+   /*  backgroundColor: colors.LIGHT_COLOR, */
+    borderRadius: 50,
     paddingVertical: 4
   },
   postActionButtonText: {
@@ -194,6 +216,34 @@ const styles = StyleSheet.create({
   postActionButtonIcon: {
     width: 20,
     height: 20,
+  },
+  postStatsContainer: {
+/*     borderWidth: 1, */
+    paddingTop: 5,
+    paddingBottom: 5,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  likeStats: {
+    fontSize: 14,
+    fontWeight: 300,
+  },
+  commentStats: {
+    fontSize: 14,
+    fontWeight: 300,
+  },
+  likeStatsContainer: {
+    flexDirection: "row",
+    marginRight: "auto",
+    gap: 2,
+    alignItems: "center",
+  },
+  commentStatsContainer: {
+    flexDirection: "row",
+    marginLeft: "auto",
+    gap: 2,
+    alignItems: "center",
   }
 
 })

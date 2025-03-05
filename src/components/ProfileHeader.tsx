@@ -10,11 +10,12 @@ interface ProfileHeaderProps {
     FirstName?: string
     CreatedDateTime?: string
     ProfilePic?: string
-    MessageBoardUUID :string
+    MessageBoardUUID?:string
     CreatedBy?: string
+    showActions?: boolean
 }
 
-export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic, MessageBoardUUID, CreatedBy} : ProfileHeaderProps) {
+export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic, MessageBoardUUID, CreatedBy, showActions} : ProfileHeaderProps) {
 
     const [isEditingPost, setIsEditingPost] = useState(false)
 
@@ -30,7 +31,7 @@ export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic, Me
                 <Text style={styles.postDate}>{formattedDate}</Text>
             </View>
         </View>
-        <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />
+        {showActions && <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />}
     
         <CustomModal isOpen={isEditingPost} halfModal onClose={() => setIsEditingPost(false)}>
           <PostActions MessageBoardUUID={MessageBoardUUID} CreatedBy={CreatedBy} onClose={() => setIsEditingPost(false)} />

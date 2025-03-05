@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
-import { getAllCommentReplies, getListOfComments, getMBMessageDetails, saveMBMessageComment } from '../../api/network-utils'
+import { getCommentReplies, getListOfComments, getMBMessageDetails, saveMBMessageComment } from '../../api/network-utils'
 import { CommentItemProps, EditPostState, PostItemProps, ReplyItemProps } from '../../types/post-types'
 import ProfileHeader from '../../components/ProfileHeader'
 import ChevronLeft from "../../assets/icons/chevron-left.svg"
@@ -29,15 +29,19 @@ export default function CommentsScreen() {
   const [comments, setComments] = useState<CommentItemProps[]>([])
   const [editPost, setEditPost] = useState<EditPostState>({state: false, updatedEdit: "", postUUID: ""})
   const [focusedComment, setFocusedComment] = useState({state: false, comment: "", MessageBoardCommentUUID: "", CreatedBy: ""})
-  const [startIndex, setStartIndex] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const [commentsstartIndex, setCommentsStartIndex] = useState(0)
+  const [repliesstartIndex, setRepliesStartIndex] = useState<{[key: string]: number}>({})
+  const [hasMoreComments, setHasMoreComments] = useState(true)
+  const [hasMoreReplies, setHasMoreReplies] = useState<{[key: string]: boolean}>({})
   const [replyingTo, setReplyingTo] = useState({name: "", MessageBoardCommentUUID: ""})
   const [replies, setReplies] = useState<{ [key: string]: ReplyItemProps[] }>({})
+  const [loading, setLoading] = useState(false)
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({})
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
   const {user} = useUser()
   const commentInput = useRef<any>(null)
+  const isFetching = useRef(false)
 
   const flatListRef = useRef<FlatList>(null);
 
@@ -48,26 +52,33 @@ export default function CommentsScreen() {
 
 
   const fetchComments = async() => {
+    if(isFetching.current || !hasMoreComments) return
+    isFetching.current = true
 
-    setLoading(true)
-
-    await new Promise(resolve => setTimeout(resolve, 2000));
+/*     await new Promise(resolve => setTimeout(resolve, 2000)); */
 
     if(!postUUID) return
 
     try {
 
-      const comments = await getListOfComments(postUUID, startIndex)
+      const comments = await getListOfComments(postUUID, commentsstartIndex)
+      if(comments.length === 0) {
+        setHasMoreComments(false)
+        return
+      }
       setComments((prev) => {
         const commentsMap = new Map([...prev, ...comments].map((comment) => [comment.MessageBoardCommentUUID, comment]))
         return Array.from(commentsMap.values())
       })
-      setStartIndex((prev) => prev + 10)
+      setCommentsStartIndex((prev) => prev + 10)
+      if(comments.length < 10) {
+        setHasMoreComments(false)
+      }
 
     } catch (err) {
       console.error(err)
     } finally {
-      setLoading(false)
+      isFetching.current = false
     }
 
   }
@@ -77,7 +88,7 @@ export default function CommentsScreen() {
     if (!postUUID) return
 
     const fetchMBMessageDetails = async() => {
-      const messageDetails = await getMBMessageDetails(postUUID)
+      const messageDetails = await getMBMessageDetails(postUUID, userUUID)
       console.log(messageDetails)
       setMessageDetails(messageDetails)
     }
@@ -106,15 +117,39 @@ export default function CommentsScreen() {
   }, []);
 
 
-  const fetchCommentReplies = async(MessageBoardCommentUUID: string) => {
-    const commentReplies = await getAllCommentReplies(MessageBoardCommentUUID)
-/*     console.log(commentReplies) */
-    setReplies((prev) => ({...prev, [MessageBoardCommentUUID] : commentReplies}))
+  const fetchCommentReplies = async(MessageBoardCommentUUID: string, firstToggle: boolean) => {
+
+    if(firstToggle && replies[MessageBoardCommentUUID]) return
+    setLoading(true)
+
+    try {
+      const repliesIndex = firstToggle ? 0 : repliesstartIndex[MessageBoardCommentUUID] || 0;
+
+      const commentReplies = await getCommentReplies(MessageBoardCommentUUID, repliesIndex)
+      if(commentReplies.length === 0) return
+      if(commentReplies.length < 10) {
+        setHasMoreReplies((prev) => ({...prev, [MessageBoardCommentUUID]: false}))
+      } else {
+        setHasMoreReplies((prev) => ({...prev, [MessageBoardCommentUUID]: true}))
+      }
+
+      if(firstToggle) {
+        setReplies((prev) => ({...prev, [MessageBoardCommentUUID] : commentReplies}))
+      } else {
+        setReplies((prev) => ({...prev, [MessageBoardCommentUUID] : [...(prev[MessageBoardCommentUUID] || []), ...commentReplies]}))
+      }
+        setRepliesStartIndex((prev) => ({...prev, [MessageBoardCommentUUID]: repliesIndex + 10 }))
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
+
   }
 
   const toggleReplies = (MessageBoardCommentUUID: string) => {
     setExpandedComments((prev) => ({...prev, [MessageBoardCommentUUID]: !prev[MessageBoardCommentUUID]}))
-    fetchCommentReplies(MessageBoardCommentUUID)
+    fetchCommentReplies(MessageBoardCommentUUID, true)
   }
 
   const handleComment = async(postUUID?: string) => {
@@ -216,6 +251,8 @@ export default function CommentsScreen() {
               <Text style={styles.commentDateTime}>{timeAgo(reply.CreatedDateTime)}</Text>
             </View>
           )))}
+          {(loading && expandedComments[item.MessageBoardCommentUUID]) && <ActivityIndicator size={"small"} />}
+          {(hasMoreReplies[item.MessageBoardCommentUUID] && expandedComments[item.MessageBoardCommentUUID]) && <CustomButton textStyle={styles.loadMore} onPress={() => fetchCommentReplies(item.MessageBoardCommentUUID, false)} title={"Load more"} />}
         </View>
         <Text style={styles.commentDateTime}>{timeAgo(item.CreatedDateTime)}</Text>
       </View>
@@ -231,8 +268,7 @@ export default function CommentsScreen() {
       </View>
 
       {messageDetails && <PostItem setViewingImageUrl={() => {}} childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
-{/*       {loading && startIndex === 0 ? <ActivityIndicator size="small" color="black" /> : null} */}
-
+    
         <FlatList 
           ref={flatListRef} 
           showsVerticalScrollIndicator={false} 
@@ -243,7 +279,7 @@ export default function CommentsScreen() {
           data={comments}
           onEndReached={fetchComments} 
           onEndReachedThreshold={0.5}
-          ListFooterComponent={ (loading && startIndex >= 10 && comments.length % 10 === 0) ? <ActivityIndicator size="small" color="black" /> : null }
+          ListFooterComponent={hasMoreComments ? <ActivityIndicator size="small" color="black" /> : null }
         />
 
 
@@ -408,6 +444,7 @@ const styles = StyleSheet.create({
     color: colors.ACTIVE_ORANGE
   },
   repliesContainer: {
+/*     borderWidth: 2, */
     marginVertical: 10,
     flexDirection: "row",
     gap: 10,
@@ -490,6 +527,11 @@ const styles = StyleSheet.create({
   updateText: {
     color: "white",
     fontSize: 12
+  },
+  loadMore: {
+    color: colors.ACTIVE_ACCENT_COLOR,
+    fontSize: 12,
+    textAlign: "right"
   }
   
 })

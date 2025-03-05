@@ -132,11 +132,11 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
   
 
-  export const getMBMessageDetails = async(messageBoardUUID: string) => {
+  export const getMBMessageDetails = async(messageBoardUUID: string, loggedInUserUUID: string) => {
 
     try {
 
-      const messageDetails = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGE_DETAILS, {}, {}, "GET", {messageBoardUUID})
+      const messageDetails = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGE_DETAILS, {}, {}, "GET", {messageBoardUUID, loggedInUserUUID})
       console.log(messageDetails)
       return messageDetails.data.Payload
 
@@ -258,12 +258,12 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
 
 
-  export const getAllCommentReplies = async(messageBoardCommentUUID: string) => {
+  export const getCommentReplies = async(messageBoardCommentUUID: string, startIndex: number) => {
 
     const bodyData = {
       "MessageBoardCommentUUID": messageBoardCommentUUID,
-      "startIndex": 0,
-      "pageSize": 10,
+      "StartIndex": startIndex,
+      "PageSize": 10,
     }
 
     try {
@@ -411,3 +411,26 @@ export const deleteMBComment = async(messageBoardCommentUUID:string, loggedInUse
   }
 
 }
+
+export const getListOfLikes = async(messageBoardUUID:string, startIndex: number) => {
+
+  const bodyData = {
+    "messageBoardUUID": messageBoardUUID,
+    "startIndex": startIndex,
+    "pageSize": 10,
+    "searchExpression": ""
+}
+
+  try {
+
+    const deleteMBCommentResponse = await apiClient(ENDPOINTS.SOCIAL.MESSAGE_LIKES_LIST, bodyData, {}, "POST")
+
+    return deleteMBCommentResponse.data.Payload
+    
+  } catch (err) {
+    console.error(err)
+  }
+
+}
+
+

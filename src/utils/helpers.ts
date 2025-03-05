@@ -17,37 +17,41 @@ import { PasswordCheck } from "../types/password.types";
 
   //APPLY DATE FORMAT 
   export const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const timeDiff = now.getTime() - date.getTime(); 
+    if (!dateString) return "Invalid date"; 
   
-    if (timeDiff < 60000) { 
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Invalid date";
+  
+    const now = new Date();
+    const timeDiff = now.getTime() - date.getTime();
+  
+    if (timeDiff < 60000) {
       return "now";
     }
   
-    if (timeDiff < 3600000) { 
-      const minutes = Math.floor(timeDiff / 60000); 
-      return `${minutes}m`;
+    if (timeDiff < 3600000) {
+      const minutes = Math.floor(timeDiff / 60000);
+      return `${minutes}m`; 
     }
   
     if (timeDiff < 86400000) {
       const hours = Math.floor(timeDiff / 3600000);
-      return `${hours}h`;
+      return `${hours}h`; 
     }
   
     const options = {
       day: "numeric",
-      month: "short", 
+      month: "short",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true, 
+      hour12: true,
     } as const;
   
     const formattedDate = new Intl.DateTimeFormat("en-GB", options).format(date);
-    
     return formattedDate.replace(" at", ",");
   };
+  
   
   
 
