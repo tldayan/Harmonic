@@ -7,6 +7,9 @@ buildscript {
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.0.21"
         googlePlayServicesAuthVersion = "20.7.0"
+        useExoplayerSmoothStreaming = false 
+        useExoplayerDash = false  
+        useExoplayerHls = false  
     }
     repositories {
         google()

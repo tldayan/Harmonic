@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from '../store/slices/authSlice';
 import postActionsReducer from "../store/slices/postActionsSlice"
+import postLikesReducer from "./slices/postLikesSlice"
 
 
 export const store = configureStore({
     reducer :{
         auth: authReducer,
-        postActions: postActionsReducer
+        postActions: postActionsReducer,
+        postLikes: postLikesReducer
     }
 })
 

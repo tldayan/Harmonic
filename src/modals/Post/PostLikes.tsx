@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
 /*         borderWidth: 2, */
     },
     seperator: {
-        width: "75%",
+        width: "80%",
+        marginHorizontal: "20%",
         height: 1,
         marginVertical: 10,
         backgroundColor: colors.LIGHT_COLOR

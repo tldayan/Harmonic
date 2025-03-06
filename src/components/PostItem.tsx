@@ -8,31 +8,33 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ProfileHeader from './ProfileHeader'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../store/store'
 import LikeButton from "../assets/icons/heart.svg"
 import Comment from "../assets/icons/comment.svg"
 import { CustomModal } from './CustomModal'
 import PostLikes from '../modals/Post/PostLikes'
+import { toggleLike } from '../store/slices/postLikesSlice'
+import AttachmentCarousel from '../modals/AttachmentCarousel'
 
 interface PostItemChildProps {
-  setViewingImageUrl: (url: string) => void
   post: PostItemProps
   showProfileHeader: boolean
   childAttachmentData?: AttachmentData[]
 }
 
 
-export default function PostItem({ post, setViewingImageUrl, showProfileHeader, childAttachmentData }: PostItemChildProps) {
+export default function PostItem({ post, showProfileHeader, childAttachmentData }: PostItemChildProps) {
 
   const [attachmentData, setAttachmentData] = useState<AttachmentData[]>(childAttachmentData || [])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
   const [viewingLikes, setViewingLikes] = useState(false)
+  const [viewingAttachments, setViewingAttachments] = useState(false)
   const [hasLiked, setHasLiked] = useState(post.HasLiked);
-  const [noOfLikes, setNoOfLikes] = useState(post.NoofLikes);
-  const route = useRoute()
-  
+  const reduxHasLiked = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.hasLiked ?? false)
+  const reduxPostLikeCount = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.likeCount ?? post.NoofLikes )
+  const dispatch = useDispatch()
 
 
   useEffect(() => {
@@ -55,34 +57,33 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
 
   }, []);
 
-  useEffect(() => {
-    setHasLiked(post.HasLiked);
-    setNoOfLikes(post.NoofLikes);
-  }, [post]); 
+
   
 
   const handlePostLike = async () => {
-    
+
+    dispatch(toggleLike({ postId: post.MessageBoardUUID, postLikeCount: post.NoofLikes }));
+
     try {
       const newLikedState = !hasLiked;
       setHasLiked(newLikedState);
-      setNoOfLikes((prevLikes) => prevLikes + (newLikedState ? 1 : -1));
 
       await saveMBMessageLike(post.MessageBoardUUID, userUUID, newLikedState ? 1 : 0);
     } catch (error) {
       console.error("Error liking post:", error);
 
       setHasLiked((prev) => !prev);
-      setNoOfLikes((prevLikes) => prevLikes + (hasLiked ? -1 : 1));
     }
   };
 
   const handleGetLikes = async() => {
-    if(route.name !== "Comments") return
+/*     if(route.name !== "Comments") {
+      navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData})
+    } */
     setViewingLikes(true)
   }
   
-  const imageItem = ({item}: {item : AttachmentData}) => {
+  const attachmentItem = ({item}: {item : AttachmentData}) => {
 
     if (!item.Attachment) {
       return null;
@@ -90,7 +91,7 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
 
     return (
         <CustomButton 
-          onPress={() => setViewingImageUrl(item.Attachment)} 
+          onPress={() => setViewingAttachments(true)} 
           buttonStyle={[styles.postImageContainer, attachmentData.length === 1 && {width: "100%", height: 200}]} 
           icon={<Image style={styles.postImage} source={{uri: item?.Attachment}} />}
         />
@@ -109,7 +110,7 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
       {post.Message && <Text style={styles.postText}>{post.Message}</Text>}
       
 
-      {attachmentData.length >= 1 && <FlatList indicatorStyle='black' horizontal style={styles.mainImagesList} contentContainerStyle={styles.imagesList} data={attachmentData} renderItem={imageItem} keyExtractor={(item) => item.AttachmentUUID} />}
+      {attachmentData.length >= 1 && <FlatList indicatorStyle='black' horizontal style={styles.mainImagesList} contentContainerStyle={styles.imagesList} data={attachmentData} renderItem={attachmentItem} keyExtractor={(item) => item.AttachmentUUID} />}
     
      <ScrollView horizontal contentContainerStyle={styles.categoryContainerList}>
         {post.AllMBCategoryItems?.map(eachCategory => {
@@ -118,17 +119,21 @@ export default function PostItem({ post, setViewingImageUrl, showProfileHeader, 
       </ScrollView>
       
       <View style={styles.postActionButtonsContainer}>
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={handlePostLike} icon={<LikeButton fill={hasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={hasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={handlePostLike} icon={<LikeButton fill={reduxHasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={reduxHasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
         <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData})} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/comment.png")} />} />
         <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/share.png")} />} />
       </View>
       <View style={styles.postStatsContainer}>
-        {noOfLikes > 0 && <CustomButton textStyle={styles.likeStats} icon={<LikeButton fill={colors.ACTIVE_COLOR} stroke='none' width={15} height={15} />} title={noOfLikes} onPress={handleGetLikes} buttonStyle={styles.likeStatsContainer} />}
+        {reduxPostLikeCount > 0 && <CustomButton textStyle={styles.likeStats} icon={<LikeButton fill={colors.ACTIVE_COLOR} stroke='none' width={15} height={15} />} title={reduxPostLikeCount} onPress={handleGetLikes} buttonStyle={styles.likeStatsContainer} />}
         {post.NoOfComments > 0 && <CustomButton textStyle={styles.commentStats} icon={<Comment stroke='none' fill={colors.ACTIVE_ORANGE} width={15} height={15} />} title={post.NoOfComments} onPress={() => {}} buttonStyle={styles.commentStatsContainer} />}
       </View>
         
       <CustomModal presentationStyle="formSheet" fullScreen isOpen={viewingLikes} onClose={() => setViewingLikes(false)}>
         <PostLikes MessageBoardUUID={post.MessageBoardUUID} onClose={() => setViewingLikes(false)} />
+      </CustomModal>
+      
+      <CustomModal isOpen={viewingAttachments} onClose={() => setViewingAttachments(false)}>
+        <AttachmentCarousel AttachmentData={attachmentData} onClose={() => setViewingAttachments(false)} />
       </CustomModal>
 
     </View>

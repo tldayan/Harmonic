@@ -5,7 +5,7 @@ import CloseIconLight from "../assets/icons/close-light.svg"
 import CustomButton from '../components/CustomButton'
 
 interface ModalsHeaderProps {
-    title : string,
+    title?: string,
     onClose: () => void
     lightCloseIcon?: boolean
 }

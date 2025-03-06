@@ -23,7 +23,7 @@ export default function ImageView({ onClose, imageUrl }: ImageViewProps) {
 
   const aspectRatio = imageDimensions ? imageDimensions.width / imageDimensions.height : 1;
 
-  const isImageUrlValid = imageUrl && imageUrl.trim() !== ''; // Check if the imageUrl is valid
+  const isImageUrlValid = imageUrl && imageUrl.trim() !== ''; 
 
   return (
     <TouchableWithoutFeedback onPress={onClose}>

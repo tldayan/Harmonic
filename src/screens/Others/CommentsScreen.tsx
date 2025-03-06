@@ -267,7 +267,7 @@ export default function CommentsScreen() {
         {messageDetails && <ProfileHeader MessageBoardUUID={messageDetails.MessageBoardUUID} FirstName={messageDetails?.FirstName} CreatedDateTime={messageDetails?.CreatedDateTime} />}
       </View>
 
-      {messageDetails && <PostItem setViewingImageUrl={() => {}} childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
+      {messageDetails && <PostItem /* setViewingImageUrl={() => {}}  */childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
     
         <FlatList 
           ref={flatListRef} 
