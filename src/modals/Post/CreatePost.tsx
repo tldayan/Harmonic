@@ -13,11 +13,12 @@ import { CategoryProps, CreatingPostState } from '../../types/post-types'
 import { CustomModal } from '../../components/CustomModal'
 import ImageView from '../ImageView'
 import Poll from './CreatePoll'
-import { uploadImages } from './postUtils'
+import { uploadMedia } from './postUtils'
 import { saveMBMessage } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import Filters from '../Filters'
+import { STATUS_CODE } from '../../api/endpoints'
 
 
 interface CreatePostProps {
@@ -33,7 +34,7 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
     const {user} = useUser()
     const [postText, setPostText] = useState("")
     const inputRef = useRef<any>(null)
-    const [selectedImages, setSelectedImages] = useState<Asset[]>([])
+    const [selectedAttachments, setSelectedAttachments] = useState<Asset[]>([])
     const [viewingImageUrl, setViewingImageUrl] = useState("")
     const [postCategories, setPostCategories] = useState<{state: boolean, categories: CategoryProps[]}>({state: false, categories:[]})
     const [creatingPoll, setCreatingPoll] = useState(false)
@@ -73,9 +74,10 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
 
         
         const handleAddMedia = async() => {
+            setLoading(true)
             try {
                 const result = await launchImageLibrary({
-                    mediaType: "photo",
+                    mediaType: "mixed",
                     selectionLimit: 0,
                     quality: 1
                 });
@@ -85,19 +87,19 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
                 } else if (result.errorCode) {
                     console.log(`Image Pick Error: ${result.errorMessage}`);
                 } else {
-                    setSelectedImages((prev) => ([...prev, ...result.assets ?? []]));
-                    
-                    
+                    setSelectedAttachments((prev) => ([...prev, ...result.assets ?? []]));
                     console.log(result.assets)
                 }
             } catch (error) {
                 console.log("Unexpected error:", error);
+            } finally {
+                setLoading(false)
             }
         };
 
         const deleteImage = (imageFilename: string) => {
-            let updatedSelectedImages = selectedImages.filter((eachImage) => eachImage.fileName !== imageFilename)
-            setSelectedImages(updatedSelectedImages)
+            let updatedSelectedImages = selectedAttachments.filter((eachImage) => eachImage.fileName !== imageFilename)
+            setSelectedAttachments(updatedSelectedImages)
         }
         
 
@@ -110,8 +112,8 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
         )
     }
 
-    const AddImageButton = () => {
-        if(selectedImages.length > 0) {
+    const AddAdditionalMediaButton = () => {
+        if(selectedAttachments.length > 0) {
             return (
           <CustomButton buttonStyle={styles.addImage} onPress={handleAddMedia} icon={<Image source={require("../../assets/images/plus.png")} />} /> 
         )
@@ -120,21 +122,25 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
 
     const handlePost = async() => {
 
+        if(!postText && selectedAttachments.length === 0) return
+
         setLoading(true)
 
         try {
         
-            let imageUrls: any[] = [];
+            let attachmentUrls: any[] = [];
 
-            if (selectedImages && selectedImages.length > 0) {
-              imageUrls = (await uploadImages(selectedImages)) || [];
+            if (selectedAttachments && selectedAttachments.length > 0) {
+                console.log(selectedAttachments)
+              attachmentUrls = (await uploadMedia(selectedAttachments)) || [];
+              console.log(attachmentUrls)
             }
         
 
 
-        const response = await saveMBMessage(postText,imageUrls, organizationUUID, userUUID, postCategories.categories)
-            console.log(response)
-            if(response === 2) {
+        const response = await saveMBMessage(postText,attachmentUrls, organizationUUID, userUUID, postCategories.categories)
+
+            if(response === STATUS_CODE.SUCCESS) {
                 onClose()
             }
 
@@ -160,7 +166,7 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
 
             <CustomTextInput scrollEnabled={true} ref={inputRef} multiline placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={[styles.postField, shadowStyles]} value={postText} onChangeText={(e) => {setPostText(e)}} placeholder={`What's on your mind, ${user?.displayName}?`}/>
             
-            <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedImages} renderItem={imageItem} keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddImageButton />} />
+            <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedAttachments} renderItem={imageItem} keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddAdditionalMediaButton />} />
             
 
 

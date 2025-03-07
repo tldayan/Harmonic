@@ -10,6 +10,8 @@ import { STATUS_CODE } from '../../api/endpoints'
 import { CustomModal } from '../../components/CustomModal'
 import ReportForm from './ReportForm'
 import { CommentItemProps, EditPostState } from '../../types/post-types'
+import { useRoute } from '@react-navigation/native'
+import { CommentsScreenRouteProp } from '../../screens/Others/CommentsScreen'
 
 interface PostActionsProps {
   focusedComment?: string,
@@ -22,9 +24,10 @@ interface PostActionsProps {
 }
 
 export default function PostActions({onClose, MessageBoardUUID, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment, setComments} : PostActionsProps) {
-
   const [loading, setLoading] = useState(false)
   const [isReportingPost, setIsReportingPost] = useState(false)
+const route = useRoute<CommentsScreenRouteProp>()
+  const { createdBy } = route.params || {}
 
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
 
@@ -62,7 +65,7 @@ export default function PostActions({onClose, MessageBoardUUID, CreatedBy, Messa
     }
   }
 
-  const isUserMessageOwner = CreatedBy === userUUID
+  const isUserMessageOwner = (CreatedBy ?? createdBy) === userUUID
 
   const handleCloseAllModals = () => {
     setIsReportingPost(false)

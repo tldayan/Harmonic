@@ -2,8 +2,8 @@
 import { FirebaseAuthTypes } from "@react-native-firebase/auth"
 import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
-import { ENDPOINTS, STATUS_CODE } from "./endpoints";
-import { AttachmentData, CategoryProps, MessageAttachmentData } from "../types/post-types";
+import { ENDPOINTS } from "./endpoints";
+import { CategoryProps } from "../types/post-types";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -45,6 +45,20 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     return 'Unknown';
   };
   
+
+  export const getCountryCodes = async() => {
+
+    try {
+
+      const countryCodes = await apiClient(ENDPOINTS.ADDRESS.COUNTRY_CODES, {},{}, "GET")
+
+      return countryCodes.data.Payload
+
+    } catch (err) {
+      console.error(err)
+    }
+    
+  }
 
 
   export const getUserProfile = async(UserUUID: string) => {
@@ -217,11 +231,11 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const saveMBMessage = async(message: string,imageUrls: string[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[]) => {
+  export const saveMBMessage = async(message: string, attachmentUrls: { url: string, type: 'image' | 'video' }[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[]) => {
 
-    const allMBAttachments = imageUrls?.map((url) => ({
-      Attachment: url, 
-      AttachmentType: "image", 
+    const allMBAttachments = attachmentUrls?.map((urlObj) => ({
+      Attachment: urlObj.url, 
+      AttachmentType: urlObj.type, 
       CanBeDownloaded: true,
       AllowDownload: true,
       IsDeleted: false,

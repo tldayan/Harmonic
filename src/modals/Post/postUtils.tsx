@@ -22,33 +22,43 @@ export const filterOptions = (options : PollOption[]) => {
 }
 
 
-export const uploadImages = async (images: Asset[]): Promise<string[] | undefined> => {
+export const uploadMedia = async (mediaFiles: Asset[]): Promise<{ url: string, type: 'image' | 'video' }[]> => {
 
-    console.log("REQUEST FOR GENERATING FIREBASE IMAGE URLS CAME")
-
-    if(!images.length) return
+    if (!mediaFiles.length) return [];
 
     try {
-        const uploadPromises = images.map(async (image: Asset) => {
+        const uploadPromises = mediaFiles.map(async (media: Asset) => {
+            const { uri, fileName, type } = media;
 
-            const {uri, fileName} = image
-
-            const fileRef = storage().ref(`uploads/attachmentMB/${fileName}`)
-            
-            if(uri) {
-               await fileRef.putFile(uri) 
+            if (!uri || !fileName || !type) {
+                console.log("Invalid media file:", media);
+                return undefined;
             }
 
-            return fileRef.getDownloadURL()
-        })
+            let mediaType: 'image' | 'video';
 
-        const imageUrls = await Promise.all(uploadPromises)
+            if (type.includes('image')) {
+                mediaType = 'image';
+            } else if (type.includes('video')) {
+                mediaType = 'video';
+            } else {
+                console.log("Unknown media type:", type);
+                return undefined;
+            }
 
-        return imageUrls
+            const fileRef = storage().ref(`uploads/attachmentMB/${fileName}`);
 
+            await fileRef.putFile(uri);
+            const downloadUrl = await fileRef.getDownloadURL();
+
+            return { url: downloadUrl, type: mediaType };
+        });
+
+        const mediaData = await Promise.all(uploadPromises);
+
+        return mediaData.filter((data): data is { url: string, type: 'image' | 'video' } => data !== undefined);
     } catch (err) {
-        console.error('Error uploading images:', err);
+        console.error('Error uploading media files:', err);
+        return [];
     }
-    
-}
-
+};

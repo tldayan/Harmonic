@@ -1,9 +1,10 @@
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useCallback, useMemo, useState } from 'react'
+import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { COUNTRY_CODES } from '../utils/constants'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../styles/colors';
 import ModalsHeader from '../modals/ModalsHeader';
+import { getCountryCodes } from '../api/network-utils';
 
 interface CountryCodesProps {
     setCountryCode: (value: string | null) => void | undefined;
@@ -22,10 +23,23 @@ type Country = {
 export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setIsDropdownVisible }) => {
 
     const [search, setSearch] = useState<string>("")
+    const [countryCodes, setCountryCodes] = useState<Country[]>([])
+
+    const fetchCoutryCodes = async() => {
+        const countryCodes = await getCountryCodes()
+        setCountryCodes(countryCodes)
+    }
+
+    useEffect(() => {
+        if(countryCodes.length !== 0) return
+/*         fetchCoutryCodes() */ //API REQUIRES AUTH TOKEN
+    }, [])
 
     const filteredCountries = useMemo(() => {
-        console.log(search)
-        return COUNTRY_CODES.filter((eachCountry) => {
+        
+        if(countryCodes.length === 0 || !countryCodes) return
+
+        return countryCodes.filter((eachCountry) => {
             return eachCountry.PhoneCountryName.toLowerCase().includes(search.toLowerCase()) || eachCountry.PhoneCode.includes(search)
         })
     }, [search])
@@ -52,13 +66,14 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
             <ModalsHeader title='Country Code' onClose={() => setIsDropdownVisible(false)} />
             
             <TextInput placeholderTextColor={colors.LIGHT_TEXT_COLOR} style={styles.input} placeholder='Search for a country' value={search} onChangeText={setSearch} />
-            <FlatList 
+            {countryCodes.length === 0 ? <ActivityIndicator size={"small"} /> :
+            <FlatList
                 keyboardShouldPersistTaps="handled"
                 style={styles.list}
                 keyExtractor={(item) => item.PhoneCountryId.toString()}
                 renderItem={renderItem}
-                data={filteredCountries.length > 0 ? filteredCountries : COUNTRY_CODES}
-            />
+                data={(filteredCountries && filteredCountries?.length > 0) ? filteredCountries : countryCodes}
+            />}
         </SafeAreaView>
   )
 }

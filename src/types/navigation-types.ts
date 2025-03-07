@@ -4,7 +4,7 @@ export type RootStackParamList = {
     Tabs: undefined
     Auth: undefined
     Hero: undefined
-    Comments: {postUUID?: string, attachmentData?: AttachmentData[] }
+    Comments: {postUUID?: string, attachmentData?: AttachmentData[], createdBy: string}
 }
 
 export type ProfileStackParamList = {

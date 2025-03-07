@@ -20,7 +20,7 @@ import PostActions from '../../modals/Post/PostActions'
 import { CustomModal } from '../../components/CustomModal'
 import { STATUS_CODE } from '../../api/endpoints'
 
-type CommentsScreenRouteProp = RouteProp<RootStackParamList, "Comments">
+export type CommentsScreenRouteProp = RouteProp<RootStackParamList, "Comments">
 
 export default function CommentsScreen() {
 
@@ -90,6 +90,9 @@ export default function CommentsScreen() {
     const fetchMBMessageDetails = async() => {
       const messageDetails = await getMBMessageDetails(postUUID, userUUID)
       console.log(messageDetails)
+      if(!messageDetails) {
+        navigation.goBack()
+      }
       setMessageDetails(messageDetails)
     }
 
@@ -264,7 +267,7 @@ export default function CommentsScreen() {
     <View style={styles.container} >
       <View style={styles.headerProfileContainer}>
         <CustomButton onPress={() => navigation.goBack()} icon={<ChevronLeft />} />
-        {messageDetails && <ProfileHeader MessageBoardUUID={messageDetails.MessageBoardUUID} FirstName={messageDetails?.FirstName} CreatedDateTime={messageDetails?.CreatedDateTime} />}
+        {messageDetails && <ProfileHeader showActions MessageBoardUUID={messageDetails.MessageBoardUUID} FirstName={messageDetails?.FirstName} CreatedDateTime={messageDetails?.CreatedDateTime} />}
       </View>
 
       {messageDetails && <PostItem /* setViewingImageUrl={() => {}}  */childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}

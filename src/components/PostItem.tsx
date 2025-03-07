@@ -1,10 +1,10 @@
-import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import CustomButton from './CustomButton'
 import { colors } from '../styles/colors'
 import { AttachmentData, PostItemProps } from '../types/post-types'
-import { getListOfLikes, getMBMessageAttacment, saveMBMessageLike } from '../api/network-utils'
-import { useNavigation, useRoute } from '@react-navigation/native'
+import { getMBMessageAttacment, saveMBMessageLike } from '../api/network-utils'
+import { useNavigation } from '@react-navigation/native'
 import { RootStackParamList } from '../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ProfileHeader from './ProfileHeader'
@@ -16,6 +16,8 @@ import { CustomModal } from './CustomModal'
 import PostLikes from '../modals/Post/PostLikes'
 import { toggleLike } from '../store/slices/postLikesSlice'
 import AttachmentCarousel from '../modals/AttachmentCarousel'
+import Video from 'react-native-video'
+import VideoIcon from "../assets/icons/video.svg"
 
 interface PostItemChildProps {
   post: PostItemProps
@@ -77,9 +79,6 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
   };
 
   const handleGetLikes = async() => {
-/*     if(route.name !== "Comments") {
-      navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData})
-    } */
     setViewingLikes(true)
   }
   
@@ -90,11 +89,31 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
     }
 
     return (
-        <CustomButton 
-          onPress={() => setViewingAttachments(true)} 
-          buttonStyle={[styles.postImageContainer, attachmentData.length === 1 && {width: "100%", height: 200}]} 
-          icon={<Image style={styles.postImage} source={{uri: item?.Attachment}} />}
+<CustomButton 
+  onPress={() => { 
+    if (item.AttachmentType === "image" || attachmentData.length > 1) 
+      setViewingAttachments(true);
+  }} 
+  buttonStyle={[styles.postContentContainer, attachmentData.length === 1 && { width: "100%", height: 200 }]} 
+  icon={
+    item.AttachmentType === "image" ? (
+      <Image style={styles.content} source={{ uri: item?.Attachment }} />
+    ) : (
+      <View style={{ position: 'relative' }}>
+        <VideoIcon stroke='white' fill='white' width={20} height={20} style={{ position: 'absolute', bottom: 8, left: 8, zIndex: 2 }} />
+
+        <Video 
+          paused 
+          renderLoader={<ActivityIndicator style={styles.contentLoader} size={'small'} color={"black"} />} 
+          style={styles.content}
+          controls={attachmentData.length > 1 ? false : true}
+          source={{ uri: item?.Attachment }} 
         />
+      </View>
+    )
+  }
+/>
+
       )
   }
 
@@ -103,7 +122,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
     <View style={[styles.mainContainer]}>
 
         {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
-          <ProfileHeader FirstName={post.FirstName} CreatedDateTime={post.CreatedDateTime} ProfilePic={post.ProfilePic} MessageBoardUUID={post.MessageBoardUUID} CreatedBy={post.CreatedBy} />
+          <ProfileHeader showActions FirstName={post.FirstName} CreatedDateTime={post.CreatedDateTime} ProfilePic={post.ProfilePic} MessageBoardUUID={post.MessageBoardUUID} CreatedBy={post.CreatedBy} />
         </TouchableOpacity>}
 
 
@@ -120,7 +139,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
       
       <View style={styles.postActionButtonsContainer}>
         <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={handlePostLike} icon={<LikeButton fill={reduxHasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={reduxHasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData})} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/comment.png")} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData, createdBy: post.CreatedBy})} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/comment.png")} />} />
         <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/share.png")} />} />
       </View>
       <View style={styles.postStatsContainer}>
@@ -167,12 +186,15 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     color: colors.ACTIVE_ORANGE
   },
-  postImageContainer : {
+  postContentContainer : {
+    borderRadius: 10,
+    overflow: "hidden",
     marginTop: 10,
     width: 150,
     height: 150,
+    position: "relative"
   },
-  postImage: {
+  content: {
     width: "100%",
     height: "100%",
     borderRadius: 10,
@@ -249,6 +271,12 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     gap: 2,
     alignItems: "center",
+  },
+  contentLoader :{
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: "-50%" }, { translateY: "-50%" }]
   }
 
 })

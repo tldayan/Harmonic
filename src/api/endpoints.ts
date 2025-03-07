@@ -10,6 +10,9 @@ export const ENDPOINTS = {
   AUTH: {
     SIGN_IN: `${BASE_URL}/user/signInUser`,
   },
+  ADDRESS: {
+    COUNTRY_CODES: `${BASE_URL}/address/getAllCountries`
+  },
   ORGANIZATION: {
     FETCH_MODULES: `${BASE_URL}/organization/getOrganizationBasedModules`,
     ORGANIZATIONS_LIST: `${BASE_URL}/organization/getOrganizationsList`

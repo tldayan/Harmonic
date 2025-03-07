@@ -1,8 +1,9 @@
 import { FlatList, Image, StyleSheet, View, Dimensions, TouchableWithoutFeedback, ActivityIndicator } from 'react-native'
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import { AttachmentData } from '../types/post-types'
 import ModalsHeader from './ModalsHeader';
 import Video from 'react-native-video';
+import { index } from 'realm';
 
 const { width } = Dimensions.get('window'); 
 
@@ -11,38 +12,58 @@ interface AttachmentCarouselProps {
     onClose: () => void
 }
 
+
 export default function AttachmentCarousel({onClose,AttachmentData} : AttachmentCarouselProps) {
 
-    const attachmentItem = ({ item }: { item: AttachmentData }) => {
+    const [loading, setLoading] = useState(true)
+    const [visibleIndex, setVisibleIndex] = useState<number | null>(null)
+    const flatListRef = useRef<FlatList>(null)
+
+    const onViewableItemsChanged = ({viewableItems}: {viewableItems: any[]}) => {
+        if(viewableItems.length > 0) {
+            setVisibleIndex(viewableItems[0].index)
+        }
+    }
+
+    const viewabilityConfig = {
+        itemVisiblePercentThreshold: 50
+    }
+
+
+    const attachmentItem = ({ item, index}: { item: AttachmentData; index: number}) => {
+        console.log(item)
         if (!item.Attachment) {
             return null;
         }
-
+    
         return (
             <TouchableWithoutFeedback>
                 <View style={styles.postImageContainer}>
                     <ModalsHeader lightCloseIcon={true} onClose={onClose} />
-                    {item.AttachmentType !== "video/mp4" ? (
-                <Image style={styles.content} source={{ uri: item?.Attachment }} />
-                ) : (
-                <View style={styles.videoContainer}>
-                    <Video
-                    renderLoader={<ActivityIndicator style={styles.loader} size="small" />}
-                    controls={true}
-                    style={styles.content}
-                    source={{ uri: item.Attachment }}
-                    />
-                </View>
-                )}
-
+                    <View style={styles.contentWrapper}>
+                        {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
+                        {!item.AttachmentType.includes("video") ? (
+                            <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.Attachment }} />
+                        ) : (
+                            <Video
+                                renderLoader={<ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
+                                controls={true}
+                                paused={visibleIndex !== index}
+                                style={styles.content}
+                                source={{ uri: item.Attachment }}
+                            />
+                        )}
+                    </View>
                 </View>
             </TouchableWithoutFeedback>
         );
     }
+    
 
     return (
         <View style={styles.container}>
             <FlatList
+                ref={flatListRef}
                 style={styles.carouselMainContainer}
                 data={AttachmentData}
                 horizontal
@@ -52,6 +73,8 @@ export default function AttachmentCarousel({onClose,AttachmentData} : Attachment
                 bounces={false}
                 showsHorizontalScrollIndicator={true}
                 indicatorStyle='white'
+                onViewableItemsChanged={onViewableItemsChanged}
+                viewabilityConfig={viewabilityConfig}
             />
         </View>
     );
@@ -61,42 +84,42 @@ const styles = StyleSheet.create({
     container: {
         borderWidth: 2,
         borderColor: "red",
-/*         height: 400, */
     },
     carouselMainContainer: {
         borderWidth: 2,
-/*         backgroundColor: "white", */
         borderColor: "white",
         width, 
     },
     postImageContainer: {
-        borderWidth :2,
+        borderWidth: 2,
         borderColor: "red",
         width, 
         height: "100%",
         paddingHorizontal: 10,
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
     },
-    videoContainer: {
-        width: '100%',
-        aspectRatio: 1.5, 
+    contentWrapper: {
+/*         position: "relative", */
+        width,
+        aspectRatio: 1.5,
         alignSelf: "center",
-        position: 'relative', 
-      },
+        justifyContent: "center",
+        alignItems: "center",
+    },
     content: {
-        borderWidth :2,
-        borderColor: "red",
+        borderWidth: 2,
+        borderColor: "aqua",
         width,
         resizeMode: "contain",
         aspectRatio: 1.5,
-        alignSelf: "center"
+        alignSelf: "center",
+        position: "relative"
     },
     loader: {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        marginLeft: -15, 
-        marginTop: -15,
-      },
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: [{ translateX: "-50%" }, { translateY: "-50%" }]
+    },
 });
