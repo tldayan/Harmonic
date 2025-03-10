@@ -1,32 +1,45 @@
 import { Image, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { formatDate } from '../utils/helpers'
 import CustomButton from './CustomButton'
 import ThreeDots from "../assets/icons/three-dots-horizontal.svg"
 import { CustomModal } from './CustomModal'
 import PostActions from '../modals/Post/PostActions'
+import { PostItemProps, PostLikeProps } from '../types/post-types'
 
 interface ProfileHeaderProps {
-    FirstName?: string
-    CreatedDateTime?: string
-    ProfilePic?: string
-    MessageBoardUUID?:string
-    CreatedBy?: string
+    post?: PostItemProps
+    postLikes?: PostLikeProps
     showActions?: boolean
 }
 
-export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic, MessageBoardUUID, CreatedBy, showActions} : ProfileHeaderProps) {
+export default function ProfileHeader({post,postLikes, showActions} : ProfileHeaderProps) {
 
     const [isEditingPost, setIsEditingPost] = useState(false)
+    const postData = post
+    ? { 
+        ...post, 
+        ProfilePic: post.ProfilePic, 
+        MessageBoardUUID: post.MessageBoardUUID 
+      } 
+    : postLikes
+    ? { 
+        ...postLikes, 
+        ProfilePic: postLikes.ProfilePicURL,  
+        MessageBoardUUID: postLikes.MessageBoardLikeUUID 
+      } 
+    : null;
 
-    const formattedDate = formatDate(CreatedDateTime || "")
+
+
+    const formattedDate = formatDate(postData?.CreatedDateTime || "")
 
 
   return (
     <View style={styles.mainProfileDetialsContainer}>
-        <Image source={{ uri: ProfilePic || "https://i.pravatar.cc/150" }} style={styles.profilePicture} />
+        <Image source={{ uri: postData?.ProfilePic || "https://i.pravatar.cc/150" }} style={styles.profilePicture} />
         <View style={styles.userNameContainer}>
-            <Text style={styles.name}>{FirstName}</Text>
+            <Text style={styles.name}>{postData?.FirstName}</Text>
             <View style={styles.dateContainer}>
                 <Text style={styles.postDate}>{formattedDate}</Text>
             </View>
@@ -34,7 +47,7 @@ export default function ProfileHeader({FirstName,CreatedDateTime, ProfilePic, Me
         {showActions && <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />}
     
         <CustomModal isOpen={isEditingPost} halfModal onClose={() => setIsEditingPost(false)}>
-          <PostActions MessageBoardUUID={MessageBoardUUID} CreatedBy={CreatedBy} onClose={() => setIsEditingPost(false)} />
+          <PostActions post={post} onClose={() => setIsEditingPost(false)} />
         </CustomModal>
 
     </View>

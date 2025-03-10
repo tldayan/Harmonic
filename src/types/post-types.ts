@@ -9,27 +9,37 @@ export interface PollOption {
     errorMessage: string
 }
 
-export interface PostItemProps {
-      MessageBoardUUID: string;     
-      Message: string;               
-      SharedMessageBoardUUID: string | null;
-      ProfilePic: string;           
-      FirstName: string;             
-      LastName: string | null;      
-      NoofLikes: number;              
-      NoOfComments: number;           
-      UserName: string | null;       
-      CreatedDateTime: string;       
-      HasLiked: boolean;           
-      HasAttachment: boolean;        
-      CreatedBy: string;            
-      AllMBAttachments: any[];      
-      AllMBCategoryItems: Array<{
-        MessageBoardCategoryUUID: string;  
-        CategoryItemUUID: string;     
-        CategoryItemName: string;          
-      }>;
-  }
+interface BasePostProps {
+  FirstName: string;
+  LastName: string | null;
+  UserName: string | null;
+  CreatedDateTime: string;
+  CreatedBy: string;
+}
+
+export interface PostLikeProps extends BasePostProps {
+  MessageBoardLikeUUID: string;
+  TotalLikesCount: number;
+  ProfilePicURL: string; 
+}
+
+export interface PostItemProps extends BasePostProps {
+  MessageBoardUUID: string;
+  Message: string;
+  SharedMessageBoardUUID: string | null;
+  ProfilePic: string; 
+  NoofLikes: number;
+  NoOfComments: number;
+  HasLiked: boolean;
+  HasAttachment: boolean;
+  AllMBAttachments: any[];
+  AllMBCategoryItems: Array<{
+      MessageBoardCategoryUUID: string;
+      CategoryItemUUID: string;
+      CategoryItemName: string;
+  }>;
+}
+
 
   export interface AttachmentData {
     MessageBoardAttachmentUUID: string;
@@ -79,21 +89,15 @@ export interface PostItemProps {
     MessageBoardCommentUUID: string | null,
   }
 
-  export interface PostLikeProps {
-    MessageBoardLikeUUID: string;
-    TotalLikesCount: number;
-    CreatedDateTime: string;
-    CreatedBy: string;
-    UserName: string | null;
-    FirstName: string;
-    LastName: string | null;
-    ProfilePicURL: string;
-  }
+
 
   
   export interface CategoryProps {
-    categoryUUID: string;
-    categoryName: string;
+    MessageBoardCategoryUUID?: string;
+      CategoryItemUUID: string;
+      CategoryItemName: string;
+/*     categoryUUID: string;
+    categoryName: string; */
   }
 
   export interface EditPostState  {

@@ -231,7 +231,9 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const saveMBMessage = async(message: string, attachmentUrls: { url: string, type: 'image' | 'video' }[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[]) => {
+  export const saveMBMessage = async(message: string, attachmentUrls: { url: string, type: 'image' | 'video' }[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[], messageBoardUUID: string | null = null) => {
+
+
 
     const allMBAttachments = attachmentUrls?.map((urlObj) => ({
       Attachment: urlObj.url, 
@@ -248,13 +250,14 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
   let allMBCategoryItems = postCategories.map((eachCategory) => {
     return {
-      "CategoryItemUUID" : eachCategory.categoryUUID,
+      "CategoryItemUUID" : eachCategory.CategoryItemUUID,
       "IsDeleted": false,
       "MessageBoardCategoryUUID" : null
     }
   })
 
     const bodyData = {
+      "MessageBoardUUID": messageBoardUUID, 
       "AllMBAttachments": allMBAttachments,
       "AllMBCategoryItems": allMBCategoryItems,
       "LoggedInUserUUID": UserUUID,

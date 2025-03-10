@@ -62,7 +62,7 @@ export default function CommentsScreen() {
     try {
 
       const comments = await getListOfComments(postUUID, commentsstartIndex)
-      if(comments.length === 0) {
+      if(comments?.length === 0) {
         setHasMoreComments(false)
         return
       }
@@ -93,6 +93,7 @@ export default function CommentsScreen() {
       if(!messageDetails) {
         navigation.goBack()
       }
+/*       console.log(messageDetails) */
       setMessageDetails(messageDetails)
     }
 
@@ -267,7 +268,7 @@ export default function CommentsScreen() {
     <View style={styles.container} >
       <View style={styles.headerProfileContainer}>
         <CustomButton onPress={() => navigation.goBack()} icon={<ChevronLeft />} />
-        {messageDetails && <ProfileHeader showActions MessageBoardUUID={messageDetails.MessageBoardUUID} FirstName={messageDetails?.FirstName} CreatedDateTime={messageDetails?.CreatedDateTime} />}
+        {messageDetails && <ProfileHeader showActions post={messageDetails}/>}
       </View>
 
       {messageDetails && <PostItem /* setViewingImageUrl={() => {}}  */childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}

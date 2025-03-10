@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import React from 'react'
 import CustomButton from '../components/CustomButton';
 import { colors } from '../styles/colors';
@@ -12,6 +12,7 @@ interface OrganizationsListProps {
 
 
 export default function OrganizationsList({organizationsList, onClose, setOrganization}: OrganizationsListProps) {
+    console.log(organizationsList)
   return (
     <View style={styles.container}>
         <ModalsHeader onClose={onClose} title='Switch Organization' />

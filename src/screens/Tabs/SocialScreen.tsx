@@ -12,7 +12,7 @@ import { CreatingPostState, PostItemProps } from '../../types/post-types'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { TabParamList } from '../../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { getAllCategories, getCategoryItemsForACategory, getMBMessages } from '../../api/network-utils'
+import { getMBMessages } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import Filters from '../../modals/Filters'
@@ -29,7 +29,6 @@ export default function SocialScreen() {
   const [filteredMessages, setFilteredMessages] = useState<PostItemProps[]>(socialMessages)
   const [filtering, setFiltering] = useState<{state: boolean; categories: string[]}>({state: false, categories: []})
   const [refreshing, setRefreshing] = useState(false)
-  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
   const [startIndex, setStartIndex] = useState(0)
   const {question, options} = route?.params ?? {}
@@ -76,34 +75,9 @@ export default function SocialScreen() {
   }
 
 
-  const fetchCategories = async () => {
-    try {
-
-      if (!organizationUUID) return;
-
-      const mainCategories: Category[] = await getAllCategories(organizationUUID);
-
-      const categoriesWithNested = await Promise.all(
-        mainCategories.map(async (eachCategory: Category) => {
-          const nestedCategories = await getCategoryItemsForACategory(
-            organizationUUID,
-            eachCategory.CategoryUUID
-          );
-          return { ...eachCategory, nestedCategories };
-        })
-      );
-      console.log(categoriesWithNested)
-      setCategories(categoriesWithNested);
-    } catch (err) {
-      console.error('Error fetching categories:', err);
-    }
-  };
-
-
 
   useEffect(() => {
     fetchMBMessages()
-    fetchCategories()
   }, [userUUID, organizationUUID])
 
   useEffect(() => {
@@ -164,7 +138,7 @@ export default function SocialScreen() {
                       <CustomButton buttonStyle={styles.filterButton} textStyle={styles.filter} onPress={() => setFiltering((prev) => ({...prev, state: true}))} title={`Filters${filtering.categories.length > 0 ? `(${filtering.categories.length})` : ""}`} />
                       {filtering.categories.length ? <CustomButton textStyle={styles.clearFilter} onPress={() => setFiltering({state: false, categories: []})} title={"Clear Filters"} /> : null}
                     </View>
-                </View>
+                </View> 
             }
             style={styles.mainPostsContainerList}
             contentContainerStyle={styles.postsContainerList}
@@ -181,7 +155,7 @@ export default function SocialScreen() {
         />
 
         <CustomModal fullScreen isOpen={creatingPost.state}>
-            <CreatePost categories={categories} creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
+            <CreatePost creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
         </CustomModal>
 
         <CustomModal onClose={() => setIsDeletingPost(false)} isOpen={isDeletingPost}>
@@ -193,7 +167,7 @@ export default function SocialScreen() {
         </CustomModal> */}
 
         <CustomModal presentationStyle="formSheet" fullScreen onClose={() => setFiltering((prev) => ({...prev, state: false}))} isOpen={filtering.state}>
-          <Filters categories={categories} filtering={filtering} setFiltering={setFiltering} onClose={() => setFiltering((prev) => ({...prev, state: false}))}  />
+          <Filters filtering={filtering} setFiltering={setFiltering} onClose={() => setFiltering((prev) => ({...prev, state: false}))}  />
         </CustomModal>
 
     </View>

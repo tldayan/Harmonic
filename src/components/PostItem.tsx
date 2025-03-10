@@ -1,5 +1,5 @@
-import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { ActivityIndicator, FlatList, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import CustomButton from './CustomButton'
 import { colors } from '../styles/colors'
 import { AttachmentData, PostItemProps } from '../types/post-types'
@@ -33,9 +33,11 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
   const [viewingLikes, setViewingLikes] = useState(false)
   const [viewingAttachments, setViewingAttachments] = useState(false)
+  const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
   const [hasLiked, setHasLiked] = useState(post.HasLiked);
   const reduxHasLiked = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.hasLiked ?? false)
   const reduxPostLikeCount = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.likeCount ?? post.NoofLikes )
+  const [videoPlaying, setVideoPlaying] = useState(false)
   const dispatch = useDispatch()
 
 
@@ -82,25 +84,26 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
     setViewingLikes(true)
   }
   
-  const attachmentItem = ({item}: {item : AttachmentData}) => {
+  const attachmentItem = ({item,index}: {item : AttachmentData, index: number}) => {
 
     if (!item.Attachment) {
       return null;
     }
 
     return (
-<CustomButton 
-  onPress={() => { 
-    if (item.AttachmentType === "image" || attachmentData.length > 1) 
-      setViewingAttachments(true);
-  }} 
-  buttonStyle={[styles.postContentContainer, attachmentData.length === 1 && { width: "100%", height: 200 }]} 
-  icon={
-    item.AttachmentType === "image" ? (
+      <CustomButton 
+        onPress={() => { 
+          if (item.AttachmentType.includes("image") || attachmentData.length > 1) 
+            setViewingAttachments(true);
+            setInitialAttachmentIndex(index)
+        ;setVideoPlaying(true)}}
+        buttonStyle={[styles.postContentContainer, attachmentData.length === 1 && { width: "100%", height: 200 }]} 
+        icon={
+          item.AttachmentType.includes("image") ? (
       <Image style={styles.content} source={{ uri: item?.Attachment }} />
     ) : (
       <View style={{ position: 'relative' }}>
-        <VideoIcon stroke='white' fill='white' width={20} height={20} style={{ position: 'absolute', bottom: 8, left: 8, zIndex: 2 }} />
+        {!videoPlaying && <VideoIcon stroke="white" fill="white" width={20} height={20} style={{ position: 'absolute', bottom: 8, left: 8, zIndex: 2 }} />}
 
         <Video 
           paused 
@@ -122,7 +125,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
     <View style={[styles.mainContainer]}>
 
         {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
-          <ProfileHeader showActions FirstName={post.FirstName} CreatedDateTime={post.CreatedDateTime} ProfilePic={post.ProfilePic} MessageBoardUUID={post.MessageBoardUUID} CreatedBy={post.CreatedBy} />
+          <ProfileHeader showActions post={post} />
         </TouchableOpacity>}
 
 
@@ -151,9 +154,9 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
         <PostLikes MessageBoardUUID={post.MessageBoardUUID} onClose={() => setViewingLikes(false)} />
       </CustomModal>
       
-      <CustomModal isOpen={viewingAttachments} onClose={() => setViewingAttachments(false)}>
-        <AttachmentCarousel AttachmentData={attachmentData} onClose={() => setViewingAttachments(false)} />
-      </CustomModal>
+      <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false); setVideoPlaying(false)}}>
+        <AttachmentCarousel initialIndex={initialAttachmentIndex} AttachmentData={attachmentData} onClose={() => {setViewingAttachments(false); setVideoPlaying(false)}} />
+      </CustomModal>  
 
     </View>
   )
@@ -187,12 +190,16 @@ const styles = StyleSheet.create({
     color: colors.ACTIVE_ORANGE
   },
   postContentContainer : {
+/*     borderWidth: 2,
+    borderColor: "red", */
     borderRadius: 10,
     overflow: "hidden",
     marginTop: 10,
+    aspectRatio: 1,
     width: 150,
     height: 150,
-    position: "relative"
+    position: "relative",
+/*     backgroundColor: "black" */
   },
   content: {
     width: "100%",

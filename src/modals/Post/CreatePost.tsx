@@ -9,7 +9,7 @@ import { colors } from '../../styles/colors'
 import { shadowStyles } from '../../styles/global-styles'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
 import { Asset, launchImageLibrary } from 'react-native-image-picker'
-import { CategoryProps, CreatingPostState } from '../../types/post-types'
+import { CategoryProps, CreatingPostState, PostItemProps } from '../../types/post-types'
 import { CustomModal } from '../../components/CustomModal'
 import ImageView from '../ImageView'
 import Poll from './CreatePoll'
@@ -23,23 +23,23 @@ import { STATUS_CODE } from '../../api/endpoints'
 
 interface CreatePostProps {
     onClose: () => void
-    creatingPost: CreatingPostState
-    categories: Category[]
+    creatingPost?: CreatingPostState
+    categories?: Category[]
+    post?: PostItemProps
 }
 
   
 
-export default function CreatePost({onClose, creatingPost, categories}: CreatePostProps) {
+export default function CreatePost({onClose, creatingPost, categories, post}: CreatePostProps) {
 
     const {user} = useUser()
-    const [postText, setPostText] = useState("")
+    const [postText, setPostText] = useState(post?.Message ? post.Message : "")
     const inputRef = useRef<any>(null)
     const [selectedAttachments, setSelectedAttachments] = useState<Asset[]>([])
     const [viewingImageUrl, setViewingImageUrl] = useState("")
-    const [postCategories, setPostCategories] = useState<{state: boolean, categories: CategoryProps[]}>({state: false, categories:[]})
+    const [postCategories, setPostCategories] = useState<{state: boolean, categories: CategoryProps[]}>({state: false, categories: post?.AllMBCategoryItems ?? []})
     const [creatingPoll, setCreatingPoll] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [link, setLink] = useState("")
     const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth);
 
 
@@ -63,12 +63,12 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
         }, []);
 
         useEffect(() => {
-            if (creatingPost.action === "media") {
+            if (creatingPost?.action === "media") {
                 setTimeout(() => {
                     handleAddMedia();
                 }, 200);
             }
-        }, [creatingPost.action]);
+        }, [creatingPost?.action]);
         
         
 
@@ -138,8 +138,8 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
         
 
 
-        const response = await saveMBMessage(postText,attachmentUrls, organizationUUID, userUUID, postCategories.categories)
-
+        const response = await saveMBMessage(postText,attachmentUrls, organizationUUID, userUUID, postCategories.categories, post?.MessageBoardUUID)
+            
             if(response === STATUS_CODE.SUCCESS) {
                 onClose()
             }
@@ -176,26 +176,30 @@ export default function CreatePost({onClose, creatingPost, categories}: CreatePo
             </View> */}
 
             <ScrollView horizontal contentContainerStyle={styles.categoryList} style={styles.categoryListContainer}>
-                {postCategories.categories.map((eachCategory) => {
-                    return ( <Text style={styles.category} key={eachCategory.categoryUUID}>{eachCategory.categoryName}</Text>)
-                })}
+                {postCategories.categories.length > 0 ? postCategories.categories.map((eachCategory) => {
+                    return ( <Text style={styles.category} key={eachCategory.CategoryItemName}>{eachCategory.CategoryItemName}</Text>)
+                }): 
+                 post?.AllMBCategoryItems.map((eachCategory) => {
+                    return ( <Text style={styles.category} key={eachCategory.CategoryItemUUID}>{eachCategory.CategoryItemName}</Text>)
+                })
+                }
             </ScrollView>
             
 
-            <View style={styles.mainActionButtonsContainer}>
+            {!post && <View style={styles.mainActionButtonsContainer}>
                 <ScrollView scrollEnabled horizontal contentContainerStyle={styles.actionButtonsContainer} indicatorStyle='black' showsHorizontalScrollIndicator>
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => handleAddMedia()} title={"Add Media"} icon={<Image width={5} height={5} source={require("../../assets/images/frame.png")} />} />
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => {}} title={"Add Link"} icon={<Image width={5} height={5} source={require("../../assets/images/link.png")} />} />
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => setCreatingPoll(true)} title={"Add Poll"} icon={<Image width={5} height={5} source={require("../../assets/images/ordored-list.png")} />} />
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => {}} title={"Add Event"} icon={<Image width={5} height={5} source={require("../../assets/images/calendar.png")} />} />
                 </ScrollView>
-            </View>
+            </View>}
 
             <CustomButton onPress={() => setPostCategories((prev) => ({...prev, state: true}))} textStyle={{color: colors.PRIMARY_COLOR}} title={postCategories.categories.length ? "Edit Categories" : "Add Categories"} />
             <CustomButton onPress={handlePost} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]} title={!loading ? "Post" : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />
             
             <CustomModal isOpen={postCategories.state} fullScreen presentationStyle='formSheet' onClose={() => setPostCategories((prev) => ({...prev, state: false}))}>
-                <Filters setPostCategories={setPostCategories} postCategories={postCategories.categories} categories={categories} onClose={() => setPostCategories((prev) => ({...prev, state: false}))} />
+                <Filters setPostCategories={setPostCategories} postCategories={postCategories.categories} /* categories={categories}  */onClose={() => setPostCategories((prev) => ({...prev, state: false}))} />
             </CustomModal>
 
 

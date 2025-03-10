@@ -1,20 +1,19 @@
 import { FlatList, Image, StyleSheet, View, Dimensions, TouchableWithoutFeedback, ActivityIndicator } from 'react-native'
-import React, { useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { AttachmentData } from '../types/post-types'
 import ModalsHeader from './ModalsHeader';
 import Video from 'react-native-video';
-import { index } from 'realm';
 
 const { width } = Dimensions.get('window'); 
 
 interface AttachmentCarouselProps {
     AttachmentData: AttachmentData[]
     onClose: () => void
+    initialIndex?: number
 }
+const MemoizedModalsHeader = React.memo(ModalsHeader);
 
-
-export default function AttachmentCarousel({onClose,AttachmentData} : AttachmentCarouselProps) {
-
+export default function AttachmentCarousel({onClose,AttachmentData, initialIndex = 0} : AttachmentCarouselProps) {
     const [loading, setLoading] = useState(true)
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null)
     const flatListRef = useRef<FlatList>(null)
@@ -30,34 +29,35 @@ export default function AttachmentCarousel({onClose,AttachmentData} : Attachment
     }
 
 
-    const attachmentItem = ({ item, index}: { item: AttachmentData; index: number}) => {
-        console.log(item)
-        if (!item.Attachment) {
-            return null;
-        }
+    const attachmentItem = useMemo(() => {
+        return ({ item, index }: { item: AttachmentData; index: number }) => {
+            if (!item.Attachment) {
+                return null;
+            }
     
-        return (
-            <TouchableWithoutFeedback>
-                <View style={styles.postImageContainer}>
-                    <ModalsHeader lightCloseIcon={true} onClose={onClose} />
-                    <View style={styles.contentWrapper}>
-                        {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
-                        {!item.AttachmentType.includes("video") ? (
-                            <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.Attachment }} />
-                        ) : (
-                            <Video
-                                renderLoader={<ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
-                                controls={true}
-                                paused={visibleIndex !== index}
-                                style={styles.content}
-                                source={{ uri: item.Attachment }}
-                            />
-                        )}
+            return (
+                <TouchableWithoutFeedback>
+                    <View style={styles.postImageContainer}>
+                        <MemoizedModalsHeader lightCloseIcon={true} onClose={onClose} />
+                        <View style={styles.contentWrapper}>
+                            {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
+                            {!item.AttachmentType.includes("video") ? (
+                                <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.Attachment }} />
+                            ) : (
+                                <Video
+                                    renderLoader={<ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
+                                    controls={true}
+                                    paused={visibleIndex !== index}
+                                    style={styles.content}
+                                    source={{ uri: item.Attachment }}
+                                />
+                            )}
+                        </View>
                     </View>
-                </View>
-            </TouchableWithoutFeedback>
-        );
-    }
+                </TouchableWithoutFeedback>
+            );
+        }
+    }, [loading, visibleIndex, onClose]); 
     
 
     return (
@@ -72,9 +72,13 @@ export default function AttachmentCarousel({onClose,AttachmentData} : Attachment
                 pagingEnabled
                 bounces={false}
                 showsHorizontalScrollIndicator={true}
-                indicatorStyle='white'
+                indicatorStyle='white'  
                 onViewableItemsChanged={onViewableItemsChanged}
                 viewabilityConfig={viewabilityConfig}
+                getItemLayout={(data, index) => ({
+                    length: width, offset: width * index,index
+                })}
+                initialScrollIndex={initialIndex}
             />
         </View>
     );
@@ -102,17 +106,17 @@ const styles = StyleSheet.create({
     contentWrapper: {
 /*         position: "relative", */
         width,
-        aspectRatio: 1.5,
-        alignSelf: "center",
+        aspectRatio: 1,
+/*         alignSelf: "center",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center", */
     },
     content: {
         borderWidth: 2,
         borderColor: "aqua",
         width,
         resizeMode: "contain",
-        aspectRatio: 1.5,
+        aspectRatio: 1, // 1.5
         alignSelf: "center",
         position: "relative"
     },
