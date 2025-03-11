@@ -5,15 +5,17 @@ import CustomButton from './CustomButton'
 import ThreeDots from "../assets/icons/three-dots-horizontal.svg"
 import { CustomModal } from './CustomModal'
 import PostActions from '../modals/Post/PostActions'
-import { PostItemProps, PostLikeProps } from '../types/post-types'
+import { AttachmentData, PostItemProps, PostLikeProps } from '../types/post-types'
+import { Asset } from 'react-native-image-picker'
 
 interface ProfileHeaderProps {
     post?: PostItemProps
     postLikes?: PostLikeProps
     showActions?: boolean
+    attachmentData?: AttachmentData[]
 }
 
-export default function ProfileHeader({post,postLikes, showActions} : ProfileHeaderProps) {
+export default function ProfileHeader({post,postLikes, showActions, attachmentData} : ProfileHeaderProps) {
 
     const [isEditingPost, setIsEditingPost] = useState(false)
     const postData = post
@@ -47,7 +49,7 @@ export default function ProfileHeader({post,postLikes, showActions} : ProfileHea
         {showActions && <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />}
     
         <CustomModal isOpen={isEditingPost} halfModal onClose={() => setIsEditingPost(false)}>
-          <PostActions post={post} onClose={() => setIsEditingPost(false)} />
+          <PostActions attachmentData={attachmentData} post={post} onClose={() => setIsEditingPost(false)} />
         </CustomModal>
 
     </View>

@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ModalsHeader from './ModalsHeader'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -10,6 +10,8 @@ import { CategoryProps } from '../types/post-types'
 import { useSelector } from 'react-redux'
 import { RootState } from '../store/store'
 import { getAllCategories, getCategoryItemsForACategory } from '../api/network-utils'
+import { fetchWithErrorHandling } from '../utils/helpers'
+import Toast from 'react-native-toast-message'
 
 interface FiltersProps {
     onClose: () => void
@@ -17,36 +19,36 @@ interface FiltersProps {
     filtering?: { state: boolean; categories: string[] };
     postCategories?: CategoryProps[]
     setPostCategories?: React.Dispatch<React.SetStateAction<{state: boolean, categories: CategoryProps[]}>>
+    editingCategories?: CategoryProps[]
+    setEditingCategories?: React.Dispatch<React.SetStateAction<CategoryProps[]>>
 }
 
 
-export default function Filters({onClose, setFiltering, filtering, setPostCategories, postCategories} : FiltersProps) {
+export default function Filters({onClose, setFiltering, filtering, setPostCategories, postCategories,editingCategories,setEditingCategories} : FiltersProps) {
+
     const { organizationUUID } = useSelector((state: RootState) => state.auth);
 
     const [categories, setCategories] = useState<Category[]>([])
 
 
       const fetchCategories = async () => {
-        try {
     
           if (!organizationUUID) return;
     
-          const mainCategories: Category[] = await getAllCategories(organizationUUID);
+          const mainCategories: Category[] = await fetchWithErrorHandling(getAllCategories, organizationUUID);
     
           const categoriesWithNested = await Promise.all(
             mainCategories.map(async (eachCategory: Category) => {
-              const nestedCategories = await getCategoryItemsForACategory(
+              const nestedCategories = await fetchWithErrorHandling(getCategoryItemsForACategory,
                 organizationUUID,
                 eachCategory.CategoryUUID
               );
               return { ...eachCategory, nestedCategories };
             })
           );
-
+          console.log(categoriesWithNested)
           setCategories(categoriesWithNested);
-        } catch (err) {
-          console.error('Error fetching categories:', err);
-        }
+
       };
 
       useEffect(() => {
@@ -54,6 +56,33 @@ export default function Filters({onClose, setFiltering, filtering, setPostCatego
       }, [])
 
       const handleFilter = (categoryUUID: string, categoryName: string) => {
+
+        if(editingCategories && editingCategories?.length > 0) {
+
+          const isCategoryExisting = editingCategories.some((category) => category.CategoryItemUUID === categoryUUID && category.existing)
+
+          if(isCategoryExisting) {
+
+            setEditingCategories?.((prev) => prev.map((eachCategory) => 
+            eachCategory.CategoryItemUUID === categoryUUID ? {...eachCategory, isDeleted : !eachCategory.isDeleted, existing: !eachCategory.existing} : eachCategory
+          ))
+
+          } else {
+
+            let newCategory = {
+              "MessageBoardCategoryUUID": null,
+              "CategoryItemUUID": categoryUUID,
+              "CategoryItemName": categoryName,
+              "isDeleted": false,
+              "existing": true
+            }
+
+            setEditingCategories?.((prev) => [...prev, newCategory])
+
+          }
+          
+          return
+        }
 
         if(setPostCategories) {
 
@@ -97,7 +126,7 @@ export default function Filters({onClose, setFiltering, filtering, setPostCatego
                     <View style={styles.mainChildCategoryContainer}>
                         {eachCategory.nestedCategories.map((eachChildCategory: NestedCategory) => {
                         const isSelected = filtering?.categories.includes(eachChildCategory.CategoryItemUUID) 
-                        ?? postCategories?.some(category => category.CategoryItemUUID === eachChildCategory.CategoryItemUUID);
+                        || postCategories?.some(category => category.CategoryItemUUID === eachChildCategory.CategoryItemUUID) || editingCategories?.some(category => category.existing === true && category.CategoryItemUUID === eachChildCategory.CategoryItemUUID)
               
                         return (
                             <TouchableOpacity key={eachChildCategory.CategoryItemUUID} onPress={() => handleFilter(eachChildCategory.CategoryItemUUID, eachChildCategory.CategoryItemName)} style={[styles.childCategoryContainer]}>
@@ -114,6 +143,7 @@ export default function Filters({onClose, setFiltering, filtering, setPostCatego
         })}
       </ScrollView>
       <CustomButton onPress={onClose} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, {width: "70%", marginHorizontal: "15%"}]} title={"Done"} />
+      <Toast />
     </SafeAreaView>
   )
 }

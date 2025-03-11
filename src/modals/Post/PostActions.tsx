@@ -9,7 +9,7 @@ import { deleteMBComment, deleteMBMessage } from '../../api/network-utils'
 import { STATUS_CODE } from '../../api/endpoints'
 import { CustomModal } from '../../components/CustomModal'
 import ReportForm from './ReportForm'
-import { CommentItemProps, EditPostState, PostItemProps } from '../../types/post-types'
+import { AttachmentData, CommentItemProps, EditPostState, PostItemProps } from '../../types/post-types'
 import { useRoute } from '@react-navigation/native'
 import { CommentsScreenRouteProp } from '../../screens/Others/CommentsScreen'
 import CreatePost from './CreatePost'
@@ -23,9 +23,11 @@ interface PostActionsProps {
   setEditPost?: React.Dispatch<React.SetStateAction<EditPostState>>;
   setComments?: React.Dispatch<React.SetStateAction<CommentItemProps[]>>
   post?: PostItemProps
+  attachmentData?: AttachmentData[]
 }
 
-export default function PostActions({onClose, MessageBoardUUID, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post} : PostActionsProps) {
+export default function PostActions({onClose, MessageBoardUUID, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
+  console.log(attachmentData)
   const [loading, setLoading] = useState(false)
   const [isReportingPost, setIsReportingPost] = useState(false)
   const [isEditingPost, setIsEditingPost] = useState(false)
@@ -104,7 +106,7 @@ const route = useRoute<CommentsScreenRouteProp>()
         </CustomModal>
 
         <CustomModal fullScreen presentationStyle='formSheet' isOpen={isEditingPost} onClose={handleCloseAllModals}>
-          <CreatePost post={post} onClose={handleCloseAllModals} />
+          <CreatePost attachmentData={attachmentData} post={post} onClose={handleCloseAllModals} />
         </CustomModal>
 
       </View>

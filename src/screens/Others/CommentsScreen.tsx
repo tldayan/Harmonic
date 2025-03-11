@@ -23,7 +23,7 @@ import { STATUS_CODE } from '../../api/endpoints'
 export type CommentsScreenRouteProp = RouteProp<RootStackParamList, "Comments">
 
 export default function CommentsScreen() {
-
+  
   const [messageDetails, setMessageDetails] = useState<PostItemProps | null>(null)
   const [comment, setComment] = useState<string>("")
   const [comments, setComments] = useState<CommentItemProps[]>([])
@@ -50,7 +50,7 @@ export default function CommentsScreen() {
   const { postUUID, attachmentData } = route.params || {}
 
 
-
+  console.log(attachmentData)
   const fetchComments = async() => {
     if(isFetching.current || !hasMoreComments) return
     isFetching.current = true
@@ -268,7 +268,7 @@ export default function CommentsScreen() {
     <View style={styles.container} >
       <View style={styles.headerProfileContainer}>
         <CustomButton onPress={() => navigation.goBack()} icon={<ChevronLeft />} />
-        {messageDetails && <ProfileHeader showActions post={messageDetails}/>}
+        {messageDetails && <ProfileHeader attachmentData={attachmentData} showActions post={messageDetails}/>}
       </View>
 
       {messageDetails && <PostItem /* setViewingImageUrl={() => {}}  */childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}

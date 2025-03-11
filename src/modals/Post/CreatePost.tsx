@@ -9,7 +9,7 @@ import { colors } from '../../styles/colors'
 import { shadowStyles } from '../../styles/global-styles'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
 import { Asset, launchImageLibrary } from 'react-native-image-picker'
-import { CategoryProps, CreatingPostState, PostItemProps } from '../../types/post-types'
+import { AttachmentData, CategoryProps, CreatingPostState, PostItemProps } from '../../types/post-types'
 import { CustomModal } from '../../components/CustomModal'
 import ImageView from '../ImageView'
 import Poll from './CreatePoll'
@@ -26,18 +26,22 @@ interface CreatePostProps {
     creatingPost?: CreatingPostState
     categories?: Category[]
     post?: PostItemProps
+    attachmentData?: AttachmentData[]
 }
 
   
 
-export default function CreatePost({onClose, creatingPost, categories, post}: CreatePostProps) {
+export default function CreatePost({onClose, creatingPost, post, attachmentData}: CreatePostProps) {
+    console.log(attachmentData)
 
     const {user} = useUser()
     const [postText, setPostText] = useState(post?.Message ? post.Message : "")
     const inputRef = useRef<any>(null)
     const [selectedAttachments, setSelectedAttachments] = useState<Asset[]>([])
+    const [editingAttachments, setEditingAttachments] = useState<AttachmentData[]>(attachmentData ? attachmentData : [])
     const [viewingImageUrl, setViewingImageUrl] = useState("")
-    const [postCategories, setPostCategories] = useState<{state: boolean, categories: CategoryProps[]}>({state: false, categories: post?.AllMBCategoryItems ?? []})
+    const [postCategories, setPostCategories] = useState<{state: boolean, categories: CategoryProps[]}>({state: false, categories: []})
+    const [editingCategories, setEditingCategories] = useState<CategoryProps[]>(post?.AllMBCategoryItems?.map(category => ({...category,isDeleted: false, existing: true})) || []);
     const [creatingPoll, setCreatingPoll] = useState(false)
     const [loading, setLoading] = useState(false)
     const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth);
@@ -112,6 +116,15 @@ export default function CreatePost({onClose, creatingPost, categories, post}: Cr
         )
     }
 
+    const editingImageItem = ({item} : {item : AttachmentData}) => {
+        return (
+            <View style={styles.imageContainer}>
+                <CustomButton onPress={() => deleteImage(item.AttachmentUUID || "")} buttonStyle={styles.deleteImage} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
+                <CustomButton onPress={() => setViewingImageUrl(item.Attachment || "")} icon={<Image style={styles.image} source={{uri: item.Attachment ? item.Attachment : undefined}} />} />
+            </View>
+        )
+    }
+
     const AddAdditionalMediaButton = () => {
         if(selectedAttachments.length > 0) {
             return (
@@ -136,9 +149,7 @@ export default function CreatePost({onClose, creatingPost, categories, post}: Cr
               console.log(attachmentUrls)
             }
         
-
-
-        const response = await saveMBMessage(postText,attachmentUrls, organizationUUID, userUUID, postCategories.categories, post?.MessageBoardUUID)
+        const response = await saveMBMessage(postText,attachmentUrls, organizationUUID, userUUID, (editingCategories.length > 0 ? editingCategories : postCategories.categories), post?.MessageBoardUUID)
             
             if(response === STATUS_CODE.SUCCESS) {
                 onClose()
@@ -155,7 +166,7 @@ export default function CreatePost({onClose, creatingPost, categories, post}: Cr
 
   return (
     <SafeAreaView style={styles.container}>
-        <ModalsHeader onClose={onClose} title='Create Post' />
+        <ModalsHeader onClose={onClose} title={post ? "Edit Post" : 'Create Post'} />
         <View style={styles.innerContainer}>
             <View style={styles.mainUserDetailsContainer}>
                 <View style={styles.mainProfileDetialsContainer}>
@@ -166,28 +177,25 @@ export default function CreatePost({onClose, creatingPost, categories, post}: Cr
 
             <CustomTextInput scrollEnabled={true} ref={inputRef} multiline placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={[styles.postField, shadowStyles]} value={postText} onChangeText={(e) => {setPostText(e)}} placeholder={`What's on your mind, ${user?.displayName}?`}/>
             
-            <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedAttachments} renderItem={imageItem} keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddAdditionalMediaButton />} />
-            
 
-
-            {/* <CustomTextInput onChangeText={(e) => setLink(e)} value={link} inputStyle={styles.linkField} onPress={() => {}} label='Link' /> */}
-       {/*      <View>
-                <Text>Link Metadata</Text>
-            </View> */}
+            {/* pending - DELETE FROM EDITING IMAGE item MUST BE DELETED FROM FIREBASE BUCKET ALSO */}
+            {selectedAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedAttachments} renderItem={imageItem} keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddAdditionalMediaButton />} />}
+            {editingAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={editingAttachments} renderItem={editingImageItem} keyExtractor={(item) => String(item.AttachmentUUID)} ListFooterComponent={<AddAdditionalMediaButton />} />}
+           
 
             <ScrollView horizontal contentContainerStyle={styles.categoryList} style={styles.categoryListContainer}>
                 {postCategories.categories.length > 0 ? postCategories.categories.map((eachCategory) => {
                     return ( <Text style={styles.category} key={eachCategory.CategoryItemName}>{eachCategory.CategoryItemName}</Text>)
                 }): 
-                 post?.AllMBCategoryItems.map((eachCategory) => {
-                    return ( <Text style={styles.category} key={eachCategory.CategoryItemUUID}>{eachCategory.CategoryItemName}</Text>)
+                 editingCategories?.map((eachCategory) => {
+                    if(eachCategory.existing) return ( <Text style={styles.category} key={eachCategory.CategoryItemUUID}>{eachCategory.CategoryItemName}</Text>)
                 })
                 }
             </ScrollView>
             
 
             {!post && <View style={styles.mainActionButtonsContainer}>
-                <ScrollView scrollEnabled horizontal contentContainerStyle={styles.actionButtonsContainer} indicatorStyle='black' showsHorizontalScrollIndicator>
+                <ScrollView scrollEnabled horizontal contentContainerStyle={styles.actionButtonsContainer}>
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => handleAddMedia()} title={"Add Media"} icon={<Image width={5} height={5} source={require("../../assets/images/frame.png")} />} />
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => {}} title={"Add Link"} icon={<Image width={5} height={5} source={require("../../assets/images/link.png")} />} />
                     <CustomButton buttonStyle={styles.actionButtons} textStyle={styles.actionButtonText} onPress={() => setCreatingPoll(true)} title={"Add Poll"} icon={<Image width={5} height={5} source={require("../../assets/images/ordored-list.png")} />} />
@@ -195,11 +203,11 @@ export default function CreatePost({onClose, creatingPost, categories, post}: Cr
                 </ScrollView>
             </View>}
 
-            <CustomButton onPress={() => setPostCategories((prev) => ({...prev, state: true}))} textStyle={{color: colors.PRIMARY_COLOR}} title={postCategories.categories.length ? "Edit Categories" : "Add Categories"} />
+            <CustomButton onPress={() => setPostCategories((prev) => ({...prev, state: true}))} textStyle={{color: colors.PRIMARY_COLOR, paddingTop: 10}} title={postCategories.categories.length || editingCategories ? "Edit Categories" : "Add Categories"} />
             <CustomButton onPress={handlePost} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]} title={!loading ? "Post" : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />
             
             <CustomModal isOpen={postCategories.state} fullScreen presentationStyle='formSheet' onClose={() => setPostCategories((prev) => ({...prev, state: false}))}>
-                <Filters setPostCategories={setPostCategories} postCategories={postCategories.categories} /* categories={categories}  */onClose={() => setPostCategories((prev) => ({...prev, state: false}))} />
+                <Filters setEditingCategories={setEditingCategories} editingCategories={editingCategories} setPostCategories={setPostCategories} postCategories={postCategories.categories} /* categories={categories}  */onClose={() => setPostCategories((prev) => ({...prev, state: false}))} />
             </CustomModal>
 
 
@@ -276,7 +284,8 @@ const styles = StyleSheet.create({
         },
         actionButtonsContainer : {
             gap: 10,
-            paddingBottom: 10
+            paddingTop: 10,
+            paddingBottom: 5
         },
         actionButtonText:  {
             fontSize: 12

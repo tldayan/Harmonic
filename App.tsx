@@ -8,6 +8,7 @@ import { CustomSafeAreaView } from './src/components/CustomSafeAreaView';
 import { RealmProvider } from '@realm/react';
 import { Provider } from 'react-redux';
 import { store } from './src/store/store';
+import Toast from 'react-native-toast-message';
 
 function App(): React.JSX.Element {
   return (
@@ -26,6 +27,8 @@ function App(): React.JSX.Element {
         </RealmProvider>
       </CustomSafeAreaView>
     </KeyboardAvoidingView>
+
+    <Toast />
   </Provider>
   );
 }

@@ -1,4 +1,5 @@
 import { PasswordCheck } from "../types/password.types";
+import Toast from "react-native-toast-message"
 
   
 //GET RECTANGLE COLOR FOR CREATE PASSWORD VALIDATION
@@ -84,4 +85,28 @@ export function timeAgo(dateString: string): string {
   } else {
     return `${diffInYears}y`;
   }
+}
+
+
+type ApiFunction<T extends unknown[]> = (...args: T) => Promise<any>;
+
+export const fetchWithErrorHandling = async <T extends unknown[]>(apiFunction: ApiFunction<T>, ...args: T): Promise<any> => {
+  
+  try {
+    const response = await apiFunction(...args)
+    return response
+  } catch (err: any) {
+
+    Toast.show({
+      type: "error",
+      text1: "Opps...Something went wrong!",
+      text2: err.message || "Please try agian",
+      position: "bottom"
+    })
+    
+    return
+
+  }
+
+
 }

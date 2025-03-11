@@ -86,17 +86,17 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
 
 const styles = StyleSheet.create({
     container: {
-        borderWidth: 2,
-        borderColor: "red",
+/*         borderWidth: 2,
+        borderColor: "red", */
     },
     carouselMainContainer: {
-        borderWidth: 2,
-        borderColor: "white",
+/*         borderWidth: 2,
+        borderColor: "white", */
         width, 
     },
     postImageContainer: {
-        borderWidth: 2,
-        borderColor: "red",
+/*         borderWidth: 2,
+        borderColor: "red", */
         width, 
         height: "100%",
         paddingHorizontal: 10,
@@ -112,11 +112,11 @@ const styles = StyleSheet.create({
         alignItems: "center", */
     },
     content: {
-        borderWidth: 2,
-        borderColor: "aqua",
+/*         borderWidth: 2,
+        borderColor: "aqua", */
         width,
         resizeMode: "contain",
-        aspectRatio: 1, // 1.5
+        aspectRatio: 1.5,
         alignSelf: "center",
         position: "relative"
     },

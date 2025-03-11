@@ -93,9 +93,11 @@ export interface PostItemProps extends BasePostProps {
 
   
   export interface CategoryProps {
-    MessageBoardCategoryUUID?: string;
+      MessageBoardCategoryUUID?: string | null
       CategoryItemUUID: string;
       CategoryItemName: string;
+      isDeleted?: boolean
+      existing?: boolean
 /*     categoryUUID: string;
     categoryName: string; */
   }

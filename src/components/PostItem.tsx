@@ -125,7 +125,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
     <View style={[styles.mainContainer]}>
 
         {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
-          <ProfileHeader showActions post={post} />
+          <ProfileHeader attachmentData={attachmentData} showActions post={post} />
         </TouchableOpacity>}
 
 
