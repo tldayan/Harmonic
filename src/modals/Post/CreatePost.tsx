@@ -11,15 +11,15 @@ import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/
 import { Asset, launchImageLibrary } from 'react-native-image-picker'
 import { AttachmentData, CategoryProps, CreatingPostState, PostItemProps } from '../../types/post-types'
 import { CustomModal } from '../../components/CustomModal'
-import ImageView from '../ImageView'
 import Poll from './CreatePoll'
 import { uploadMedia } from './postUtils'
-import { saveMBMessage } from '../../api/network-utils'
+import { deleteMBMessageAttachment, saveMBMessage } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import Filters from '../Filters'
 import { STATUS_CODE } from '../../api/endpoints'
-
+import AttachmentCarousel from '../AttachmentCarousel'
+import Video from 'react-native-video'
 
 interface CreatePostProps {
     onClose: () => void
@@ -32,20 +32,21 @@ interface CreatePostProps {
   
 
 export default function CreatePost({onClose, creatingPost, post, attachmentData}: CreatePostProps) {
-    console.log(attachmentData)
+   /*  console.log(attachmentData) */
 
     const {user} = useUser()
     const [postText, setPostText] = useState(post?.Message ? post.Message : "")
     const inputRef = useRef<any>(null)
     const [selectedAttachments, setSelectedAttachments] = useState<Asset[]>([])
-    const [editingAttachments, setEditingAttachments] = useState<AttachmentData[]>(attachmentData ? attachmentData : [])
-    const [viewingImageUrl, setViewingImageUrl] = useState("")
+    const [editingAttachments, setEditingAttachments] = useState<AttachmentData[]>(attachmentData ? attachmentData.map((attachment => ({...attachment, isDeleted: false}))) : [])
+    const [viewingAttachments, setViewingAttachments] = useState(false)
+    const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
     const [postCategories, setPostCategories] = useState<{state: boolean, categories: CategoryProps[]}>({state: false, categories: []})
     const [editingCategories, setEditingCategories] = useState<CategoryProps[]>(post?.AllMBCategoryItems?.map(category => ({...category,isDeleted: false, existing: true})) || []);
     const [creatingPoll, setCreatingPoll] = useState(false)
     const [loading, setLoading] = useState(false)
     const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth);
-
+console.log(selectedAttachments)
 
     const handlePostClose = () => {
         setTimeout(() => {
@@ -101,26 +102,46 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData}
             }
         };
 
-        const deleteImage = (imageFilename: string) => {
+        const deleteAttachment = (imageFilename: string) => {
             let updatedSelectedImages = selectedAttachments.filter((eachImage) => eachImage.fileName !== imageFilename)
             setSelectedAttachments(updatedSelectedImages)
         }
+
+        const deleteExistingAttachment = (attachmentUUID: string) => {
+            setEditingAttachments((prev) =>
+                prev.map((eachAttachment) =>
+                    eachAttachment.AttachmentUUID === attachmentUUID ? { ...eachAttachment, isDeleted: true } : eachAttachment
+                )
+            );
+        }
         
 
-    const imageItem = ({item} : {item : Asset}) => {
+    const attachmentitem = ({item,index} : {item : Asset, index: number}) => {
         return (
             <View style={styles.imageContainer}>
-                <CustomButton onPress={() => deleteImage(item.fileName || "")} buttonStyle={styles.deleteImage} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
-                <CustomButton onPress={() => setViewingImageUrl(item.uri || "")} icon={<Image style={styles.image} source={{uri: item.uri ? item.uri : undefined}} />} />
+                <CustomButton onPress={() => deleteAttachment(item.fileName || "")} buttonStyle={styles.deleteImage} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
+                <CustomButton buttonStyle={styles.contentButtonContainer} onPress={() => {setViewingAttachments(true); setInitialAttachmentIndex(index)}} icon={item.type?.includes("video") ? 
+                    <Video 
+                        paused 
+                        renderLoader={<ActivityIndicator style={styles.loader} size={'small'} color={"black"} />} 
+                        style={styles.content}
+                        controls={false}
+                        source={{ uri: item.uri }}
+                    /> 
+                    : 
+                    <Image style={styles.content} source={{uri: item.uri ? item.uri : undefined}} />} />
             </View>
         )
     }
 
-    const editingImageItem = ({item} : {item : AttachmentData}) => {
+    const editingAttachmentImage = ({item} : {item : AttachmentData}) => {
+
+        if(item.isDeleted) return null
+
         return (
             <View style={styles.imageContainer}>
-                <CustomButton onPress={() => deleteImage(item.AttachmentUUID || "")} buttonStyle={styles.deleteImage} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
-                <CustomButton onPress={() => setViewingImageUrl(item.Attachment || "")} icon={<Image style={styles.image} source={{uri: item.Attachment ? item.Attachment : undefined}} />} />
+                <CustomButton onPress={() => deleteExistingAttachment(item.AttachmentUUID || "")} buttonStyle={styles.deleteImage} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
+                <CustomButton onPress={() => setViewingAttachments(true)} icon={<Image style={styles.content} source={{uri: item.Attachment ? item.Attachment : undefined}} />} />
             </View>
         )
     }
@@ -144,12 +165,11 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData}
             let attachmentUrls: any[] = [];
 
             if (selectedAttachments && selectedAttachments.length > 0) {
-                console.log(selectedAttachments)
               attachmentUrls = (await uploadMedia(selectedAttachments)) || [];
-              console.log(attachmentUrls)
             }
         
-        const response = await saveMBMessage(postText,attachmentUrls, organizationUUID, userUUID, (editingCategories.length > 0 ? editingCategories : postCategories.categories), post?.MessageBoardUUID)
+
+        const response = await saveMBMessage(postText,(editingAttachments.length ? editingAttachments : attachmentUrls), organizationUUID, userUUID, (editingCategories.length > 0 ? editingCategories : postCategories.categories), post?.MessageBoardUUID)
             
             if(response === STATUS_CODE.SUCCESS) {
                 onClose()
@@ -178,9 +198,8 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData}
             <CustomTextInput scrollEnabled={true} ref={inputRef} multiline placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={[styles.postField, shadowStyles]} value={postText} onChangeText={(e) => {setPostText(e)}} placeholder={`What's on your mind, ${user?.displayName}?`}/>
             
 
-            {/* pending - DELETE FROM EDITING IMAGE item MUST BE DELETED FROM FIREBASE BUCKET ALSO */}
-            {selectedAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedAttachments} renderItem={imageItem} keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddAdditionalMediaButton />} />}
-            {editingAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={editingAttachments} renderItem={editingImageItem} keyExtractor={(item) => String(item.AttachmentUUID)} ListFooterComponent={<AddAdditionalMediaButton />} />}
+            {selectedAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedAttachments} renderItem={attachmentitem} keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddAdditionalMediaButton />} />}
+            {editingAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={editingAttachments} renderItem={editingAttachmentImage} keyExtractor={(item) => String(item.AttachmentUUID)} ListFooterComponent={<AddAdditionalMediaButton />} />}
            
 
             <ScrollView horizontal contentContainerStyle={styles.categoryList} style={styles.categoryListContainer}>
@@ -212,10 +231,10 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData}
 
 
         </View>
-
-        <CustomModal isOpen={viewingImageUrl !== ""} onClose={() => setViewingImageUrl("")} >
-            <ImageView imageUrl={viewingImageUrl} onClose={() => setViewingImageUrl("")} />
-        </CustomModal>
+        
+           <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false)}}>
+            <AttachmentCarousel initialIndex={initialAttachmentIndex} Assets={selectedAttachments} onClose={() => {setViewingAttachments(false)}} />
+           </CustomModal>  
         
         <CustomModal fullScreen isOpen={creatingPoll} >
             <Poll onClose={() => {setCreatingPoll(false)}} closeAllModals={() => {setCreatingPoll(false); handlePostClose()}} />
@@ -317,10 +336,14 @@ const styles = StyleSheet.create({
 /*         borderWidth: 1, */
         position:"relative"
     },
-    image: {
+    contentButtonContainer: {
+        overflow: 'hidden',
         borderRadius: 5,
+    },
+    content: {
         width: 150,
         height: 150,
+        position: "relative"
     },
     addImage: {
         borderColor: colors.BORDER_COLOR,
@@ -361,6 +384,12 @@ const styles = StyleSheet.create({
         marginVertical: 5,
         borderRadius: 50,
         color: colors.ACTIVE_ORANGE
-    }
+    },
+    loader: {
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: [{ translateX: "-50%" }, { translateY: "-50%" }]
+    },
         
 })

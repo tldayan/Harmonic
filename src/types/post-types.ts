@@ -49,6 +49,7 @@ export interface PostItemProps extends BasePostProps {
     AttachmentType: string;
     CanBeDownloaded: boolean;
     AllowDownload: boolean;
+    isDeleted: boolean
   }
 
   export interface CommentItemProps {

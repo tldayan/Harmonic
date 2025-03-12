@@ -30,6 +30,7 @@ export const ENDPOINTS = {
     SAVE_MBMESSAGE_COMMENT: `${BASE_URL}/social/saveMBMessageComment`,
     SAVE_MBMESSAGE_LIKE: `${BASE_URL}/social/saveMBMessageLike`,
     DELETE_MBMESSAGE: `${BASE_URL}/social/deleteMBMessage`,
+    DELETE_MBMESSAGE_ATTACHMENT: `${BASE_URL}/social/deleteMBMessageAttachment`,
     REPORT_MBMESSAGE: `${BASE_URL}/social/reportMBMessageInappropriate`,
     REPORT_MBMESSAGE_COMMENT: `${BASE_URL}/social/reportMBCommentInappropriate`,
     DELETE_MBMESSAGE_COMMENT: `${BASE_URL}/social/deleteMBComment`,

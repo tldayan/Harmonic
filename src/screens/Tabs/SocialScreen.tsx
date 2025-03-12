@@ -7,7 +7,6 @@ import PostItem from '../../components/PostItem'
 import { CustomModal } from '../../components/CustomModal'
 import CreatePost from '../../modals/Post/CreatePost'
 import DeletePost from '../../modals/Post/DeletePost'
-import ImageView from '../../modals/ImageView'
 import { CreatingPostState, PostItemProps } from '../../types/post-types'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { TabParamList } from '../../types/navigation-types'
@@ -161,10 +160,6 @@ export default function SocialScreen() {
         <CustomModal onClose={() => setIsDeletingPost(false)} isOpen={isDeletingPost}>
             <DeletePost onClose={() => setIsDeletingPost(false)} />
         </CustomModal>
-
-{/*         <CustomModal onClose={() => setViewingImageUrl("")} isOpen={viewingImageUrl.length > 0}>
-            <ImageView onClose={() => setViewingImageUrl("")} imageUrl={viewingImageUrl} />
-        </CustomModal> */}
 
         <CustomModal presentationStyle="formSheet" fullScreen onClose={() => setFiltering((prev) => ({...prev, state: false}))} isOpen={filtering.state}>
           <Filters filtering={filtering} setFiltering={setFiltering} onClose={() => setFiltering((prev) => ({...prev, state: false}))}  />

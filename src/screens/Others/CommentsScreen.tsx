@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, KeyboardAvoidingView, Platform, Image, Alert, FlatList, TouchableOpacity, Keyboard, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, Keyboard, ActivityIndicator } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -50,7 +50,6 @@ export default function CommentsScreen() {
   const { postUUID, attachmentData } = route.params || {}
 
 
-  console.log(attachmentData)
   const fetchComments = async() => {
     if(isFetching.current || !hasMoreComments) return
     isFetching.current = true
@@ -228,7 +227,7 @@ export default function CommentsScreen() {
     return (
       <View style={styles.commentItemContainer}>
         <CustomButton onPress={() => {}} icon={<Image style={styles.profilePic} source={{uri: item.ProfilePicURL || "https://i.pravatar.cc/150"}} />} />
-        <View style={{flex: 1}}>       
+        <View style={{flex: 1, marginBottom: 25}}>       
           <TouchableOpacity onLongPress={() => setFocusedComment({state: true, comment: item.Comment, MessageBoardCommentUUID: item.MessageBoardCommentUUID, CreatedBy: item.CreatedBy})} style={styles.commentDetailsContainer}>
             <Text style={styles.name}>{item.FirstName}</Text>
             {!editPost.state && <Text style={styles.comment}>{item.Comment}</Text>}
@@ -256,7 +255,7 @@ export default function CommentsScreen() {
             </View>
           )))}
           {(loading && expandedComments[item.MessageBoardCommentUUID]) && <ActivityIndicator size={"small"} />}
-          {(hasMoreReplies[item.MessageBoardCommentUUID] && expandedComments[item.MessageBoardCommentUUID]) && <CustomButton textStyle={styles.loadMore} onPress={() => fetchCommentReplies(item.MessageBoardCommentUUID, false)} title={"Load more"} />}
+          {((hasMoreReplies[item.MessageBoardCommentUUID] && !loading) && expandedComments[item.MessageBoardCommentUUID]) && <CustomButton textStyle={styles.loadMore} onPress={() => fetchCommentReplies(item.MessageBoardCommentUUID, false)} title={"Load more"} />}
         </View>
         <Text style={styles.commentDateTime}>{timeAgo(item.CreatedDateTime)}</Text>
       </View>
@@ -271,7 +270,7 @@ export default function CommentsScreen() {
         {messageDetails && <ProfileHeader attachmentData={attachmentData} showActions post={messageDetails}/>}
       </View>
 
-      {messageDetails && <PostItem /* setViewingImageUrl={() => {}}  */childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
+      {messageDetails && <PostItem childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
     
         <FlatList 
           ref={flatListRef} 
@@ -448,6 +447,7 @@ const styles = StyleSheet.create({
     color: colors.ACTIVE_ORANGE
   },
   repliesContainer: {
+    
 /*     borderWidth: 2, */
     marginVertical: 10,
     flexDirection: "row",

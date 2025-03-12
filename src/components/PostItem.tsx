@@ -93,7 +93,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
     return (
       <CustomButton 
         onPress={() => { 
-          if (item.AttachmentType.includes("image") || attachmentData.length > 1) 
+          if (item.AttachmentType.includes("image") || attachmentData.length > 1 || Platform.OS === "android") 
             setViewingAttachments(true);
             setInitialAttachmentIndex(index)
         ;setVideoPlaying(true)}}
@@ -103,13 +103,13 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
       <Image style={styles.content} source={{ uri: item?.Attachment }} />
     ) : (
       <View style={{ position: 'relative' }}>
-        {!videoPlaying && <VideoIcon stroke="white" fill="white" width={20} height={20} style={{ position: 'absolute', bottom: 8, left: 8, zIndex: 2 }} />}
+        {!videoPlaying && <View style={styles.videoIconBackground}><VideoIcon stroke="white" fill="white" width={14} height={14} /></View>}
 
         <Video 
           paused 
           renderLoader={<ActivityIndicator style={styles.contentLoader} size={'small'} color={"black"} />} 
           style={styles.content}
-          controls={attachmentData.length > 1 ? false : true}
+          controls={Platform.OS === "android" ? false : attachmentData.length > 1 ? false : true}
           source={{ uri: item?.Attachment }} 
         />
       </View>
@@ -202,9 +202,23 @@ const styles = StyleSheet.create({
 /*     backgroundColor: "black" */
   },
   content: {
+/*     borderWidth: 1,
+    borderColor: "red", */
     width: "100%",
     height: "100%",
     borderRadius: 10,
+  },
+  videoIconBackground: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.PRIMARY_COLOR,
+    borderRadius: 50,
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    zIndex: 2,
+    width: 25,
+    height: 25
   },
   mainImagesList : {
 /*     flex: 1, */

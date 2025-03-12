@@ -27,7 +27,7 @@ interface PostActionsProps {
 }
 
 export default function PostActions({onClose, MessageBoardUUID, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
-  console.log(attachmentData)
+/*   console.log(attachmentData) */
   const [loading, setLoading] = useState(false)
   const [isReportingPost, setIsReportingPost] = useState(false)
   const [isEditingPost, setIsEditingPost] = useState(false)
@@ -102,7 +102,7 @@ const route = useRoute<CommentsScreenRouteProp>()
 
 
         <CustomModal fullScreen presentationStyle="formSheet" isOpen={isReportingPost} onClose={() => setIsReportingPost(false)} >
-          <ReportForm MessageBoardCommentUUID={MessageBoardCommentUUID} MessageBoardUUID={MessageBoardUUID} onClose={handleCloseAllModals} />
+          <ReportForm MessageBoardCommentUUID={MessageBoardCommentUUID} MessageBoardUUID={post?.MessageBoardUUID} onClose={handleCloseAllModals} />
         </CustomModal>
 
         <CustomModal fullScreen presentationStyle='formSheet' isOpen={isEditingPost} onClose={handleCloseAllModals}>

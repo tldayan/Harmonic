@@ -3,7 +3,7 @@ import { FirebaseAuthTypes } from "@react-native-firebase/auth"
 import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
 import { ENDPOINTS } from "./endpoints";
-import { CategoryProps } from "../types/post-types";
+import { AttachmentData, CategoryProps } from "../types/post-types";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -231,22 +231,23 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const saveMBMessage = async(message: string, attachmentUrls: { url: string, type: 'image' | 'video' }[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[], messageBoardUUID: string | null = null) => {
+  export const saveMBMessage = async(message: string, attachmentUrls: { url: string, type: 'image' | 'video', isDeleted: boolean }[] | AttachmentData[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[], messageBoardUUID: string | null = null) => {
 
-/*     console.log(postCategories) */
+    console.log(attachmentUrls)
 
     const allMBAttachments = attachmentUrls?.map((urlObj) => ({
-      Attachment: urlObj.url, 
-      AttachmentType: urlObj.type, 
+      Attachment: "Attachment" in urlObj ? urlObj.Attachment : urlObj.url, 
+      AttachmentType: "AttachmentType" in urlObj ? urlObj.AttachmentType : urlObj.type, 
       CanBeDownloaded: true,
       AllowDownload: true,
-      IsDeleted: false,
+      IsDeleted: urlObj.isDeleted ? urlObj.isDeleted : null,
       MessageBoardUUID: null,
       LoggedInUserUUID: UserUUID, 
       AttachmentUUID: null,
       AttachmentTypeUUID: null, 
       MessageBoardCommentUUID: null, 
-  }));
+    }));
+  
 
   let allMBCategoryItems = postCategories.map((eachCategory) => {
     return {
@@ -270,9 +271,26 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     
 
     const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE, bodyData, {}, "POST",{})
+    
+
+    console.log(response)
     console.log(response.data)
     return response.data.Status
 
+  }
+
+  export const deleteMBMessageAttachment = async(attachmentUUID: string, MessageBoardUUID: string, UserUUID: string) => {
+
+    const deleteAttachmentBodyData = {
+      "AttachmentUUID": attachmentUUID,
+      "MessageBoardUUID": MessageBoardUUID,
+      "LoggedInUserUUID": UserUUID
+    }
+
+    const deleteMBMessageAttachmentResponse = await apiClient(ENDPOINTS.SOCIAL.DELETE_MBMESSAGE_ATTACHMENT, deleteAttachmentBodyData, {}, "POST")
+    console.log(deleteMBMessageAttachmentResponse)
+
+    
   }
 
 

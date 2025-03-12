@@ -1,6 +1,7 @@
 import { Asset } from "react-native-image-picker"
 import { PollOption } from "../../types/post-types"
 import storage from "@react-native-firebase/storage"
+import { getStorage, ref, deleteObject } from "firebase/storage";
 
 export const filterOptions = (options : PollOption[]) => {
 
@@ -56,9 +57,30 @@ export const uploadMedia = async (mediaFiles: Asset[]): Promise<{ url: string, t
 
         const mediaData = await Promise.all(uploadPromises);
 
-        return mediaData.filter((data): data is { url: string, type: 'image' | 'video' } => data !== undefined);
+        return mediaData.filter((data): data is { url: string, type: 'image' | 'video', isDeleted: false} => data !== undefined);
     } catch (err) {
         console.error('Error uploading media files:', err);
         return [];
+    }
+};
+
+
+
+const extractStoragePath = (imageUrl: string) => {
+    const storageBaseUrl = "https://firebasestorage.googleapis.com/v0/b/harmonicdevapp.appspot.com/o/";
+    return decodeURIComponent(imageUrl.replace(storageBaseUrl, "").split("?")[0]);
+};
+
+
+export const deleteImageFromFirebase = async (imageUrl: string) => {
+    try {
+        const storage = getStorage();
+        const storagePath = extractStoragePath(imageUrl);
+        const imageRef = ref(storage, storagePath);
+
+        await deleteObject(imageRef);
+        console.log("Image deleted successfully from Firebase Storage!");
+    } catch (error) {
+        console.error("Error deleting image:", error);
     }
 };

@@ -24,9 +24,8 @@ export default function ReportForm({onClose, MessageBoardUUID, MessageBoardComme
     const [report, setReport] = useState("")
 
     const handleSend = async() => {
-
         if(!MessageBoardUUID && !MessageBoardCommentUUID) return
-  
+
         if(!report) {
             setErrorMessage("Please write a report")
             return
