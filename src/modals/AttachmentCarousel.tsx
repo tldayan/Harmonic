@@ -19,7 +19,8 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
     const [loading, setLoading] = useState(true)
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null)
     const flatListRef = useRef<FlatList>(null)
-
+    console.log(Assets)
+    console.log(AttachmentData)
     const onViewableItemsChanged = ({viewableItems}: {viewableItems: any[]}) => {
         if(viewableItems.length > 0) {
             setVisibleIndex(viewableItems[0].index)
@@ -42,7 +43,7 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                     <View style={styles.postImageContainer}>
                         <MemoizedModalsHeader lightCloseIcon={true} onClose={onClose} />
                         <View style={styles.contentWrapper}>
-                 {/*            {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />} */}
+                            {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                             {!item.AttachmentType.includes("video") ? (
                                 <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.Attachment }} />
                             ) : (

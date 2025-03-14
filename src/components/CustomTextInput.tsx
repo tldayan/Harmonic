@@ -20,6 +20,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
       errorMessage,
       setErrorMessage,
       rightIcon,
+      leftIcon,
       inputMode,
       countryCode,
       setCountryCode,
@@ -75,6 +76,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
           </TouchableOpacity>
           
           )}
+          {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
           <TextInput
             onPress={onPress}
             scrollEnabled={scrollEnabled}
@@ -99,7 +101,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
             onFocus={handleFocus}
             onBlur={handleBlur}
           />
-          {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
+          {rightIcon && <View style={styles.rightIconContainer}>{rightIcon}</View>}
         </View>
 
         <CustomModal fullScreen={true} isOpen={isDropdownVisible}>
@@ -178,11 +180,17 @@ const styles = StyleSheet.create({
   countryText : {
     fontWeight: 400
   },
-  iconContainer: {
+  rightIconContainer: {
     position: 'absolute',
     right: 12,
     top: '50%',
-    transform: [{ translateY: -8}],
+    transform: [{translateY: "-50%"}]
+  },
+  leftIconContainer: {
+    position: 'absolute',
+    left: 12,
+    top: '50%',
+    transform: [{translateY: "-50%"}]
   },
   errorText: {
     color: 'red',

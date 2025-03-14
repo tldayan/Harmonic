@@ -12,7 +12,7 @@ import PostItem from '../../components/PostItem'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import { colors } from '../../styles/colors'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
-import { timeAgo } from '../../utils/helpers'
+import { fetchWithErrorHandling, timeAgo } from '../../utils/helpers'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { useUser } from '../../context/AuthContext'
@@ -87,7 +87,7 @@ export default function CommentsScreen() {
     if (!postUUID) return
 
     const fetchMBMessageDetails = async() => {
-      const messageDetails = await getMBMessageDetails(postUUID, userUUID)
+      const messageDetails = await fetchWithErrorHandling(getMBMessageDetails,postUUID, userUUID)
       console.log(messageDetails)
       if(!messageDetails) {
         navigation.goBack()
@@ -128,7 +128,7 @@ export default function CommentsScreen() {
     try {
       const repliesIndex = firstToggle ? 0 : repliesstartIndex[MessageBoardCommentUUID] || 0;
 
-      const commentReplies = await getCommentReplies(MessageBoardCommentUUID, repliesIndex)
+      const commentReplies = await fetchWithErrorHandling(getCommentReplies,MessageBoardCommentUUID, repliesIndex)
       if(commentReplies.length === 0) return
       if(commentReplies.length < 10) {
         setHasMoreReplies((prev) => ({...prev, [MessageBoardCommentUUID]: false}))

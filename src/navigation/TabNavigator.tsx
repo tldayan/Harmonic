@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { TabParamList } from "../types/navigation-types";
 import { globalScreenOptions } from "./navigationConfig/globalScreenOptions";
 import StoresScreen from "../screens/Tabs/StoresScreen";
-import ChatScreen from "../screens/Tabs/ChatScreen";
+import ChatScreen from "../screens/Chat/ChatScreen";
 import ModulesScreen from "../screens/Tabs/MoreScreen";
 import TasksScreen from "../screens/Tabs/TasksScreen";
 import AssetsScreen from "../screens/Tabs/AssetsScreen";

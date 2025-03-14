@@ -117,7 +117,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
       }
 
       const response = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGES, bodyData,{} ,"POST")
-      console.log(response.data.Payload)
+
       return response.data.Payload
 
     } catch(err) {
@@ -139,7 +139,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     return undefined;
 
     } catch(err) {
-      console.error(err)
+      throw err
     }
 
   }
@@ -147,7 +147,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   
 
   export const getMBMessageDetails = async(messageBoardUUID: string, loggedInUserUUID: string) => {
-
+    
     try {
 
       const messageDetails = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGE_DETAILS, {}, {}, "GET", {messageBoardUUID, loggedInUserUUID})
@@ -155,7 +155,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
       return messageDetails.data.Payload
 
     } catch (err) {
-      console.error(err)
+      throw err
     }
 
   }
@@ -200,7 +200,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
       return categories.data.Payload
 
     } catch(err) {
-      console.error(err)
+      throw err
     }
 
   }
@@ -275,7 +275,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
     console.log(response)
     console.log(response.data)
-    return response.data.Status
+    return response.data
 
   }
 
@@ -309,7 +309,8 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
       return replies.data.Payload
 
     } catch (err) {
-      console.error(err)
+  /*     console.error(err) */
+      throw err
     }
 
   }
@@ -374,11 +375,11 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     try {
 
       const messageResponse = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE_LIKE, bodyData, {}, "POST")
-      console.log(messageResponse.data)
+
       return messageResponse.data.Payload
 
     } catch(err) {
-      console.error(err)
+      throw err
     }
   }
 
@@ -393,7 +394,7 @@ export const deleteMBMessage = async(messageBoardUUID:string, loggedInUserUUID:s
     
 
   } catch (err) {
-    console.error(err)
+    throw err
   }
 
 }

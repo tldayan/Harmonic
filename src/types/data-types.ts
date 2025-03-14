@@ -37,5 +37,19 @@ interface NestedCategory {
     ModifiedDateTime: string | null;
     IsDeleted: boolean;
   }
+
+
+   interface ChatEntity {
+    ChatMasterId: number;
+    ChatMasterUUID: string;
+    ChatMasterName: string;
+    ChatTypeUUID: string;
+    ChatTypeCode: string;
+    ChatProfilePictureURL: string;
+    ChatMemberUserUUID: string;
+    ChatMemberUserName: string;
+    ChatMemberFirstName: string;
+    ChatMemberLastName: string;
+  };
   
   

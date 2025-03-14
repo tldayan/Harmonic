@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
 	},
 	inputField : {
 		borderRadius: 50,
-		backgroundColor: colors.BACKGROUND_COLOR,
+		backgroundColor: "Red",
 		borderStyle: "solid",
 		borderColor: colors.BORDER_COLOR,
 		borderWidth: 1,

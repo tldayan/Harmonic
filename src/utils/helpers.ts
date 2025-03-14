@@ -104,9 +104,7 @@ export const fetchWithErrorHandling = async <T extends unknown[]>(apiFunction: A
       position: "bottom"
     })
     
-    return
+    return null
 
   }
-
-
 }

@@ -1,4 +1,4 @@
-import { Alert, Button, FlatList, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, Button, FlatList, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useUser } from '../../context/AuthContext'
 import { colors } from '../../styles/colors'
@@ -23,7 +23,6 @@ export default function SocialScreen() {
   const {user} = useUser()
   const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})
   const [isDeletingPost, setIsDeletingPost] = useState(false)
-/*   const [viewingImageUrl, setViewingImageUrl] = useState("") */
   const [socialMessages, setSocialMessages] = useState<PostItemProps[]>([]);
   const [filteredMessages, setFilteredMessages] = useState<PostItemProps[]>(socialMessages)
   const [filtering, setFiltering] = useState<{state: boolean; categories: string[]}>({state: false, categories: []})
@@ -134,9 +133,10 @@ export default function SocialScreen() {
                     </View>
 
                     <View style={styles.filterButtonsContainer}>
-                      <CustomButton buttonStyle={styles.filterButton} textStyle={styles.filter} onPress={() => setFiltering((prev) => ({...prev, state: true}))} title={`Filters${filtering.categories.length > 0 ? `(${filtering.categories.length})` : ""}`} />
+                      <CustomButton textStyle={styles.filter} onPress={() => setFiltering((prev) => ({...prev, state: true}))} title={`Filters${filtering.categories.length > 0 ? `(${filtering.categories.length})` : ""}`} />
                       {filtering.categories.length ? <CustomButton textStyle={styles.clearFilter} onPress={() => setFiltering({state: false, categories: []})} title={"Clear Filters"} /> : null}
                     </View>
+                    {loading && <ActivityIndicator style={{marginVertical: 20}} size={"small"} />}
                 </View> 
             }
             style={styles.mainPostsContainerList}
@@ -154,7 +154,7 @@ export default function SocialScreen() {
         />
 
         <CustomModal fullScreen isOpen={creatingPost.state}>
-            <CreatePost creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
+            <CreatePost setSocialMessages={setSocialMessages} creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
         </CustomModal>
 
         <CustomModal onClose={() => setIsDeletingPost(false)} isOpen={isDeletingPost}>
@@ -172,7 +172,7 @@ export default function SocialScreen() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: colors.MAIN_BACKGROUND_COLOR
+    backgroundColor: colors.LIGHT_COLOR
   },
   container: {
 		width: "100%",
@@ -252,12 +252,10 @@ placeholderText: {
   },
   filter: {
     color: colors.ACCENT_COLOR,
+    marginBottom: 10,
   },
   clearFilter: {
     color: colors.RED_TEXT
-  },
-  filterButton : {
-/*     marginLeft: "auto" */
   }
 
 })

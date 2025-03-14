@@ -1,5 +1,5 @@
-import { ActivityIndicator, FlatList, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import CustomButton from './CustomButton'
 import { colors } from '../styles/colors'
 import { AttachmentData, PostItemProps } from '../types/post-types'
@@ -18,6 +18,7 @@ import { toggleLike } from '../store/slices/postLikesSlice'
 import AttachmentCarousel from '../modals/AttachmentCarousel'
 import Video from 'react-native-video'
 import VideoIcon from "../assets/icons/video.svg"
+import { fetchWithErrorHandling } from '../utils/helpers'
 
 interface PostItemChildProps {
   post: PostItemProps
@@ -34,6 +35,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
   const [viewingLikes, setViewingLikes] = useState(false)
   const [viewingAttachments, setViewingAttachments] = useState(false)
   const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
+  const [loading, setLoading] = useState<{[key: number]: boolean}>({})
   const [hasLiked, setHasLiked] = useState(post.HasLiked);
   const reduxHasLiked = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.hasLiked ?? false)
   const reduxPostLikeCount = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.likeCount ?? post.NoofLikes )
@@ -44,7 +46,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
   useEffect(() => {
     const fetchPostAttachments = async () => {
       try {
-        const attachemntDataResponse = await getMBMessageAttacment(post.MessageBoardUUID);
+        const attachemntDataResponse = await fetchWithErrorHandling(getMBMessageAttacment,post.MessageBoardUUID);
 
         if(attachemntDataResponse !== undefined) {
           setAttachmentData(attachemntDataResponse);
@@ -68,14 +70,12 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
 
     dispatch(toggleLike({ postId: post.MessageBoardUUID, postLikeCount: post.NoofLikes }));
 
-    try {
+    try { 
       const newLikedState = !hasLiked;
       setHasLiked(newLikedState);
 
-      await saveMBMessageLike(post.MessageBoardUUID, userUUID, newLikedState ? 1 : 0);
+      await fetchWithErrorHandling(saveMBMessageLike,post.MessageBoardUUID, userUUID, newLikedState ? 1 : 0);
     } catch (error) {
-      console.error("Error liking post:", error);
-
       setHasLiked((prev) => !prev);
     }
   };
@@ -93,36 +93,48 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
     return (
       <CustomButton 
         onPress={() => { 
-          if (item.AttachmentType.includes("image") || attachmentData.length > 1 || Platform.OS === "android") 
             setViewingAttachments(true);
             setInitialAttachmentIndex(index)
         ;setVideoPlaying(true)}}
         buttonStyle={[styles.postContentContainer, attachmentData.length === 1 && { width: "100%", height: 200 }]} 
         icon={
           item.AttachmentType.includes("image") ? (
-      <Image style={styles.content} source={{ uri: item?.Attachment }} />
-    ) : (
-      <View style={{ position: 'relative' }}>
-        {!videoPlaying && <View style={styles.videoIconBackground}><VideoIcon stroke="white" fill="white" width={14} height={14} /></View>}
+          <View style={{ position: "relative" }}>
+            {loading[index] && (
+              <ActivityIndicator
+                style={styles.contentLoader}
+                size={"small"}
+              />
+            )}
+            <Image
+              style={styles.content}
+              source={{ uri: item?.Attachment }}
+              onLoadStart={() => setLoading((prev) => ({ ...prev, [index]: true }))}
+              onLoadEnd={() => setLoading((prev) => ({ ...prev, [index]: false }))}
+            />
+          </View>
+          ) : (
+            <View style={{ position: 'relative' }}>
+              {!videoPlaying && <View style={styles.videoIconBackground}><VideoIcon stroke="white" fill="white" width={14} height={14} /></View>}
 
-        <Video 
-          paused 
-          renderLoader={<ActivityIndicator style={styles.contentLoader} size={'small'} color={"black"} />} 
-          style={styles.content}
-          controls={Platform.OS === "android" ? false : attachmentData.length > 1 ? false : true}
-          source={{ uri: item?.Attachment }} 
-        />
-      </View>
+              <Video 
+                paused
+                renderLoader={<ActivityIndicator style={styles.contentLoader} size={'small'} color={"black"} />} 
+                style={styles.content}
+                controls={false}
+                /* controls={Platform.OS === "android" ? false : attachmentData.length > 1 ? false : true} */
+                source={{ uri: item?.Attachment }} 
+              />
+            </View>
+          )
+        }
+      />
     )
-  }
-/>
-
-      )
   }
 
 
   return (
-    <View style={[styles.mainContainer]}>
+    <View style={styles.mainContainer}>
 
         {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
           <ProfileHeader attachmentData={attachmentData} showActions post={post} />

@@ -80,7 +80,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
 
         } catch (error) {
-          console.error("Error fetching modules:", error);
+          throw error
         } 
       }
       

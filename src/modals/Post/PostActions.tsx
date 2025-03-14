@@ -13,11 +13,11 @@ import { AttachmentData, CommentItemProps, EditPostState, PostItemProps } from '
 import { useRoute } from '@react-navigation/native'
 import { CommentsScreenRouteProp } from '../../screens/Others/CommentsScreen'
 import CreatePost from './CreatePost'
+import { fetchWithErrorHandling } from '../../utils/helpers'
 
 interface PostActionsProps {
   focusedComment?: string,
   onClose: () => void
-  MessageBoardUUID?: string
   MessageBoardCommentUUID?: string
   CreatedBy?: string
   setEditPost?: React.Dispatch<React.SetStateAction<EditPostState>>;
@@ -26,8 +26,8 @@ interface PostActionsProps {
   attachmentData?: AttachmentData[]
 }
 
-export default function PostActions({onClose, MessageBoardUUID, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
-/*   console.log(attachmentData) */
+export default function PostActions({onClose, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
+  console.log(attachmentData)
   const [loading, setLoading] = useState(false)
   const [isReportingPost, setIsReportingPost] = useState(false)
   const [isEditingPost, setIsEditingPost] = useState(false)
@@ -45,7 +45,7 @@ const route = useRoute<CommentsScreenRouteProp>()
 
     try {
       if(post?.MessageBoardUUID) {
-        const deleteMessageResponse = await deleteMBMessage(post.MessageBoardUUID,userUUID)
+        const deleteMessageResponse = await fetchWithErrorHandling(deleteMBMessage,post.MessageBoardUUID,userUUID)
 
         if(deleteMessageResponse.Status === STATUS_CODE.SUCCESS) {
           onClose()
@@ -53,7 +53,7 @@ const route = useRoute<CommentsScreenRouteProp>()
           Alert.alert(deleteMessageResponse.Message)
         }
       } else if(MessageBoardCommentUUID) {
-        const deleteCommentResponse = await deleteMBComment(MessageBoardCommentUUID, userUUID)
+        const deleteCommentResponse = await fetchWithErrorHandling(deleteMBComment,MessageBoardCommentUUID, userUUID)
 
         if(deleteCommentResponse.Status === STATUS_CODE.SUCCESS) {
           onClose()
@@ -107,7 +107,7 @@ const route = useRoute<CommentsScreenRouteProp>()
 
         <CustomModal fullScreen presentationStyle='formSheet' isOpen={isEditingPost} onClose={handleCloseAllModals}>
           <CreatePost attachmentData={attachmentData} post={post} onClose={handleCloseAllModals} />
-        </CustomModal>
+        </CustomModal> 
 
       </View>
   )

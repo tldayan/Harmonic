@@ -13,7 +13,7 @@ import { AttachmentData, CategoryProps, CreatingPostState, PostItemProps } from 
 import { CustomModal } from '../../components/CustomModal'
 import Poll from './CreatePoll'
 import { uploadMedia } from './postUtils'
-import { deleteMBMessageAttachment, saveMBMessage } from '../../api/network-utils'
+import { deleteMBMessageAttachment, getMBMessageDetails, saveMBMessage } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import Filters from '../Filters'
@@ -27,12 +27,13 @@ interface CreatePostProps {
     categories?: Category[]
     post?: PostItemProps
     attachmentData?: AttachmentData[]
+    setSocialMessages?: React.Dispatch<React.SetStateAction<PostItemProps[]>>
 }
 
   
 
-export default function CreatePost({onClose, creatingPost, post, attachmentData}: CreatePostProps) {
-   /*  console.log(attachmentData) */
+export default function CreatePost({onClose, creatingPost, post, attachmentData, setSocialMessages}: CreatePostProps) {
+   console.log(attachmentData)
 
     const {user} = useUser()
     const [postText, setPostText] = useState(post?.Message ? post.Message : "")
@@ -46,7 +47,7 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData}
     const [creatingPoll, setCreatingPoll] = useState(false)
     const [loading, setLoading] = useState(false)
     const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth);
-console.log(selectedAttachments)
+/* console.log(selectedAttachments) */
 
     const handlePostClose = () => {
         setTimeout(() => {
@@ -113,6 +114,7 @@ console.log(selectedAttachments)
                     eachAttachment.AttachmentUUID === attachmentUUID ? { ...eachAttachment, isDeleted: true } : eachAttachment
                 )
             );
+            
         }
         
 
@@ -147,7 +149,7 @@ console.log(selectedAttachments)
     }
 
     const AddAdditionalMediaButton = () => {
-        if(selectedAttachments.length > 0) {
+        if(selectedAttachments.length || editingAttachments.length) {
             return (
           <CustomButton buttonStyle={styles.addImage} onPress={handleAddMedia} icon={<Image source={require("../../assets/images/plus.png")} />} /> 
         )
@@ -171,8 +173,10 @@ console.log(selectedAttachments)
 
         const response = await saveMBMessage(postText,(editingAttachments.length ? editingAttachments : attachmentUrls), organizationUUID, userUUID, (editingCategories.length > 0 ? editingCategories : postCategories.categories), post?.MessageBoardUUID)
             
-            if(response === STATUS_CODE.SUCCESS) {
+            if(response.Status === STATUS_CODE.SUCCESS) {
                 onClose()
+                const savedPostResponse = await getMBMessageDetails(response.Payload.MessageBoardUUID, userUUID)
+                setSocialMessages?.((prev) => [savedPostResponse, ...prev])
             }
 
         } catch (err: any) {
@@ -222,7 +226,7 @@ console.log(selectedAttachments)
                 </ScrollView>
             </View>}
 
-            <CustomButton onPress={() => setPostCategories((prev) => ({...prev, state: true}))} textStyle={{color: colors.PRIMARY_COLOR, paddingTop: 10}} title={postCategories.categories.length || editingCategories ? "Edit Categories" : "Add Categories"} />
+            <CustomButton onPress={() => setPostCategories((prev) => ({...prev, state: true}))} textStyle={{color: colors.PRIMARY_COLOR, paddingTop: 10}} title={postCategories.categories.length || editingCategories.length ? "Edit Categories" : "Add Categories"} />
             <CustomButton onPress={handlePost} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]} title={!loading ? "Post" : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />
             
             <CustomModal isOpen={postCategories.state} fullScreen presentationStyle='formSheet' onClose={() => setPostCategories((prev) => ({...prev, state: false}))}>
@@ -233,7 +237,7 @@ console.log(selectedAttachments)
         </View>
         
            <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false)}}>
-            <AttachmentCarousel initialIndex={initialAttachmentIndex} Assets={selectedAttachments} onClose={() => {setViewingAttachments(false)}} />
+            <AttachmentCarousel initialIndex={initialAttachmentIndex} AttachmentData={attachmentData} onClose={() => {setViewingAttachments(false)}} />
            </CustomModal>  
         
         <CustomModal fullScreen isOpen={creatingPoll} >
@@ -333,7 +337,8 @@ const styles = StyleSheet.create({
         
     },
     imageContainer : {
-/*         borderWidth: 1, */
+        borderRadius: 10,
+        overflow: "hidden",
         position:"relative"
     },
     contentButtonContainer: {
