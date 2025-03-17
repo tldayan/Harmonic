@@ -2,7 +2,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { TabParamList } from "../types/navigation-types";
 import { globalScreenOptions } from "./navigationConfig/globalScreenOptions";
 import StoresScreen from "../screens/Tabs/StoresScreen";
-import ChatScreen from "../screens/Chat/ChatScreen";
 import ModulesScreen from "../screens/Tabs/MoreScreen";
 import TasksScreen from "../screens/Tabs/TasksScreen";
 import AssetsScreen from "../screens/Tabs/AssetsScreen";
@@ -15,6 +14,7 @@ import TaskIcon from "../assets/icons/clipboard.svg";
 import HamburgerIcon from "../assets/icons/hamburger.svg"
 import Header from "../components/Header";
 import { colors } from "../styles/colors";
+import ChatsScreen from "../screens/Chat/ChatsScreen";
 
 export const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -49,7 +49,7 @@ export default function TabNavigator(): JSX.Element {
       <Tab.Screen name="Assets" component={AssetsScreen} />
       <Tab.Screen name="Tasks" component={TasksScreen} />
       <Tab.Screen name="Stores" component={StoresScreen} />
-      <Tab.Screen name="Chat" component={ChatScreen} />
+      <Tab.Screen name="Chat" component={ChatsScreen} />
       <Tab.Screen name="More" component={ModulesScreen} />
     </Tab.Navigator>
   );

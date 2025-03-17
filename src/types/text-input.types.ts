@@ -15,6 +15,7 @@ export type CustomTextInputFieldProps = {
     placeholder?: string
     secureTextEntry?: boolean,
     labelStyle?: object,
+    mainInputStyle?: object,
     inputStyle?: object,
     errorMessage?: string
     setErrorMessage?: React.Dispatch<React.SetStateAction<ErrorMessageType>>;

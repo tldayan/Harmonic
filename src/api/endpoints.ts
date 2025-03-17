@@ -34,7 +34,8 @@ export const ENDPOINTS = {
     REPORT_MBMESSAGE: `${BASE_URL}/social/reportMBMessageInappropriate`,
     REPORT_MBMESSAGE_COMMENT: `${BASE_URL}/social/reportMBCommentInappropriate`,
     DELETE_MBMESSAGE_COMMENT: `${BASE_URL}/social/deleteMBComment`,
-    MESSAGE_LIKES_LIST: `${BASE_URL}/social/getListOfLikes`
+    MESSAGE_LIKES_LIST: `${BASE_URL}/social/getListOfLikes`,
+    GET_CHATS_LIST: `${BASE_URL}/social/getChatsList`
   },
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,

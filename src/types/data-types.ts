@@ -40,16 +40,16 @@ interface NestedCategory {
 
 
    interface ChatEntity {
-    ChatMasterId: number;
     ChatMasterUUID: string;
     ChatMasterName: string;
+    ChatProfilePictureURL: string | null;
     ChatTypeUUID: string;
-    ChatTypeCode: string;
-    ChatProfilePictureURL: string;
-    ChatMemberUserUUID: string;
-    ChatMemberUserName: string;
-    ChatMemberFirstName: string;
-    ChatMemberLastName: string;
+    ChatTypeCode: "GROUP_CHAT" | string;
+    CreatedDateTime: string; // ISO Date format
+    ModifiedDateTime: string | null;
+    UserUUID: string;
+    LoggedInUserInviteStatusItemUUID: string;
+    LoggedInUserInviteStatusItemCode: "APPROVED" | string;
   };
   
   

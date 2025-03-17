@@ -29,6 +29,7 @@ export default function Filters({onClose, setFiltering, filtering, setPostCatego
     const { organizationUUID } = useSelector((state: RootState) => state.auth);
 
     const [categories, setCategories] = useState<Category[]>([])
+    const [startIndex, setStartIndex] = useState(0)
 
 
       const fetchCategories = async () => {

@@ -14,6 +14,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
       onChangeText,
       placeholder,
       secureTextEntry,
+      mainInputStyle,
       inputStyle,
       labelStyle,
       placeholderTextColor,
@@ -65,7 +66,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
     return (
       <View style={[styles.container]}>
         {label && <Text style={[labelStyle, isFocused && { color: colors.BLACK_TEXT_COLOR }]}>{label}</Text>}
-        <View style={styles.inputWrapper}>
+        <View style={[styles.inputWrapper, mainInputStyle]}>
           {inputMode === "tel" && (
             <TouchableOpacity 
             style={styles.numberInput} 
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
     flexGrow: 1
   },
   inputWrapper: {
-/*     borderWidth:1, */
+ /*    borderWidth:1, */
     borderRadius : 50,
     flexDirection: 'row',
     alignItems: 'center',
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     borderColor: '#ccc',
-    borderWidth: 1,
+/*     borderWidth: 1, */
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingRight: 40,
@@ -184,13 +185,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 12,
     top: '50%',
-    transform: [{translateY: "-50%"}]
+    transform: [{translateY: "-50%"}],
+    zIndex: 2
   },
   leftIconContainer: {
     position: 'absolute',
     left: 12,
     top: '50%',
-    transform: [{translateY: "-50%"}]
+    transform: [{translateY: "-50%"}],
+    zIndex: 2
   },
   errorText: {
     color: 'red',

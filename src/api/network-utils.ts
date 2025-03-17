@@ -1,4 +1,3 @@
-
 import { FirebaseAuthTypes } from "@react-native-firebase/auth"
 import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
@@ -472,3 +471,16 @@ export const getListOfLikes = async(messageBoardUUID:string, startIndex: number)
 }
 
 
+export const getChatsList = async(userUUID: string) => {
+
+  try {
+
+    const getChatsListResponse = await apiClient(ENDPOINTS.SOCIAL.GET_CHATS_LIST, {}, {}, "GET", {userUUID})
+
+    return getChatsListResponse.data.Payload
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
