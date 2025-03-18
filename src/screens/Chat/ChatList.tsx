@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ScrollView, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors';
@@ -9,39 +9,53 @@ import { RootState } from '../../store/store';
 import { useSelector } from 'react-redux';
 import ThreeDots from "../../assets/icons/three-dots-vertical.svg"
 import {Dropdown} from "react-native-element-dropdown"
+import { CustomModal } from '../../components/CustomModal';
+import CreateGroup from '../../modals/Chat/CreateGroup';
 
 const actions = [
-  { label: 'Item 1', value: '1' },
-  { label: 'Item 2', value: '2' },
+  { label: 'Create Group', value: '1' },
+  { label: 'Message Store', value: '2' },
 ];
 
+interface DropdownComponentProps {
+  action: string | null
+  setAction: React.Dispatch<React.SetStateAction<string | null>>
+}
 
-const DropdownComponent = () => {
-  const [value, setValue] = useState(null);
+const DropdownComponent = ({action,setAction}: DropdownComponentProps) => {
 
   return (
     <Dropdown
       style={styles.dropdown}
       data={actions}
       mode= "auto"
-/*       itemTextStyle={{color: "red"}} */
+      placeholder=""
+      selectedTextStyle={{display :"none"}}
+      itemTextStyle={{color: "black"}}
       containerStyle={{
+        borderRadius: 5,
         width: "90%",
         marginHorizontal: "5%",
         top: 0,
         left: "auto",
-        right: 0,}}
+        right: 0,
+        shadowColor: "#000", 
+        shadowOpacity: 0.1, 
+        shadowRadius: 5, 
+        shadowOffset: { width: 0, height: 4 }, 
+        elevation: 5,
+      }}
+      onFocus={() => setAction(null)}
       maxHeight={300}
       labelField="label"
       valueField="value"
-      value={value}
+      value={action}
       onChange={item => {
-        setValue(item.value);
+        setAction(item.value);
       }}
-      // USE ABSOLUTE POSITIONING FOR THREEDOTS ICON
-      /* renderRightIcon={() => (
-        <CustomButton icon={<ThreeDots width={15} height={15} />} onPress={() => {}}/>
-      )} */
+      renderRightIcon={() => (
+        <View style={styles.iconStyle}><ThreeDots width={18} height={18} /></View>
+      )}
     />
   );
 };
@@ -50,9 +64,8 @@ const ChatsList = () => {
 
   const [chats, setChats] = useState<ChatEntity[]>([])
   const [chatSearch, setChatSearch] = useState("")
-  const [editing, setEditing] = useState(false)
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
-
+  const [action, setAction] = useState<string | null>(null);
   
 
   useEffect(() => {
@@ -69,7 +82,7 @@ const ChatsList = () => {
 const renderChatItem = ({ item }: { item: ChatEntity }) => {
   return (
     <TouchableOpacity style={styles.chatItem} onPress={() => {}}>
-      <Image style={styles.chatMemberProfilePic} source={{ uri: item.ChatProfilePictureURL ?? "https://i.pravatar.cc/150" }} />
+      <Image style={styles.chatMemberProfilePic} source={{ uri: item.ChatProfilePictureURL === "" ? "https://i.pravatar.cc/150" : "https://i.pravatar.cc/150" }} />
       <View style={styles.mainChatDetailsContainer}>
         <View style={styles.chatDetailsContainer}>
           <Text style={styles.chatMemberName}>{item.ChatMasterName}</Text>
@@ -91,7 +104,7 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
 
           <View style={styles.mainSearchFieldContainer}>
             <CustomTextInput value={chatSearch} leftIcon={<SearchIcon opacity={0.5} />} mainInputStyle={styles.searchFieldContainer} inputStyle={styles.searchField} onChangeText={(e) => setChatSearch(e)} placeholder='Search messages or contact' />
-          <DropdownComponent />
+          <DropdownComponent action={action} setAction={setAction} />
           </View>
    
     
@@ -104,8 +117,16 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
         </>
         }
         contentContainerStyle={styles.chatList} 
-        data={chats} renderItem={renderChatItem} 
-        keyExtractor={(item) => item.ChatMasterUUID} />
+        data={chats}
+        renderItem={renderChatItem} 
+        keyExtractor={(item) => item.ChatMasterUUID} 
+      />
+
+      <CustomModal presentationStyle="formSheet" fullScreen isOpen={action === "1"}>
+        <CreateGroup onClose={() => setAction(null)} />
+      </CustomModal>
+
+
     </View>
   )
 }
@@ -182,9 +203,9 @@ const styles = StyleSheet.create({
     marginTop: 15,
     flexDirection: "row", 
     alignItems: "center",
-    gap: 10,
-    width:"96%",
-    marginHorizontal: "2%",
+    gap: 5,
+    width:"98%",
+    marginHorizontal: "1%",
   },
   searchFieldContainer: {
     borderWidth: 1,
@@ -201,15 +222,11 @@ const styles = StyleSheet.create({
 
 
   dropdown: {
+/*     backgroundColor: "red", */
     position: "relative",
-    flexDirection: "row",
-/*     borderWidth :2, */
-    margin: 16,
-    width : "10%",
+    width : "6%",
     marginLeft: "auto",
     height: 50,
-    borderBottomColor: 'gray',
-    borderBottomWidth: 0.5,
   },
   icon: {
     marginRight: 5,
@@ -221,8 +238,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   iconStyle: {
-    width: 20,
-    height: 20,
+    width: "100%",
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center"
   },
   inputSearchStyle: {
     height: 40,

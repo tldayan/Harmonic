@@ -9,13 +9,16 @@ import { AttachmentData, PostItemProps, PostLikeProps } from '../types/post-type
 import { Asset } from 'react-native-image-picker'
 
 interface ProfileHeaderProps {
+    name?: string,
+    ProfilePic?: string,
     post?: PostItemProps
     postLikes?: PostLikeProps
     showActions?: boolean
     attachmentData?: AttachmentData[]
+    noDate?: boolean
 }
 
-export default function ProfileHeader({post,postLikes, showActions, attachmentData} : ProfileHeaderProps) {
+export default function ProfileHeader({name,post,postLikes, showActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {
 
     const [isEditingPost, setIsEditingPost] = useState(false)
     const postData = post
@@ -39,12 +42,12 @@ export default function ProfileHeader({post,postLikes, showActions, attachmentDa
 
   return (
     <View style={styles.mainProfileDetialsContainer}>
-        <Image source={{ uri: postData?.ProfilePic || "https://i.pravatar.cc/150" }} style={styles.profilePicture} />
+        <Image source={{ uri: postData?.ProfilePic || ProfilePic }} style={styles.profilePicture} />
         <View style={styles.userNameContainer}>
-            <Text style={styles.name}>{postData?.FirstName}</Text>
-            <View style={styles.dateContainer}>
+            <Text style={styles.name}>{postData?.FirstName ? postData?.FirstName : name}</Text>
+            {!noDate && <View style={styles.dateContainer}>
                 <Text style={styles.postDate}>{formattedDate}</Text>
-            </View>
+            </View>}
         </View>
         {showActions && <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />}
     

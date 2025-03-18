@@ -11,7 +11,7 @@ export default function ChatsScreen() {
     return (
       <Tab.Navigator screenOptions={{
         tabBarShowIcon: true, 
-        tabBarIndicatorStyle: { backgroundColor: colors.ACCENT_COLOR },
+        tabBarIndicatorStyle: { backgroundColor: colors.ACTIVE_ORANGE },
         tabBarStyle: { backgroundColor: 'white' },
         tabBarLabelStyle: { fontWeight: "500"},
         tabBarItemStyle: {flexDirection : "row", alignItems: 'center'}
