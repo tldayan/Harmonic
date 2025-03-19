@@ -36,9 +36,7 @@ const DropdownComponent = ({action,setAction}: DropdownComponentProps) => {
         borderRadius: 5,
         width: "90%",
         marginHorizontal: "5%",
-        top: 0,
         left: "auto",
-        right: 0,
         shadowColor: "#000", 
         shadowOpacity: 0.1, 
         shadowRadius: 5, 
@@ -72,9 +70,10 @@ const ChatsList = () => {
 
     const fetchChats = async() => {
       const chatsResponse = await getChatsList(userUUID)
+      console.log(chatsResponse)
       setChats(chatsResponse)
     }
-
+    
     fetchChats()
 
   }, [])
@@ -122,7 +121,7 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
         keyExtractor={(item) => item.ChatMasterUUID} 
       />
 
-      <CustomModal presentationStyle="formSheet" fullScreen isOpen={action === "1"}>
+      <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "1"}>
         <CreateGroup onClose={() => setAction(null)} />
       </CustomModal>
 
