@@ -2,12 +2,15 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import ChatsList from "./ChatList";
 import ChatsIcon from "../../assets/icons/chats.svg"
 import { colors } from "../../styles/colors";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import ChatScreen from "./ChatScreen";
 
 
 
 const Tab = createMaterialTopTabNavigator();
+const Stack = createNativeStackNavigator()
 
-export default function ChatsScreen() {
+function ChatsTabs() {
     return (
       <Tab.Navigator screenOptions={{
         tabBarShowIcon: true, 
@@ -22,4 +25,16 @@ export default function ChatsScreen() {
         <Tab.Screen name="Store" component={ChatsList} />
       </Tab.Navigator>
     );
+  }
+  
+
+  export default function ChatsScreen() {
+
+    return (
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="ChatsTabs" component={ChatsTabs}  />
+{/*         <Stack.Screen name="ChatScreen" component={ChatScreen} /> */}
+      </Stack.Navigator>
+    )
+
   }

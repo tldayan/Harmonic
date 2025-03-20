@@ -6,6 +6,7 @@ import { globalScreenOptions } from "./navigationConfig/globalScreenOptions"
 import { useUser } from "../context/AuthContext"
 import HeroScreen from "../screens/Hero/HeroScreen"
 import CommentsScreen from "../screens/Others/CommentsScreen"
+import ChatScreen from "../screens/Chat/ChatScreen"
 
 
 export const RootNavigator: React.FC = () => {
@@ -19,6 +20,7 @@ export const RootNavigator: React.FC = () => {
             <>
                 <Stack.Screen name="Tabs" component={TabNavigator} />
                 <Stack.Screen name="Comments" component={CommentsScreen} options={{animation: "slide_from_right"}} />
+                <Stack.Screen name="ChatScreen" component={ChatScreen} options={{animation: "slide_from_right"}} />
             </>
 
             ): (

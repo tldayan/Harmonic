@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { PasswordCheck } from "../types/password.types";
 import Toast from "react-native-toast-message"
+import { Keyboard } from "react-native";
 
   
 //GET RECTANGLE COLOR FOR CREATE PASSWORD VALIDATION
@@ -53,7 +55,21 @@ import Toast from "react-native-toast-message"
     return formattedDate.replace(" at", ",");
   };
   
-  
+
+export const useKeyboardVisibility = (onShow: () => void, onHide: () => void) => {
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", onShow)
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", onHide)
+
+    return () => {
+      showSubscription.remove()
+      hideSubscription.remove()
+    }
+
+  }, [onShow, onHide])
+
+}
   
 
 

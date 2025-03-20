@@ -1,3 +1,4 @@
+import { NativeSyntheticEvent, TextInputContentSizeChangeEventData } from "react-native";
 
 export type ErrorMessageType = {
     email: string;
@@ -31,4 +32,5 @@ export type CustomTextInputFieldProps = {
     onPress?: () => void
     multiline?: boolean
     scrollEnabled?: boolean
+    onContentSizeChange?: (event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) => void;
 }

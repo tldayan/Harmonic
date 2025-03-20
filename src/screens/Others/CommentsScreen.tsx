@@ -6,13 +6,12 @@ import { RootStackParamList } from '../../types/navigation-types'
 import { getCommentReplies, getListOfComments, getMBMessageDetails, saveMBMessageComment } from '../../api/network-utils'
 import { CommentItemProps, EditPostState, PostItemProps, ReplyItemProps } from '../../types/post-types'
 import ProfileHeader from '../../components/ProfileHeader'
-import ChevronLeft from "../../assets/icons/chevron-left.svg"
 import CustomButton from '../../components/CustomButton'
 import PostItem from '../../components/PostItem'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import { colors } from '../../styles/colors'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
-import { fetchWithErrorHandling, timeAgo } from '../../utils/helpers'
+import { fetchWithErrorHandling, timeAgo, useKeyboardVisibility } from '../../utils/helpers'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { useUser } from '../../context/AuthContext'
@@ -105,19 +104,7 @@ export default function CommentsScreen() {
 
 
 
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
-      setIsKeyboardVisible(true);
-    });
-    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
-      setIsKeyboardVisible(false);
-    });
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
+  useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
 
 
   const fetchCommentReplies = async(MessageBoardCommentUUID: string, firstToggle: boolean) => {
@@ -266,8 +253,11 @@ export default function CommentsScreen() {
   return (
     <View style={styles.container} >
       <View style={styles.headerProfileContainer}>
-        <CustomButton onPress={() => navigation.goBack()} icon={<ChevronLeft />} />
-        {messageDetails && <ProfileHeader attachmentData={attachmentData} showActions post={messageDetails}/>}
+        {messageDetails && (
+          <View style={{ flex: 1 }}>
+            <ProfileHeader goBack attachmentData={attachmentData} showActions post={messageDetails}/>
+          </View>
+        )}
       </View>
 
       {messageDetails && <PostItem childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
@@ -280,7 +270,7 @@ export default function CommentsScreen() {
           keyExtractor={(item) => item.MessageBoardCommentUUID} 
           renderItem={commentItem} 
           data={comments}
-          onEndReached={fetchComments} 
+          onEndReached={fetchComments}  
           onEndReachedThreshold={0.5}
           ListFooterComponent={hasMoreComments ? <ActivityIndicator size="small" color="black" /> : null }
         />
@@ -311,7 +301,7 @@ export default function CommentsScreen() {
               placeholderTextColor={colors.LIGHT_TEXT_COLOR}
               placeholder={replyingTo.MessageBoardCommentUUID ? `Reply to ${replyingTo.name}...` : "Write a comment..."} 
             />
-          <CustomButton onPress={handleComment}icon={<SendIcon stroke={comment ? colors.ACTIVE_ORANGE : "grey"} />} />
+          <CustomButton onPress={handleComment} icon={<SendIcon width={30} height={30} strokeWidth={1} fill={comment ? colors.ACTIVE_ORANGE : "grey"} stroke={comment ? "white" : "white"} />} />
 
           </View>
         </View>
@@ -437,8 +427,8 @@ const styles = StyleSheet.create({
     paddingBottom: 80
   },
   replyProfilePic: {
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 30,
     borderRadius: 50
   },
   replyButton: {

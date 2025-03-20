@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors';
@@ -11,6 +11,9 @@ import ThreeDots from "../../assets/icons/three-dots-vertical.svg"
 import {Dropdown} from "react-native-element-dropdown"
 import { CustomModal } from '../../components/CustomModal';
 import CreateGroup from '../../modals/Chat/CreateGroup';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types/navigation-types';
 
 const actions = [
   { label: 'Create Group', value: '1' },
@@ -59,28 +62,36 @@ const DropdownComponent = ({action,setAction}: DropdownComponentProps) => {
 };
 
 const ChatsList = () => {
-
   const [chats, setChats] = useState<ChatEntity[]>([])
   const [chatSearch, setChatSearch] = useState("")
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+  const [loading, setLoading] = useState(false)
   const [action, setAction] = useState<string | null>(null);
-  
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   useEffect(() => {
 
     const fetchChats = async() => {
-      const chatsResponse = await getChatsList(userUUID)
-      console.log(chatsResponse)
-      setChats(chatsResponse)
+
+      setLoading(true)
+      try {
+        const chatsResponse = await getChatsList(userUUID)
+        console.log(chatsResponse)
+        setChats(chatsResponse)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
     }
-    
+  
     fetchChats()
 
   }, [])
 
 const renderChatItem = ({ item }: { item: ChatEntity }) => {
   return (
-    <TouchableOpacity style={styles.chatItem} onPress={() => {}}>
+    <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate("ChatScreen")}>
       <Image style={styles.chatMemberProfilePic} source={{ uri: item.ChatProfilePictureURL === "" ? "https://i.pravatar.cc/150" : "https://i.pravatar.cc/150" }} />
       <View style={styles.mainChatDetailsContainer}>
         <View style={styles.chatDetailsContainer}>
@@ -115,6 +126,11 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
           </ScrollView>
         </>
         }
+        ListFooterComponent={
+          <>
+            {loading ? <ActivityIndicator style={{marginTop: 50}} size="small" /> : null}
+          </>
+        }
         contentContainerStyle={styles.chatList} 
         data={chats}
         renderItem={renderChatItem} 
@@ -136,6 +152,7 @@ export default ChatsList
 const styles = StyleSheet.create({
   chatList: {
 /*     borderWidth: 1, */
+    position: "relative",
     height: "100%",
     gap: 0,
     paddingHorizontal: 5
@@ -246,5 +263,4 @@ const styles = StyleSheet.create({
     height: 40,
     fontSize: 16,
   },
-
 })

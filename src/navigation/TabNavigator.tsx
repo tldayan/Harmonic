@@ -14,11 +14,18 @@ import TaskIcon from "../assets/icons/clipboard.svg";
 import HamburgerIcon from "../assets/icons/hamburger.svg"
 import Header from "../components/Header";
 import { colors } from "../styles/colors";
-import ChatsScreen from "../screens/Chat/ChatsScreen";
+import ChatsTabs from "../screens/Chat/ChatsTabs";
+import { useRoute } from "@react-navigation/native";
 
 export const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function TabNavigator(): JSX.Element {
+
+
+      const route = useRoute()
+      console.log(route)
+
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {
@@ -49,7 +56,7 @@ export default function TabNavigator(): JSX.Element {
       <Tab.Screen name="Assets" component={AssetsScreen} />
       <Tab.Screen name="Tasks" component={TasksScreen} />
       <Tab.Screen name="Stores" component={StoresScreen} />
-      <Tab.Screen name="Chat" component={ChatsScreen} />
+      <Tab.Screen name="Chat" component={ChatsTabs} />
       <Tab.Screen name="More" component={ModulesScreen} />
     </Tab.Navigator>
   );

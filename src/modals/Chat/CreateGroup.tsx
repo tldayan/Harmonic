@@ -236,7 +236,8 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         backgroundColor : colors.LIGHT_COLOR,
         paddingHorizontal: 15,
-        paddingVertical: 4
+        paddingVertical: 4,
+        height: 30
     },
     selectedMembersContainer: {
 /*         borderWidth: 1, */
