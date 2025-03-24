@@ -19,11 +19,19 @@ import { Keyboard } from "react-native";
 
 
   //APPLY DATE FORMAT 
-  export const formatDate = (dateString: string) => {
+  export const formatDate = (dateString: string, timeOnly?: boolean) => {
     if (!dateString) return "Invalid date"; 
   
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "Invalid date";
+  
+    if (timeOnly) {
+      return new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(date);
+    }
   
     const now = new Date();
     const timeDiff = now.getTime() - date.getTime();
@@ -51,9 +59,9 @@ import { Keyboard } from "react-native";
       hour12: true,
     } as const;
   
-    const formattedDate = new Intl.DateTimeFormat("en-GB", options).format(date);
-    return formattedDate.replace(" at", ",");
+    return new Intl.DateTimeFormat("en-GB", options).format(date).replace(" at", ",");
   };
+  
   
 
 export const useKeyboardVisibility = (onShow: () => void, onHide: () => void) => {

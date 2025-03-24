@@ -476,8 +476,30 @@ export const getChatsList = async(userUUID: string) => {
   try {
 
     const getChatsListResponse = await apiClient(ENDPOINTS.SOCIAL.GET_CHATS_LIST, {}, {}, "GET", {userUUID})
-
+    console.log(getChatsListResponse)
     return getChatsListResponse.data.Payload
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const getMessages = async(userUUID: string, ChatMasterUUID: string) => {
+
+  const bodyData = { 
+    "UserUUID": userUUID,
+    "ChatMasterUUID": ChatMasterUUID,
+    "PageSize": 10,
+    "LastMessageTimestamp": ""
+  }
+
+  try {
+
+    const getMessagesListResponse = await apiClient(ENDPOINTS.SOCIAL.GET_MESSAGES, bodyData, {}, "POST")
+    console.log(getMessagesListResponse)
+    return getMessagesListResponse.data.Payload
 
   } catch(err) {
     console.error(err)

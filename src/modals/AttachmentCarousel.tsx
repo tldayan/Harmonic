@@ -8,7 +8,7 @@ import { Asset } from 'react-native-image-picker';
 const { width } = Dimensions.get('window'); 
 
 interface AttachmentCarouselProps {
-    AttachmentData?: AttachmentData[]
+    AttachmentData?: AttachmentData[] | string
     Assets?: Asset[]
     onClose: () => void
     initialIndex?: number

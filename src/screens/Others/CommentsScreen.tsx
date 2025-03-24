@@ -255,7 +255,7 @@ export default function CommentsScreen() {
       <View style={styles.headerProfileContainer}>
         {messageDetails && (
           <View style={{ flex: 1 }}>
-            <ProfileHeader goBack attachmentData={attachmentData} showActions post={messageDetails}/>
+            <ProfileHeader goBack attachmentData={attachmentData} showPostActions post={messageDetails}/>
           </View>
         )}
       </View>

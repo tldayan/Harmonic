@@ -57,7 +57,7 @@ export default function PostLikes({onClose,MessageBoardUUID}: PostLikesModalProp
             ItemSeparatorComponent={ItemSeperator}
             onEndReached={onEndReached}
             onEndReachedThreshold={0.5}
-            renderItem={({item}) => <ProfileHeader showActions={false} postLikes={item} />}
+            renderItem={({item}) => <ProfileHeader showPostActions={false} postLikes={item} />}
             keyExtractor={(item) => item.MessageBoardLikeUUID}
             ListFooterComponent={loading ? <ActivityIndicator size={'small'} /> : null}
         />  

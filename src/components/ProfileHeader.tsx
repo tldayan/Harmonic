@@ -6,7 +6,6 @@ import ThreeDots from "../assets/icons/three-dots-horizontal.svg"
 import { CustomModal } from './CustomModal'
 import PostActions from '../modals/Post/PostActions'
 import { AttachmentData, PostItemProps, PostLikeProps } from '../types/post-types'
-import { Asset } from 'react-native-image-picker'
 import ChevronLeft from "../assets/icons/chevron-left.svg"
 import { useNavigation } from '@react-navigation/native'
 
@@ -15,7 +14,8 @@ interface ProfileHeaderProps {
     ProfilePic?: string,
     post?: PostItemProps
     postLikes?: PostLikeProps
-    showActions?: boolean
+    showPostActions?: boolean
+    showMemberActions?: boolean
     attachmentData?: AttachmentData[]
     noDate?: boolean
     online?: boolean
@@ -24,7 +24,7 @@ interface ProfileHeaderProps {
     onPress?: () => void
 }
 
-export default function ProfileHeader({name, onPress , goBack, showStatus, online = false,post,postLikes, showActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {
+export default function ProfileHeader({name, onPress , goBack, showStatus, online = false,post,postLikes,showMemberActions, showPostActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {
 
     const [isEditingPost, setIsEditingPost] = useState(false)
     const navigation = useNavigation()
@@ -64,7 +64,7 @@ export default function ProfileHeader({name, onPress , goBack, showStatus, onlin
               </View>}
           </View>
         </TouchableOpacity>
-        {showActions && <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />}
+        {showPostActions && <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />}
     
         <CustomModal isOpen={isEditingPost} halfModal onClose={() => setIsEditingPost(false)}>
           <PostActions attachmentData={attachmentData} post={post} onClose={() => setIsEditingPost(false)} />

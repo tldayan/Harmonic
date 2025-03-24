@@ -51,5 +51,27 @@ interface NestedCategory {
     LoggedInUserInviteStatusItemUUID: string;
     LoggedInUserInviteStatusItemCode: "APPROVED" | string;
   };
+
+
+  
+
+  interface MessageStatus {
+    DeliveredTo: string[];
+    ReadBy: string[];
+  }
+  
+  interface ChatMessage {
+    id: string;
+    SenderUUID: string;
+    Message: string;
+    MessageType: "system-generated" | "user-generated";
+    Attachment: string | null;
+    AttachmentType: string | null;
+    Timestamp: string;
+    Status: MessageStatus;
+    IsRead: boolean;
+    UserUUID: string;
+  }
+  
   
   
