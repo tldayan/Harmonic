@@ -39,7 +39,7 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
     const [postText, setPostText] = useState(post?.Message ? post.Message : "")
     const inputRef = useRef<any>(null)
     const [selectedAttachments, setSelectedAttachments] = useState<Asset[]>([])
-    const [editingAttachments, setEditingAttachments] = useState<AttachmentData[]>(attachmentData ? attachmentData.map((attachment => ({...attachment, isDeleted: false}))) : [])
+    const [editingAttachments, setEditingAttachments] = useState<AttachmentData[]>(attachmentData ? attachmentData : [])
     const [viewingAttachments, setViewingAttachments] = useState(false)
     const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
     const [postCategories, setPostCategories] = useState<{state: boolean, categories: CategoryProps[]}>({state: false, categories: []})
@@ -108,13 +108,17 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
             setSelectedAttachments(updatedSelectedImages)
         }
 
-        const deleteExistingAttachment = (attachmentUUID: string) => {
-            setEditingAttachments((prev) =>
-                prev.map((eachAttachment) =>
-                    eachAttachment.AttachmentUUID === attachmentUUID ? { ...eachAttachment, isDeleted: true } : eachAttachment
-                )
-            );
+        const deleteExistingAttachment = async(attachmentUUID: string) => {
             
+            try {
+                await deleteMBMessageAttachment(attachmentUUID, post?.MessageBoardUUID ?? "",userUUID)
+                setEditingAttachments((prev) =>
+                    prev.filter((eachAttachment) => eachAttachment.AttachmentUUID !== attachmentUUID)
+                );
+                
+            } catch(err) {
+                console.log(err)
+            }
         }
         
 
@@ -237,7 +241,7 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
         </View>
         
            <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false)}}>
-            <AttachmentCarousel initialIndex={initialAttachmentIndex} AttachmentData={attachmentData} onClose={() => {setViewingAttachments(false)}} />
+            <AttachmentCarousel initialIndex={initialAttachmentIndex} Assets={selectedAttachments} AttachmentData={attachmentData} onClose={() => {setViewingAttachments(false)}} />
            </CustomModal>  
         
         <CustomModal fullScreen isOpen={creatingPoll} >

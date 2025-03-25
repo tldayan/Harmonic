@@ -36,7 +36,8 @@ export const ENDPOINTS = {
     DELETE_MBMESSAGE_COMMENT: `${BASE_URL}/social/deleteMBComment`,
     MESSAGE_LIKES_LIST: `${BASE_URL}/social/getListOfLikes`,
     GET_CHATS_LIST: `${BASE_URL}/social/getChatsList`,
-    GET_MESSAGES: `${BASE_URL}/social/getMessages`
+    GET_MESSAGES: `${BASE_URL}/social/getMessages`,
+    GET_GROUP_DETAILS: `${BASE_URL}/social/getGroupDetails`
   },
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,

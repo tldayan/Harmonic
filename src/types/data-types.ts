@@ -1,3 +1,4 @@
+
 interface Category {
   CategoryUUID: string;
   CategoryName: string;
@@ -75,3 +76,26 @@ interface NestedCategory {
   
   
   
+
+interface GroupDetails {
+  ChatMasterUUID: string;
+  ChatMasterName: string;
+  ChatMasterDescription: string | null;
+  ChatTypeUUID: string;
+  ChatProfilePictureURL: string | null;
+  CreatedDateTime: string;
+  ChatMembers: ChatMembers[];
+}
+
+interface ChatMembers {
+  ChatMemberUUID: string;
+  ChatMemberTypeCode: string;
+  ChatMemberTypeUUID: string;
+  ChatMemberTypeName: string;
+  UserUUID: string;
+  CreatedDateTime: string;
+  FirstName: string;
+  LastName: string | null;
+  UserName: string | null;
+  ProfilePicURL: string;
+}

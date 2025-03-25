@@ -506,3 +506,17 @@ export const getMessages = async(userUUID: string, ChatMasterUUID: string) => {
   }
 
 }
+
+
+export const getGroupDetails = async(chatMasterUUID: string) => {
+
+  try {
+    const getGroupDetailsResponse = await apiClient(ENDPOINTS.SOCIAL.GET_GROUP_DETAILS, {}, {}, "GET", {chatMasterUUID})
+    console.log(getGroupDetailsResponse)
+    return getGroupDetailsResponse.data.Payload
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}

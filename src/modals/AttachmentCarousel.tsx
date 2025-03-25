@@ -8,14 +8,15 @@ import { Asset } from 'react-native-image-picker';
 const { width } = Dimensions.get('window'); 
 
 interface AttachmentCarouselProps {
-    AttachmentData?: AttachmentData[] | string
+    AttachmentData?: AttachmentData[]
+    Attachment?: string | null
     Assets?: Asset[]
     onClose: () => void
     initialIndex?: number
 }
 const MemoizedModalsHeader = React.memo(ModalsHeader);
 
-export default function AttachmentCarousel({onClose,AttachmentData, initialIndex = 0,Assets} : AttachmentCarouselProps) {
+export default function AttachmentCarousel({onClose,AttachmentData, initialIndex = 0,Assets, Attachment} : AttachmentCarouselProps) {
     const [loading, setLoading] = useState(true)
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null)
     const flatListRef = useRef<FlatList>(null)
@@ -112,7 +113,7 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                     length: width, offset: width * index,index
                 })}
                 initialScrollIndex={initialIndex}
-            /> : 
+            /> : Assets?.length ?
             <FlatList
                 ref={flatListRef}
                 style={styles.carouselMainContainer}
@@ -130,7 +131,14 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                     length: width, offset: width * index,index
                 })}
                 initialScrollIndex={initialIndex}
-            />}
+            /> : 
+            <View style={styles.postImageContainer}>
+                <ModalsHeader lightCloseIcon={true} onClose={onClose} />
+                {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
+                <Image style={styles.content} onLoad={() => setLoading(false)} source={{uri: Attachment || ""}} />
+            </View>
+            
+            }
         </View>
     );
 }
