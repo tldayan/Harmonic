@@ -230,23 +230,21 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const saveMBMessage = async(message: string, attachmentUrls: { url: string, type: 'image' | 'video', isDeleted: boolean }[] | AttachmentData[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[], messageBoardUUID: string | null = null) => {
+  export const saveMBMessage = async(message: string, attachmentUrls: { url: string, type: 'image' | 'video'}[] | AttachmentData[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[], messageBoardUUID: string | null = null, postType: "edit" | "post") => {
 
-    console.log(attachmentUrls)
 
-    const allMBAttachments = attachmentUrls?.map((urlObj) => ({
-      Attachment: "Attachment" in urlObj ? urlObj.Attachment : urlObj.url, 
-      AttachmentType: "AttachmentType" in urlObj ? urlObj.AttachmentType : urlObj.type, 
-      CanBeDownloaded: true,
-      AllowDownload: true,
-      IsDeleted: urlObj.isDeleted ? urlObj.isDeleted : null,
-      MessageBoardUUID: null,
-      LoggedInUserUUID: UserUUID, 
-      AttachmentUUID: null,
-      AttachmentTypeUUID: null, 
-      MessageBoardCommentUUID: null, 
-    }));
-  
+    let allMBAttachments = attachmentUrls?.map((urlObj) => ({
+        Attachment: "Attachment" in urlObj ? urlObj.Attachment : urlObj.url, 
+        AttachmentType: "AttachmentType" in urlObj ? urlObj.AttachmentType : urlObj.type, 
+        CanBeDownloaded: true,
+        AllowDownload: true,
+        ...(postType === "post" && {IsDeleted: false}), // Only add isDeleted false if posttype is post
+        MessageBoardUUID: null,
+        LoggedInUserUUID: UserUUID, 
+        AttachmentUUID: "AttachmentUUID" in urlObj ? urlObj.AttachmentUUID : null,
+        AttachmentTypeUUID: "AttachmentTypeUUID" in urlObj ? urlObj.AttachmentTypeUUID : null, 
+      }));
+    
 
   let allMBCategoryItems = postCategories.map((eachCategory) => {
     return {
@@ -277,6 +275,11 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     return response.data
 
   }
+
+
+
+
+
 
   export const deleteMBMessageAttachment = async(attachmentUUID: string, MessageBoardUUID: string, UserUUID: string) => {
 

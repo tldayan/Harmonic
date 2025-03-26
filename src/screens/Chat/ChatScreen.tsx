@@ -17,6 +17,7 @@ import { formatDate } from '../../utils/helpers'
 import { CustomModal } from '../../components/CustomModal'
 import AttachmentCarousel from '../../modals/AttachmentCarousel'
 import { NativeStackNavigationProp, NativeStackNavigatorProps } from '@react-navigation/native-stack'
+import MuteNotifications from '../../modals/Chat/MuteNotifications'
 
 const chatActions = [
   { label: 'User Info', value: '1' },
@@ -64,7 +65,9 @@ const DropdownComponent = ({chatAction, setChatAction} : DropdownComponentProps)
       valueField="value"
       value={chatAction}
       onChange={item => {
-        setChatAction(item.value);
+        setTimeout(() => {
+          setChatAction(item.value);
+        }, 0);
       }}
         renderRightIcon={() => (
         <View style={styles.iconStyle}><ThreeDotsOrange width={18} height={18} /></View>
@@ -314,7 +317,7 @@ export default function ChatScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <ProfileHeader onPress={() => {}} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack online noDate name={chatMasterName} showMemberActions  />
+        <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack online noDate name={chatMasterName} showMemberActions  />
         <DropdownComponent chatAction={chatAction} setChatAction={setChatAction} />
       </View>
 
@@ -338,6 +341,10 @@ export default function ChatScreen() {
     <CustomModal isOpen={viewingAttachment} onClose={() => setViewingAttachment(false)}>
       <AttachmentCarousel Attachment={attachment} onClose={() => setViewingAttachment(false)} />
     </CustomModal>
+
+        <CustomModal isOpen={chatAction === "3"} onClose={() => setChatAction(null)}>
+          <MuteNotifications onClose={() => setChatAction(null)} />
+        </CustomModal>
 
     </View>
   )

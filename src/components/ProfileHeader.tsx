@@ -22,9 +22,10 @@ interface ProfileHeaderProps {
     goBack?: boolean
     showStatus?: boolean,
     onPress?: () => void
+    fetchLatestMessages?: (getLatest?: boolean) => void
 }
 
-export default function ProfileHeader({name, onPress , goBack, showStatus, online = false,post,postLikes,showMemberActions, showPostActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {
+export default function ProfileHeader({name, fetchLatestMessages, onPress , goBack, showStatus, online = false,post,postLikes,showMemberActions, showPostActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {
 
     const [isEditingPost, setIsEditingPost] = useState(false)
     const navigation = useNavigation()
@@ -67,7 +68,7 @@ export default function ProfileHeader({name, onPress , goBack, showStatus, onlin
         {showPostActions && <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />}
     
         <CustomModal isOpen={isEditingPost} halfModal onClose={() => setIsEditingPost(false)}>
-          <PostActions attachmentData={attachmentData} post={post} onClose={() => setIsEditingPost(false)} />
+          <PostActions fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} post={post} onClose={() => setIsEditingPost(false)} />
         </CustomModal>
 
     </View>

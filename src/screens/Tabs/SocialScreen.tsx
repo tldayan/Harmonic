@@ -93,7 +93,7 @@ export default function SocialScreen() {
 
   const fetchLatestMessages = async() => {
     const allMBMessages = await getMBMessages(userUUID, organizationUUID, 0)
-
+    
     setSocialMessages(allMBMessages)
   }
 
@@ -142,8 +142,8 @@ export default function SocialScreen() {
             style={styles.mainPostsContainerList}
             contentContainerStyle={styles.postsContainerList}
             data={filteredMessages}
-            renderItem={({ item }) => (
-              <PostItem showProfileHeader={true} /* setViewingImageUrl={setViewingImageUrl} */ post={item} />
+            renderItem={({ item } : {item: PostItemProps}) => (
+              <PostItem fetchLatestMessages={fetchLatestMessages} showProfileHeader={true} post={item} />
             )}
             keyExtractor={(item) => item.MessageBoardUUID}
             onEndReached={fetchMBMessages}
@@ -154,7 +154,7 @@ export default function SocialScreen() {
         />
 
         <CustomModal fullScreen isOpen={creatingPost.state}>
-            <CreatePost setSocialMessages={setSocialMessages} creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
+            <CreatePost fetchLatestMessages={fetchLatestMessages} creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
         </CustomModal>
 
         <CustomModal onClose={() => setIsDeletingPost(false)} isOpen={isDeletingPost}>

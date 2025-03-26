@@ -57,7 +57,7 @@ export const uploadMedia = async (mediaFiles: Asset[]): Promise<{ url: string, t
 
         const mediaData = await Promise.all(uploadPromises);
 
-        return mediaData.filter((data): data is { url: string, type: 'image' | 'video', isDeleted: false} => data !== undefined);
+        return mediaData.filter((data): data is { url: string, type: 'image' | 'video'} => data !== undefined);
     } catch (err) {
         console.error('Error uploading media files:', err);
         return [];

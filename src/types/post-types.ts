@@ -82,7 +82,7 @@ export interface PostItemProps extends BasePostProps {
     AttachmentType: string, 
     CanBeDownloaded: boolean,
     AllowDownload: boolean,
-    IsDeleted: boolean,
+/*     IsDeleted: boolean, */
     MessageBoardUUID: string | null,  
     LoggedInUserUUID: string | null, 
     AttachmentUUID: string | null, 

@@ -27,13 +27,13 @@ interface CreatePostProps {
     categories?: Category[]
     post?: PostItemProps
     attachmentData?: AttachmentData[]
-    setSocialMessages?: React.Dispatch<React.SetStateAction<PostItemProps[]>>
+    fetchLatestMessages? : () => void
 }
 
   
 
-export default function CreatePost({onClose, creatingPost, post, attachmentData, setSocialMessages}: CreatePostProps) {
-   console.log(attachmentData)
+export default function CreatePost({onClose, creatingPost, post, attachmentData,fetchLatestMessages}: CreatePostProps) {
+console.log(fetchLatestMessages)
 
     const {user} = useUser()
     const [postText, setPostText] = useState(post?.Message ? post.Message : "")
@@ -142,7 +142,7 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
 
     const editingAttachmentImage = ({item} : {item : AttachmentData}) => {
 
-        if(item.isDeleted) return null
+/*         if(item.isDeleted) return null */
 
         return (
             <View style={styles.imageContainer}>
@@ -165,7 +165,7 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
         if(!postText && selectedAttachments.length === 0) return
 
         setLoading(true)
-
+        
         try {
         
             let attachmentUrls: any[] = [];
@@ -175,12 +175,11 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
             }
         
 
-        const response = await saveMBMessage(postText,(editingAttachments.length ? editingAttachments : attachmentUrls), organizationUUID, userUUID, (editingCategories.length > 0 ? editingCategories : postCategories.categories), post?.MessageBoardUUID)
-            
+        const response = await saveMBMessage(postText,(editingAttachments.length ? editingAttachments : attachmentUrls), organizationUUID, userUUID, (editingCategories.length > 0 ? editingCategories : postCategories.categories), post?.MessageBoardUUID, editingAttachments.length ? "edit" : "post")
+            console.log(editingAttachments)
             if(response.Status === STATUS_CODE.SUCCESS) {
                 onClose()
-                const savedPostResponse = await getMBMessageDetails(response.Payload.MessageBoardUUID, userUUID)
-                setSocialMessages?.((prev) => [savedPostResponse, ...prev])
+                fetchLatestMessages?.()
             }
 
         } catch (err: any) {

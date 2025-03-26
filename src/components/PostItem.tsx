@@ -24,11 +24,12 @@ interface PostItemChildProps {
   post: PostItemProps
   showProfileHeader: boolean
   childAttachmentData?: AttachmentData[]
+  fetchLatestMessages?: (getLatest?: boolean) => void
 }
 
 
-export default function PostItem({ post, showProfileHeader, childAttachmentData }: PostItemChildProps) {
-
+export default function PostItem({ post, showProfileHeader, childAttachmentData, fetchLatestMessages}: PostItemChildProps) {
+  
   const [attachmentData, setAttachmentData] = useState<AttachmentData[]>(childAttachmentData || [])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
@@ -47,7 +48,6 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
     const fetchPostAttachments = async () => {
       try {
         const attachemntDataResponse = await fetchWithErrorHandling(getMBMessageAttacment,post.MessageBoardUUID);
-
         if(attachemntDataResponse !== undefined) {
           setAttachmentData(attachemntDataResponse);
         }
@@ -61,7 +61,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
       fetchPostAttachments();
     }
 
-  }, []);
+  }, [post]);
 
 
   
@@ -137,7 +137,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData 
     <View style={styles.mainContainer}>
 
         {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
-          <ProfileHeader attachmentData={attachmentData} showPostActions post={post} />
+          <ProfileHeader fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} showPostActions post={post} />
         </TouchableOpacity>}
 
 

@@ -24,9 +24,10 @@ interface PostActionsProps {
   setComments?: React.Dispatch<React.SetStateAction<CommentItemProps[]>>
   post?: PostItemProps
   attachmentData?: AttachmentData[]
+  fetchLatestMessages?: () => void
 }
 
-export default function PostActions({onClose, CreatedBy, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
+export default function PostActions({onClose, CreatedBy,fetchLatestMessages, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
   console.log(attachmentData)
   const [loading, setLoading] = useState(false)
   const [isReportingPost, setIsReportingPost] = useState(false)
@@ -62,12 +63,14 @@ const route = useRoute<CommentsScreenRouteProp>()
         } else {
           Alert.alert(deleteCommentResponse.Message)
         }
+
       }
 
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
+      fetchLatestMessages?.()
     }
   }
 
@@ -106,7 +109,7 @@ const route = useRoute<CommentsScreenRouteProp>()
         </CustomModal>
 
         <CustomModal fullScreen presentationStyle='formSheet' isOpen={isEditingPost} onClose={handleCloseAllModals}>
-          <CreatePost attachmentData={attachmentData} post={post} onClose={handleCloseAllModals} />
+          <CreatePost fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} post={post} onClose={handleCloseAllModals} />
         </CustomModal> 
 
       </View>
