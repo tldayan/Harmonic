@@ -29,7 +29,6 @@ interface PostItemChildProps {
 
 
 export default function PostItem({ post, showProfileHeader, childAttachmentData, fetchLatestMessages}: PostItemChildProps) {
-  
   const [attachmentData, setAttachmentData] = useState<AttachmentData[]>(childAttachmentData || [])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
@@ -37,9 +36,9 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
   const [viewingAttachments, setViewingAttachments] = useState(false)
   const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
   const [loading, setLoading] = useState<{[key: number]: boolean}>({})
-  const [hasLiked, setHasLiked] = useState(post.HasLiked);
+/*   const [hasLiked, setHasLiked] = useState(post.HasLiked); */
   const reduxHasLiked = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.hasLiked ?? false)
-  const reduxPostLikeCount = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.likeCount ?? post.NoofLikes )
+  const reduxPostLikeCount = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.likeCount/*  ?? post.NoofLikes  */)
   const [videoPlaying, setVideoPlaying] = useState(false)
   const dispatch = useDispatch()
 
@@ -68,15 +67,13 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
 
   const handlePostLike = async () => {
 
-    dispatch(toggleLike({ postId: post.MessageBoardUUID, postLikeCount: post.NoofLikes }));
+    dispatch(toggleLike({ postId: post.MessageBoardUUID}));
 
     try { 
-      const newLikedState = !hasLiked;
-      setHasLiked(newLikedState);
-
+      const newLikedState = !reduxHasLiked
       await fetchWithErrorHandling(saveMBMessageLike,post.MessageBoardUUID, userUUID, newLikedState ? 1 : 0);
     } catch (error) {
-      setHasLiked((prev) => !prev);
+      console.log(error)
     }
   };
 
@@ -242,9 +239,9 @@ const styles = StyleSheet.create({
     flexGrow: 1
   },
   postText: {
+/*     borderWidth: 1, */
     fontWeight: 300,
     fontSize: 15,
-    marginTop: 3,
     paddingTop: 8
   },
   postActionButtonsContainer: {

@@ -65,7 +65,7 @@ export default function ProfileHeader({name, fetchLatestMessages, onPress , goBa
               </View>}
           </View>
         </TouchableOpacity>
-        {showPostActions && <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={15} height={15} />} onPress={() => setIsEditingPost(true)} />}
+        {showPostActions && <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={18} height={18} />} onPress={() => setIsEditingPost(true)} />}
     
         <CustomModal isOpen={isEditingPost} halfModal onClose={() => setIsEditingPost(false)}>
           <PostActions fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} post={post} onClose={() => setIsEditingPost(false)} />

@@ -18,6 +18,9 @@ import { CustomModal } from '../../components/CustomModal'
 import AttachmentCarousel from '../../modals/AttachmentCarousel'
 import { NativeStackNavigationProp, NativeStackNavigatorProps } from '@react-navigation/native-stack'
 import MuteNotifications from '../../modals/Chat/MuteNotifications'
+import Block from '../../modals/Chat/Block'
+import Report from '../../modals/Chat/Report'
+import DeleteChat from '../../modals/Chat/DeleteChat'
 
 const chatActions = [
   { label: 'User Info', value: '1' },
@@ -342,9 +345,21 @@ export default function ChatScreen() {
       <AttachmentCarousel Attachment={attachment} onClose={() => setViewingAttachment(false)} />
     </CustomModal>
 
-        <CustomModal isOpen={chatAction === "3"} onClose={() => setChatAction(null)}>
-          <MuteNotifications onClose={() => setChatAction(null)} />
-        </CustomModal>
+    <CustomModal isOpen={chatAction === "3"} onClose={() => setChatAction(null)}>
+      <MuteNotifications onClose={() => setChatAction(null)} />
+    </CustomModal>
+
+    <CustomModal isOpen={chatAction === "7"} onClose={() => setChatAction(null)}>
+      <Block onClose={() => setChatAction(null)} />
+    </CustomModal>
+    
+    <CustomModal isOpen={chatAction === "6"} onClose={() => setChatAction(null)}>
+      <Report onClose={() => setChatAction(null)} />
+    </CustomModal>
+    
+    <CustomModal isOpen={chatAction === "9"} onClose={() => setChatAction(null)}>
+      <DeleteChat name={chatMasterName} onClose={() => setChatAction(null)} />
+    </CustomModal>
 
     </View>
   )

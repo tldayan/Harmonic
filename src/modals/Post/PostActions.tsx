@@ -28,7 +28,7 @@ interface PostActionsProps {
 }
 
 export default function PostActions({onClose, CreatedBy,fetchLatestMessages, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
-  console.log(attachmentData)
+  
   const [loading, setLoading] = useState(false)
   const [isReportingPost, setIsReportingPost] = useState(false)
   const [isEditingPost, setIsEditingPost] = useState(false)

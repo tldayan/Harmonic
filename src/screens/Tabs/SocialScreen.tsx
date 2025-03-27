@@ -12,9 +12,10 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { TabParamList } from '../../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { getMBMessages } from '../../api/network-utils'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import Filters from '../../modals/Filters'
+import { updateLikes } from '../../store/slices/postLikesSlice'
  
 export default function SocialScreen() {
 
@@ -24,6 +25,7 @@ export default function SocialScreen() {
   const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})
   const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [socialMessages, setSocialMessages] = useState<PostItemProps[]>([]);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true)
   const [filteredMessages, setFilteredMessages] = useState<PostItemProps[]>(socialMessages)
   const [filtering, setFiltering] = useState<{state: boolean; categories: string[]}>({state: false, categories: []})
   const [refreshing, setRefreshing] = useState(false)
@@ -32,6 +34,7 @@ export default function SocialScreen() {
   const {question, options} = route?.params ?? {}
   const navigation = useNavigation<NativeStackNavigationProp<TabParamList>>();
   const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch()
   
   useEffect(() => {
     if(question) {
@@ -46,8 +49,8 @@ export default function SocialScreen() {
 
 
   const fetchMBMessages = async() => {
-
-      if(loading) return
+    
+      if(loading || !hasMoreMessages) return
 
       setLoading(true)
 
@@ -55,6 +58,14 @@ export default function SocialScreen() {
 
         if(organizationUUID && userUUID) {
           const allMBMessages = await getMBMessages(userUUID, organizationUUID, startIndex)
+          console.log(allMBMessages.length)
+          if(allMBMessages.length < 10) {
+            setHasMoreMessages(false)
+          }
+
+          const userLikedMessages: PostItemProps[] = allMBMessages.filter((eachMessage: PostItemProps) => eachMessage.HasLiked);
+          dispatch(updateLikes(userLikedMessages))
+
           setSocialMessages((prevMessages) => {
 
             const messageMap = new Map([...prevMessages, ...allMBMessages].map(msg => [msg.MessageBoardUUID, msg]));
@@ -147,10 +158,11 @@ export default function SocialScreen() {
             )}
             keyExtractor={(item) => item.MessageBoardUUID}
             onEndReached={fetchMBMessages}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.5} // 0.5
             onRefresh={handleRefresh}
             refreshing={refreshing}
             showsVerticalScrollIndicator={false}
+            ListFooterComponent={loading ? <ActivityIndicator size={"small"} /> : null}
         />
 
         <CustomModal fullScreen isOpen={creatingPost.state}>

@@ -254,15 +254,14 @@ export default function CommentsScreen() {
     <View style={styles.container} >
       <View style={styles.headerProfileContainer}>
         {messageDetails && (
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1}}>
             <ProfileHeader goBack attachmentData={attachmentData} showPostActions post={messageDetails}/>
           </View>
         )}
       </View>
-
-      {messageDetails && <PostItem childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
     
         <FlatList 
+        ListHeaderComponent={messageDetails && <PostItem childAttachmentData={attachmentData} showProfileHeader={false} post={messageDetails} />}
           ref={flatListRef} 
           showsVerticalScrollIndicator={false} 
           style={styles.commentListContainer} 
@@ -321,7 +320,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   headerProfileContainer: {
-    paddingTop: 16,
+   /*  borderWidth: 1, */
+    paddingVertical: 10,
+  /*   paddingTop: 16, */
     width: "100%",
     gap: 10,
     flexDirection: "row",
@@ -414,8 +415,8 @@ const styles = StyleSheet.create({
   },
   commentListContainer :{
 /*     borderWidth: 1, */
-    padding: 5,
-    paddingTop: 20,
+/*     padding: 5, */
+/*     paddingTop: 20, */
     width: "96%",
     marginHorizontal: "2%",
     flex: 1,

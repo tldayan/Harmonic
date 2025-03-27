@@ -33,7 +33,6 @@ interface CreatePostProps {
   
 
 export default function CreatePost({onClose, creatingPost, post, attachmentData,fetchLatestMessages}: CreatePostProps) {
-console.log(fetchLatestMessages)
 
     const {user} = useUser()
     const [postText, setPostText] = useState(post?.Message ? post.Message : "")
@@ -47,7 +46,6 @@ console.log(fetchLatestMessages)
     const [creatingPoll, setCreatingPoll] = useState(false)
     const [loading, setLoading] = useState(false)
     const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth);
-/* console.log(selectedAttachments) */
 
     const handlePostClose = () => {
         setTimeout(() => {
@@ -176,7 +174,7 @@ console.log(fetchLatestMessages)
         
 
         const response = await saveMBMessage(postText,(editingAttachments.length ? editingAttachments : attachmentUrls), organizationUUID, userUUID, (editingCategories.length > 0 ? editingCategories : postCategories.categories), post?.MessageBoardUUID, editingAttachments.length ? "edit" : "post")
-            console.log(editingAttachments)
+
             if(response.Status === STATUS_CODE.SUCCESS) {
                 onClose()
                 fetchLatestMessages?.()
