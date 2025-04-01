@@ -515,7 +515,6 @@ export const getGroupDetails = async(chatMasterUUID: string) => {
 
   try {
     const getGroupDetailsResponse = await apiClient(ENDPOINTS.SOCIAL.GET_GROUP_DETAILS, {}, {}, "GET", {chatMasterUUID})
-    console.log(getGroupDetailsResponse)
     return getGroupDetailsResponse.data.Payload
 
   } catch(err) {
@@ -523,3 +522,43 @@ export const getGroupDetails = async(chatMasterUUID: string) => {
   }
 
 }
+
+export const getGroupMessages = async(userUUID: string, chatMasterUUID: string) => {
+  
+  const bodyData = {
+    "SenderUUID": userUUID,
+    "ChatMasterUUID": chatMasterUUID,
+    "PageSize": 20,
+    "LastMessageTimestamp": ""
+  }
+
+  try {
+    const getGroupMessagesResponse = await apiClient(ENDPOINTS.SOCIAL.GET_GROUP_MESSAGES, bodyData, {}, "POST")
+    return getGroupMessagesResponse.data.Payload
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+export const blockUser = async(chatMemberUserUUID: string, userUUID: string, BlockReason: string) => {
+  
+  const bodyData = {
+    "UserUUID": userUUID ,
+    "BlockUserUUID": chatMemberUserUUID,
+    "BlockReason": BlockReason ? BlockReason : "Block" 
+  }
+
+  try {
+    const blockResponse = await apiClient(ENDPOINTS.SOCIAL.BLOCK_USER, bodyData, {}, "POST")
+    return blockResponse.data.Status
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+

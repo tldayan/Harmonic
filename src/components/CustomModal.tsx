@@ -18,9 +18,10 @@ interface Props extends ModalProps {
     onClose?: () => void;
     presentationStyle?: "fullScreen" | "pageSheet" | "formSheet" | "overFullScreen";
     halfModal?: boolean
+    disableCloseOnBackground?: boolean
 }
 
-export const CustomModal: React.FC<Props> = ({ onClose, isOpen, children, fullScreen, presentationStyle, halfModal }) => {
+export const CustomModal: React.FC<Props> = ({ onClose, isOpen, children, fullScreen, presentationStyle, halfModal,disableCloseOnBackground }) => {
   return (
     <Modal
       presentationStyle={presentationStyle}
@@ -35,7 +36,7 @@ export const CustomModal: React.FC<Props> = ({ onClose, isOpen, children, fullSc
             {children}
           </View>
         ) : (
-          <TouchableWithoutFeedback onPress={onClose}>
+          <TouchableWithoutFeedback onPress={disableCloseOnBackground ? () => {} :onClose}>
             <View style={halfModal ? styles.halfModalSafeArea : styles.safeArea}>
               <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
                 <View style={halfModal ? styles.halfModalContainer : null}>

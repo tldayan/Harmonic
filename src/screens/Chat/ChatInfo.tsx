@@ -10,6 +10,7 @@ import Trash from "../../assets/icons/trash.svg"
 import ThumbsDown from "../../assets/icons/thumbs-down.svg"
 import XCircle from "../../assets/icons/x-circle.svg"
 import { colors } from '../../styles/colors'
+import AddMember from "../../assets/icons/add-member.svg"
 
 export type ChatInfoScreenRouteProp = RouteProp<RootStackParamList, "ChatInfo">
 
@@ -54,6 +55,7 @@ export default function ChatInfo() {
         <Text>{chatType}</Text>
         <FlatList
           ListHeaderComponent={
+            <>
             <View style={styles.listHeaderComponent}>
               <CustomButton buttonStyle={{alignSelf: "flex-start", marginLeft: 10}} onPress={() => navigation.goBack()} title={""} icon={<ChevronLeft />} />
               <Image source={{uri: "https://i.pravatar.cc/150"}} style={styles.chatProfilePictureURL} />
@@ -64,6 +66,9 @@ export default function ChatInfo() {
                 <Text>Media</Text>
               </View>
             </View>
+
+            <CustomButton buttonStyle={styles.addMemberContainer} onPress={() => {}} iconPosition='left' icon={<AddMember strokeWidth={0.7} fill={colors.ACTIVE_ORANGE} width={23} height={23} />} title={"Add members"} />
+            </>
           }
           data={groupDetails?.ChatMembers || []}
           bounces={false}
@@ -139,6 +144,13 @@ const styles = StyleSheet.create({
   action: {
     color: colors.RED_COLOR,
     fontSize: 17
+  },
+  addMemberContainer: {
+    marginTop: 10,
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center",
+    paddingHorizontal: 5
   }
 
 })

@@ -11,7 +11,7 @@ import { Dropdown } from 'react-native-element-dropdown'
 import ThreeDotsOrange from "../../assets/icons/dots-vertical-orange.svg"
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
-import { getMessages } from '../../api/network-utils'
+import { getGroupMessages, getMessages } from '../../api/network-utils'
 import { profilePic } from '../../styles/global-styles'
 import { formatDate } from '../../utils/helpers'
 import { CustomModal } from '../../components/CustomModal'
@@ -21,6 +21,7 @@ import MuteNotifications from '../../modals/Chat/MuteNotifications'
 import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
 import DeleteChat from '../../modals/Chat/DeleteChat'
+import { chatTypes } from '../../utils/constants'
 
 const chatActions = [
   { label: 'User Info', value: '1' },
@@ -83,173 +84,19 @@ export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 
 export default function ChatScreen() {
     
-  const [chats, setChats] = useState<ChatMessage[]>([
-    {
-        "id": "1",
-        "SenderUUID": "1ac7b702-c147-11ef-b36c-42010a400004",
-        "Message": "Hey, did you check the new design updates I sent earlier?",
-        "MessageType": "user-generated",
-        "Attachment": "",
-        "AttachmentType": "",
-        "Timestamp": "2024-12-24T10:15:30.537Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": ["a99cc57c-c12d-11ef-b36c-42010a400004"]
-        },
-        "UserUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005"
-    },
-    {
-        "id": "2",
-        "SenderUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005",
-        "Message": "Yes, I really liked the color scheme. It gives a more modern feel to the app.",
-        "MessageType": "user-generated",
-        "Attachment": "",
-        "AttachmentType": "",
-        "Timestamp": "2024-12-24T10:16:00.123Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": ["1ac7b702-c147-11ef-b36c-42010a400004"]
-        },
-        "UserUUID": "1ac7b702-c147-11ef-b36c-42010a400004"
-    },
-    {
-        "id": "3",
-        "SenderUUID": "1ac7b702-c147-11ef-b36c-42010a400004",
-        "Message": "",
-        "MessageType": "user-generated",
-        "Attachment": "https://firebasestorage.googleapis.com/v0/b/harmonicdevapp.appspot.com/o/uploads%2Fchat%2FmessageAttachment%2F1735034147273_Autobiography.webp?alt=media&token=afeaf2d6-f6df-4451-9e23-7ece4262f1e9",
-        "AttachmentType": "image/webp",
-        "Timestamp": "2024-12-24T10:18:45.999Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": []
-        },
-        "UserUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005"
-    },
-    {
-        "id": "4",
-        "SenderUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005",
-        "Message": "That looks great! Can we maybe add some animations for better user engagement?",
-        "MessageType": "user-generated",
-        "Attachment": "",
-        "AttachmentType": "",
-        "Timestamp": "2024-12-24T10:20:10.847Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": []
-        },
-        "UserUUID": "1ac7b702-c147-11ef-b36c-42010a400004"
-    },
-    {
-        "id": "5",
-        "SenderUUID": "",
-        "Message": "John joined the group chat",
-        "MessageType": "system-generated",
-        "Attachment": null,
-        "AttachmentType": null,
-        "Timestamp": "2024-12-24T10:25:00.000Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": ["1ac7b702-c147-11ef-b36c-42010a400004"]
-        },
-        "UserUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005"
-    },
-    {
-        "id": "6",
-        "SenderUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005",
-        "Message": "Welcome, John! We were just discussing the UI updates for the app. Feel free to share your thoughts!, Welcome, John! We were just discussing the UI updates for the app. Feel free to share your thoughts!",
-        "MessageType": "user-generated",
-        "Attachment": "",
-        "AttachmentType": "",
-        "Timestamp": "2024-12-24T10:26:30.214Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": ["1ac7b702-c147-11ef-b36c-42010a400004"]
-        },
-        "UserUUID": "1ac7b702-c147-11ef-b36c-42010a400004"
-    },
-    {
-        "id": "7",
-        "SenderUUID": "1ac7b702-c147-11ef-b36c-42010a400004",
-        "Message": "",
-        "MessageType": "user-generated",
-        "Attachment": "https://firebasestorage.googleapis.com/v0/b/harmonicdevapp.appspot.com/o/uploads%2Fchat%2FmessageAttachment%2F1735034147273_Autobiography.webp?alt=media&token=afeaf2d6-f6df-4451-9e23-7ece4262f1e9",
-        "AttachmentType": "video/mp4",
-        "Timestamp": "2024-12-24T10:30:00.537Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": []
-        },
-        "UserUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005"
-    },
-    {
-        "id": "8",
-        "SenderUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005",
-        "Message": "Nice! The transitions look very smooth. I love how it flows from one screen to another.",
-        "MessageType": "user-generated",
-        "Attachment": "",
-        "AttachmentType": "",
-        "Timestamp": "2024-12-24T10:31:15.920Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": []
-        },
-        "UserUUID": "1ac7b702-c147-11ef-b36c-42010a400004"
-    },
-    {
-        "id": "9",
-        "SenderUUID": "1ac7b702-c147-11ef-b36c-42010a400004",
-        "Message": "Let's finalize the layout today so we can move to the backend integrations tomorrow.",
-        "MessageType": "user-generated",
-        "Attachment": "",
-        "AttachmentType": "",
-        "Timestamp": "2024-12-24T10:35:45.637Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": []
-        },
-        "UserUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005"
-    },
-    {
-        "id": "10",
-        "SenderUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005",
-        "Message": "Agreed! I'll share the API documentation in a bit.",
-        "MessageType": "user-generated",
-        "Attachment": "",
-        "AttachmentType": "",
-        "Timestamp": "2024-12-24T10:37:00.721Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": []
-        },
-        "UserUUID": "1ac7b702-c147-11ef-b36c-42010a400004"
-    },
-    {
-        "id": "11",
-        "SenderUUID": "1ac7b702-c147-11ef-b36c-42010a400004",
-        "Message": "",
-        "MessageType": "user-generated",
-        "Attachment": "https://firebasestorage.googleapis.com/v0/b/harmonicdevapp.appspot.com/o/uploads%2Fchat%2FmessageAttachment%2F1735034147273_Autobiography-2.jpg?alt=media&token=5e1a97b0-e3d5-45e1-8546-cab43ab66ea6",
-        "AttachmentType": "application/pdf",
-        "Timestamp": "2024-12-24T10:40:10.123Z",
-        "Status": {
-            "DeliveredTo": [],
-            "ReadBy": []
-        },
-        "UserUUID": "2ff929c1-e3db-11ef-bdd1-42010a400005"
-    }
-]
-) 
+  const [chats, setChats] = useState<ChatMessage[]>([]) 
   const [message, setMessage] = useState("")
+  const [userBlocked, setUserBlocked] = useState(true)
   const [chatAction, setChatAction] = useState<string | null>(null);
   const [viewingAttachment, setViewingAttachment] = useState(false)
   const [attachment, setAttachment] = useState<string | null>(null)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
   const route = useRoute<ChatsScreenRouteProp>()
-  const {userUUID, chatMasterUUID, chatProfilePictureURL, chatMasterName, chatType} = route.params || {}
+  const {userUUID, chatMasterUUID, chatProfilePictureURL, chatMasterName, chatType, chatMemberUserUUID} = route.params || {}
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
+  console.log(chatMasterUUID)
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
+
 
 
   useEffect(() => {
@@ -260,19 +107,35 @@ export default function ChatScreen() {
 
   }, [chatAction])
 
-/*   useEffect(() => {
+  useEffect(() => {
 
     const fetchChats = async() => {
 
-      const messagesResponse = await getMessages(userUUID, chatMasterUUID)
+      let messagesResponse = undefined
+
+      if(chatType === chatTypes.PRIVATE) {
+        messagesResponse = await getMessages(userUUID, chatMasterUUID)
+      } else {
+        messagesResponse = await getGroupMessages(userUUID, chatMasterUUID)
+      }
+
       console.log(messagesResponse.Messages)
       setChats(messagesResponse.Messages)
 
     }
-    
-    fetchChats()
+  
 
-  }, []) */
+    fetchChats()
+    
+    if(userBlocked) {
+      chatActions.map((eachAction) => {
+        if(eachAction.label === "Block") {
+          eachAction.label = "Unblock"
+        }
+      })
+    }
+
+  }, [])
 
 
   const renderMessage = ({ item }: { item: ChatMessage }) => {
@@ -323,6 +186,7 @@ export default function ChatScreen() {
         <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack online noDate name={chatMasterName} showMemberActions  />
         <DropdownComponent chatAction={chatAction} setChatAction={setChatAction} />
       </View>
+      
 
 
       <FlatList
@@ -336,9 +200,11 @@ export default function ChatScreen() {
 
 
      <View style={[styles.messageFieldContainer, {paddingBottom: isKeyboardVisible ? 0 : 20}]}>
-        <CustomButton onPress={() => {}} icon={<PaperClip width={20} height={20} />} />
-        <CustomTextInput placeholder='Write a message' placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={styles.messageField} value={message} onChangeText={(e) => setMessage(e)} />
-        <CustomButton onPress={() => {}}icon={<SendIcon width={30} height={30} strokeWidth={1} fill={message ? colors.ACTIVE_ORANGE : "grey"} stroke={message ? "white" : "white"} />} /> 
+        {userBlocked ? <Text style={styles.blockedUserNotice}>Can't send a message to blocked users</Text> : <>
+          <CustomButton onPress={() => {}} icon={<PaperClip width={20} height={20} />} />
+          <CustomTextInput placeholder='Write a message' placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={styles.messageField} value={message} onChangeText={(e) => setMessage(e)} />
+          <CustomButton onPress={() => {}}icon={<SendIcon width={30} height={30} strokeWidth={1} fill={message ? colors.ACTIVE_ORANGE : "grey"} stroke={message ? "white" : "white"} />} /> 
+        </>}
      </View>
 
     <CustomModal isOpen={viewingAttachment} onClose={() => setViewingAttachment(false)}>
@@ -349,8 +215,8 @@ export default function ChatScreen() {
       <MuteNotifications onClose={() => setChatAction(null)} />
     </CustomModal>
 
-    <CustomModal isOpen={chatAction === "7"} onClose={() => setChatAction(null)}>
-      <Block onClose={() => setChatAction(null)} />
+    <CustomModal disableCloseOnBackground={true} isOpen={chatAction === "7"} onClose={() => setChatAction(null)}>
+      <Block chatMemberUserUUID={chatMemberUserUUID} onClose={() => setChatAction(null)} />
     </CustomModal>
     
     <CustomModal isOpen={chatAction === "6"} onClose={() => setChatAction(null)}>
@@ -385,7 +251,7 @@ const styles = StyleSheet.create({
 /*         marginBottom: 100, */
         gap: 15,
         paddingHorizontal: 10,
-        paddingTop: 10,
+        paddingVertical: 10
 /*         borderWidth: 2, */
       },
       messageFieldContainer: {
@@ -431,13 +297,16 @@ const styles = StyleSheet.create({
         textAlign: "center",
         alignSelf: "center",
         width: "60%",
-        fontWeight: 200,
+        fontSize: 14,
+        fontWeight: 300,
         opacity: 0.8,
         backgroundColor: "white",
-        shadowColor: "#000", 
+        borderWidth: 1,
+        borderColor: colors.LIGHT_COLOR
+/*         shadowColor: "#000", 
         shadowOpacity: 0.1, 
         shadowOffset: { width: 0, height: 1 }, 
-        elevation: 15
+        elevation: 15 */
 /*         color: colors.LIGHT_TEXT_COLOR */
       },
       userMessageContainer: {
@@ -483,5 +352,10 @@ const styles = StyleSheet.create({
         resizeMode: "cover", 
         maxWidth: "100%", 
       },
-      
+      blockedUserNotice: {
+        textAlign : "center",
+        padding: 15,
+        color: colors.LIGHT_TEXT,
+        width: "100%"
+      }
 })

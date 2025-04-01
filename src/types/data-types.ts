@@ -43,6 +43,7 @@ interface NestedCategory {
    interface ChatEntity {
     ChatMasterUUID: string;
     ChatMasterName: string;
+    ChatMemberUserUUID: string;
     ChatProfilePictureURL: string | null;
     ChatTypeUUID: string;
     ChatTypeCode: "GROUP_CHAT" | string;

@@ -5,7 +5,7 @@ export type RootStackParamList = {
     Auth: undefined
     Hero: undefined
     Comments: {postUUID?: string, attachmentData?: AttachmentData[], createdBy: string}
-    ChatScreen: {userUUID: string, chatMasterUUID: string, chatProfilePictureURL: string | null, chatMasterName: string, chatType: string}
+    ChatScreen: {userUUID: string, chatMasterUUID: string, chatProfilePictureURL: string | null, chatMasterName: string, chatType: string, chatMemberUserUUID: string}
     ChatInfo: {chatMasterUUID: string,chatType: string}
 }
 

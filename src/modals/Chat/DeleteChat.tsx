@@ -18,7 +18,7 @@ export default function DeleteChat({onClose, name}: DeleteChatProps) {
 
       <View style={modalButtonsContainer}>
         <CustomButton onPress={onClose} buttonStyle={cancelButton} textStyle={{color: colors.ACTIVE_ORANGE}} title={"Cancel"} />
-        <CustomButton onPress={() => {}} buttonStyle={[proceedButton, {backgroundColor: colors.RED_COLOR    }]} textStyle={{color: "white"}} title={"Delete"} />
+        <CustomButton onPress={() => {}} buttonStyle={[proceedButton, {backgroundColor: colors.RED_COLOR, borderColor: colors.RED_COLOR}]} textStyle={{color: "white"}} title={"Delete"} />
       </View>
     </View>
   )

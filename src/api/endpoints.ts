@@ -37,8 +37,10 @@ export const ENDPOINTS = {
     MESSAGE_LIKES_LIST: `${BASE_URL}/social/getListOfLikes`,
     GET_CHATS_LIST: `${BASE_URL}/social/getChatsList`,
     GET_MESSAGES: `${BASE_URL}/social/getMessages`,
-    GET_GROUP_DETAILS: `${BASE_URL}/social/getGroupDetails`
-  },
+    GET_GROUP_DETAILS: `${BASE_URL}/social/getGroupDetails`,
+    GET_GROUP_MESSAGES: `${BASE_URL}/social/getGroupMessages`,
+    BLOCK_USER: `${BASE_URL}/social/blockUser`
+  },  
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,
     CATEGORY_ITEMS: `${BASE_URL}/common/getCategoryItemsForACategory`

@@ -91,7 +91,7 @@ const ChatsList = () => {
 
 const renderChatItem = ({ item }: { item: ChatEntity }) => {
   return (
-    <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate("ChatScreen", {userUUID: userUUID , chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode})}>
+    <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate("ChatScreen", {userUUID: userUUID , chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})}>
       <Image style={styles.chatMemberProfilePic} source={{ uri: item.ChatProfilePictureURL ? item.ChatProfilePictureURL : "https://i.pravatar.cc/150" }} />
       <View style={styles.mainChatDetailsContainer}>
         <View style={styles.chatDetailsContainer}>
