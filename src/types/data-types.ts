@@ -13,6 +13,7 @@ interface Category {
   ShowInFavorite: boolean;
   NoOfChildren: number;
   HasChildren: number;
+  hasMoreChildCategories: boolean;
   nestedCategories: NestedCategory[];  // nested categories
 }
 
@@ -99,4 +100,12 @@ interface ChatMembers {
   LastName: string | null;
   UserName: string | null;
   ProfilePicURL: string;
+}
+
+interface Friend {
+  UserUUID: string,
+  UserName: string,
+  FirstName: string,
+  LastName: string,
+  ProfilePicURL: string
 }

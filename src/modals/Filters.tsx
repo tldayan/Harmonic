@@ -1,4 +1,4 @@
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ModalsHeader from './ModalsHeader'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -29,32 +29,81 @@ export default function Filters({onClose, setFiltering, filtering, setPostCatego
     const { organizationUUID } = useSelector((state: RootState) => state.auth);
 
     const [categories, setCategories] = useState<Category[]>([])
+    const [nestedCategoriesIndex, setNestedCategoriesIndex] = useState<{ CategoryUUID: string; index: number }[]>([]);
+    const [finishedFetchingCategories, setFinishedFetchingCategories] = useState(false)
+    const [loading, setLoading] = useState(false)
+  
     const [startIndex, setStartIndex] = useState(0)
 
 
-      const fetchCategories = async () => {
-    
-          if (!organizationUUID) return;
-    
-          const mainCategories: Category[] = await fetchWithErrorHandling(getAllCategories, organizationUUID);
-    
+    const fetchCategories = async () => {
+      if (!organizationUUID || loading || finishedFetchingCategories) return;
+  
+      setLoading(true);
+      try {
+          const mainCategories: Category[] = await fetchWithErrorHandling(getAllCategories, organizationUUID, startIndex);
+  
           const categoriesWithNested = await Promise.all(
-            mainCategories.map(async (eachCategory: Category) => {
-              const nestedCategories = await fetchWithErrorHandling(getCategoryItemsForACategory,
-                organizationUUID,
-                eachCategory.CategoryUUID
-              );
-              return { ...eachCategory, nestedCategories };
-            })
+              mainCategories.map(async (eachCategory: Category) => {
+                  const nestedCategories = await fetchWithErrorHandling(getCategoryItemsForACategory, organizationUUID, eachCategory.CategoryUUID);
+                  let hasMoreChildCategories = nestedCategories.length >= 5;
+                  
+                  return { 
+                      ...eachCategory, 
+                      hasMoreChildCategories, 
+                      nestedCategories 
+                  };
+              })
           );
-          console.log(categoriesWithNested)
-          setCategories(categoriesWithNested);
+  
+          setCategories((prev) => [...prev, ...categoriesWithNested]);
+          setStartIndex((prev) => prev + 5);
 
-      };
+          setNestedCategoriesIndex((prev) => [
+            ...prev, ...mainCategories.map((eachCategory) => ({CategoryUUID: eachCategory.CategoryUUID, index: 5}))
+          ])
+          
+
+          if(mainCategories.length < 5) {
+            setFinishedFetchingCategories(true)
+          }
+
+      } catch (error) {
+          console.error(error);
+      } finally {
+          setLoading(false); 
+      }
+  };
+  
+
+      useEffect(() => {
+        console.log(nestedCategoriesIndex)
+      }, [nestedCategoriesIndex])
 
       useEffect(() => {
         fetchCategories()
       }, [])
+
+      const fetchMoreChildCategories = async(CategoryUUID: string) => {
+
+        const childCategoryIndex = nestedCategoriesIndex.find((eachCategory) => eachCategory.CategoryUUID === CategoryUUID)?.index
+
+        const childCategories = await fetchWithErrorHandling(getCategoryItemsForACategory, organizationUUID, CategoryUUID, childCategoryIndex )
+
+        let hasMoreChildCategories = childCategories.length >= 5
+
+        setCategories((prev) => 
+          prev.map((eachCategory) => 
+            eachCategory.CategoryUUID === CategoryUUID ? {...eachCategory, hasMoreChildCategories: hasMoreChildCategories, nestedCategories: [...(eachCategory.nestedCategories || []), ...childCategories]}
+            : eachCategory
+          )
+        )
+
+        setNestedCategoriesIndex((prev) => 
+          prev.map((eachCategory) => eachCategory.CategoryUUID === CategoryUUID ? {...eachCategory, index : eachCategory.index + 5} : eachCategory)
+        )
+
+      }
 
       const handleFilter = (categoryUUID: string, categoryName: string) => {
 
@@ -115,34 +164,47 @@ export default function Filters({onClose, setFiltering, filtering, setPostCatego
         
       }
 
+      const categoryitem = ({item} : {item: Category}) => {
+        return (
+          <View key={item.CategoryUUID}>
+              <Text style={styles.mainCategory}>{item.CategoryName}</Text>
+              <View style={styles.mainChildCategoryContainer}>
+                  {item.nestedCategories.map((eachChildCategory: NestedCategory) => {
+                  const isSelected = filtering?.categories.includes(eachChildCategory.CategoryItemUUID) 
+                  || postCategories?.some(category => category.CategoryItemUUID === eachChildCategory.CategoryItemUUID) || editingCategories?.some(category => category.existing === true && category.CategoryItemUUID === eachChildCategory.CategoryItemUUID)
+        
+                  return (
+                      <TouchableOpacity key={eachChildCategory.CategoryItemUUID} onPress={() => handleFilter(eachChildCategory.CategoryItemUUID, eachChildCategory.CategoryItemName)} style={[styles.childCategoryContainer]}>
+                          <View style={[styles.checkbox, isSelected && {backgroundColor : colors.PRIMARY_COLOR, borderWidth: 0}]}>
+                            {isSelected && <CheckIcon />}
+                          </View>
+                          <Text style={styles.categoryText}>{eachChildCategory.CategoryItemName}</Text>
+                      </TouchableOpacity>
+                  )
+              })}
+              </View>
+              {item.hasMoreChildCategories && <CustomButton onPress={() => fetchMoreChildCategories(item.CategoryUUID)} textStyle={{color: colors.ACTIVE_ACCENT_COLOR}} buttonStyle={styles.loadmore} title={"Load more"} />}
+          </View>
+      )
+      }
+
+
+
   return (
     <SafeAreaView style={styles.container}>
       <ModalsHeader onClose={onClose} title={setPostCategories ? "Apply Categories" : 'Apply Filters'} />
-      {categories.length === 0 &&  <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={"black"} />}
-      <ScrollView contentContainerStyle={styles.categoryContainer} style={styles.innerContainer}>
-        {categories?.map((eachCategory) => {
-            return (
-                <View key={eachCategory.CategoryUUID} /* style={styles.categoryContainer} */>
-                    <Text style={styles.mainCategory}>{eachCategory.CategoryName}</Text>
-                    <View style={styles.mainChildCategoryContainer}>
-                        {eachCategory.nestedCategories.map((eachChildCategory: NestedCategory) => {
-                        const isSelected = filtering?.categories.includes(eachChildCategory.CategoryItemUUID) 
-                        || postCategories?.some(category => category.CategoryItemUUID === eachChildCategory.CategoryItemUUID) || editingCategories?.some(category => category.existing === true && category.CategoryItemUUID === eachChildCategory.CategoryItemUUID)
-              
-                        return (
-                            <TouchableOpacity key={eachChildCategory.CategoryItemUUID} onPress={() => handleFilter(eachChildCategory.CategoryItemUUID, eachChildCategory.CategoryItemName)} style={[styles.childCategoryContainer]}>
-                                <View style={[styles.checkbox, isSelected && {backgroundColor : colors.PRIMARY_COLOR, borderWidth: 0}]}>
-                                  {isSelected && <CheckIcon />}
-                                </View>
-                                <Text style={styles.categoryText}>{eachChildCategory.CategoryItemName}</Text>
-                            </TouchableOpacity>
-                        )
-                    })}
-                    </View>
-                </View>
-            )
-        })}
-      </ScrollView>
+      {(categories.length === 0 && loading)  &&  <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={"black"} />}
+      <FlatList 
+        data={categories} 
+        renderItem={categoryitem} 
+        keyExtractor={(item) => item.CategoryUUID} 
+        contentContainerStyle={styles.categoryContainer} 
+        style={styles.innerContainer} 
+        onEndReached={fetchCategories}
+        onEndReachedThreshold={0.1} // 0.5
+        ListFooterComponent={(loading && categories.length > 0) ? <ActivityIndicator size={"small"} color={"black"} /> : null}
+      />
+      
       <CustomButton onPress={onClose} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, {width: "70%", marginHorizontal: "15%"}]} title={"Done"} />
       <Toast />
     </SafeAreaView>
@@ -191,5 +253,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 5,
         borderColor: colors.BORDER_COLOR
+    },
+    loadmore: {
+      marginLeft: "auto",
+      marginTop: 5,
     }
 })

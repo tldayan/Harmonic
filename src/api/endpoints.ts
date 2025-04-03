@@ -38,8 +38,11 @@ export const ENDPOINTS = {
     GET_CHATS_LIST: `${BASE_URL}/social/getChatsList`,
     GET_MESSAGES: `${BASE_URL}/social/getMessages`,
     GET_GROUP_DETAILS: `${BASE_URL}/social/getGroupDetails`,
+    ADD_GROUP_MEMBERS: `${BASE_URL}/social/addMembersToGroup`,
     GET_GROUP_MESSAGES: `${BASE_URL}/social/getGroupMessages`,
-    BLOCK_USER: `${BASE_URL}/social/blockUser`
+    BLOCK_USER: `${BASE_URL}/social/blockUser`,
+    UNBLOCK_USER: `${BASE_URL}/social/unblockUser`,
+    GET_FRIENDS_LIST: `${BASE_URL}/social/getFriendsList`
   },  
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,

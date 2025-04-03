@@ -116,7 +116,7 @@ export default function SocialScreen() {
 
 
   return (
-    <View style={styles.mainContainer}>
+    <View style={[styles.mainContainer, filteredMessages.length === 0 && {backgroundColor: "white"}]}>
         <FlatList 
             ListHeaderComponent={
                 <View style={styles.container}>
@@ -147,7 +147,6 @@ export default function SocialScreen() {
                       <CustomButton textStyle={styles.filter} onPress={() => setFiltering((prev) => ({...prev, state: true}))} title={`Filters${filtering.categories.length > 0 ? `(${filtering.categories.length})` : ""}`} />
                       {filtering.categories.length ? <CustomButton textStyle={styles.clearFilter} onPress={() => setFiltering({state: false, categories: []})} title={"Clear Filters"} /> : null}
                     </View>
-                    {loading && <ActivityIndicator style={{marginVertical: 20}} size={"small"} />}
                 </View> 
             }
             style={styles.mainPostsContainerList}
@@ -161,9 +160,14 @@ export default function SocialScreen() {
             onEndReachedThreshold={0.5} // 0.5
             onRefresh={handleRefresh}
             refreshing={refreshing}
+            scrollEnabled={filteredMessages.length > 0}
             showsVerticalScrollIndicator={false}
             ListFooterComponent={loading ? <ActivityIndicator size={"small"} /> : null}
         />
+
+        {filteredMessages.length === 0 && <View style={styles.noResultsContainer}>
+            <Text style={styles.noResults}>No posts found for selected filters</Text>
+        </View>}
 
         <CustomModal fullScreen isOpen={creatingPost.state}>
             <CreatePost fetchLatestMessages={fetchLatestMessages} creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
@@ -184,7 +188,7 @@ export default function SocialScreen() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: colors.LIGHT_COLOR
+    backgroundColor: colors.LIGHT_COLOR,
   },
   container: {
 		width: "100%",
@@ -268,6 +272,16 @@ placeholderText: {
   },
   clearFilter: {
     color: colors.RED_TEXT
+  },
+  noResultsContainer: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: "-50%" }, { translateY: "-50%" }],
+    padding: 20,
+  },
+  noResults : {
+    color: colors.LIGHT_TEXT,
   }
 
 })

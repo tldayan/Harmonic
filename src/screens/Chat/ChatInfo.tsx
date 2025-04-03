@@ -11,13 +11,21 @@ import ThumbsDown from "../../assets/icons/thumbs-down.svg"
 import XCircle from "../../assets/icons/x-circle.svg"
 import { colors } from '../../styles/colors'
 import AddMember from "../../assets/icons/add-member.svg"
+import { CustomModal } from '../../components/CustomModal'
+import CreateGroup from '../../modals/Chat/CreateGroup'
+import { chatTypes } from '../../utils/constants'
+import Block from '../../modals/Chat/Block'
+import Report from '../../modals/Chat/Report'
 
 export type ChatInfoScreenRouteProp = RouteProp<RootStackParamList, "ChatInfo">
 
 export default function ChatInfo() {
 
   const [groupDetails, setGroupDetails] = useState<GroupDetails | null>(null);
+  const [addingMembers, setAddingMembers] = useState(false)
   const [members, setMembers] = useState<ChatMembers[]>([])
+  const [isBlockingUser, setIsBlockingUser] = useState(false)
+  const [isReportingUser, setIsReportingUser] = useState(false)
 
     const navigation = useNavigation()
     const route = useRoute<ChatInfoScreenRouteProp>()
@@ -67,7 +75,7 @@ export default function ChatInfo() {
               </View>
             </View>
 
-            <CustomButton buttonStyle={styles.addMemberContainer} onPress={() => {}} iconPosition='left' icon={<AddMember strokeWidth={0.7} fill={colors.ACTIVE_ORANGE} width={23} height={23} />} title={"Add members"} />
+            {chatType === chatTypes.GROUP && <CustomButton buttonStyle={styles.addMemberContainer} onPress={() => setAddingMembers(true)} iconPosition='left' icon={<AddMember strokeWidth={0.7} fill={colors.ACTIVE_ORANGE} width={23} height={23} />} title={"Add members"} />}
             </>
           }
           data={groupDetails?.ChatMembers || []}
@@ -79,11 +87,11 @@ export default function ChatInfo() {
       </View>
 
       <View style={styles.mainActionsContainer}>
-        <TouchableOpacity onPress={() => {}} style={styles.actionContainer}>
+        <TouchableOpacity onPress={() => setIsBlockingUser(true)} style={styles.actionContainer}>
           <XCircle fill='red' width={20} height={20}/>
           <Text style={styles.action}>Block user</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => {}} style={styles.actionContainer}>
+        <TouchableOpacity onPress={() => setIsReportingUser(true)} style={styles.actionContainer}>
           <ThumbsDown fill='red' width={20} height={20}/>
           <Text style={styles.action}>Report user</Text>
         </TouchableOpacity>
@@ -91,7 +99,19 @@ export default function ChatInfo() {
           <Trash fill='red' width={20} height={20}/>
           <Text style={styles.action}>Delete chat</Text>
         </TouchableOpacity>
-      </View>
+      </View> 
+
+        <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={addingMembers}>
+          <CreateGroup chatMasterUUID={chatMasterUUID} addingMembers={true} onClose={() => setAddingMembers(false)} />
+        </CustomModal>
+
+        <CustomModal isOpen={isBlockingUser} onClose={() => setIsBlockingUser(false)}>
+          <Block noReport={true} chatMemberUserUUID={chatMasterUUID} onClose={() => setIsBlockingUser(false)} />
+        </CustomModal>
+
+        <CustomModal isOpen={isReportingUser} onClose={() => setIsReportingUser(false)}>
+          <Report onClose={() => setIsReportingUser(false)} />
+        </CustomModal>
 
     </View>
   )

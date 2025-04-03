@@ -1,4 +1,4 @@
-import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import ModalsHeader from '../ModalsHeader'
@@ -11,20 +11,16 @@ import Check from "../../assets/icons/circle-check.svg"
 import ChevronRight from "../../assets/icons/chevron-right.svg"
 import Group from "../../assets/icons/group.svg"
 import { Dropdown } from 'react-native-element-dropdown'
+import { addGroupMembers, getFriendsList } from '../../api/network-utils'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../store/store'
+import { STATUS_CODE } from '../../api/endpoints'
 
 interface CreateGroupProps {
     onClose: () => void
+    addingMembers?: boolean
+    chatMasterUUID?: string
 }
-
-const allFriendsList = [
-    "Michael", "David", "Luke", "James", "John", "Robert", "William", "Thomas", 
-    "Daniel", "Matthew", "Christopher", "Andrew", "Joseph", "Benjamin", "Charles", 
-    "Jonathan", "Nathan", "Samuel", "Henry", "Nicholas", "Edward", "Patrick", 
-    "Richard", "Alexander", "Zachary", "Gabriel", "Ethan", "Jacob", "Elijah", "Anthony",
-    "Michelle", "Sarah", "Emily", "Jessica", "Ashley", "Samantha", "Jennifer", 
-    "Elizabeth", "Lauren", "Megan", "Olivia", "Sophia", "Isabella", "Hannah", 
-    "Rachel", "Victoria", "Natalie", "Julia"
-  ];
 
   const steps = [
     { id: "1", title: "Select Members" },
@@ -80,18 +76,52 @@ const allFriendsList = [
     );
   };
 
-export default function CreateGroup({onClose}: CreateGroupProps) {
+export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: CreateGroupProps) {
 
   const [step, setStep] = useState(0)
   const [memberSearch, setMemberSearch] = useState("")
-  const [addedMembers, setAddedMembers] = useState<string[]>([]);
-  const [allFriends, setAllFriends] = useState(allFriendsList)
+  const [addedMembers, setAddedMembers] = useState<{memberName: string, memberUUID: string}[]>([]);
+  const [loading, setLoading] = useState(false)
+  const [allFriends, setAllFriends] = useState<Friend[]>([])
   const [groupSubject, setGroupSubject] = useState<string | null>(null);
   const flatListRef = useRef<FlatList<any>>(null);
+  const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)
 
+
+  const addMembersToExistingGroup = async() => {
+    
+    const addMembersToGroupResponse = await addGroupMembers(chatMasterUUID ?? "",userUUID,addedMembers,organizationUUID)
+    
+    if(addMembersToGroupResponse === STATUS_CODE.SUCCESS) {
+      onClose()
+    }
+
+  }
+
+  const fetchFriendsList = async() => {
+    
+    setLoading(true)
+    try {
+      const friendsList = await getFriendsList(userUUID)
+      setAllFriends(friendsList.Payload)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchFriendsList()
+  },[])
 
 
   const next = () => {
+
+    if(addedMembers && addingMembers) {
+      addMembersToExistingGroup()
+      return
+    }
 
     if(step === 1) {
         onClose()
@@ -102,6 +132,7 @@ export default function CreateGroup({onClose}: CreateGroupProps) {
         flatListRef?.current?.scrollToIndex({ index: step + 1, animated: true })
     }
   }
+
   const handleGoBack = () => {
     if(step > 0) {
         setStep(step - 1)
@@ -111,37 +142,37 @@ export default function CreateGroup({onClose}: CreateGroupProps) {
 
   const filteredFriends = useMemo(() => {
     if (!memberSearch) return allFriends;
-    return allFriendsList.filter((eachMember) =>
-      eachMember.toLowerCase().includes(memberSearch.toLowerCase())
+    return allFriends.filter((eachMember) =>
+      eachMember.FirstName.toLowerCase().includes(memberSearch.toLowerCase())
     );
-  }, [memberSearch]);
+  }, [memberSearch, allFriends]);
+  
 
-  const memberItem = ({item} : {item: string}) => {
-    return <TouchableOpacity style={styles.memberItemContainer} onPress={() => handleAddMember(item)}>
-                <ProfileHeader noDate name={item} />
-                {addedMembers.includes(item) && <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />}
-            </TouchableOpacity>
-  }
-
-  const handleAddMember = (member: string) => {
-
-    let isMemberAlreadyAdded = addedMembers.some((eachMemeber) => eachMemeber === member)
+  const handleAddMember = (member: Friend) => {
+    
+    let isMemberAlreadyAdded = addedMembers.some((eachMember) => eachMember.memberUUID === member.UserUUID)
     
     if(!isMemberAlreadyAdded) {
-        setAddedMembers((prev) => [...prev, member])
+        setAddedMembers((prev) => [...prev, {memberName: member.FirstName, memberUUID: member.UserUUID}])
         setMemberSearch("")
     } else {
-        handleRemoveMember(member)
+        handleRemoveMember(member.UserUUID)
     }
   }
 
-  const handleRemoveMember = (member: string) => {
+  const memberItem = ({item} : {item: Friend}) => {
 
-    let updatedMembers = addedMembers.filter((eachMember) => eachMember !== member)
-
-    setAddedMembers(updatedMembers)
-
+    return <TouchableOpacity style={styles.memberItemContainer} onPress={() => handleAddMember(item)}>
+                <ProfileHeader noDate ProfilePic={item.ProfilePicURL} name={item.FirstName} />
+                {addedMembers.some((member) => member.memberUUID === item.UserUUID) && <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />}
+            </TouchableOpacity>
   }
+
+
+  const handleRemoveMember = (memberUUID: string) => {
+    setAddedMembers((prev) => prev.filter((eachMember) => eachMember.memberUUID !== memberUUID));
+  };
+
 
   
   const stepOne = () => {
@@ -150,15 +181,15 @@ export default function CreateGroup({onClose}: CreateGroupProps) {
             <Text style={styles.memberTitle}>Members</Text>
             <View style={styles.selectedMembersContainer}>
                 {addedMembers?.map((eachMember) => {
-                    return <CustomButton buttonStyle={styles.selectedMembers} onPress={() => handleRemoveMember(eachMember)} title={eachMember} icon={<X width={10} height={10} />} />
+                    return <CustomButton key={eachMember.memberUUID} buttonStyle={styles.selectedMembers} onPress={() => handleRemoveMember(eachMember.memberUUID)} title={eachMember.memberName} icon={<X width={10} height={10} />} />
                 })}
-                <CustomTextInput inputStyle={styles.memberSearchField} value={memberSearch} placeholder='Search members to add' onChangeText={(e) => setMemberSearch(e)} />
+                <CustomTextInput inputStyle={styles.memberSearchField} placeholderTextColor={colors.LIGHT_TEXT} value={memberSearch} placeholder='Search members to add' onChangeText={(e) => setMemberSearch(e)} />
             </View>
-        
+            {loading && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} />}
             <FlatList
                 contentContainerStyle={styles.friendList}
                 renderItem={memberItem} 
-                keyExtractor={(item) => item}
+                keyExtractor={(item) => item.UserUUID}
                 data={filteredFriends}
             />
         </View>
@@ -250,7 +281,8 @@ const styles = StyleSheet.create({
         borderBottomColor: colors.ACTIVE_ACCENT_COLOR
     },
     memberSearchField : {
-       /*  borderWidth: 2, */
+/*         borderWidth: 2, */
+        flex: 1
  /*        width: 250 */
     },
     memberItemContainer : {

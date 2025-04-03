@@ -180,15 +180,15 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const getAllCategories = async(organizationUUID: string) => {
+  export const getAllCategories = async(organizationUUID: string, startIndex: number) => {
 
     
     const bodyData = {
       "OrganizationUUID": organizationUUID,
       "ParentCategoryUUID": null,
       "SearchExpression": "",
-      "StartIndex": 0,
-      "PageSize": 0,
+      "StartIndex": startIndex,
+      "PageSize": 5,
       "ShowInFilter": true
     }
 
@@ -205,14 +205,14 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const getCategoryItemsForACategory = async(OragnizationUUID: string,CategoryItemUUId: string) => {
-
+  export const getCategoryItemsForACategory = async(OragnizationUUID: string,CategoryItemUUId: string, startIndex?: number) => {
+    
     const bodyData = {
         "OrganizationUUID": OragnizationUUID,
         "ParentCategoryItemUUID": "",
         "CategoryUUID": CategoryItemUUId,
         "SearchExpression": "",
-        "StartIndex": 0,
+        "StartIndex": startIndex ? startIndex : 0,
         "PageSize": 5
     }
 
@@ -555,6 +555,56 @@ export const blockUser = async(chatMemberUserUUID: string, userUUID: string, Blo
   try {
     const blockResponse = await apiClient(ENDPOINTS.SOCIAL.BLOCK_USER, bodyData, {}, "POST")
     return blockResponse.data.Status
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+export const unblockUser = async(chatMemberUserUUID: string, userUUID: string) => {
+  
+  const bodyData = {
+    "UserUUID": userUUID ,
+    "BlockUserUUID": chatMemberUserUUID,
+  }
+
+  try {
+    const unblockResponse = await apiClient(ENDPOINTS.SOCIAL.UNBLOCK_USER, bodyData, {}, "POST")
+    return unblockResponse.data.Status
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+export const addGroupMembers = async(chatMasterUUID: string, UserUUID: string, chatMembers: {memberName: string, memberUUID: string}[], organizationUUID: string) => {
+
+  let chatMemberUserUUIDs = chatMembers.map((eachMember) => eachMember.memberUUID)
+
+  const bodyData = {
+    "chatMasterUUID": chatMasterUUID ,
+    "loggedInUserUUID": UserUUID,
+    "chatMemberUserUUIDs": chatMemberUserUUIDs,
+    "organizationUUID": organizationUUID,
+  }
+
+  try {
+    const addGroupMembersResponse = await apiClient(ENDPOINTS.SOCIAL.ADD_GROUP_MEMBERS, bodyData, {}, "POST")
+    return addGroupMembersResponse.data.Status
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+export const getFriendsList = async(userUUID: string) => {
+
+  try {
+    const getFriendsListResponse = await apiClient(ENDPOINTS.SOCIAL.GET_FRIENDS_LIST, {}, {}, "GET", {userUUID})
+    return getFriendsListResponse.data
 
   } catch(err) {
     console.error(err)

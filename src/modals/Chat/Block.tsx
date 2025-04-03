@@ -11,10 +11,11 @@ import { STATUS_CODE } from '../../api/endpoints'
 
 interface BlockProps {
   onClose: () => void,
-  chatMemberUserUUID: string
+  chatMemberUserUUID: string,
+  noReport?: boolean
 }
 
-export default function Block({onClose, chatMemberUserUUID}: BlockProps) {
+export default function Block({onClose, chatMemberUserUUID, noReport}: BlockProps) {
 
   const [reportToBuildingManager, setReportToBuildingManager] = useState(false)
   const [BlockReason, setBlockReason] = useState("")
@@ -40,14 +41,14 @@ export default function Block({onClose, chatMemberUserUUID}: BlockProps) {
   return (
       loading ? <ActivityIndicator size={"small"} /> : <View style={modalContainer}> 
             <Text style={modalTitle}>Block User</Text>
-            <Text style={modalNotice}>Blocked user will not be able to send messages to you or see your posts on community central. Are you sure you want to block this user?</Text>
+            <Text style={modalNotice}>Blocked users will not be able to send messages to you or see your posts on community central. Are you sure you want to block this user?</Text>
 
-              <TouchableOpacity onPress={() => setReportToBuildingManager((prev) => !prev)} style={styles.checkboxContainer}>
+              {!noReport && <TouchableOpacity onPress={() => setReportToBuildingManager((prev) => !prev)} style={styles.checkboxContainer}>
                   <View style={[squareCheckbox, reportToBuildingManager && {backgroundColor: colors.ACTIVE_ACCENT_COLOR, borderWidth: 0}]}>
                       {reportToBuildingManager && <CheckIcon width={10} height={10} />}
                   </View>
                   <Text style={styles.checkboxOption}>Report last 5 messages to building manager</Text>
-              </TouchableOpacity>
+              </TouchableOpacity>}
 
             {loading ? <ActivityIndicator size={"small"} /> : <View style={modalButtonsContainer}>
               <CustomButton onPress={onClose} buttonStyle={cancelButton} textStyle={{color: colors.ACTIVE_ORANGE}} title={"Cancel"} />

@@ -12,6 +12,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../store/store'
 import LikeButton from "../assets/icons/heart.svg"
 import Comment from "../assets/icons/comment.svg"
+import CommentIcon from "../assets/icons/comment-icon.svg"
+import Share from "../assets/icons/share-icon.svg"
 import { CustomModal } from './CustomModal'
 import PostLikes from '../modals/Post/PostLikes'
 import { toggleLike } from '../store/slices/postLikesSlice'
@@ -151,8 +153,8 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
       
       <View style={styles.postActionButtonsContainer}>
         <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={handlePostLike} icon={<LikeButton fill={reduxHasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={reduxHasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData, createdBy: post.CreatedBy})} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/comment.png")} />} />
-        <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Image style={styles.postActionButtonIcon} source={require("../assets/images/share.png")} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData, createdBy: post.CreatedBy})} icon={<CommentIcon width={20} style={styles.postActionButtonIcon} />} />
+        <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Share width={20} style={styles.postActionButtonIcon} />} />
       </View>
       <View style={styles.postStatsContainer}>
         {reduxPostLikeCount > 0 && <CustomButton textStyle={styles.likeStats} icon={<LikeButton fill={colors.ACTIVE_COLOR} stroke='none' width={15} height={15} />} title={reduxPostLikeCount} onPress={handleGetLikes} buttonStyle={styles.likeStatsContainer} />}
