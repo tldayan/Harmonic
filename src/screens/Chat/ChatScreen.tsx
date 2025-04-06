@@ -1,5 +1,5 @@
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { Animated, FlatList, Image, Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import ProfileHeader from '../../components/ProfileHeader'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
@@ -22,6 +22,11 @@ import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
 import DeleteChat from '../../modals/Chat/DeleteChat'
 import { chatTypes } from '../../utils/constants'
+import Camera from "../../assets/icons/camera.svg"
+import DocumentUpload from "../../assets/icons/document-upload.svg"
+import Location from "../../assets/icons/location.svg"
+import ImageUpload from "../../assets/icons/upload-image.svg"
+
 
 const chatActions = [
   { label: 'User Info', value: '1' },
@@ -86,14 +91,17 @@ export default function ChatScreen() {
     
   const [chats, setChats] = useState<ChatMessage[]>([]) 
   const [message, setMessage] = useState("")
-  const [userBlocked, setUserBlocked] = useState(true)
+  const [userBlocked, setUserBlocked] = useState(false)
   const [chatAction, setChatAction] = useState<string | null>(null);
   const [viewingAttachment, setViewingAttachment] = useState(false)
+  const [showActions, setShowActions] = useState(false)
   const [attachment, setAttachment] = useState<string | null>(null)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
   const route = useRoute<ChatsScreenRouteProp>()
   const {userUUID, chatMasterUUID, chatProfilePictureURL, chatMasterName, chatType, chatMemberUserUUID} = route.params || {}
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+  const paddingAnim = useRef(new Animated.Value(0)).current;
+
   console.log(chatMasterUUID)
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
 
@@ -177,7 +185,32 @@ export default function ChatScreen() {
     }
   };
   
+  useEffect(() => {
+    let toValue = 0;
+  
+    if (isKeyboardVisible) {
+      toValue = 0;
+    } else if (showActions) {
+      toValue = 50;
+    }
+  
+    Animated.spring(paddingAnim, {
+      toValue,            
+      friction: 5,         
+      tension: 50, 
+      useNativeDriver: false,
+    }).start();
+  }, [isKeyboardVisible, showActions]);
+  
 
+  const handleAddAttachments = () => {
+
+    if(isKeyboardVisible) {
+      Keyboard.dismiss()
+    }
+
+    setShowActions((prev) => !prev)
+  }
 
 
   return (
@@ -186,8 +219,6 @@ export default function ChatScreen() {
         <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack online noDate name={chatMasterName} showMemberActions  />
         <DropdownComponent chatAction={chatAction} setChatAction={setChatAction} />
       </View>
-      
-
 
       <FlatList
         style={{marginBottom: 70}}
@@ -198,14 +229,52 @@ export default function ChatScreen() {
         showsVerticalScrollIndicator={false}
       />
 
+    <View style={[styles.mainMessageFieldContainer, { padding: isKeyboardVisible ? 0 : 20 }]}>
+      {userBlocked ? (
+        <Text style={styles.blockedUserNotice}>
+          Can't send a message to blocked users
+        </Text>
+      ) : (
+        <>
+        <View style={styles.messageFieldContainer}>
+          <CustomButton
+            onPress={handleAddAttachments}
+            icon={<PaperClip width={20} height={20} />}
+          />
+          <CustomTextInput
+            placeholder="Write a message"
+            placeholderTextColor={colors.LIGHT_TEXT_COLOR}
+            inputStyle={styles.messageField}
+            value={message}
+            onChangeText={e => setMessage(e)}
+          />
+          <CustomButton
+            onPress={() => {}}
+            icon={
+              <SendIcon
+                width={30}
+                height={30}
+                strokeWidth={1}
+                fill={message ? colors.ACTIVE_ORANGE : 'grey'}
+                stroke={message ? 'white' : 'white'}
+              />
+            }
+          />
+    </View>
+    
+    <Animated.View style={[styles.mainActionsContainer, {height: paddingAnim}]}>
+      {showActions && 
+      <>
+        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<ImageUpload width={23} height={23} />} title={""} />
+        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<Camera width={23} height={23} />} title={""} />
+        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<DocumentUpload width={23} height={23} />} title={""} />
+        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<Location width={23} height={23} />} title={""} />
+      </>}
+    </Animated.View>
+    </>
+  )}
+</View>
 
-     <View style={[styles.messageFieldContainer, {paddingBottom: isKeyboardVisible ? 0 : 20}]}>
-        {userBlocked ? <Text style={styles.blockedUserNotice}>Can't send a message to blocked users</Text> : <>
-          <CustomButton onPress={() => {}} icon={<PaperClip width={20} height={20} />} />
-          <CustomTextInput placeholder='Write a message' placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={styles.messageField} value={message} onChangeText={(e) => setMessage(e)} />
-          <CustomButton onPress={() => {}}icon={<SendIcon width={30} height={30} strokeWidth={1} fill={message ? colors.ACTIVE_ORANGE : "grey"} stroke={message ? "white" : "white"} />} /> 
-        </>}
-     </View>
 
     <CustomModal isOpen={viewingAttachment} onClose={() => setViewingAttachment(false)}>
       <AttachmentCarousel Attachment={attachment} onClose={() => setViewingAttachment(false)} />
@@ -254,19 +323,28 @@ const styles = StyleSheet.create({
         paddingVertical: 10
 /*         borderWidth: 2, */
       },
-      messageFieldContainer: {
+      mainMessageFieldContainer: {
         alignItems: "center",
-        flexDirection: "row",
+        flexDirection: "column",
         gap: 10,
         position: "absolute",
         bottom: 0,
         left: 0,
         right: 0,
         backgroundColor: "white",
-        paddingHorizontal: 15,
+        paddingHorizontal: 10,
         paddingTop:5,
         borderTopWidth: 1,
         borderTopColor: colors.BORDER_COLOR,
+      },
+      messageFieldContainer: {
+   /*      borderWidth: 1, */
+        width: "100%",
+        flex: 1,
+        marginBottom: "auto",
+        flexDirection: "row",
+        alignItems:"center",
+        gap: 5
       },
     messageField: {
         borderRadius: 50,
@@ -357,5 +435,19 @@ const styles = StyleSheet.create({
         padding: 15,
         color: colors.LIGHT_TEXT,
         width: "100%"
+      },
+      mainAttachmentsContainer : {
+        borderWidth: 1,
+        borderColor : colors.LIGHT_COLOR,
+        padding: 12,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center"
+      },
+      mainActionsContainer : {
+        gap: 20,
+        flexDirection: "row"
       }
+
+
 })

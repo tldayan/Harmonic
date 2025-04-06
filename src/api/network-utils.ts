@@ -554,6 +554,7 @@ export const blockUser = async(chatMemberUserUUID: string, userUUID: string, Blo
 
   try {
     const blockResponse = await apiClient(ENDPOINTS.SOCIAL.BLOCK_USER, bodyData, {}, "POST")
+    console.log(blockResponse)
     return blockResponse.data.Status
 
   } catch(err) {

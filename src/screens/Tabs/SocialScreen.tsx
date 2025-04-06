@@ -165,7 +165,7 @@ export default function SocialScreen() {
             ListFooterComponent={loading ? <ActivityIndicator size={"small"} /> : null}
         />
 
-        {filteredMessages.length === 0 && <View style={styles.noResultsContainer}>
+        {(filteredMessages.length === 0 && filtering.categories.length !== 0) && <View style={styles.noResultsContainer}>
             <Text style={styles.noResults}>No posts found for selected filters</Text>
         </View>}
 
