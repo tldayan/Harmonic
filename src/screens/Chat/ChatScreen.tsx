@@ -5,10 +5,8 @@ import { CustomTextInput } from '../../components/CustomTextInput'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
-import { useKeyboardVisibility } from '../../utils/helpers'
+import { pickMedia, useKeyboardVisibility } from '../../utils/helpers'
 import PaperClip from "../../assets/icons/paper-clip.svg"
-import { Dropdown } from 'react-native-element-dropdown'
-import ThreeDotsOrange from "../../assets/icons/dots-vertical-orange.svg"
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
 import { getGroupMessages, getMessages } from '../../api/network-utils'
@@ -16,7 +14,7 @@ import { profilePic } from '../../styles/global-styles'
 import { formatDate } from '../../utils/helpers'
 import { CustomModal } from '../../components/CustomModal'
 import AttachmentCarousel from '../../modals/AttachmentCarousel'
-import { NativeStackNavigationProp, NativeStackNavigatorProps } from '@react-navigation/native-stack'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import MuteNotifications from '../../modals/Chat/MuteNotifications'
 import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
@@ -26,64 +24,10 @@ import Camera from "../../assets/icons/camera.svg"
 import DocumentUpload from "../../assets/icons/document-upload.svg"
 import Location from "../../assets/icons/location.svg"
 import ImageUpload from "../../assets/icons/upload-image.svg"
+import { ChatActionDropdownComponent, chatActions } from '../../dropdowns/ChatActionDropdown'
+import { Asset } from 'react-native-image-picker'
+import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
 
-
-const chatActions = [
-  { label: 'User Info', value: '1' },
-  { label: 'Search messages', value: '2' },
-  { label: 'Mute notifications', value: '3' },
-  { label: 'Add to favorites', value: '4' },
-  { label: 'Close chat', value: '5' },
-  { label: 'Report', value: '6' },
-  { label: 'Block', value: '7' },
-  { label: 'Clear chat', value: '8' },
-  { label: 'Delete chat', value: '9' },
-];
-
-interface DropdownComponentProps {
-  chatAction: string | null
-  setChatAction: React.Dispatch<React.SetStateAction<string | null>>
-}
-
-
-
-const DropdownComponent = ({chatAction, setChatAction} : DropdownComponentProps) => {
-
-  return (
-    <Dropdown
-      style={styles.dropdown}
-      data={chatActions}
-      mode= "auto"
-      placeholder='Group Subject'
-      placeholderStyle={{color: "black", fontWeight: 300}}
-      itemTextStyle={{color: "black", textAlign :"right"}}
-      containerStyle={{
-        borderRadius: 5,
-        width: "50%",
-        marginHorizontal: "-50%",
-        right: 0,
-        shadowColor: "#000", 
-        shadowOpacity: 0.1, 
-        shadowRadius: 5, 
-        shadowOffset: { width: 0, height: 4 }, 
-        elevation: 5,
-      }}
-      onFocus={() => setChatAction(null)}
-      maxHeight={300}
-      labelField="label"
-      valueField="value"
-      value={chatAction}
-      onChange={item => {
-        setTimeout(() => {
-          setChatAction(item.value);
-        }, 0);
-      }}
-        renderRightIcon={() => (
-        <View style={styles.iconStyle}><ThreeDotsOrange width={18} height={18} /></View>
-      )}
-    />
-  );
-};
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 
@@ -93,16 +37,17 @@ export default function ChatScreen() {
   const [message, setMessage] = useState("")
   const [userBlocked, setUserBlocked] = useState(false)
   const [chatAction, setChatAction] = useState<string | null>(null);
-  const [viewingAttachment, setViewingAttachment] = useState(false)
+  const [chatAttachments, setChatAttachments] = useState<Asset[]>([])
+  const [viewingAttachments, setViewingAttachments] = useState(false)
   const [showActions, setShowActions] = useState(false)
+  const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
   const [attachment, setAttachment] = useState<string | null>(null)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
   const route = useRoute<ChatsScreenRouteProp>()
   const {userUUID, chatMasterUUID, chatProfilePictureURL, chatMasterName, chatType, chatMemberUserUUID} = route.params || {}
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const paddingAnim = useRef(new Animated.Value(0)).current;
-
-  console.log(chatMasterUUID)
+  
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
 
 
@@ -132,7 +77,6 @@ export default function ChatScreen() {
 
     }
   
-
     fetchChats()
     
     if(userBlocked) {
@@ -145,6 +89,10 @@ export default function ChatScreen() {
 
   }, [])
 
+  const addMedia = async() => {
+    const assets = await pickMedia()
+    setChatAttachments((prev) => [...prev, ...assets ?? []])
+  }
 
   const renderMessage = ({ item }: { item: ChatMessage }) => {
 
@@ -162,7 +110,7 @@ export default function ChatScreen() {
             <Text style={styles.username}>{chatMasterName}</Text>
             <TouchableOpacity style={[styles.userGeneratedMessage, item.Attachment ? {padding : 5} : null]}>
               {item.Attachment ? (
-                <TouchableOpacity onPress={() => {setAttachment(item.Attachment);setViewingAttachment(true)}}>
+                <TouchableOpacity onPress={() => {setAttachment(item.Attachment);setViewingAttachments(true)}}>
                   <Image
                     style={styles.attachmentImage}
                     source={{ uri: item.Attachment }}
@@ -202,6 +150,19 @@ export default function ChatScreen() {
     }).start();
   }, [isKeyboardVisible, showActions]);
   
+  const AddAdditionalMediaButton = () => {
+    if(chatAttachments.length) {
+        return (
+      <CustomButton buttonStyle={styles.addImage} onPress={addMedia} icon={<Image source={require("../../assets/images/plus.png")} />} /> 
+    )
+    }
+  }
+
+  const deleteAttachment = (imageFilename: string) => {
+    let updatedSelectedImages = chatAttachments.filter((eachImage) => eachImage.fileName !== imageFilename)
+    setChatAttachments(updatedSelectedImages)
+  }
+
 
   const handleAddAttachments = () => {
 
@@ -217,7 +178,7 @@ export default function ChatScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack online noDate name={chatMasterName} showMemberActions  />
-        <DropdownComponent chatAction={chatAction} setChatAction={setChatAction} />
+        <ChatActionDropdownComponent chatAction={chatAction} setChatAction={setChatAction} />
       </View>
 
       <FlatList
@@ -230,6 +191,19 @@ export default function ChatScreen() {
       />
 
     <View style={[styles.mainMessageFieldContainer, { padding: isKeyboardVisible ? 0 : 20 }]}>
+      
+      {chatAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={chatAttachments} renderItem={({ item, index }) => (
+        <Attachmentitem
+            item={item}
+            index={index}
+            deleteAttachment={deleteAttachment}
+            setViewingAttachments={setViewingAttachments}
+            setInitialAttachmentIndex={setInitialAttachmentIndex}
+        />
+        )}
+        keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddAdditionalMediaButton />} />}
+
+
       {userBlocked ? (
         <Text style={styles.blockedUserNotice}>
           Can't send a message to blocked users
@@ -255,17 +229,17 @@ export default function ChatScreen() {
                 width={30}
                 height={30}
                 strokeWidth={1}
-                fill={message ? colors.ACTIVE_ORANGE : 'grey'}
-                stroke={message ? 'white' : 'white'}
+                fill={(message || chatAttachments.length) ? colors.ACTIVE_ORANGE : 'grey'}
+                stroke={(message || chatAttachments.length) ? 'white' : 'white'}
               />
             }
           />
     </View>
-    
+
     <Animated.View style={[styles.mainActionsContainer, {height: paddingAnim}]}>
       {showActions && 
       <>
-        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<ImageUpload width={23} height={23} />} title={""} />
+        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={addMedia} icon={<ImageUpload width={23} height={23} />} title={""} />
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<Camera width={23} height={23} />} title={""} />
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<DocumentUpload width={23} height={23} />} title={""} />
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<Location width={23} height={23} />} title={""} />
@@ -275,9 +249,12 @@ export default function ChatScreen() {
   )}
 </View>
 
+    <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false)}}>
+      <AttachmentCarousel initialIndex={initialAttachmentIndex} Assets={chatAttachments} onClose={() => {setViewingAttachments(false)}} />
+    </CustomModal> 
 
-    <CustomModal isOpen={viewingAttachment} onClose={() => setViewingAttachment(false)}>
-      <AttachmentCarousel Attachment={attachment} onClose={() => setViewingAttachment(false)} />
+    <CustomModal isOpen={viewingAttachments} onClose={() => setViewingAttachments(false)}>
+      <AttachmentCarousel Attachment={attachment} onClose={() => setViewingAttachments(false)} />
     </CustomModal>
 
     <CustomModal isOpen={chatAction === "3"} onClose={() => setChatAction(null)}>
@@ -367,7 +344,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center"
       },
-
+      mainSelectedImagesList : {
+        borderColor: "aqua",
+        flexGrow: 0, height: 'auto'
+      },
+      selectedImagesList : {
+        marginTop: 10,
+        paddingBottom: 10,
+        gap: 10       
+      },
 
       systemGeneratedMessage: {
         padding: 5,
@@ -447,7 +432,17 @@ const styles = StyleSheet.create({
       mainActionsContainer : {
         gap: 20,
         flexDirection: "row"
-      }
+      },
+      addImage: {
+        borderColor: colors.BORDER_COLOR,
+        flexDirection : "row",
+        borderRadius: 5,
+        backgroundColor: colors.LIGHT_COLOR,
+        alignItems: "center",
+        justifyContent: "center",
+        width: 150,
+        height: 150
+    },
 
 
 })

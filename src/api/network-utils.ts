@@ -371,13 +371,13 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     let bodyData = {
       "MessageBoardUUID": MessageBoardUUID, //-- Non-nullable
       "LoggedInUserUUID": LoggedInUserUUID, //- For UserUUID, CreatedBy, ModifiedBy
-      "IsDeleted" : LikedValue, //-- Liked = 0, Removed like = 1
+  /*     "IsDeleted" : LikedValue, //-- Liked = 0, Removed like = 1 */
     }
 
     try {
 
       const messageResponse = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE_LIKE, bodyData, {}, "POST")
-
+      console.log(messageResponse)
       return messageResponse.data.Payload
 
     } catch(err) {

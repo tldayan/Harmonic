@@ -7,59 +7,13 @@ import SearchIcon from "../../assets/icons/search.svg"
 import { getChatsList } from '../../api/network-utils';
 import { RootState } from '../../store/store';
 import { useSelector } from 'react-redux';
-import ThreeDots from "../../assets/icons/three-dots-vertical.svg"
-import {Dropdown} from "react-native-element-dropdown"
 import { CustomModal } from '../../components/CustomModal';
 import CreateGroup from '../../modals/Chat/CreateGroup';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation-types';
+import { ChatListDropdownComponent } from '../../dropdowns/ChatListDropdown';
 
-const actions = [
-  { label: 'Create Group', value: '1' },
-  { label: 'Message Store', value: '2' },
-];
-
-interface DropdownComponentProps {
-  action: string | null
-  setAction: React.Dispatch<React.SetStateAction<string | null>>
-}
-
-const DropdownComponent = ({action,setAction}: DropdownComponentProps) => {
-
-  return (
-    <Dropdown
-      style={styles.dropdown}
-      data={actions}
-      mode= "auto"
-      placeholder=""
-      selectedTextStyle={{display :"none"}}
-      itemTextStyle={{color: "black"}}
-      containerStyle={{
-        borderRadius: 5,
-        width: "90%",
-        marginHorizontal: "5%",
-        left: "auto",
-        shadowColor: "#000", 
-        shadowOpacity: 0.1, 
-        shadowRadius: 5, 
-        shadowOffset: { width: 0, height: 4 }, 
-        elevation: 5,
-      }}
-      onFocus={() => setAction(null)}
-      maxHeight={300}
-      labelField="label"
-      valueField="value"
-      value={action}
-      onChange={item => {
-        setAction(item.value);
-      }}
-      renderRightIcon={() => (
-        <View style={styles.iconStyle}><ThreeDots width={18} height={18} /></View>
-      )}
-    />
-  );
-};
 
 const ChatsList = () => {
   const [chats, setChats] = useState<ChatEntity[]>([])
@@ -114,7 +68,7 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
 
           <View style={styles.mainSearchFieldContainer}>
             <CustomTextInput value={chatSearch} leftIcon={<SearchIcon opacity={0.5} />} mainInputStyle={styles.searchFieldContainer} inputStyle={styles.searchField} onChangeText={(e) => setChatSearch(e)} placeholder='Search messages or contact' />
-          <DropdownComponent action={action} setAction={setAction} />
+            <ChatListDropdownComponent action={action} setAction={setAction} />
           </View>
    
     

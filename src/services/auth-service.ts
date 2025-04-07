@@ -1,11 +1,13 @@
-import { firebase } from "@react-native-firebase/auth"
+import { firebase, getAuth } from "@react-native-firebase/auth"
 import { GoogleSignin } from "@react-native-google-signin/google-signin"
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as Keychain from 'react-native-keychain';
 import { deleteDataMMKV } from "./storage-service";
+import { getApp } from "@react-native-firebase/app";
 
 
 
+export const auth = getAuth(getApp());
 
 //HANDLE LOGIN BY EMAIL & PASSWORD
 export const handleLogin = async(email:string, password:string) => {
@@ -19,8 +21,8 @@ export const handleLogin = async(email:string, password:string) => {
   }
 
     try {
-
-      const user = await firebase.auth().signInWithEmailAndPassword(email,password)
+      
+      const user = await auth.signInWithEmailAndPassword(email,password)
 
     } catch (error: any) {
       let errorResponse = { email: "", password: "" };
@@ -61,7 +63,7 @@ export const handleLogin = async(email:string, password:string) => {
       }
  /*      console.log(idToken) */
       const googleCredential = firebase.auth.GoogleAuthProvider.credential(idToken);
-      return firebase.auth().signInWithCredential(googleCredential);
+      return auth.signInWithCredential(googleCredential);
 
     } catch (error) {
       console.log(error)
@@ -79,7 +81,7 @@ export const handleLogin = async(email:string, password:string) => {
         await GoogleSignin.revokeAccess() 
       }
       
-      await firebase.auth().signOut()
+      await auth.signOut()
       
       deleteDataMMKV("UserUUID")
       deleteDataMMKV("OrganizationUUID")
@@ -108,7 +110,7 @@ export const handleLogin = async(email:string, password:string) => {
 
     try {
 
-      const signinResult = await firebase.auth().signInWithRedirect(provider);
+      const signinResult = await auth.signInWithRedirect(provider);
 
     /*   console.log(signinResult.user.getIdToken()) */
 
@@ -133,7 +135,7 @@ export const handleLogin = async(email:string, password:string) => {
     const joinedNumber = `+${countryCode}${phoneNumber}`;
 
   
-    const confirmation = await firebase.auth().signInWithPhoneNumber(joinedNumber);
+    const confirmation = await auth.signInWithPhoneNumber(joinedNumber);
     console.log(confirmation)
     return confirmation;
   }
@@ -161,7 +163,7 @@ export const handleLogin = async(email:string, password:string) => {
         throw new Error("Email is required for password reset.");
       }
 
-     await firebase.auth().sendPasswordResetEmail(email);
+     await auth.sendPasswordResetEmail(email);
 
     } catch (error: any) {
       throw new Error(error.message);

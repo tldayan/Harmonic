@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { PasswordCheck } from "../types/password.types";
 import Toast from "react-native-toast-message"
 import { Keyboard } from "react-native";
+import { launchImageLibrary } from "react-native-image-picker";
 
   
 //GET RECTANGLE COLOR FOR CREATE PASSWORD VALIDATION
@@ -110,6 +111,29 @@ export function timeAgo(dateString: string): string {
     return `${diffInYears}y`;
   }
 }
+
+
+export const pickMedia = async () => {
+  try {
+    const result = await launchImageLibrary({
+      mediaType: "mixed",
+      selectionLimit: 0,
+      quality: 1,
+    });
+
+    if (result.didCancel || result.errorCode) {
+      console.log("Image Pick Error:", result.errorMessage || "Cancelled");
+      return [];
+    }
+
+    return result.assets ?? [];
+  } catch (error) {
+    console.log("Unexpected error:", error);
+    return [];
+  }
+};
+
+
 
 
 type ApiFunction<T extends unknown[]> = (...args: T) => Promise<any>;

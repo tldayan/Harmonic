@@ -8,18 +8,19 @@ import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
 import { shadowStyles } from '../../styles/global-styles'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
-import { Asset, launchImageLibrary } from 'react-native-image-picker'
+import { Asset } from 'react-native-image-picker'
 import { AttachmentData, CategoryProps, CreatingPostState, PostItemProps } from '../../types/post-types'
 import { CustomModal } from '../../components/CustomModal'
 import Poll from './CreatePoll'
 import { uploadMedia } from './postUtils'
-import { deleteMBMessageAttachment, getMBMessageDetails, saveMBMessage } from '../../api/network-utils'
+import { deleteMBMessageAttachment, saveMBMessage } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import Filters from '../Filters'
 import { STATUS_CODE } from '../../api/endpoints'
 import AttachmentCarousel from '../AttachmentCarousel'
-import Video from 'react-native-video'
+import { pickMedia } from '../../utils/helpers'
+import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
 
 interface CreatePostProps {
     onClose: () => void
@@ -77,29 +78,18 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
         
 
         
-        const handleAddMedia = async() => {
-            setLoading(true)
+        const handleAddMedia = async () => {
+            setLoading(true);
             try {
-                const result = await launchImageLibrary({
-                    mediaType: "mixed",
-                    selectionLimit: 0,
-                    quality: 1
-                });
-        
-                if (result.didCancel) {
-                    console.log("User Did not allow permissions");
-                } else if (result.errorCode) {
-                    console.log(`Image Pick Error: ${result.errorMessage}`);
-                } else {
-                    setSelectedAttachments((prev) => ([...prev, ...result.assets ?? []]));
-                    console.log(result.assets)
-                }
+                const assets = await pickMedia();
+                setSelectedAttachments((prev) => [...prev, ...assets ?? []]); 
             } catch (error) {
-                console.log("Unexpected error:", error);
+                console.error("Error selecting media:", error);
             } finally {
-                setLoading(false)
+                setLoading(false); 
             }
         };
+        
 
         const deleteAttachment = (imageFilename: string) => {
             let updatedSelectedImages = selectedAttachments.filter((eachImage) => eachImage.fileName !== imageFilename)
@@ -119,24 +109,6 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
             }
         }
         
-
-    const attachmentitem = ({item,index} : {item : Asset, index: number}) => {
-        return (
-            <View style={styles.imageContainer}>
-                <CustomButton onPress={() => deleteAttachment(item.fileName || "")} buttonStyle={styles.deleteImage} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
-                <CustomButton buttonStyle={styles.contentButtonContainer} onPress={() => {setViewingAttachments(true); setInitialAttachmentIndex(index)}} icon={item.type?.includes("video") ? 
-                    <Video 
-                        paused 
-                        renderLoader={<ActivityIndicator style={styles.loader} size={'small'} color={"black"} />} 
-                        style={styles.content}
-                        controls={false}
-                        source={{ uri: item.uri }}
-                    /> 
-                    : 
-                    <Image style={styles.content} source={{uri: item.uri ? item.uri : undefined}} />} />
-            </View>
-        )
-    }
 
     const editingAttachmentImage = ({item} : {item : AttachmentData}) => {
 
@@ -196,14 +168,23 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
             <View style={styles.mainUserDetailsContainer}>
                 <View style={styles.mainProfileDetialsContainer}>
                     <Image source={{ uri: user?.photoURL ?? "https://i.pravatar.cc/150" }}  style={styles.profilePicture} />
-                    <Text style={styles.name}>{user?.displayName}</Text>
+                    <Text style={styles.name}>{user?.displayName ? user.displayName : user?.email}</Text>
                 </View>
             </View>
 
             <CustomTextInput scrollEnabled={true} ref={inputRef} multiline placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={[styles.postField, shadowStyles]} value={postText} onChangeText={(e) => {setPostText(e)}} placeholder={`What's on your mind, ${user?.displayName}?`}/>
             
 
-            {selectedAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedAttachments} renderItem={attachmentitem} keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddAdditionalMediaButton />} />}
+            {selectedAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedAttachments} renderItem={({ item, index }) => (
+                <Attachmentitem
+                    item={item}
+                    index={index}
+                    deleteAttachment={deleteAttachment}
+                    setViewingAttachments={setViewingAttachments}
+                    setInitialAttachmentIndex={setInitialAttachmentIndex}
+                />
+                )}
+                keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddAdditionalMediaButton />} />}
             {editingAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={editingAttachments} renderItem={editingAttachmentImage} keyExtractor={(item) => String(item.AttachmentUUID)} ListFooterComponent={<AddAdditionalMediaButton />} />}
            
 

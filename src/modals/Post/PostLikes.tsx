@@ -17,11 +17,18 @@ export default function PostLikes({onClose,MessageBoardUUID}: PostLikesModalProp
     const [likes, setLikes] = useState<PostLikeProps[]>([])
     const [startIndex, setStartIndex] = useState(0)
     const [loading, setLoading] = useState(false)
+    const [hasMore, setHasMore] = useState(true)
 
     const fetchListOfLikes = async() => {
+
+        if(!hasMore || loading) return 
+
         setLoading(true)
         try {
             const postLikes = await getListOfLikes(MessageBoardUUID, startIndex)
+            if(postLikes.length === 0 || postLikes.length < 10) {
+                setHasMore(false)
+            }
             setLikes((prev) => ([...prev, ...postLikes]));
             setStartIndex((prev) => prev + 10)
             console.log(postLikes)
@@ -32,15 +39,16 @@ export default function PostLikes({onClose,MessageBoardUUID}: PostLikesModalProp
         }
     }
 
+    
+    useEffect(() => {
+        fetchListOfLikes()
+    }, [])
+
     const onEndReached = () => {
         if(!loading) {
             fetchListOfLikes()
         }
     }
-
-    useEffect(() => {
-        fetchListOfLikes()
-    }, [])
 
     const ItemSeperator = () => {
         return <View style={styles.seperator} />
@@ -49,7 +57,7 @@ export default function PostLikes({onClose,MessageBoardUUID}: PostLikesModalProp
   return (
     <SafeAreaView style={styles.container}>
         <ModalsHeader onClose={onClose} title='Post Likes' />
-
+        {(!likes.length && !hasMore) && <Text style={styles.noLikes}>This post has no likes yet!</Text>}
         <FlatList 
             style={styles.innerContainer}
             contentContainerStyle={styles.likesList}
@@ -60,8 +68,7 @@ export default function PostLikes({onClose,MessageBoardUUID}: PostLikesModalProp
             renderItem={({item}) => <ProfileHeader showPostActions={false} postLikes={item} />}
             keyExtractor={(item) => item.MessageBoardLikeUUID}
             ListFooterComponent={loading ? <ActivityIndicator size={'small'} /> : null}
-        />  
-      
+        /> 
     </SafeAreaView>
   )
 }
@@ -84,5 +91,11 @@ const styles = StyleSheet.create({
         height: 1,
         marginVertical: 10,
         backgroundColor: colors.LIGHT_COLOR
+    },
+    noLikes: {
+        textAlign: "center",
+        marginTop: "50%",
+        fontSize: 16,
+        color: colors.LIGHT_TEXT
     }
 })

@@ -122,12 +122,10 @@ export default function SocialScreen() {
                 <View style={styles.container}>
                     <View style={styles.createPostContainer}>
                         <View style={styles.postInputContainer}>
-                            {user?.photoURL && (
-                                <Image 
-                                    source={{ uri: user.photoURL }} 
-                                    style={styles.profilePicture} 
-                                />
-                            )}
+                            <Image 
+                              source={{ uri: user?.photoURL ? user?.photoURL : "https://i.pravatar.cc/150" }} 
+                              style={styles.profilePicture} 
+                            />
                             <CustomButton 
                                 buttonStyle={styles.postInputButton} 
                                 textStyle={styles.placeholderText} 

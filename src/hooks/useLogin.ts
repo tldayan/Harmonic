@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { firebase, FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { handleGoogleLogin, handleLogin, handleMicrosoftLogin, signInWithPhoneNumber, verifyOtpCode } from "../services/auth-service";
+import { auth, handleGoogleLogin, handleLogin, handleMicrosoftLogin, signInWithPhoneNumber, verifyOtpCode } from "../services/auth-service";
 import { ErrorMessageType } from "../types/text-input.types";
 
 export const useLogin = () => {
@@ -67,7 +67,7 @@ const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | nu
 
       try {
         setLoading(true)
-        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
   
         console.log("User created:", userCredential.user);
 
