@@ -13,10 +13,11 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation-types';
 import { ChatListDropdownComponent } from '../../dropdowns/ChatListDropdown';
-
+import Close from "../../assets/icons/close-dark.svg"
 
 const ChatsList = () => {
   const [chats, setChats] = useState<ChatEntity[]>([])
+  const [filteredChats, setFilteredChats] = useState<ChatEntity[]>([])
   const [chatSearch, setChatSearch] = useState("")
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
   const [loading, setLoading] = useState(false)
@@ -43,6 +44,15 @@ const ChatsList = () => {
 
   }, [])
 
+
+  useEffect(() => {
+    const filtered = chats.filter((eachChat) =>
+      eachChat.ChatMasterName.toLowerCase().includes(chatSearch.toLowerCase())
+    );
+    setFilteredChats(filtered);
+  }, [chatSearch, chats]);
+  
+
 const renderChatItem = ({ item }: { item: ChatEntity }) => {
   return (
     <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate("ChatScreen", {userUUID: userUUID , chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})}>
@@ -67,7 +77,7 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
         <>
 
           <View style={styles.mainSearchFieldContainer}>
-            <CustomTextInput value={chatSearch} leftIcon={<SearchIcon opacity={0.5} />} mainInputStyle={styles.searchFieldContainer} inputStyle={styles.searchField} onChangeText={(e) => setChatSearch(e)} placeholder='Search messages or contact' />
+            <CustomTextInput value={chatSearch} rightIcon={chatSearch && <CustomButton onPress={() => setChatSearch("")} icon={<Close opacity={0.8} width={18} height={18} />} /> } leftIcon={<SearchIcon width={20} height={20} opacity={0.5} />} mainInputStyle={styles.searchFieldContainer} inputStyle={styles.searchField} onChangeText={(e) => setChatSearch(e)} placeholder='Search messages or contact' />
             <ChatListDropdownComponent action={action} setAction={setAction} />
           </View>
    
@@ -86,7 +96,7 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
           </>
         }
         contentContainerStyle={styles.chatList} 
-        data={chats}
+        data={filteredChats.length ? filteredChats : chats}
         renderItem={renderChatItem} 
         keyExtractor={(item) => item.ChatMasterUUID} 
       />
@@ -185,7 +195,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.BACKGROUND_COLOR,
     flex: 1,
     borderRadius: 50,
-    paddingLeft: 50
+    paddingLeft: 40
   },
 
 

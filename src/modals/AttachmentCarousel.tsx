@@ -20,8 +20,7 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
     const [loading, setLoading] = useState(true)
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null)
     const flatListRef = useRef<FlatList>(null)
-    console.log(Assets)
-    console.log(AttachmentData)
+    console.log(Attachment)
     const onViewableItemsChanged = ({viewableItems}: {viewableItems: any[]}) => {
         if(viewableItems.length > 0) {
             setVisibleIndex(viewableItems[0].index)

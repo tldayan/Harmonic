@@ -7,17 +7,18 @@ import Video from "react-native-video";
 interface AttachmentItemProps {
     item: Asset;
     index: number;
+    setAttachment: (attachment: string | null) => void
     deleteAttachment: (fileName: string) => void;
     setViewingAttachments: (value: boolean) => void;
     setInitialAttachmentIndex: (index: number) => void;
   }
 
 
-export const Attachmentitem = ({item,index,deleteAttachment, setViewingAttachments, setInitialAttachmentIndex} : AttachmentItemProps) => {
+export const Attachmentitem = ({item,index,deleteAttachment, setViewingAttachments, setInitialAttachmentIndex, setAttachment} : AttachmentItemProps) => {
     return (
         <View style={styles.imageContainer}>
             <CustomButton onPress={() => deleteAttachment(item.fileName || "")} buttonStyle={styles.deleteImage} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
-            <CustomButton buttonStyle={styles.contentButtonContainer} onPress={() => {setViewingAttachments(true); setInitialAttachmentIndex(index)}} icon={item.type?.includes("video") ? 
+            <CustomButton buttonStyle={styles.contentButtonContainer} onPress={() => {setAttachment(null);setViewingAttachments(true); setInitialAttachmentIndex(index)}} icon={item.type?.includes("video") ? 
                 <Video 
                     paused 
                     renderLoader={<ActivityIndicator style={styles.loader} size={'small'} color={"black"} />} 
