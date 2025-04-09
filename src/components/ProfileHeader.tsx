@@ -22,7 +22,7 @@ interface ProfileHeaderProps {
     goBack?: boolean
     showStatus?: boolean,
     onPress?: () => void
-    fetchLatestMessages?: (getLatest?: boolean) => void
+    fetchLatestMessages?: (messageBoardUUID?: string) => void
 }
 
 export default function ProfileHeader({name, fetchLatestMessages, onPress , goBack, showStatus, online = false,post,postLikes,showMemberActions, showPostActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {

@@ -1,4 +1,4 @@
-import { Animated, FlatList, Image, Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Animated, FlatList, Image, Keyboard, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import ProfileHeader from '../../components/ProfileHeader'
 import { CustomTextInput } from '../../components/CustomTextInput'
@@ -29,6 +29,7 @@ import { Asset } from 'react-native-image-picker'
 import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
 import { DocumentPickerResponse, pick } from '@react-native-documents/picker'
 import { DocumentItem } from '../../components/FlatlistItems/DocumentItem'
+import { getCurrentLocation } from '../../utils/ChatScreen/Location'
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 
@@ -38,6 +39,7 @@ export default function ChatScreen() {
   const [message, setMessage] = useState("")
   const [userBlocked, setUserBlocked] = useState(false)
   const [chatAction, setChatAction] = useState<string | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false)
   const [chatAttachments, setChatAttachments] = useState<Asset[]>([])
   const [chatDocuments, setChatDocuments] = useState<DocumentPickerResponse[]>([])
   const [viewingAttachments, setViewingAttachments] = useState(false)
@@ -55,12 +57,11 @@ export default function ChatScreen() {
 
 
   useEffect(() => {
-
     if(chatAction === "1") {
       navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })
     }
-
   }, [chatAction])
+  
 
   useEffect(() => {
 
@@ -91,6 +92,9 @@ export default function ChatScreen() {
 
   }, [])
 
+
+
+
   const addMedia = async() => {
     try {
       const assets = await pickMedia()
@@ -114,6 +118,34 @@ export default function ChatScreen() {
     } finally {
       setShowActions(false)
     }
+  }
+
+  const getLocation = async() => {
+    setLocationLoading(true)
+    try {
+      const location  = await getCurrentLocation()
+      console.log(location)
+      if(location) {
+        Alert.alert("Send location?", "Are you sure you want to send your location?",[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Send',
+            onPress: () => {
+              console.log('Sending location:', location);
+            },
+          },
+        ],
+        { cancelable: true })
+      }
+    } catch(err) {
+      console.log(err)
+    } finally {
+      setLocationLoading(false)
+    }
+
   }
 
   const renderMessage = ({ item }: { item: ChatMessage }) => {
@@ -217,7 +249,7 @@ export default function ChatScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-    <View style={[styles.mainMessageFieldContainer, { padding: isKeyboardVisible ? 0 : 20 }]}>
+    <View style={[styles.mainMessageFieldContainer, { padding: isKeyboardVisible ? 0 : Platform.OS === "ios" ? 20 : 0 }]}>
       
       {chatAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedAttachments} contentContainerStyle={styles.selectedImagesList} data={chatAttachments} renderItem={({ item, index }) => (
         <Attachmentitem
@@ -251,6 +283,7 @@ export default function ChatScreen() {
           <CustomButton
             onPress={handleAddAttachments}
             icon={<PaperClip width={20} height={20} />}
+            buttonStyle={{justifyContent: 'center', padding: 2, height:"100%"}}
           />
           <CustomTextInput
             placeholder="Write a message"
@@ -273,14 +306,13 @@ export default function ChatScreen() {
             }
           />
     </View>
-
     <Animated.View style={[styles.mainActionsContainer, {height: paddingAnim}]}>
       {showActions && 
       <>
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={addMedia} icon={<ImageUpload width={23} height={23} />} title={""} />
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<Camera width={23} height={23} />} title={""} />
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={addDocument} icon={<DocumentUpload width={23} height={23} />} title={""} />
-        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<Location width={23} height={23} />} title={""} />
+        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={getLocation} icon={locationLoading ? <ActivityIndicator color={colors.ACTIVE_ORANGE} size={"small"} /> : <Location width={23} height={23} />} title={""} />
       </>}
     </Animated.View>
     </>

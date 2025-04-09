@@ -10,9 +10,11 @@
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to send it in chat.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow Harmonic to access your photo library to upload images</string>
-	<key>NSCameraUsageDescription</key>
+	<key>NSCameraUsageDescription</key> 
 	<string>Allow Harmonic to access your camera to take pictures</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>

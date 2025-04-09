@@ -11,7 +11,7 @@ import { CreatingPostState, PostItemProps } from '../../types/post-types'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { TabParamList } from '../../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { getMBMessages } from '../../api/network-utils'
+import { getMBMessageDetails, getMBMessages } from '../../api/network-utils'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import Filters from '../../modals/Filters'
@@ -102,9 +102,21 @@ export default function SocialScreen() {
     }
   }, [filtering.categories, socialMessages]);
 
-  const fetchLatestMessages = async() => {
+  const fetchLatestMessages = async(messageBoardUUID?: string) => {
+
+    if(messageBoardUUID) {
+      const latestMessage = await getMBMessageDetails(messageBoardUUID, userUUID)
+      console.log(latestMessage)
+      setSocialMessages((prev) =>
+        prev.map((eachMessage) => {
+          return eachMessage.MessageBoardUUID === messageBoardUUID ? latestMessage : eachMessage
+        })
+      );
+      return
+    }
+
     const allMBMessages = await getMBMessages(userUUID, organizationUUID, 0)
-    
+    // After editing a post that is further down, try to make it so that you update only the edited post (try getMBMessageDetails and update inplace)
     setSocialMessages(allMBMessages)
   }
 

@@ -4,7 +4,7 @@ import CustomButton from './CustomButton'
 import { colors } from '../styles/colors'
 import { AttachmentData, PostItemProps } from '../types/post-types'
 import { getMBMessageAttacment, saveMBMessageLike } from '../api/network-utils'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ProfileHeader from './ProfileHeader'
@@ -21,12 +21,13 @@ import AttachmentCarousel from '../modals/AttachmentCarousel'
 import Video from 'react-native-video'
 import VideoIcon from "../assets/icons/video.svg"
 import { fetchWithErrorHandling } from '../utils/helpers'
+import ImageSkeleton from '../skeletons/ImageSkeleton'
 
 interface PostItemChildProps {
   post: PostItemProps
   showProfileHeader: boolean
   childAttachmentData?: AttachmentData[]
-  fetchLatestMessages?: (getLatest?: boolean) => void
+  fetchLatestMessages?: (messageBoardUUID?: string) => void
 }
 
 
@@ -38,12 +39,11 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
   const [viewingAttachments, setViewingAttachments] = useState(false)
   const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
   const [loading, setLoading] = useState<{[key: number]: boolean}>({})
-/*   const [hasLiked, setHasLiked] = useState(post.HasLiked); */
   const reduxHasLiked = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.hasLiked ?? false)
-  const reduxPostLikeCount = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.likeCount/*  ?? post.NoofLikes  */)
+  const reduxPostLikeCount = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.likeCount)
   const [videoPlaying, setVideoPlaying] = useState(false)
   const dispatch = useDispatch()
-
+  const route = useRoute()
 
   useEffect(() => {
     const fetchPostAttachments = async () => {
@@ -100,10 +100,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
           item.AttachmentType.includes("image") ? (
           <View style={{ position: "relative" }}>
             {loading[index] && (
-              <ActivityIndicator
-                style={styles.contentLoader}
-                size={"small"}
-              />
+              <ImageSkeleton oneImage={attachmentData.length === 1} />
             )}
             <Image
               style={styles.content}
@@ -153,7 +150,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
       
       <View style={styles.postActionButtonsContainer}>
         <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={handlePostLike} icon={<LikeButton fill={reduxHasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={reduxHasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData, createdBy: post.CreatedBy})} icon={<CommentIcon width={20} style={styles.postActionButtonIcon} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={() => route.name !== "Comments" && navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData, createdBy: post.CreatedBy})} icon={<CommentIcon width={20} style={styles.postActionButtonIcon} />} />
         <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Share width={20} style={styles.postActionButtonIcon} />} />
       </View>
       <View style={styles.postStatsContainer}>

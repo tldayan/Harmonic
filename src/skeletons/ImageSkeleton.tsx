@@ -2,7 +2,11 @@ import { StyleSheet, View, Animated, Easing } from 'react-native';
 import React, { useEffect, useRef } from 'react';
 import { colors } from '../styles/colors';
 
-export default function ImageSkeleton() {
+interface ImageSkeletonProps {
+  oneImage: boolean
+}
+
+export default function ImageSkeleton({oneImage} : ImageSkeletonProps) {
   const opacity = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
@@ -27,7 +31,7 @@ export default function ImageSkeleton() {
     return () => animate.stop();
   }, [opacity]);
 
-  return <Animated.View style={[styles.postImageContainer, { opacity }]} />;
+  return <Animated.View style={[styles.postImageContainer, oneImage ? { width: "100%", height: "100%" } : null, { opacity }]} />;
 }
 
 const styles = StyleSheet.create({

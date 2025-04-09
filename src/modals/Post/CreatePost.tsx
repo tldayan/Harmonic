@@ -28,7 +28,7 @@ interface CreatePostProps {
     categories?: Category[]
     post?: PostItemProps
     attachmentData?: AttachmentData[]
-    fetchLatestMessages? : () => void
+    fetchLatestMessages?: (messageBoardUUID?: string) => void
 }
 
   
@@ -149,7 +149,7 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
 
             if(response.Status === STATUS_CODE.SUCCESS) {
                 onClose()
-                fetchLatestMessages?.()
+                fetchLatestMessages?.(post?.MessageBoardUUID)
             }
 
         } catch (err: any) {

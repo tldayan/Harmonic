@@ -1,5 +1,5 @@
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ModalsHeader from '../ModalsHeader'
 import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
@@ -24,19 +24,32 @@ interface PostActionsProps {
   setComments?: React.Dispatch<React.SetStateAction<CommentItemProps[]>>
   post?: PostItemProps
   attachmentData?: AttachmentData[]
-  fetchLatestMessages?: () => void
+  fetchLatestMessages?: (messageBoardUUID?: string) => void
 }
 
 export default function PostActions({onClose, CreatedBy,fetchLatestMessages, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
   
   const [loading, setLoading] = useState(false)
   const [isReportingPost, setIsReportingPost] = useState(false)
+  const [isUserMessageOwner, setIsUserMessageOwner] = useState(false)
   const [isEditingPost, setIsEditingPost] = useState(false)
 
 const route = useRoute<CommentsScreenRouteProp>()
   const { createdBy } = route.params || {}
+  
 
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+
+
+  useEffect(() => {
+    console.log(createdBy, CreatedBy, post?.CreatedBy) //BE TEAM to add "createdBy" for "getMBMessageDetails" payload. (latestMessage in socialScreen)
+    const messageOwnerUUID = CreatedBy ?? createdBy ?? post?.CreatedBy;
+    if (messageOwnerUUID === userUUID) {
+      console.log("user is owner")
+      setIsUserMessageOwner(true);
+    }
+  }, [post]);
+  
 
   const handleDeletePost = async() => {
     
@@ -83,7 +96,7 @@ const route = useRoute<CommentsScreenRouteProp>()
     }
   }
 
-  const isUserMessageOwner = ((CreatedBy ?? createdBy) || post?.CreatedBy) === userUUID
+/*   const isUserMessageOwner = ((CreatedBy ?? createdBy) || post?.CreatedBy) === userUUID */
 
   const handleCloseAllModals = () => {
     setIsReportingPost(false)

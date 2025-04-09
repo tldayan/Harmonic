@@ -116,7 +116,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
       }
 
       const response = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGES, bodyData,{} ,"POST")
-
+      console.log(response.data.Payload)
       return response.data.Payload
 
     } catch(err) {
