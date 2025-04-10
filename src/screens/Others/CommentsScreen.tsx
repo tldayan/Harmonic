@@ -34,7 +34,7 @@ export default function CommentsScreen() {
   const [hasMoreReplies, setHasMoreReplies] = useState<{[key: string]: boolean}>({})
   const [replyingTo, setReplyingTo] = useState({name: "", MessageBoardCommentUUID: ""})
   const [replies, setReplies] = useState<{ [key: string]: ReplyItemProps[] }>({})
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({})
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
@@ -110,7 +110,7 @@ export default function CommentsScreen() {
   const fetchCommentReplies = async(MessageBoardCommentUUID: string, firstToggle: boolean) => {
 
     if(firstToggle && replies[MessageBoardCommentUUID]) return
-    setLoading(true)
+    setLoading((prev) => ({...prev, [MessageBoardCommentUUID]: true}))
 
     try {
       const repliesIndex = firstToggle ? 0 : repliesstartIndex[MessageBoardCommentUUID] || 0;
@@ -132,7 +132,7 @@ export default function CommentsScreen() {
     } catch (err) {
       console.log(err)
     } finally {
-      setLoading(false)
+      setLoading((prev) => ({...prev, [MessageBoardCommentUUID]: false}))
     }
 
   }
@@ -147,7 +147,7 @@ export default function CommentsScreen() {
     if(!comment && !postUUID) return
 
     const newReplyorComment = {
-          "MessageBoardCommentUUID": Date.now().toString(), 
+          "MessageBoardCommentUUID": null, 
           "Comment": comment,
           "TotalRepliesCount": 0,
           "CreatedDateTime": new Date().toISOString(),
@@ -165,14 +165,19 @@ export default function CommentsScreen() {
 
     if(replyingTo.MessageBoardCommentUUID && messageDetails?.MessageBoardUUID) {
 
+      const comments = await getCommentReplies(replyingTo.MessageBoardCommentUUID, 0, true)
+      let firstComment = comments[0]
+
       setReplies((prev) => {
+        
         const updatedReplies = { ...prev };
         updatedReplies[replyingTo.MessageBoardCommentUUID] = [
-          newReplyorComment,
+          firstComment,
           ...(updatedReplies[replyingTo.MessageBoardCommentUUID] || []),
         ];
         return updatedReplies;
       });
+      
 
       setComments((prev) =>
         prev.map((comment) =>
@@ -181,6 +186,8 @@ export default function CommentsScreen() {
             : comment
         )
       );
+
+      setExpandedComments((prev) => ({...prev, [replyingTo.MessageBoardCommentUUID]: prev[replyingTo.MessageBoardCommentUUID] ? prev[replyingTo.MessageBoardCommentUUID] : !prev[replyingTo.MessageBoardCommentUUID]}))
       
     } else if (postUUID) {
 
@@ -189,8 +196,10 @@ export default function CommentsScreen() {
         return updatedComments
       })
 
-    } else if(messageDetails?.MessageBoardUUID) {
-      setComments((prev) => ([newReplyorComment,...prev]))
+    } else if(messageDetails?.MessageBoardUUID) { 
+      const comments = await getListOfComments(messageDetails.MessageBoardUUID, 0, true)
+      let firstComment = comments[0]
+      setComments((prev) => ([firstComment,...prev]))
     }
 
     setComment("")
@@ -217,7 +226,7 @@ export default function CommentsScreen() {
         <View style={{flex: 1, marginBottom: 25}}>       
           <TouchableOpacity onLongPress={() => setFocusedComment({state: true, comment: item.Comment, MessageBoardCommentUUID: item.MessageBoardCommentUUID, CreatedBy: item.CreatedBy})} style={styles.commentDetailsContainer}>
             <Text style={styles.name}>{item.FirstName}</Text>
-            {!editPost.state && <Text style={styles.comment}>{item.Comment}</Text>}
+            {(editPost.postUUID !== item.MessageBoardCommentUUID) && <Text style={styles.comment}>{item.Comment}</Text>}
             {(editPost.state && editPost.postUUID === item.MessageBoardCommentUUID) && <CustomTextInput multiline inputStyle={styles.editField} onChangeText={(e) => setEditPost((prev) => ({...prev, updatedEdit: e}))} value={editPost.updatedEdit} placeholder='Edit your comment...' />}
             {(editPost.state && editPost.postUUID === item.MessageBoardCommentUUID) && <View style={styles.editButtonsContainer}>
              <CustomButton textStyle={styles.cancelText} buttonStyle={styles.cancel} title={"Cancel"} onPress={() => setEditPost({state: false, updatedEdit: "", postUUID: ""})} />
@@ -232,16 +241,16 @@ export default function CommentsScreen() {
           
           {expandedComments[item.MessageBoardCommentUUID] && replies[item.MessageBoardCommentUUID] && (
           replies[item.MessageBoardCommentUUID].map((reply) => (
-            <View key={reply.MessageBoardCommentUUID} style={styles.repliesContainer}>
-              <Image style={styles.replyProfilePic} source={{uri: reply.ProfilePicURL || "https://i.pravatar.cc/150"}} />
+            <View key={reply?.MessageBoardCommentUUID} style={styles.repliesContainer}>
+              <Image style={styles.replyProfilePic} source={{ uri: reply?.ProfilePicURL || "https://i.pravatar.cc/150" }} />
               <TouchableOpacity onPress={() => {}} style={styles.replyContainer}>
-                <Text style={styles.name}>{reply.FirstName}</Text>
-                <Text style={styles.reply}>{reply.Comment}</Text>
+                <Text style={styles.name}>{reply?.FirstName}</Text>
+                <Text style={styles.reply}>{reply?.Comment}</Text>
               </TouchableOpacity>
-              <Text style={styles.commentDateTime}>{timeAgo(reply.CreatedDateTime)}</Text>
+              <Text style={styles.commentDateTime}>{timeAgo(reply?.CreatedDateTime)}</Text>
             </View>
           )))}
-          {(loading && expandedComments[item.MessageBoardCommentUUID]) && <ActivityIndicator size={"small"} />}
+          {(loading[item.MessageBoardCommentUUID] && expandedComments[item.MessageBoardCommentUUID]) && <ActivityIndicator size={"small"} />}
           {((hasMoreReplies[item.MessageBoardCommentUUID] && !loading) && expandedComments[item.MessageBoardCommentUUID]) && <CustomButton textStyle={styles.loadMore} onPress={() => fetchCommentReplies(item.MessageBoardCommentUUID, false)} title={"Load more"} />}
         </View>
         <Text style={styles.commentDateTime}>{timeAgo(item.CreatedDateTime)}</Text>

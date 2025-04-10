@@ -42,7 +42,7 @@ const route = useRoute<CommentsScreenRouteProp>()
 
 
   useEffect(() => {
-    console.log(createdBy, CreatedBy, post?.CreatedBy) //BE TEAM to add "createdBy" for "getMBMessageDetails" payload. (latestMessage in socialScreen)
+    console.log(createdBy, CreatedBy, post?.CreatedBy)
     const messageOwnerUUID = CreatedBy ?? createdBy ?? post?.CreatedBy;
     if (messageOwnerUUID === userUUID) {
       console.log("user is owner")

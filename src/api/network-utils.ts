@@ -159,12 +159,12 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
   }
 
-  export const getListOfComments =  async(messageBoardUUID: string, startIndex: number) => {
+  export const getListOfComments =  async(messageBoardUUID: string, startIndex: number, getLatest?: boolean) => {
 
     const bodyData = {
       "messageBoardUUID": messageBoardUUID,
-      "startIndex": startIndex,
-      "pageSize": "10"
+      "startIndex": getLatest ? 0 : startIndex,
+      "pageSize": getLatest ? "1" : "10"
     }
 
     try {
@@ -297,12 +297,12 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
 
 
-  export const getCommentReplies = async(messageBoardCommentUUID: string, startIndex: number) => {
+  export const getCommentReplies = async(messageBoardCommentUUID: string, startIndex: number, getlatest?: boolean) => {
 
     const bodyData = {
       "MessageBoardCommentUUID": messageBoardCommentUUID,
-      "StartIndex": startIndex,
-      "PageSize": 10,
+      "StartIndex": getlatest ? 0 : startIndex,
+      "PageSize": getlatest ? 1 : 10,
     }
 
     try {
@@ -321,7 +321,6 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   export const saveMBMessageComment = async(comment: string, LoggedInUserUUID: string, MessageBoardUUID?: string, ReplyToMessageBoardCommentUUID?: string, PostUUID?: string) => {
 
     const bodyData = {
-/*       "MessageBoardCommentId": null, */
       "MessageBoardCommentUUID": PostUUID ? PostUUID : null,
       "MessageBoardUUID": MessageBoardUUID,
       "Comment": comment,
@@ -332,7 +331,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   try {
 
     const response = await apiClient(ENDPOINTS.SOCIAL.SAVE_MBMESSAGE_COMMENT, bodyData, {}, "POST")
-
+    console.log(response)
     return response.data.Status
     
   } catch(err) {
@@ -489,13 +488,13 @@ export const getChatsList = async(userUUID: string) => {
 }
 
 
-export const getMessages = async(userUUID: string, ChatMasterUUID: string) => {
+export const getMessages = async(userUUID: string, ChatMasterUUID: string, timestamp: string) => {
 
   const bodyData = { 
     "UserUUID": userUUID,
     "ChatMasterUUID": ChatMasterUUID,
-    "PageSize": 10,
-    "LastMessageTimestamp": ""
+    "PageSize": 20,
+    "LastMessageTimestamp": timestamp
   }
 
   try {
@@ -523,13 +522,13 @@ export const getGroupDetails = async(chatMasterUUID: string) => {
 
 }
 
-export const getGroupMessages = async(userUUID: string, chatMasterUUID: string) => {
+export const getGroupMessages = async(userUUID: string, chatMasterUUID: string, timestamp: string) => {
   
   const bodyData = {
     "SenderUUID": userUUID,
     "ChatMasterUUID": chatMasterUUID,
     "PageSize": 20,
-    "LastMessageTimestamp": ""
+    "LastMessageTimestamp": timestamp
   }
 
   try {
@@ -593,6 +592,7 @@ export const addGroupMembers = async(chatMasterUUID: string, UserUUID: string, c
 
   try {
     const addGroupMembersResponse = await apiClient(ENDPOINTS.SOCIAL.ADD_GROUP_MEMBERS, bodyData, {}, "POST")
+    console.log(addGroupMembersResponse)
     return addGroupMembersResponse.data.Status
 
   } catch(err) {

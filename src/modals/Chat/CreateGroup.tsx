@@ -124,6 +124,7 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
     }
 
     if(step === 1) {
+        console.log("create group api here")
         onClose()
     }
 

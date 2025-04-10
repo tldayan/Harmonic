@@ -68,13 +68,19 @@ interface NestedCategory {
     SenderUUID: string;
     Message: string;
     MessageType: "system-generated" | "user-generated";
-    Attachment: string | null;
-    AttachmentType: string | null;
+    Attachment: string;
+    AttachmentType: string;
     Timestamp: string;
-    Status: MessageStatus;
-    IsRead: boolean;
+    Status: {
+      DeliveredTo: string[];
+      ReadBy: string[];
+    };
+/*     IsRead: boolean; */
     UserUUID: string;
+    SenderFirstName: string;
+    SenderLastName: string;
   }
+  
   
   
   

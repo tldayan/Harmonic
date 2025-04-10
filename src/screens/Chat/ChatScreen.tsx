@@ -36,6 +36,7 @@ export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 export default function ChatScreen() {
     
   const [chats, setChats] = useState<ChatMessage[]>([]) 
+  const [lastMessageTimeStamp, setLastMessageTimeStamp] = useState("")
   const [message, setMessage] = useState("")
   const [userBlocked, setUserBlocked] = useState(false)
   const [chatAction, setChatAction] = useState<string | null>(null);
@@ -70,13 +71,22 @@ export default function ChatScreen() {
       let messagesResponse = undefined
 
       if(chatType === chatTypes.PRIVATE) {
-        messagesResponse = await getMessages(userUUID, chatMasterUUID)
+        messagesResponse = await getMessages(userUUID, chatMasterUUID, lastMessageTimeStamp)
       } else {
-        messagesResponse = await getGroupMessages(userUUID, chatMasterUUID)
+        messagesResponse = await getGroupMessages(userUUID, chatMasterUUID, lastMessageTimeStamp)
       }
 
-      console.log(messagesResponse.Messages)
-      setChats(messagesResponse.Messages)
+      let chats = messagesResponse?.Messages || []
+
+      if(chats.length === 0) return
+      
+      console.log(chats)
+      setChats((prev) => [...prev, ...chats])
+      
+      const lastTimestamp = chats[chats.length - 1]?.Timestamp;
+      if (lastTimestamp) {
+        setLastMessageTimeStamp(lastTimestamp);
+      }
 
     }
   
@@ -93,6 +103,11 @@ export default function ChatScreen() {
   }, [])
 
 
+  const handleSendMessage = () => {
+
+    
+
+  }
 
 
   const addMedia = async() => {
@@ -161,7 +176,7 @@ export default function ChatScreen() {
         <View style={styles.userGeneratedMessageContainer}>
           <Image style={profilePic} source={{uri: chatProfilePictureURL || "https://i.pravatar.cc/150"}} />
           <View style={styles.userMessageContainer}>
-            <Text style={styles.username}>{chatMasterName}</Text>
+            <Text style={styles.username}>{chatType === chatTypes.GROUP ? item.SenderFirstName : chatMasterName}</Text>
             <TouchableOpacity style={[styles.userGeneratedMessage, item.Attachment ? {padding : 5} : null]}>
               {item.Attachment ? (
                 <TouchableOpacity onPress={() => {setAttachment(item.Attachment);setViewingAttachments(true); setChatAttachments([])}}>
@@ -246,6 +261,7 @@ export default function ChatScreen() {
         data={chats}
         keyExtractor={(item) => item.id}
         renderItem={renderMessage}
+        inverted
         showsVerticalScrollIndicator={false}
       />
 
@@ -282,7 +298,7 @@ export default function ChatScreen() {
         <View style={styles.messageFieldContainer}>
           <CustomButton
             onPress={handleAddAttachments}
-            icon={<PaperClip width={20} height={20} />}
+            icon={<PaperClip color={showActions ? colors.ACTIVE_ORANGE : colors.LIGHT_TEXT} width={20} height={20} />}
             buttonStyle={{justifyContent: 'center', padding: 2, height:"100%"}}
           />
           <CustomTextInput
@@ -294,7 +310,7 @@ export default function ChatScreen() {
             onPress={() => setShowActions(false)}
           />
           <CustomButton
-            onPress={() => {}}
+            onPress={handleSendMessage}
             icon={
               <SendIcon
                 width={30}

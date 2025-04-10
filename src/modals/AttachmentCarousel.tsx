@@ -4,6 +4,8 @@ import { AttachmentData } from '../types/post-types'
 import ModalsHeader from './ModalsHeader';
 import Video from 'react-native-video';
 import { Asset } from 'react-native-image-picker';
+const Pinchable = require('react-native-pinchable').default;
+
 
 const { width } = Dimensions.get('window'); 
 
@@ -45,7 +47,10 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                         <View style={styles.contentWrapper}>
                             {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                             {!item.AttachmentType.includes("video") ? (
-                                <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.Attachment }} />
+                                <Pinchable>
+                                    <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.Attachment }} />
+                                </Pinchable>
+                               
                             ) : (
                                 <Video
                                     controls={true}
@@ -75,7 +80,10 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                         <View style={styles.contentWrapper}>
                             {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                             {!item.type?.includes("video") ? (
-                                <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.uri }} />
+                                <Pinchable>
+                                    <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.uri }} />
+                                </Pinchable>
+                                
                             ) : (
                                 <Video
                                     renderLoader={<ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
@@ -134,7 +142,10 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
             <View style={styles.postImageContainer}>
                 <ModalsHeader lightCloseIcon={true} onClose={onClose} />
                 {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
-                <Image style={styles.content} onLoad={() => setLoading(false)} source={{uri: Attachment || ""}} />
+                <Pinchable>
+                   <Image style={styles.content} onLoad={() => setLoading(false)} source={{uri: Attachment || ""}} /> 
+                </Pinchable>
+                
             </View>
             
             }
