@@ -16,6 +16,7 @@ import CreateGroup from '../../modals/Chat/CreateGroup'
 import { chatTypes } from '../../utils/constants'
 import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
+import Lock from "../../assets/icons/lock.svg"
 
 export type ChatInfoScreenRouteProp = RouteProp<RootStackParamList, "ChatInfo">
 
@@ -84,6 +85,14 @@ export default function ChatInfo() {
           keyExtractor={(item) => item.ChatMemberUUID}
           contentContainerStyle={styles.memberList}
         />
+      </View>
+
+      <View style={styles.mainEncryptionContianer}>
+          <Lock width={20} height={20}/>
+          <View style={styles.encryptionContinaer}>
+            <Text style={{fontWeight: 500}}>Encryption</Text>
+            <Text style={{color: colors.TEXT_COLOR}}>Messages and calls are end-to-end encrypted</Text>
+          </View>
       </View>
 
       <View style={styles.mainActionsContainer}>
@@ -171,6 +180,14 @@ const styles = StyleSheet.create({
     gap: 5,
     alignItems: "center",
     paddingHorizontal: 5
+  },
+  mainEncryptionContianer: {
+    flexDirection: "row",
+    gap: 10,
+    padding: 20
+  },
+  encryptionContinaer: {
+    gap: 5
   }
 
 })

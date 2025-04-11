@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, Animated, FlatList, Image, Keyboard, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Animated, FlatList, Image, Keyboard, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import ProfileHeader from '../../components/ProfileHeader'
 import { CustomTextInput } from '../../components/CustomTextInput'
@@ -20,7 +20,7 @@ import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
 import DeleteChat from '../../modals/Chat/DeleteChat'
 import { chatTypes } from '../../utils/constants'
-import Camera from "../../assets/icons/camera.svg"
+import CameraIcon from "../../assets/icons/chat-camera.svg"
 import DocumentUpload from "../../assets/icons/document-upload.svg"
 import Location from "../../assets/icons/location.svg"
 import ImageUpload from "../../assets/icons/upload-image.svg"
@@ -30,11 +30,14 @@ import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
 import { DocumentPickerResponse, pick } from '@react-native-documents/picker'
 import { DocumentItem } from '../../components/FlatlistItems/DocumentItem'
 import { getCurrentLocation } from '../../utils/ChatScreen/Location'
+import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import CameraView from '../../components/CameraView'
+
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 
 export default function ChatScreen() {
-    
+
   const [chats, setChats] = useState<ChatMessage[]>([]) 
   const [lastMessageTimeStamp, setLastMessageTimeStamp] = useState("")
   const [message, setMessage] = useState("")
@@ -48,10 +51,12 @@ export default function ChatScreen() {
   const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
   const [attachment, setAttachment] = useState<string | null>(null)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+  const [showCamera, setShowCamera] = useState(false);
   const route = useRoute<ChatsScreenRouteProp>()
   const {userUUID, chatMasterUUID, chatProfilePictureURL, chatMasterName, chatType, chatMemberUserUUID} = route.params || {}
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const paddingAnim = useRef(new Animated.Value(0)).current;
+
   
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
 
@@ -250,6 +255,12 @@ export default function ChatScreen() {
 
   return (
     <View style={styles.container}>
+      {showCamera ? 
+      
+        <CameraView setShowCamera={setShowCamera} />
+
+      : 
+      <>
       <View style={styles.header}>
         <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack online noDate name={chatMasterName} showMemberActions  />
         <ChatActionDropdownComponent chatAction={chatAction} setChatAction={setChatAction} />
@@ -298,7 +309,12 @@ export default function ChatScreen() {
         <View style={styles.messageFieldContainer}>
           <CustomButton
             onPress={handleAddAttachments}
-            icon={<PaperClip color={showActions ? colors.ACTIVE_ORANGE : colors.LIGHT_TEXT} width={20} height={20} />}
+            icon={<PaperClip color={colors.ACTIVE_ORANGE} width={20} height={20} />}
+            buttonStyle={{justifyContent: 'center', padding: 2, height:"100%"}}
+          />
+          <CustomButton
+            onPress={() => setShowCamera(true)}
+            icon={<CameraIcon fill={colors.ACTIVE_ORANGE} width={20} height={20} />}
             buttonStyle={{justifyContent: 'center', padding: 2, height:"100%"}}
           />
           <CustomTextInput
@@ -326,7 +342,6 @@ export default function ChatScreen() {
       {showActions && 
       <>
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={addMedia} icon={<ImageUpload width={23} height={23} />} title={""} />
-        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => {}} icon={<Camera width={23} height={23} />} title={""} />
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={addDocument} icon={<DocumentUpload width={23} height={23} />} title={""} />
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={getLocation} icon={locationLoading ? <ActivityIndicator color={colors.ACTIVE_ORANGE} size={"small"} /> : <Location width={23} height={23} />} title={""} />
       </>}
@@ -334,6 +349,7 @@ export default function ChatScreen() {
     </>
   )}
 </View>
+</>}
 
     <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false)}}>
       <AttachmentCarousel initialIndex={initialAttachmentIndex} Attachment={attachment} Assets={chatAttachments} onClose={() => {setViewingAttachments(false)}} />

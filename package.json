@@ -41,6 +41,7 @@
     "react-native-tab-view": "^4.0.5",
     "react-native-toast-message": "^2.2.1",
     "react-native-video": "^6.10.2",
+    "react-native-vision-camera": "^4.6.4",
     "react-redux": "^9.2.0",
     "realm": "^20.1.0"
   },

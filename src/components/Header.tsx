@@ -12,11 +12,15 @@ import OrganizationsList from "../modals/OrganizationsList";
 import { colors } from "../styles/colors";
 import Switch from "../assets/icons/switch.svg"
 import { handleSignOut } from "../services/auth-service";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../types/navigation-types";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 const Header = () => {
 
     const {user} = useUser()
     const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
     const [notificationsOpen, setNotificationsOpen] = useState(false)
     const [organizationsList, setOrganizationsList] = useState([])
@@ -42,7 +46,7 @@ const Header = () => {
 
         <CustomButton buttonStyle={styles.signOut} title="Sign Out" onPress={handleSignOut} />
         <CustomButton buttonStyle={styles.bell} onPress={() => setNotificationsOpen(true)} icon={<BellIcon width={20} height={20} />} />
-        <CustomButton onPress={() => {}} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
+        <CustomButton onPress={() => navigation.navigate("Profile")} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
 
         <CustomModal fullScreen={true} isOpen={notificationsOpen}>
             <Notifications onClose={() => setNotificationsOpen(false)} />

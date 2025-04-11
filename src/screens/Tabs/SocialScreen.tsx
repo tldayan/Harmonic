@@ -176,15 +176,15 @@ export default function SocialScreen() {
         />
 
         {(filteredMessages.length === 0 && filtering.categories.length !== 0) && <View style={styles.noResultsContainer}>
-            <Text style={styles.noResults}>No posts found for selected filters</Text>
+          <Text style={styles.noResults}>No posts found for selected filters</Text>
         </View>}
 
         <CustomModal fullScreen isOpen={creatingPost.state}>
-            <CreatePost fetchLatestMessages={fetchLatestMessages} creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
+          <CreatePost fetchLatestMessages={fetchLatestMessages} creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
         </CustomModal>
 
         <CustomModal onClose={() => setIsDeletingPost(false)} isOpen={isDeletingPost}>
-            <DeletePost onClose={() => setIsDeletingPost(false)} />
+          <DeletePost onClose={() => setIsDeletingPost(false)} />
         </CustomModal>
 
         <CustomModal presentationStyle="formSheet" fullScreen onClose={() => setFiltering((prev) => ({...prev, state: false}))} isOpen={filtering.state}>

@@ -15,16 +15,10 @@ import HamburgerIcon from "../assets/icons/hamburger.svg"
 import Header from "../components/Header";
 import { colors } from "../styles/colors";
 import ChatsTabs from "../screens/Chat/ChatsTabs";
-import { useRoute } from "@react-navigation/native";
 
 export const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function TabNavigator(): JSX.Element {
-
-
-      const route = useRoute()
-      console.log(route)
-
 
   return (
     <Tab.Navigator

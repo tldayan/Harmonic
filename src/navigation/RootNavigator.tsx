@@ -8,6 +8,7 @@ import HeroScreen from "../screens/Hero/HeroScreen"
 import CommentsScreen from "../screens/Others/CommentsScreen"
 import ChatScreen from "../screens/Chat/ChatScreen"
 import UserInfo from "../screens/Chat/ChatInfo"
+import ProfileScreen from "../screens/Others/ProfileScreen"
 
 
 export const RootNavigator: React.FC = () => {
@@ -21,6 +22,7 @@ export const RootNavigator: React.FC = () => {
             <>
                 <Stack.Screen name="Tabs" component={TabNavigator} />
                 <Stack.Screen name="Comments" component={CommentsScreen} options={{animation: "slide_from_right"}} />
+                <Stack.Screen name="Profile" component={ProfileScreen} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="ChatScreen" component={ChatScreen} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="ChatInfo" component={UserInfo} options={{animation: "slide_from_right"}} />
             </>

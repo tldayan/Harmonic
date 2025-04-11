@@ -71,7 +71,7 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
 
 
   return (
-    <View style={{backgroundColor: "white"}}>
+    <View style={{flex: 1,backgroundColor: "white"}}>
       <FlatList
         ListHeaderComponent={
         <>
@@ -95,6 +95,7 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
             {loading ? <ActivityIndicator style={{marginTop: 50}} size="small" /> : null}
           </>
         }
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.chatList} 
         data={filteredChats.length ? filteredChats : chats}
         renderItem={renderChatItem} 
@@ -116,8 +117,8 @@ export default ChatsList
 const styles = StyleSheet.create({
   chatList: {
 /*     borderWidth: 1, */
+    flexGrow: 1,
     position: "relative",
-    height: "100%",
     gap: 0,
     paddingHorizontal: 5
   },
