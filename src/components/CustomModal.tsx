@@ -11,6 +11,8 @@ import {
   View
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 
 interface Props extends ModalProps {
   isOpen: boolean;
@@ -72,6 +74,7 @@ export const CustomModal: React.FC<Props> = ({
       animationType={fullScreen ? "slide" : "fade"}
       visible={visible}
     >
+      <GestureHandlerRootView>
       <SafeAreaProvider>
         {fullScreen ? (
           <View style={styles.fullScreenSafeArea} key={contentKey}>
@@ -102,7 +105,7 @@ export const CustomModal: React.FC<Props> = ({
             </View>
           </TouchableWithoutFeedback>
         )}
-      </SafeAreaProvider>
+      </SafeAreaProvider></GestureHandlerRootView>
     </Modal>
   );
 };

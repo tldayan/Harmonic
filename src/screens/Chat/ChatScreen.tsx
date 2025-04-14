@@ -30,8 +30,9 @@ import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
 import { DocumentPickerResponse, pick } from '@react-native-documents/picker'
 import { DocumentItem } from '../../components/FlatlistItems/DocumentItem'
 import { getCurrentLocation } from '../../utils/ChatScreen/Location'
-import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import { PhotoFile} from 'react-native-vision-camera';
 import CameraView from '../../components/CameraView'
+import { CapturedItem } from '../../components/FlatlistItems/CapturedItem'
 
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
@@ -45,6 +46,7 @@ export default function ChatScreen() {
   const [chatAction, setChatAction] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false)
   const [chatAttachments, setChatAttachments] = useState<Asset[]>([])
+  const [capturedAttachments, setCapturedAttachments] = useState<PhotoFile[]>([])
   const [chatDocuments, setChatDocuments] = useState<DocumentPickerResponse[]>([])
   const [viewingAttachments, setViewingAttachments] = useState(false)
   const [showActions, setShowActions] = useState(false)
@@ -233,8 +235,16 @@ export default function ChatScreen() {
   }
 
   const deleteAttachment = (imageFilename: string) => {
-    let updatedSelectedImages = chatAttachments.filter((eachImage) => eachImage.fileName !== imageFilename)
-    setChatAttachments(updatedSelectedImages)
+    if(chatAttachments.length) {
+      let updatedSelectedImages = chatAttachments.filter((eachImage) => eachImage.fileName !== imageFilename)
+      setChatAttachments(updatedSelectedImages)
+    } else if(capturedAttachments.length) {
+      let updatedCapturedImages = capturedAttachments.filter((eachImage) => eachImage.path !== imageFilename)
+      setCapturedAttachments(updatedCapturedImages)
+    }
+
+
+
   }
 
   const deleteDocument = (uri: string) => {
@@ -255,11 +265,6 @@ export default function ChatScreen() {
 
   return (
     <View style={styles.container}>
-      {showCamera ? 
-      
-        <CameraView setShowCamera={setShowCamera} />
-
-      : 
       <>
       <View style={styles.header}>
         <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack online noDate name={chatMasterName} showMemberActions  />
@@ -289,6 +294,18 @@ export default function ChatScreen() {
         />
         )}
         keyExtractor={(item) => String(item.fileName)} ListFooterComponent={<AddAdditionalMediaButton />} />}
+
+      {capturedAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedAttachments} contentContainerStyle={styles.selectedImagesList} data={capturedAttachments} renderItem={({ item, index }) => (
+        <CapturedItem
+          item={item}
+          index={index}
+          deleteAttachment={deleteAttachment}
+          setAttachment={setAttachment}
+          setViewingAttachments={setViewingAttachments}
+          setInitialAttachmentIndex={setInitialAttachmentIndex}
+        />
+        )}
+        keyExtractor={(item) => String(item.path)} ListFooterComponent={<AddAdditionalMediaButton />} />}
 
       {chatDocuments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedAttachments} contentContainerStyle={styles.selectedImagesList} data={chatDocuments} renderItem={({ item, index }) => (
         <DocumentItem
@@ -349,10 +366,10 @@ export default function ChatScreen() {
     </>
   )}
 </View>
-</>}
+</>
 
     <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false)}}>
-      <AttachmentCarousel initialIndex={initialAttachmentIndex} Attachment={attachment} Assets={chatAttachments} onClose={() => {setViewingAttachments(false)}} />
+      <AttachmentCarousel initialIndex={initialAttachmentIndex} Attachment={attachment} capturedAttachments={capturedAttachments} Assets={chatAttachments} onClose={() => {setViewingAttachments(false)}} />
     </CustomModal> 
 
     <CustomModal isOpen={chatAction === "3"} onClose={() => setChatAction(null)}>
@@ -369,6 +386,10 @@ export default function ChatScreen() {
     
     <CustomModal isOpen={chatAction === "9"} onClose={() => setChatAction(null)}>
       <DeleteChat name={chatMasterName} onClose={() => setChatAction(null)} />
+    </CustomModal>
+
+    <CustomModal fullScreen isOpen={showCamera} presentationStyle="fullScreen">
+      <CameraView capturedAttachments={capturedAttachments} setCapturedAttachments={setCapturedAttachments} setShowCamera={setShowCamera} />
     </CustomModal>
 
     </View>

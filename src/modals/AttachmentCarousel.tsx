@@ -4,6 +4,7 @@ import { AttachmentData } from '../types/post-types'
 import ModalsHeader from './ModalsHeader';
 import Video from 'react-native-video';
 import { Asset } from 'react-native-image-picker';
+import { PhotoFile } from 'react-native-vision-camera';
 const Pinchable = require('react-native-pinchable').default;
 
 
@@ -11,6 +12,7 @@ const { width } = Dimensions.get('window');
 
 interface AttachmentCarouselProps {
     AttachmentData?: AttachmentData[]
+    capturedAttachments?: PhotoFile[]
     Attachment?: string | null
     Assets?: Asset[]
     onClose: () => void
@@ -18,7 +20,7 @@ interface AttachmentCarouselProps {
 }
 const MemoizedModalsHeader = React.memo(ModalsHeader);
 
-export default function AttachmentCarousel({onClose,AttachmentData, initialIndex = 0,Assets, Attachment} : AttachmentCarouselProps) {
+export default function AttachmentCarousel({onClose,AttachmentData, initialIndex = 0,Assets, Attachment,capturedAttachments} : AttachmentCarouselProps) {
     const [loading, setLoading] = useState(true)
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null)
     const flatListRef = useRef<FlatList>(null)
@@ -65,6 +67,30 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
             );
         }
     }, [loading, visibleIndex, onClose]); 
+
+
+    const capturedAttachmentItem = useMemo(() => {
+        return ({ item, index }: { item: PhotoFile; index: number }) => {
+            if (!item.path) {
+                return null;
+            }
+    
+            return (
+                <TouchableWithoutFeedback>
+                    <View style={styles.postImageContainer}>
+                        <MemoizedModalsHeader lightCloseIcon={true} onClose={onClose} />
+                        <View style={styles.contentWrapper}>
+                            {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
+                                <Pinchable>
+                                    <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: `file://${item.path}` }} />
+                                </Pinchable>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            );
+        }
+    }, [loading, visibleIndex, onClose]); 
+
 
     
     const assetsAttachmentItem = useMemo(() => {
@@ -138,7 +164,27 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                     length: width, offset: width * index,index
                 })}
                 initialScrollIndex={initialIndex}
-            /> : 
+            /> : capturedAttachments?.length ? 
+            <FlatList
+                ref={flatListRef}
+                style={styles.carouselMainContainer}
+                data={capturedAttachments}
+                horizontal
+                renderItem={capturedAttachmentItem}
+                keyExtractor={(item) => item.path}
+                pagingEnabled
+                bounces={false}
+                showsHorizontalScrollIndicator={false}
+                indicatorStyle='white'  
+                onViewableItemsChanged={onViewableItemsChanged}
+                viewabilityConfig={viewabilityConfig}
+                getItemLayout={(data, index) => ({
+                    length: width, offset: width * index,index
+                })}
+                initialScrollIndex={initialIndex}
+            /> 
+            
+            : 
             <View style={styles.postImageContainer}>
                 <ModalsHeader lightCloseIcon={true} onClose={onClose} />
                 {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
