@@ -4,7 +4,7 @@ import ThreeDots from "../assets/icons/three-dots-vertical.svg"
 
 const actions = [
     { label: 'Create Group', value: '1' },
-    { label: 'Message Store', value: '2' },
+    { label: 'New Chat', value: '2' },
   ];
   
   interface DropdownComponentProps {

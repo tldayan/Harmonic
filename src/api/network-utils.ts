@@ -579,7 +579,7 @@ export const unblockUser = async(chatMemberUserUUID: string, userUUID: string) =
 
 }
 
-export const addGroupMembers = async(chatMasterUUID: string, UserUUID: string, chatMembers: {memberName: string, memberUUID: string}[], organizationUUID: string) => {
+export const addMembersToGroup = async(chatMasterUUID: string, UserUUID: string, chatMembers: {memberName: string, memberUUID: string}[], organizationUUID: string) => {
 
   let chatMemberUserUUIDs = chatMembers.map((eachMember) => eachMember.memberUUID)
 
@@ -606,6 +606,49 @@ export const getFriendsList = async(userUUID: string) => {
   try {
     const getFriendsListResponse = await apiClient(ENDPOINTS.SOCIAL.GET_FRIENDS_LIST, {}, {}, "GET", {userUUID})
     return getFriendsListResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const getOrganizationUsers = async(organizationUUID: string, searchExpression: string) => {
+
+  const bodyData = {
+    "OrganizationUUID": organizationUUID,
+    "Count": 15,
+    "StartIndex": 0,
+    "SearchExpression": searchExpression ? searchExpression : ""
+  }
+
+
+  try {
+    const getOrganizationUsersResponse = await apiClient(ENDPOINTS.ORGANIZATION.GET_ORGANIZATION_USERS, bodyData, {}, "POST")
+    console.log(getOrganizationUsersResponse)
+    return getOrganizationUsersResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const addAdminToGroup = async(chatMasterUUID: string, userUUID: string, chatMemberUserUUIDs: string[]) => {
+
+  const bodyData = {
+    "chatMemberUUIDs": chatMemberUserUUIDs,
+    "chatMasterUUID": chatMasterUUID,
+    "loggedInUserUUID": userUUID
+}
+
+
+  try {
+    const addAdminToGroupResponse = await apiClient(ENDPOINTS.SOCIAL.ADD_ADMIN_TO_GROUP, bodyData, {}, "POST")
+    console.log(addAdminToGroupResponse)
+    return addAdminToGroupResponse.data
 
   } catch(err) {
     console.error(err)

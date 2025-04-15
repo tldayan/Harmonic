@@ -6,7 +6,7 @@ import SendIcon from "../../assets/icons/send-horizontal.svg"
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import { pickMedia, useKeyboardVisibility } from '../../utils/helpers'
-import PaperClip from "../../assets/icons/paper-clip.svg"
+import PaperClip from "../../assets/icons/paper-clip2.svg"
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
 import { getGroupMessages, getMessages } from '../../api/network-utils'
@@ -324,16 +324,19 @@ export default function ChatScreen() {
       ) : (
         <>
         <View style={styles.messageFieldContainer}>
-          <CustomButton
-            onPress={handleAddAttachments}
-            icon={<PaperClip color={colors.ACTIVE_ORANGE} width={20} height={20} />}
-            buttonStyle={{justifyContent: 'center', padding: 2, height:"100%"}}
-          />
-          <CustomButton
-            onPress={() => setShowCamera(true)}
-            icon={<CameraIcon fill={colors.ACTIVE_ORANGE} width={20} height={20} />}
-            buttonStyle={{justifyContent: 'center', padding: 2, height:"100%"}}
-          />
+          <View style={styles.quickActionsContainer}>
+            <CustomButton
+              onPress={handleAddAttachments}
+              icon={<PaperClip width={20} height={20} />}
+              buttonStyle={styles.quickActions}
+            />
+            <CustomButton
+              onPress={() => setShowCamera(true)}
+              icon={<CameraIcon fill={colors.ACTIVE_ORANGE} width={20} height={20} />}
+              buttonStyle={styles.quickActions}
+            />
+          </View>
+          
           <CustomTextInput
             placeholder="Write a message"
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
@@ -355,7 +358,7 @@ export default function ChatScreen() {
             }
           />
     </View>
-    <Animated.View style={[styles.mainActionsContainer, {height: paddingAnim}]}>
+    <Animated.View style={[styles.mainActionsContainer, {height: paddingAnim}, showActions ? {marginBottom: 10} : null]}>
       {showActions && 
       <>
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={addMedia} icon={<ImageUpload width={23} height={23} />} title={""} />
@@ -428,21 +431,21 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         backgroundColor: "white",
-        paddingHorizontal: 10,
+        paddingHorizontal: 2,
         paddingTop:5,
         borderTopWidth: 1,
         borderTopColor: colors.BORDER_COLOR,
       },
       messageFieldContainer: {
-   /*      borderWidth: 1, */
+ /*        borderWidth: 1, */
         width: "100%",
         flex: 1,
-        marginBottom: "auto",
         flexDirection: "row",
         alignItems:"center",
         gap: 5
       },
     messageField: {
+      marginLeft: 5,
         borderRadius: 50,
         backgroundColor: colors.BACKGROUND_COLOR,
         borderStyle: "solid",
@@ -476,12 +479,13 @@ const styles = StyleSheet.create({
 
       systemGeneratedMessage: {
         padding: 5,
-        borderRadius: 50,
+        borderRadius: 5,
         textAlign: "center",
         alignSelf: "center",
-        width: "60%",
-        fontSize: 14,
+        width: "70%",
+        fontSize: 13,
         fontWeight: 300,
+        color: colors.LIGHT_TEXT,
         opacity: 0.8,
         backgroundColor: "white",
         borderWidth: 1,
@@ -550,6 +554,9 @@ const styles = StyleSheet.create({
         alignItems: "center"
       },
       mainActionsContainer : {
+/*         borderWidth: 1, */
+        width: "100%",
+        justifyContent: "center",
         gap: 20,
         flexDirection: "row"
       },
@@ -563,6 +570,19 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150
     },
-
+    quickActionsContainer: {
+/*       borderWidth: 1,
+      borderColor: "red", */
+      marginLeft: 5,
+      flexDirection: "row",
+      justifyContent: "space-around",
+      gap: 5,
+      height: "100%",  
+    },
+    quickActions: {
+      justifyContent: 'center', 
+      padding: 2, 
+      height:"100%"
+    }
 
 })

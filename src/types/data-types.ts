@@ -115,3 +115,12 @@ interface Friend {
   LastName: string,
   ProfilePicURL: string
 }
+
+interface OrganizationUser {
+  UserUUID: string;
+  UserName: string | null;
+  FullName: string;
+  EmailAddress: string;
+  ProfilePicURL: string;
+  UserRole: string;
+}

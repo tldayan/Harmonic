@@ -1,14 +1,15 @@
 import { ActivityIndicator, Alert, FlatList, Image, Linking, Platform, StyleSheet, Text, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Camera, PhotoFile, Point, useCameraDevice, useCameraPermission } from 'react-native-vision-camera'
+import { Camera, CameraPosition, PhotoFile, Point, useCameraDevice, useCameraPermission } from 'react-native-vision-camera'
 import CustomButton from './CustomButton'
 import { colors } from '../styles/colors'
 import Close from "../assets/icons/close-light.svg"
+import CameraSwitch from "../assets/icons/switch-camera.svg"
 import FlashOff from "../assets/icons/flash-off.svg"
 import FlashOn from "../assets/icons/flash-on.svg"
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import Check from "../assets/icons/check.svg"
+import Check from "../assets/icons/check-2.svg"
 import ArrowRight from "../assets/icons/arrow-right.svg"
 const Pinchable = require('react-native-pinchable').default;
 
@@ -24,12 +25,12 @@ export default function CameraView({setShowCamera, capturedAttachments, setCaptu
 
     const camera = useRef<Camera>(null)
     const { hasPermission, requestPermission } = useCameraPermission()
-    const device = useCameraDevice('back')
+    const [cameraPosition, setCameraPosition] = useState<CameraPosition>("back")
+    const device = useCameraDevice(cameraPosition)
     const [flash, setFlash] = useState(false)
     const [cameraReady, setCameraReady] = useState(false);
     const [hideCamera, setHideCamera] = useState(false)
     const [multipleAttachments, setMultipleAttachments] = useState(false)
-    const insets = useSafeAreaInsets();
     const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
 
 
@@ -62,6 +63,7 @@ export default function CameraView({setShowCamera, capturedAttachments, setCaptu
 
 
       const focus = useCallback((point: Point) => {
+        console.log("fpcis")
         const c = camera.current
         if (c == null) return
         c.focus(point)
@@ -86,14 +88,16 @@ export default function CameraView({setShowCamera, capturedAttachments, setCaptu
         setShowCamera(false)
       }
 
+
       const handleDeleteAttachment = () => {
-        if(capturedAttachments.length) {
-          let updatedAttachments = capturedAttachments.slice(0, -1)
-          setCapturedAttachments(updatedAttachments)
-          if(updatedAttachments.length === 0) {
-            setCameraReady(true)
-          }
-          
+
+        if(capturedAttachments.length === 1) {
+          setCapturedAttachments([])
+          setShowCamera(false)
+          return
+        } else if(capturedAttachments.length >= 2) {
+          setShowCamera(false)
+          return
         } else {
           setShowCamera(false)
           setCameraReady(true)
@@ -134,22 +138,18 @@ export default function CameraView({setShowCamera, capturedAttachments, setCaptu
 
 
   return (
-    <SafeAreaView style={{flex: 1, borderWidth: 2, backgroundColor: "black"}}>
-          <View>
+    <SafeAreaView style={{flex: 1, backgroundColor: "black"}}>
             <View style={styles.attachmentActionsContainer}>
-              {capturedAttachments.length >= 1 && <Text style={styles.attachmentCount}>{capturedAttachments.length}</Text>}
+              {capturedAttachments.length >= 1 && <CustomButton onPress={() => setShowCamera(false)} title={capturedAttachments.length} textStyle={styles.attachmentCount} />}
               {capturedAttachments.length > 0 && <CustomButton onPress={handleSaveAttachments} buttonStyle={styles.proceed} textStyle={{color: "white"}} icon={<ArrowRight color='white' width={15} height={15} />} />}
             </View>
-            {/* <FlatList renderItem={({item, index}) => (<CapturedItem item={item} index={index} />)} data={capturedAttachments} keyExtractor={(item) => item.path} /> */}
-            
-            
-          </View>
+
           {!hideCamera && <GestureDetector gesture={gesture}>
-            <View style={StyleSheet.absoluteFill}>
+            <View style={styles.cameraContainer}>
               <Camera
                 ref={camera}
                 resizeMode={"contain"}
-                style={[styles.absoluteFill, { top: insets.top }]}
+                style={styles.absoluteFill}
                 device={device}
                 isActive={true}
                 onInitialized={() => setCameraReady(true)}
@@ -167,44 +167,41 @@ export default function CameraView({setShowCamera, capturedAttachments, setCaptu
                   ]}
                 />
               )}
+              {cameraReady && (
+              flash ? (
+                <CustomButton buttonStyle={[styles.buttonStyles, styles.flash, {padding: 10}]}
+                  onPress={() => setFlash(false)}
+                  icon={<FlashOn fill="white" width={20} height={20} />}
+                />
+              ) : (
+                <CustomButton buttonStyle={[styles.buttonStyles, styles.flash,styles.flashoff, {padding: 10}]}
+                  onPress={() => setFlash(true)}
+                  icon={<FlashOff fill="white" width={20} height={20} />}
+                />
+              )
+            )}
             </View>
           </GestureDetector>}
 
-              
-            {(!cameraReady && capturedAttachments.length > 0) && (
-              <Pinchable>
-                <Image
-                  resizeMode="contain"
-                  style={styles.capturedPhoto}
-                  source={{ uri: `file://${capturedAttachments[capturedAttachments.length - 1]?.path}` }}
-                />
-              </Pinchable>
-            )}
-
-          
+          {(!cameraReady && capturedAttachments.length > 0) && (<View style={styles.imageContainer}>
+                <Pinchable>
+                  <Image
+                    resizeMode="contain"
+                    style={styles.capturedPhoto}
+                    source={{ uri: `file://${capturedAttachments[capturedAttachments.length - 1]?.path}` }}
+                  />
+                </Pinchable>
+            </View>)}
 
           
         
         <View style={styles.cameraButtonsContainer}>
-            <CustomButton onPress={handleDeleteAttachment} icon={<Close width={35} height={35} />} />
+            <CustomButton buttonStyle={styles.buttonStyles} onPress={handleDeleteAttachment} icon={<Close width={20} height={20} />} />
             {cameraReady && <View style={styles.captureButtonContainer}>
                 <CustomButton buttonStyle={styles.captureButton} onPress={capturePhoto} />
             </View>} 
-            {!cameraReady && <CustomButton onPress={handleAddMultipleAttachments} icon={<Check width={26} height={26} />} />}
- 
-            {cameraReady && (
-              flash ? (
-                <CustomButton
-                  onPress={() => setFlash(false)}
-                  icon={<FlashOn fill="white" width={30} height={30} />}
-                />
-              ) : (
-                <CustomButton
-                  onPress={() => setFlash(true)}
-                  icon={<FlashOff fill="white" width={30} height={30} />}
-                />
-              )
-            )}
+            {!cameraReady && <CustomButton buttonStyle={styles.buttonStyles} onPress={handleAddMultipleAttachments} icon={<Check color='white' width={20} height={20} />} />}
+            {cameraReady && <CustomButton buttonStyle={styles.buttonStyles} onPress={() => setCameraPosition((prev) => prev === "back" ? "front" : "back")} icon={<CameraSwitch color='white' width={20} height={20} />} />}
 
         </View>
 
@@ -213,25 +210,30 @@ export default function CameraView({setShowCamera, capturedAttachments, setCaptu
 }
 
 const styles = StyleSheet.create({
+  cameraContainer: {
+      flex: 1,
+      margin: 10,
+/*       borderWidth :2,
+      borderColor: "red", */
+      borderRadius: 10,
+      overflow: "hidden",
+      position: "relative",
+  },
     absoluteFill : {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
+      flex: 1,
+      resizeMode: "cover"
+/*       position: "relative", */
     },
     cameraButtonsContainer: {
- /*        borderWidth :2,
+/*         borderWidth :2,
         borderColor: "red", */
+        height: "15%",
+        marginTop: "auto",
+        marginBottom: "5%",
         justifyContent: "space-around",
         flexDirection: "row",
         alignItems: "center",
         width: "100%",
-        borderRadius: 50,
-        position: 'absolute',
-        bottom: "5%",
-        left: "50%",
-        transform: [{ translateX: "-50%" }],
     },
     captureButtonContainer: {
         padding: 8,
@@ -244,20 +246,28 @@ const styles = StyleSheet.create({
         height: 50,
         backgroundColor: "white"
     },
+    imageContainer: {
+      flex : 1,
+      borderWidth: 2,
+      borderColor : "green"
+    },
     capturedPhoto: {
+/*       borderWidth: 11,
+      borderColor : "green", */
+      
       height: "100%",
       width: "100%"
     },
     attachmentActionsContainer: {
+      
       flexDirection: "row",
       alignItems: "center",
-      position: "absolute",
-      top: 50,
-      height: "auto",
+/*       position: "absolute",
+      top: 50, */
       borderWidth: 1,
- /*      borderColor: "red", */
-      width : "90%",
-      marginHorizontal: "5%",
+      borderColor: "aqua",
+      width : "100%",
+      padding: 20,
       zIndex: 1
     },
     proceed: {
@@ -272,9 +282,6 @@ const styles = StyleSheet.create({
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 4,
-      height: "100%",
-      justifyContent: "center",
-      alignItems: "center",
       borderColor: colors.ACTIVE_ORANGE,
       color: colors.ACTIVE_ORANGE,
       fontWeight: "bold"
@@ -287,7 +294,24 @@ const styles = StyleSheet.create({
       borderWidth: 2,
       borderColor: 'white',
       backgroundColor: 'transparent',
-      zIndex: 10,
+      zIndex: 1,
     },
-    
+    buttonStyles: {
+      borderWidth: 1,
+  /*     backgroundColor: colors.ACTIVE_ORANGE, */
+      borderColor: colors.ACTIVE_ORANGE,
+      borderRadius: 50,
+      padding: 13
+    },
+    flash: {
+      position: "absolute",
+      bottom: 10,
+      right: 10,
+      zIndex: 2,
+      borderColor: "transparent"
+    },
+    flashoff: {
+      backgroundColor : "transparent",
+      borderColor: colors.ACTIVE_ORANGE
+    }
 })

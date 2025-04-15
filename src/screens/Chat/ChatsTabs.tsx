@@ -1,6 +1,7 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ChatsList from "./ChatList";
 import ChatsIcon from "../../assets/icons/chats.svg"
+import StoreIcon from "../../assets/icons/store.svg"
 import { colors } from "../../styles/colors";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ChatScreen from "./ChatScreen";
@@ -22,7 +23,9 @@ function ChatsTabs() {
         <Tab.Screen options={{tabBarIcon: () => (
               <ChatsIcon name="account-group" fill="red" width={15} height={15} />
             )}} name="Community" component={ChatsList} />
-        <Tab.Screen name="Store" component={ChatsList} />
+        <Tab.Screen options={{tabBarIcon: () => (
+              <StoreIcon name="account-group" fill="red" width={15} height={15} />
+            )}} name="Store" component={ChatsList} />
       </Tab.Navigator>
     );
   }

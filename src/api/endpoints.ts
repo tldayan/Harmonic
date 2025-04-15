@@ -15,7 +15,8 @@ export const ENDPOINTS = {
   },
   ORGANIZATION: {
     FETCH_MODULES: `${BASE_URL}/organization/getOrganizationBasedModules`,
-    ORGANIZATIONS_LIST: `${BASE_URL}/organization/getOrganizationsList`
+    ORGANIZATIONS_LIST: `${BASE_URL}/organization/getOrganizationsList`,
+    GET_ORGANIZATION_USERS: `${BASE_URL}/organization/getOrganizationUsers`
   },
   USER: {
     PROFILE: `${BASE_URL}/user/getUserProfile`
@@ -42,7 +43,9 @@ export const ENDPOINTS = {
     GET_GROUP_MESSAGES: `${BASE_URL}/social/getGroupMessages`,
     BLOCK_USER: `${BASE_URL}/social/blockUser`,
     UNBLOCK_USER: `${BASE_URL}/social/unblockUser`,
-    GET_FRIENDS_LIST: `${BASE_URL}/social/getFriendsList`
+    GET_FRIENDS_LIST: `${BASE_URL}/social/getFriendsList`,
+    ADD_MEMBERS_TO_GROUP: `${BASE_URL}/social/addMembersToGroup`,
+    ADD_ADMIN_TO_GROUP: `${BASE_URL}/social/addAdminToGroup`
   },  
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,

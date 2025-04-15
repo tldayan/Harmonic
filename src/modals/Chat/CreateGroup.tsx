@@ -11,10 +11,11 @@ import Check from "../../assets/icons/circle-check.svg"
 import ChevronRight from "../../assets/icons/chevron-right.svg"
 import Group from "../../assets/icons/group.svg"
 import { Dropdown } from 'react-native-element-dropdown'
-import { addGroupMembers, getFriendsList } from '../../api/network-utils'
+import { addMembersToGroup, getOrganizationUsers } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { STATUS_CODE } from '../../api/endpoints'
+import { defaultInputStyles } from '../../styles/global-styles'
 
 interface CreateGroupProps {
     onClose: () => void
@@ -81,8 +82,10 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
   const [step, setStep] = useState(0)
   const [memberSearch, setMemberSearch] = useState("")
   const [addedMembers, setAddedMembers] = useState<{memberName: string, memberUUID: string}[]>([]);
+  const [groupName, setGroupName] = useState("")
+  const [groupNameErrorMessage, setGroupNameErrorMessage] = useState("")
   const [loading, setLoading] = useState(false)
-  const [allFriends, setAllFriends] = useState<Friend[]>([])
+  const [organizationUsers, setOrganizationUsers] = useState<OrganizationUser[]>([])
   const [groupSubject, setGroupSubject] = useState<string | null>(null);
   const flatListRef = useRef<FlatList<any>>(null);
   const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)
@@ -90,7 +93,7 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
 
   const addMembersToExistingGroup = async() => {
     
-    const addMembersToGroupResponse = await addGroupMembers(chatMasterUUID ?? "",userUUID,addedMembers,organizationUUID)
+    const addMembersToGroupResponse = await addMembersToGroup(chatMasterUUID ?? "",userUUID,addedMembers,organizationUUID)
     
     if(addMembersToGroupResponse === STATUS_CODE.SUCCESS) {
       onClose()
@@ -98,12 +101,12 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
 
   }
 
-  const fetchFriendsList = async() => {
+  const fetchOrganizationUsers = async() => {
     
     setLoading(true)
     try {
-      const friendsList = await getFriendsList(userUUID)
-      setAllFriends(friendsList.Payload)
+      const organizationUsersList = await getOrganizationUsers(organizationUUID, memberSearch)
+      setOrganizationUsers(organizationUsersList.Payload)
     } catch (err) {
       console.error(err)
     } finally {
@@ -112,8 +115,13 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
   }
 
   useEffect(() => {
-    fetchFriendsList()
-  },[])
+    const timeoutId = setTimeout(() => {
+      fetchOrganizationUsers();
+    }, 500);
+  
+    return () => clearTimeout(timeoutId);
+  }, [memberSearch]);
+
 
 
   const next = () => {
@@ -124,6 +132,12 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
     }
 
     if(step === 1) {
+
+      if(!groupName) {
+        setGroupNameErrorMessage("Please add a group name")
+        return
+      }
+
         console.log("create group api here")
         onClose()
     }
@@ -134,37 +148,40 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
     }
   }
 
+  const handleGroupNameChange = (text: string) => {
+    setGroupName(text);
+  
+    if (text.trim()) {
+      setGroupNameErrorMessage("");
+    }
+  };
+  
+  
+  
   const handleGoBack = () => {
     if(step > 0) {
         setStep(step - 1)
         flatListRef?.current?.scrollToIndex({ index: step - 1, animated: true })
     }
   }
-
-  const filteredFriends = useMemo(() => {
-    if (!memberSearch) return allFriends;
-    return allFriends.filter((eachMember) =>
-      eachMember.FirstName.toLowerCase().includes(memberSearch.toLowerCase())
-    );
-  }, [memberSearch, allFriends]);
   
 
-  const handleAddMember = (member: Friend) => {
+  const handleAddMember = (member: OrganizationUser) => {
     
     let isMemberAlreadyAdded = addedMembers.some((eachMember) => eachMember.memberUUID === member.UserUUID)
     
     if(!isMemberAlreadyAdded) {
-        setAddedMembers((prev) => [...prev, {memberName: member.FirstName, memberUUID: member.UserUUID}])
+        setAddedMembers((prev) => [...prev, {memberName: member.FullName, memberUUID: member.UserUUID}])
         setMemberSearch("")
     } else {
         handleRemoveMember(member.UserUUID)
     }
   }
 
-  const memberItem = ({item} : {item: Friend}) => {
+  const memberItem = ({item} : {item: OrganizationUser}) => {
 
     return <TouchableOpacity style={styles.memberItemContainer} onPress={() => handleAddMember(item)}>
-                <ProfileHeader noDate ProfilePic={item.ProfilePicURL} name={item.FirstName} />
+                <ProfileHeader noDate ProfilePic={item.ProfilePicURL} name={item.FullName} />
                 {addedMembers.some((member) => member.memberUUID === item.UserUUID) && <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />}
             </TouchableOpacity>
   }
@@ -191,7 +208,7 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
                 contentContainerStyle={styles.friendList}
                 renderItem={memberItem} 
                 keyExtractor={(item) => item.UserUUID}
-                data={filteredFriends}
+                data={organizationUsers}
             />
         </View>
     )
@@ -202,9 +219,9 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
         <View style={styles.innerContainer}>
             <View style={{backgroundColor: "#FEECDC", padding: 50, borderRadius: "100%", alignSelf: "center"}}>
                 <Group width={100} height={100} />
-
             </View>
-            <DropdownComponent groupSubject={groupSubject} setGroupSubject={setGroupSubject} />
+           {/*  <DropdownComponent groupSubject={groupSubject} setGroupSubject={setGroupSubject} /> */}
+            <CustomTextInput errorMessage={groupNameErrorMessage} label='Group Name' labelStyle={styles.groupName} inputStyle={defaultInputStyles} value={groupName} onChangeText={handleGroupNameChange} />
         </View>
     )
   }
@@ -307,5 +324,10 @@ const styles = StyleSheet.create({
         width : "100%",
         height: 40,
     },
+    groupName: {
+      marginTop: 20,
+      fontSize: 16,
+      marginBottom: 5
+    }
 
 })
