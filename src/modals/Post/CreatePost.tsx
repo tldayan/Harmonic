@@ -21,6 +21,7 @@ import { STATUS_CODE } from '../../api/endpoints'
 import AttachmentCarousel from '../AttachmentCarousel'
 import { pickMedia } from '../../utils/helpers'
 import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
+import { firebaseStoragelocations } from '../../utils/constants'
 
 interface CreatePostProps {
     onClose: () => void
@@ -141,7 +142,7 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
             let attachmentUrls: any[] = [];
 
             if (selectedAttachments && selectedAttachments.length > 0) {
-              attachmentUrls = (await uploadMedia(selectedAttachments)) || [];
+              attachmentUrls = (await uploadMedia(selectedAttachments, firebaseStoragelocations.attachmentMB)) || [];
             }
         
 

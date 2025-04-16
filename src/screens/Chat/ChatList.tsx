@@ -14,6 +14,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation-types';
 import { ChatListDropdownComponent } from '../../dropdowns/ChatListDropdown';
 import Close from "../../assets/icons/close-dark.svg"
+import CreateChat from '../../modals/Chat/CreateChat';
 
 const ChatsList = () => {
   const [chats, setChats] = useState<ChatEntity[]>([])
@@ -23,10 +24,12 @@ const ChatsList = () => {
   const [loading, setLoading] = useState(false)
   const [action, setAction] = useState<string | null>(null);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+  const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
 
-    const fetchChats = async() => {
+
+
+  const fetchChats = async() => {
 
       setLoading(true)
       try {
@@ -39,11 +42,18 @@ const ChatsList = () => {
         setLoading(false)
       }
     }
-  
-    fetchChats()
 
+
+  useEffect(() => {
+    fetchChats()
   }, [])
 
+
+  const handleRefresh = async() => {
+    setRefreshing(true)
+    await fetchChats()
+    setRefreshing(false)
+  } 
 
   useEffect(() => {
     const filtered = chats.filter((eachChat) =>
@@ -99,11 +109,18 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
         contentContainerStyle={styles.chatList} 
         data={filteredChats.length ? filteredChats : chats}
         renderItem={renderChatItem} 
-        keyExtractor={(item) => item.ChatMasterUUID} 
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+        keyExtractor={(item) => item.ChatMasterUUID}
+         
       />
 
       <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "1"}>
-        <CreateGroup onClose={() => setAction(null)} />
+        <CreateGroup fetchChats={fetchChats} onClose={() => setAction(null)} />
+      </CustomModal>
+
+      <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "2"}>
+        <CreateChat fetchChats={fetchChats} onClose={() => setAction(null)} />
       </CustomModal>
 
 

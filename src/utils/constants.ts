@@ -6,6 +6,11 @@ export const chatTypes = {
     GROUP: "GROUP_CHAT"
 }
 
+export const firebaseStoragelocations = {
+    attachmentMB : "attachmentMB",
+    chat: "chat/messageAttachment"
+}
+
 export const COUNTRY_CODES = [
       {
           "PhoneCountryId": 1,

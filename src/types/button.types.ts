@@ -7,4 +7,5 @@ export interface CustomButtonProps {
   textStyle?: StyleProp<TextStyle>;
   icon?: React.ReactNode,
   iconPosition?: string
+  disableOpacity?: boolean
 }

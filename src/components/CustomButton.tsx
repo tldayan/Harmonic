@@ -8,10 +8,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   buttonStyle,
   textStyle,
   icon,
-  iconPosition = "left"
+  iconPosition = "left",
+  disableOpacity = false
 }) => {
   return (
-    <TouchableOpacity style={[buttonStyle]} onPress={() => onPress?.()}>
+    <TouchableOpacity activeOpacity={disableOpacity ? 0 : 1} style={[buttonStyle]} onPress={() => onPress?.()}>
       {(icon && iconPosition === "left") && <View style={styles.icon}>{icon}</View>}
       {title && <Text style={[styles.text, textStyle]}>{title}</Text>}
       {(icon && iconPosition === "right") && <View style={styles.icon}>{icon}</View>}

@@ -17,6 +17,8 @@ import { chatTypes } from '../../utils/constants'
 import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
 import Lock from "../../assets/icons/lock.svg"
+import Group from "../../assets/icons/group.svg"
+
 
 export type ChatInfoScreenRouteProp = RouteProp<RootStackParamList, "ChatInfo">
 
@@ -44,7 +46,7 @@ export default function ChatInfo() {
     }
 
     if(chatType === "GROUP_CHAT") {
-          fetchGroupDetails()
+      fetchGroupDetails()
     }
 
   }, [])
@@ -67,16 +69,13 @@ export default function ChatInfo() {
             <>
             <View style={styles.listHeaderComponent}>
               <CustomButton buttonStyle={{alignSelf: "flex-start", marginLeft: 10}} onPress={() => navigation.goBack()} title={""} icon={<ChevronLeft />} />
-              <Image source={{uri: "https://i.pravatar.cc/150"}} style={styles.chatProfilePictureURL} />
-              <Text style={styles.name}>Tech Team</Text>
+              {groupDetails?.ChatProfilePictureURL ? <Image source={{uri: groupDetails.ChatProfilePictureURL}} style={styles.chatProfilePictureURL} /> : <Group width={50} height={50} /> }
+              <Text style={styles.name}>{groupDetails?.ChatMasterName}</Text>
               <Text style={styles.memberCount}>{members?.length} Members</Text>
-
-              <View>
-                <Text>Media</Text>
-              </View>
             </View>
-
+          
             {chatType === chatTypes.GROUP && <CustomButton buttonStyle={styles.addMemberContainer} onPress={() => setAddingMembers(true)} iconPosition='left' icon={<AddMember strokeWidth={0.7} fill={colors.ACTIVE_ORANGE} width={23} height={23} />} title={"Add members"} />}
+              <Text style={styles.members}>Members</Text>
             </>
           }
           data={groupDetails?.ChatMembers || []}
@@ -188,6 +187,10 @@ const styles = StyleSheet.create({
   },
   encryptionContinaer: {
     gap: 5
+  },
+  members: {
+    marginTop: 20,
+    color: colors.LIGHT_TEXT
   }
 
 })

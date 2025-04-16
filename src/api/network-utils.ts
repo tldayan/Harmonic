@@ -514,6 +514,7 @@ export const getGroupDetails = async(chatMasterUUID: string) => {
 
   try {
     const getGroupDetailsResponse = await apiClient(ENDPOINTS.SOCIAL.GET_GROUP_DETAILS, {}, {}, "GET", {chatMasterUUID})
+    console.log(getGroupDetailsResponse.data)
     return getGroupDetailsResponse.data.Payload
 
   } catch(err) {
@@ -649,6 +650,52 @@ export const addAdminToGroup = async(chatMasterUUID: string, userUUID: string, c
     const addAdminToGroupResponse = await apiClient(ENDPOINTS.SOCIAL.ADD_ADMIN_TO_GROUP, bodyData, {}, "POST")
     console.log(addAdminToGroupResponse)
     return addAdminToGroupResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const saveGroup = async(groupName: string, userUUID: string, chatMasterUUID?: string, groupImageURL?: string) => {
+
+  const bodyData = {
+    "ChatMasterUUID": chatMasterUUID ? chatMasterUUID : null,
+    "ChatMasterName": groupName,
+    "ChatMemberLimit": 30,
+    "ChatMasterDescription": null,
+    "ChatProfilePictureURL": groupImageURL ? groupImageURL : null,
+    "ChatProfilePictureURLPercentage": groupImageURL ? 100 : 0,
+    "LoggedInUserUUID": userUUID,
+    "ChatMembers": []
+  }
+
+
+  try {
+    const saveGroupResponse = await apiClient(ENDPOINTS.SOCIAL.SAVE_GROUP, bodyData, {}, "POST")
+    console.log(saveGroupResponse)
+    return saveGroupResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const inviteMembersToChat = async(userUUID: string,organizationUUID: string,chatMemberUserUUIDs: string[]) => {
+
+  const bodyData = {
+    "userUUID": userUUID,
+    "chatMembers": chatMemberUserUUIDs,
+    "organizationUUID": organizationUUID
+  }
+
+  try {
+    const inviteMembersToChatResponse = await apiClient(ENDPOINTS.SOCIAL.INVITE_MEMBERS_TO_CHAT, bodyData, {}, "POST")
+    console.log(inviteMembersToChatResponse)
+    return inviteMembersToChatResponse.data
 
   } catch(err) {
     console.error(err)

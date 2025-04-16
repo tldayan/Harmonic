@@ -272,7 +272,7 @@ export default function ChatScreen() {
       </View>
 
       <FlatList
-        style={{marginBottom: 70}}
+        style={{marginBottom: 80}}
         contentContainerStyle={styles.chatHistoryList}
         data={chats}
         keyExtractor={(item) => item.id}
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
 
       systemGeneratedMessage: {
         padding: 5,
-        borderRadius: 5,
+        borderRadius: 50,
         textAlign: "center",
         alignSelf: "center",
         width: "70%",

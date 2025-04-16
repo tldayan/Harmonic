@@ -11,16 +11,22 @@ import Check from "../../assets/icons/circle-check.svg"
 import ChevronRight from "../../assets/icons/chevron-right.svg"
 import Group from "../../assets/icons/group.svg"
 import { Dropdown } from 'react-native-element-dropdown'
-import { addMembersToGroup, getOrganizationUsers } from '../../api/network-utils'
+import { addMembersToGroup, getOrganizationUsers, saveGroup } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { STATUS_CODE } from '../../api/endpoints'
 import { defaultInputStyles } from '../../styles/global-styles'
+import EditIcon from "../../assets/icons/edit.svg"
+import { pickMedia } from '../../utils/helpers'
+import { Asset } from 'react-native-image-picker'
+import { uploadMedia } from '../Post/postUtils'
+import { firebaseStoragelocations } from '../../utils/constants'
 
 interface CreateGroupProps {
     onClose: () => void
     addingMembers?: boolean
     chatMasterUUID?: string
+    fetchChats?: () => void
 }
 
   const steps = [
@@ -77,12 +83,13 @@ interface CreateGroupProps {
     );
   };
 
-export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: CreateGroupProps) {
+export default function CreateGroup({onClose, fetchChats, addingMembers, chatMasterUUID}: CreateGroupProps) {
 
   const [step, setStep] = useState(0)
   const [memberSearch, setMemberSearch] = useState("")
   const [addedMembers, setAddedMembers] = useState<{memberName: string, memberUUID: string}[]>([]);
   const [groupName, setGroupName] = useState("")
+  const [groupImage, setGroupImage] = useState<Asset>({})
   const [groupNameErrorMessage, setGroupNameErrorMessage] = useState("")
   const [loading, setLoading] = useState(false)
   const [organizationUsers, setOrganizationUsers] = useState<OrganizationUser[]>([])
@@ -91,6 +98,7 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
   const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)
 
 
+  
   const addMembersToExistingGroup = async() => {
     
     const addMembersToGroupResponse = await addMembersToGroup(chatMasterUUID ?? "",userUUID,addedMembers,organizationUUID)
@@ -124,7 +132,7 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
 
 
 
-  const next = () => {
+  const next =  async() => {
 
     if(addedMembers && addingMembers) {
       addMembersToExistingGroup()
@@ -138,8 +146,25 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
         return
       }
 
-        console.log("create group api here")
-        onClose()
+      setLoading(true)
+      try {
+        const firstSaveGroupResponse = await saveGroup(groupName, userUUID)
+        const groupChatMasterUUID = firstSaveGroupResponse.Payload.ChatMasterUUID
+        await addMembersToGroup(groupChatMasterUUID, userUUID, addedMembers, organizationUUID)
+        const uploaded = await uploadMedia([groupImage], firebaseStoragelocations.chat);
+        const groupImageFirebaseURL = uploaded[0]?.url || "";
+        const secondSaveGroupResponse = await saveGroup(groupName, userUUID, groupChatMasterUUID, groupImageFirebaseURL)
+        
+        if(secondSaveGroupResponse.Status === STATUS_CODE.SUCCESS) {
+          fetchChats?.()
+          onClose()
+        }
+      } catch(err) {
+        console.log(err)
+      } finally {
+        setLoading(false)
+      }
+        
     }
 
     if(step < steps.length - 1) {
@@ -155,6 +180,20 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
       setGroupNameErrorMessage("");
     }
   };
+
+  const handleAddGroupImage = async() => {
+    setLoading(true)
+    try {
+      const assets = await pickMedia(true)
+      if(assets[0].uri === groupImage?.uri) return
+      setGroupImage(assets[0])
+      console.log(groupImage)
+    } catch(err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
+  }
   
   
   
@@ -167,6 +206,8 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
   
 
   const handleAddMember = (member: OrganizationUser) => {
+
+    if(member.UserUUID === userUUID) return
     
     let isMemberAlreadyAdded = addedMembers.some((eachMember) => eachMember.memberUUID === member.UserUUID)
     
@@ -181,7 +222,11 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
   const memberItem = ({item} : {item: OrganizationUser}) => {
 
     return <TouchableOpacity style={styles.memberItemContainer} onPress={() => handleAddMember(item)}>
-                <ProfileHeader noDate ProfilePic={item.ProfilePicURL} name={item.FullName} />
+                <View style={{flexDirection: "row", alignItems: "center"}}>
+                  <ProfileHeader noDate ProfilePic={item.ProfilePicURL} name={item.FullName} />
+                  {item.UserUUID === userUUID && <Text style={styles.you}>You</Text>}
+                </View>
+                
                 {addedMembers.some((member) => member.memberUUID === item.UserUUID) && <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />}
             </TouchableOpacity>
   }
@@ -217,8 +262,10 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
   const stepTwo = () => {
     return (
         <View style={styles.innerContainer}>
-            <View style={{backgroundColor: "#FEECDC", padding: 50, borderRadius: "100%", alignSelf: "center"}}>
-                <Group width={100} height={100} />
+            <View style={[styles.groupImageContainer, !groupImage?.uri && {padding : 50}]}>
+                {!groupImage?.uri && <Group width={50} height={50} />}
+                {groupImage?.uri && <Image style={{borderRadius: 75}} width={150} height={150} source={{uri : groupImage?.uri ? groupImage?.uri : ""}}/>}
+                <CustomButton onPress={handleAddGroupImage} buttonStyle={styles.editGroupImage} icon={loading ? <ActivityIndicator size={"small"} color={"white"} /> : <EditIcon fill={"white"} color={colors.ACTIVE_ORANGE} width={20} height={20} />} /> 
             </View>
            {/*  <DropdownComponent groupSubject={groupSubject} setGroupSubject={setGroupSubject} /> */}
             <CustomTextInput errorMessage={groupNameErrorMessage} label='Group Name' labelStyle={styles.groupName} inputStyle={defaultInputStyles} value={groupName} onChangeText={handleGroupNameChange} />
@@ -241,7 +288,7 @@ export default function CreateGroup({onClose, addingMembers, chatMasterUUID}: Cr
             renderItem={({ item, index }) => index === 0 ? stepOne() : stepTwo()}
         />
 
-        {addedMembers.length >= 1 && <CustomButton buttonStyle={{position: "absolute", bottom: "5%", right: "10%"}} onPress={next} title={""} icon={<ChevronRight fill={colors.ACTIVE_ORANGE} stroke='white'  width={60} height={60}/>} />}
+        {addedMembers.length >= 1 && <CustomButton buttonStyle={{position: "absolute", bottom: "5%", right: "10%"}} onPress={next} title={""} icon={loading ? <ActivityIndicator size="large" color={colors.ACTIVE_ORANGE} /> : <ChevronRight fill={colors.ACTIVE_ORANGE} stroke='white'  width={60} height={60}/>} />}
         
     </SafeAreaView>
   )
@@ -328,6 +375,29 @@ const styles = StyleSheet.create({
       marginTop: 20,
       fontSize: 16,
       marginBottom: 5
+    },
+    you: {
+      paddingHorizontal: 5,
+      paddingVertical: 2,
+      fontSize: 10,
+      backgroundColor: colors.LIGHT_COLOR,
+      color: colors.LIGHT_TEXT
+    },
+    groupImageContainer: {
+      position: "relative",
+      backgroundColor: "#FEECDC", 
+      borderRadius: "100%", 
+      alignSelf: "center"
+    },
+    editGroupImage :  {
+      padding: 8,
+      borderRadius: 50,
+      position: "absolute",
+      right: 6,
+      bottom: 6,
+      backgroundColor: colors.ACTIVE_ORANGE,
+      justifyContent: "center",
+      alignItems: "center",
     }
 
 })

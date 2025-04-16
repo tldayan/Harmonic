@@ -2,6 +2,7 @@ import { Asset } from "react-native-image-picker"
 import { PollOption } from "../../types/post-types"
 import storage from "@react-native-firebase/storage"
 import { getStorage, ref, deleteObject } from "firebase/storage";
+import { firebaseStoragelocations } from "../../utils/constants";
 
 export const filterOptions = (options : PollOption[]) => {
 
@@ -23,7 +24,7 @@ export const filterOptions = (options : PollOption[]) => {
 }
 
 
-export const uploadMedia = async (mediaFiles: Asset[]): Promise<{ url: string, type: 'image' | 'video' }[]> => {
+export const uploadMedia = async (mediaFiles: Asset[], firebaseStoragelocation: string): Promise<{ url: string, type: 'image' | 'video' }[]> => {
 
     if (!mediaFiles.length) return [];
 
@@ -47,7 +48,7 @@ export const uploadMedia = async (mediaFiles: Asset[]): Promise<{ url: string, t
                 return undefined;
             }
 
-            const fileRef = storage().ref(`uploads/attachmentMB/${fileName}`);
+            const fileRef = storage().ref(`uploads/${firebaseStoragelocation}/${fileName}`);
 
             await fileRef.putFile(uri);
             const downloadUrl = await fileRef.getDownloadURL();

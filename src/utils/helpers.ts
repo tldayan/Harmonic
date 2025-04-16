@@ -113,11 +113,11 @@ export function timeAgo(dateString: string): string {
 }
 
 
-export const pickMedia = async () => {
+export const pickMedia = async (oneImage?: boolean) => {
   try {
     const result = await launchImageLibrary({
       mediaType: "mixed",
-      selectionLimit: 0,
+      selectionLimit: oneImage ? 1 : 0,
       quality: 1,
     });
 

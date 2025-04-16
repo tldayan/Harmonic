@@ -45,7 +45,9 @@ export const ENDPOINTS = {
     UNBLOCK_USER: `${BASE_URL}/social/unblockUser`,
     GET_FRIENDS_LIST: `${BASE_URL}/social/getFriendsList`,
     ADD_MEMBERS_TO_GROUP: `${BASE_URL}/social/addMembersToGroup`,
-    ADD_ADMIN_TO_GROUP: `${BASE_URL}/social/addAdminToGroup`
+    ADD_ADMIN_TO_GROUP: `${BASE_URL}/social/addAdminToGroup`,
+    SAVE_GROUP: `${BASE_URL}/social/saveGroup`,
+    INVITE_MEMBERS_TO_CHAT: `${BASE_URL}/social/inviteMembersToChat`
   },  
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,
