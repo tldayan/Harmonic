@@ -17,7 +17,7 @@ import { RootState } from '../../store/store'
 import { useUser } from '../../context/AuthContext'
 import PostActions from '../../modals/Post/PostActions'
 import { CustomModal } from '../../components/CustomModal'
-import { STATUS_CODE } from '../../api/endpoints'
+import { STATUS_CODE } from '../../utils/constants'
 
 export type CommentsScreenRouteProp = RouteProp<RootStackParamList, "Comments">
 

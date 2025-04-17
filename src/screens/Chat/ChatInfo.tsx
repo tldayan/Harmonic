@@ -1,5 +1,5 @@
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { act, useEffect, useState } from 'react'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import CustomButton from '../../components/CustomButton'
 import ChevronLeft from "../../assets/icons/chevron-left.svg"
@@ -13,12 +13,15 @@ import { colors } from '../../styles/colors'
 import AddMember from "../../assets/icons/add-member.svg"
 import { CustomModal } from '../../components/CustomModal'
 import CreateGroup from '../../modals/Chat/CreateGroup'
-import { chatTypes } from '../../utils/constants'
+import { chatTypes, MEMBER_ROLES } from '../../utils/constants'
 import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
 import Lock from "../../assets/icons/lock.svg"
 import Group from "../../assets/icons/group.svg"
-
+import { GroupMemberDropdownComponent } from '../../dropdowns/GroupMemberDropdown'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../store/store'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export type ChatInfoScreenRouteProp = RouteProp<RootStackParamList, "ChatInfo">
 
@@ -28,22 +31,36 @@ export default function ChatInfo() {
   const [addingMembers, setAddingMembers] = useState(false)
   const [members, setMembers] = useState<ChatMembers[]>([])
   const [isBlockingUser, setIsBlockingUser] = useState(false)
+  const [action, setAction] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false)
+  const [selectedMember, setSelectedMember] = useState("")
   const [isReportingUser, setIsReportingUser] = useState(false)
-
+  
     const navigation = useNavigation()
     const route = useRoute<ChatInfoScreenRouteProp>()
     const {chatMasterUUID, chatType} = route.params || {}
-    
-
-  useEffect(() => {
+    const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+  
 
     const fetchGroupDetails = async() => {
-      console.log(chatMasterUUID)
-      const groupDetails = await getGroupDetails(chatMasterUUID)
-      console.log(groupDetails.ChatMembers)
-      setGroupDetails(groupDetails)
-      setMembers(groupDetails.ChatMembers)
+
+      setLoading(true)
+
+      try {
+
+        const groupDetails = await getGroupDetails(chatMasterUUID)
+        
+        setGroupDetails(groupDetails)
+        setMembers(groupDetails.ChatMembers)
+
+      } catch(err) {
+        console.log(err)
+      } finally {
+        setLoading(false)
+      }
     }
+
+  useEffect(() => {
 
     if(chatType === "GROUP_CHAT") {
       fetchGroupDetails()
@@ -51,20 +68,37 @@ export default function ChatInfo() {
 
   }, [])
 
+  useEffect(() => {
+
+    if(action === "1") {
+      // make selected member group admin
+    }
+
+
+  }, [action])
+
+  const isUserAdmin = members.some((eachMember) => eachMember.UserUUID === userUUID && eachMember.ChatMemberTypeCode === MEMBER_ROLES.ADMIN )
+
 
   const renderMember = ({item} : {item : ChatMembers}) => {
     return (
-      <ProfileHeader noDate name={item.FirstName} ProfilePic={item.ProfilePicURL || "https://i.pravatar.cc/150"} />
+      <View style={{flexDirection: "row", alignItems: 'center'}}>
+        <ProfileHeader noDate name={item.FirstName} ProfilePic={item.ProfilePicURL || "https://i.pravatar.cc/150"} />
+        <TouchableOpacity onPress={() => setSelectedMember(item.ChatMemberUUID)} style={{marginLeft:"auto", flexDirection: "row", alignItems:"center"}}> 
+          <GroupMemberDropdownComponent userRole={isUserAdmin ? MEMBER_ROLES.ADMIN : MEMBER_ROLES.MEMBER} action={action} setAction={setAction} />
+        </TouchableOpacity>
+      </View>
     )
   }
 
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       
       <View style={{ width: "100%", flex: 1 }}>
         <Text>{chatType}</Text>
-        <FlatList
+        {loading && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={colors.ACTIVE_ORANGE} />}
+        {!loading && <FlatList
           ListHeaderComponent={
             <>
             <View style={styles.listHeaderComponent}>
@@ -83,7 +117,7 @@ export default function ChatInfo() {
           renderItem={renderMember}
           keyExtractor={(item) => item.ChatMemberUUID}
           contentContainerStyle={styles.memberList}
-        />
+        />}
       </View>
 
       <View style={styles.mainEncryptionContianer}>
@@ -121,7 +155,7 @@ export default function ChatInfo() {
           <Report onClose={() => setIsReportingUser(false)} />
         </CustomModal>
 
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -146,7 +180,7 @@ const styles = StyleSheet.create({
     borderRadius: "50%"
   },
   memberList: {
-    borderWidth: 2,
+/*     borderWidth: 2, */
     flex: 1,
     width: "100%",
     gap: 20,
@@ -158,7 +192,7 @@ const styles = StyleSheet.create({
   },
   mainActionsContainer: {
     padding: 20,
-    borderWidth: 1,
+    /* borderWidth: 1, */
     width: "100%",
     alignItems: "flex-start",
     gap: 25

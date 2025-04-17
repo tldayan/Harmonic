@@ -7,7 +7,7 @@ import CustomButton from '../../components/CustomButton'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { blockUser } from '../../api/network-utils'
-import { STATUS_CODE } from '../../api/endpoints'
+import { STATUS_CODE } from '../../utils/constants'
 
 interface BlockProps {
   onClose: () => void,

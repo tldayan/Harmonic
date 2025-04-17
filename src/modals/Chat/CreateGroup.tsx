@@ -14,7 +14,7 @@ import { Dropdown } from 'react-native-element-dropdown'
 import { addMembersToGroup, getOrganizationUsers, saveGroup } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
-import { STATUS_CODE } from '../../api/endpoints'
+import { STATUS_CODE } from '../../utils/constants'
 import { defaultInputStyles } from '../../styles/global-styles'
 import EditIcon from "../../assets/icons/edit.svg"
 import { pickMedia } from '../../utils/helpers'

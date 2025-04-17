@@ -1,6 +1,12 @@
 export const IOS_GOOGLE_CLIENT_ID = "860846154434-4kkm4r82o65trp9c2nl180l09snv3pht.apps.googleusercontent.com";
 export const ANDROID_GOOGLE_CLIENT_ID = "860846154434-dvo1o24543jkpa2gl0cu875nd5lekhk7.apps.googleusercontent.com";
 
+export const STATUS_CODE = {
+  WARNING: 0,
+  ERROR: 1,
+  SUCCESS: 2
+}
+
 export const chatTypes = {
     PRIVATE : "PRIVATE_CHAT",
     GROUP: "GROUP_CHAT"
@@ -9,6 +15,17 @@ export const chatTypes = {
 export const firebaseStoragelocations = {
     attachmentMB : "attachmentMB",
     chat: "chat/messageAttachment"
+}
+
+export const CHAT_INVITE_STATUS_CODES = {
+    APPROVED: "APPROVED",
+    DECLINED: "DECLINED",
+    PENDING: "PENDING"
+}
+
+export const MEMBER_ROLES = {
+    ADMIN: "ADMIN",
+    MEMBER: "MEMBER"
 }
 
 export const COUNTRY_CODES = [

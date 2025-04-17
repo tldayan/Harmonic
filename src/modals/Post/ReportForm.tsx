@@ -8,7 +8,7 @@ import { reportMBCommentInappropriate, reportMBMessageInappropriate } from '../.
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { STATUS_CODE } from '../../api/endpoints'
+import { STATUS_CODE } from '../../utils/constants'
 
 interface ReportFormProps {
     onClose: () => void

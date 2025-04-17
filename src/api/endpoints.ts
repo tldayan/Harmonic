@@ -1,11 +1,5 @@
 export const BASE_URL = "https://myharmonic-dev.app/api";
 
-export const STATUS_CODE = {
-  WARNING: 0,
-  ERROR: 1,
-  SUCCESS: 2
-}
-
 export const ENDPOINTS = {
   AUTH: {
     SIGN_IN: `${BASE_URL}/user/signInUser`,
@@ -47,7 +41,11 @@ export const ENDPOINTS = {
     ADD_MEMBERS_TO_GROUP: `${BASE_URL}/social/addMembersToGroup`,
     ADD_ADMIN_TO_GROUP: `${BASE_URL}/social/addAdminToGroup`,
     SAVE_GROUP: `${BASE_URL}/social/saveGroup`,
-    INVITE_MEMBERS_TO_CHAT: `${BASE_URL}/social/inviteMembersToChat`
+    INVITE_MEMBERS_TO_CHAT: `${BASE_URL}/social/inviteMembersToChat`,
+    RESPOND_TO_CHAT_INVITE: `${BASE_URL}/social/respondToChatInvite`,
+  },
+  ALERT : {
+    GET_CHAT_INVITE_DETAILS: `${BASE_URL}/alert/getChatInviteDetails`
   },  
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,

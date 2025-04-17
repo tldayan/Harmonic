@@ -703,3 +703,38 @@ export const inviteMembersToChat = async(userUUID: string,organizationUUID: stri
 
 }
 
+
+export const respondToChatInvite = async(userUUID: string,inviteUUID:string, statusItemCode: string,chatMasterUUID?: string) => {
+
+  const bodyData = {
+    "InviteUUID": inviteUUID,
+    "InviteFor": chatMasterUUID,
+    "StatusCode": "INVITE_STATUS",
+    "StatusItemCode": statusItemCode,
+    "LoggedInUserUUID": userUUID
+}
+
+  try {
+    const repondToChatInvite = await apiClient(ENDPOINTS.SOCIAL.RESPOND_TO_CHAT_INVITE, bodyData, {}, "POST")
+    console.log(repondToChatInvite)
+    return repondToChatInvite.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+export const getChatInviteDetails = async(LoggedInUserUUID: string, ChatMasterUUID: string) => {
+
+  try {
+    const getChatInviteDetails = await apiClient(ENDPOINTS.ALERT.GET_CHAT_INVITE_DETAILS, {}, {}, "GET",{ChatMasterUUID,LoggedInUserUUID})
+    console.log(getChatInviteDetails)
+    return getChatInviteDetails.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+

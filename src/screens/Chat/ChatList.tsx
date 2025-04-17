@@ -4,7 +4,7 @@ import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors';
 import { CustomTextInput } from '../../components/CustomTextInput';
 import SearchIcon from "../../assets/icons/search.svg"
-import { getChatsList } from '../../api/network-utils';
+import { getChatInviteDetails, getChatsList, respondToChatInvite } from '../../api/network-utils';
 import { RootState } from '../../store/store';
 import { useSelector } from 'react-redux';
 import { CustomModal } from '../../components/CustomModal';
@@ -15,6 +15,7 @@ import { RootStackParamList } from '../../types/navigation-types';
 import { ChatListDropdownComponent } from '../../dropdowns/ChatListDropdown';
 import Close from "../../assets/icons/close-dark.svg"
 import CreateChat from '../../modals/Chat/CreateChat';
+import { CHAT_INVITE_STATUS_CODES, STATUS_CODE } from '../../utils/constants';
 
 const ChatsList = () => {
   const [chats, setChats] = useState<ChatEntity[]>([])
@@ -47,6 +48,37 @@ const ChatsList = () => {
   useEffect(() => {
     fetchChats()
   }, [])
+  
+
+  const handleNavigate = (item: ChatEntity) => {
+    if(item.LoggedInUserInviteStatusItemCode !== CHAT_INVITE_STATUS_CODES.APPROVED) return
+
+    navigation.navigate("ChatScreen", {userUUID: userUUID , chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})
+  }
+
+  const handleChatInvite = async(item: ChatEntity, inviteStatus: string) => {
+
+    setLoading(true) 
+
+    try {
+      const chatInviteDetails = await getChatInviteDetails(userUUID, item.ChatMasterUUID)
+      const inviteForUUID = chatInviteDetails.Payload.InviteFor
+      const respondToChatInviteResponse = await respondToChatInvite(userUUID, inviteForUUID, CHAT_INVITE_STATUS_CODES.APPROVED ,item.ChatMasterUUID)
+      if(respondToChatInviteResponse.Status === STATUS_CODE.SUCCESS) {
+        if(inviteStatus === CHAT_INVITE_STATUS_CODES.APPROVED) {
+          navigation.navigate("ChatScreen", {userUUID: userUUID , chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})
+        } else {
+          setChats((prev) => prev.filter((eachChat) => eachChat.ChatMasterUUID !== item.ChatMasterUUID))
+        }
+      }
+    
+    } catch(err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
+
+  }
 
 
   const handleRefresh = async() => {
@@ -65,15 +97,26 @@ const ChatsList = () => {
 
 const renderChatItem = ({ item }: { item: ChatEntity }) => {
   return (
-    <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate("ChatScreen", {userUUID: userUUID , chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})}>
+    <TouchableOpacity style={styles.chatItem} onPress={() => handleNavigate(item)}>
       <Image style={styles.chatMemberProfilePic} source={{ uri: item.ChatProfilePictureURL ? item.ChatProfilePictureURL : "https://i.pravatar.cc/150" }} />
       <View style={styles.mainChatDetailsContainer}>
         <View style={styles.chatDetailsContainer}>
           <Text style={styles.chatMemberName}>{item.ChatMasterName}</Text>
           <Text style={styles.chatTime}>12:00</Text>
         </View>
-        <Text ellipsizeMode="tail" numberOfLines={1} style={styles.latestText}>Lo Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore molestiae neque quos, ad reiciendis ipsa nulla architecto iure, ex voluptatem perferendis, numquam molestias. Numquam facere dolorem doloremque tenetur provident? Debitis!
-        Repudiandae assumenda optio doloribus a consequuntur cupiditate! Fuga voluptates, dolorum perferendis sint omnis vero assumenda, rerum voluptate ratione consequuntur hic quisquam! Quasi soluta est iste at, quo tempora id? Veritatis?rem ipsum,lorem dolor</Text>
+
+        {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.PENDING && <View style={styles.mainChatInviteButtonsContainer}>
+          {loading ? <ActivityIndicator size={"small"} color={colors.ACTIVE_ORANGE} /> : 
+          <>
+          <Text style={styles.pending}>Pending Invite:</Text>
+          <View style={styles.chatInviteButtonsContainer}>
+            <CustomButton onPress={() => handleChatInvite(item, CHAT_INVITE_STATUS_CODES.DECLINED)} buttonStyle={styles.decline} textStyle={styles.declineText} title={"Decline"} />
+            <CustomButton onPress={() => handleChatInvite(item, CHAT_INVITE_STATUS_CODES.APPROVED)} buttonStyle={styles.accept} textStyle={styles.acceptText} title={"Accept"} />
+          </View></>}
+        </View>}
+
+        {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.APPROVED && <Text ellipsizeMode="tail" numberOfLines={1} style={styles.latestText}>Lo Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore molestiae neque quos, ad reiciendis ipsa nulla architecto iure, ex voluptatem perferendis, numquam molestias. Numquam facere dolorem doloremque tenetur provident? Debitis!
+        Repudiandae assumenda optio doloribus a consequuntur cupiditate! Fuga voluptates, dolorum perferendis sint omnis vero assumenda, rerum voluptate ratione consequuntur hic quisquam! Quasi soluta est iste at, quo tempora id? Veritatis?rem ipsum,lorem dolor</Text>}
       </View>
     </TouchableOpacity>
   );
@@ -245,4 +288,39 @@ const styles = StyleSheet.create({
     height: 40,
     fontSize: 16,
   },
+  mainChatInviteButtonsContainer: {
+/*     borderWidth: 2, */
+    flexDirection: "row",
+    marginLeft: "auto",
+    alignItems: "center",
+    marginTop: 5
+  },
+  chatInviteButtonsContainer: {
+    flexDirection: "row",
+    gap: 5
+  },
+  acceptText: {
+    fontSize: 13,
+    color: "white",
+    fontWeight: "bold"
+  },
+  declineText: {
+    color: colors.RED_TEXT,
+    fontSize: 13,
+    fontWeight: "bold"
+  },
+  accept: {
+    padding: 5,
+    backgroundColor: colors.ACTIVE_ORANGE,
+    borderRadius: 4,
+  },
+  decline: {
+    padding: 5,
+    borderRadius: 4,
+    color: colors.RED_TEXT,
+  },
+  pending: {
+    color: colors.LIGHT_TEXT,
+    fontSize: 12
+  }
 })

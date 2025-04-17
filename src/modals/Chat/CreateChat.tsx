@@ -11,7 +11,7 @@ import ChevronRight from "../../assets/icons/chevron-right.svg"
 import { getOrganizationUsers, inviteMembersToChat } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
-import { STATUS_CODE } from '../../api/endpoints'
+import { STATUS_CODE } from '../../utils/constants'
 
 interface CreateChatProps {
     onClose: () => void

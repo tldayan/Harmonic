@@ -17,7 +17,7 @@ import { deleteMBMessageAttachment, saveMBMessage } from '../../api/network-util
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import Filters from '../Filters'
-import { STATUS_CODE } from '../../api/endpoints'
+import { STATUS_CODE } from '../../utils/constants'
 import AttachmentCarousel from '../AttachmentCarousel'
 import { pickMedia } from '../../utils/helpers'
 import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
