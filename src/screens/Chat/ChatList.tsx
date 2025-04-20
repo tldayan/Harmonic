@@ -16,6 +16,7 @@ import { ChatListDropdownComponent } from '../../dropdowns/ChatListDropdown';
 import Close from "../../assets/icons/close-dark.svg"
 import CreateChat from '../../modals/Chat/CreateChat';
 import { CHAT_INVITE_STATUS_CODES, STATUS_CODE } from '../../utils/constants';
+import { getTimeFromISO } from '../../utils/helpers';
 
 const ChatsList = () => {
   const [chats, setChats] = useState<ChatEntity[]>([])
@@ -53,7 +54,7 @@ const ChatsList = () => {
   const handleNavigate = (item: ChatEntity) => {
     if(item.LoggedInUserInviteStatusItemCode !== CHAT_INVITE_STATUS_CODES.APPROVED) return
 
-    navigation.navigate("ChatScreen", {userUUID: userUUID , chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})
+    navigation.navigate("ChatScreen", {userUUID: userUUID ,createdDateTime: item.CreatedDateTime, chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})
   }
 
   const handleChatInvite = async(item: ChatEntity, inviteStatus: string) => {
@@ -66,7 +67,7 @@ const ChatsList = () => {
       const respondToChatInviteResponse = await respondToChatInvite(userUUID, inviteForUUID, CHAT_INVITE_STATUS_CODES.APPROVED ,item.ChatMasterUUID)
       if(respondToChatInviteResponse.Status === STATUS_CODE.SUCCESS) {
         if(inviteStatus === CHAT_INVITE_STATUS_CODES.APPROVED) {
-          navigation.navigate("ChatScreen", {userUUID: userUUID , chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})
+          navigation.navigate("ChatScreen", {userUUID: userUUID ,createdDateTime: item.CreatedDateTime, chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})
         } else {
           setChats((prev) => prev.filter((eachChat) => eachChat.ChatMasterUUID !== item.ChatMasterUUID))
         }
@@ -102,7 +103,7 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
       <View style={styles.mainChatDetailsContainer}>
         <View style={styles.chatDetailsContainer}>
           <Text style={styles.chatMemberName}>{item.ChatMasterName}</Text>
-          <Text style={styles.chatTime}>12:00</Text>
+          <Text style={styles.chatTime}>{getTimeFromISO(item.LastMessageTimestamp)}</Text>
         </View>
 
         {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.PENDING && <View style={styles.mainChatInviteButtonsContainer}>
@@ -115,8 +116,7 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
           </View></>}
         </View>}
 
-        {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.APPROVED && <Text ellipsizeMode="tail" numberOfLines={1} style={styles.latestText}>Lo Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore molestiae neque quos, ad reiciendis ipsa nulla architecto iure, ex voluptatem perferendis, numquam molestias. Numquam facere dolorem doloremque tenetur provident? Debitis!
-        Repudiandae assumenda optio doloribus a consequuntur cupiditate! Fuga voluptates, dolorum perferendis sint omnis vero assumenda, rerum voluptate ratione consequuntur hic quisquam! Quasi soluta est iste at, quo tempora id? Veritatis?rem ipsum,lorem dolor</Text>}
+        {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.APPROVED && <Text ellipsizeMode="tail" numberOfLines={1} style={styles.latestText}>{item.LastMessage}</Text>}
       </View>
     </TouchableOpacity>
   );

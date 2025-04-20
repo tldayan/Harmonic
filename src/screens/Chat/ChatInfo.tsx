@@ -1,9 +1,9 @@
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { act, useEffect, useState } from 'react'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import CustomButton from '../../components/CustomButton'
 import ChevronLeft from "../../assets/icons/chevron-left.svg"
-import { getGroupDetails } from '../../api/network-utils'
+import { addAdminToGroup, getGroupDetails } from '../../api/network-utils'
 import { RootStackParamList } from '../../types/navigation-types'
 import ProfileHeader from '../../components/ProfileHeader'
 import Trash from "../../assets/icons/trash.svg"
@@ -13,7 +13,7 @@ import { colors } from '../../styles/colors'
 import AddMember from "../../assets/icons/add-member.svg"
 import { CustomModal } from '../../components/CustomModal'
 import CreateGroup from '../../modals/Chat/CreateGroup'
-import { chatTypes, MEMBER_ROLES } from '../../utils/constants'
+import { chatTypes, MEMBER_ROLES, STATUS_CODE } from '../../utils/constants'
 import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
 import Lock from "../../assets/icons/lock.svg"
@@ -22,6 +22,7 @@ import { GroupMemberDropdownComponent } from '../../dropdowns/GroupMemberDropdow
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import ConfirmationModal from '../../modals/ConfirmationModal'
 
 export type ChatInfoScreenRouteProp = RouteProp<RootStackParamList, "ChatInfo">
 
@@ -33,6 +34,8 @@ export default function ChatInfo() {
   const [isBlockingUser, setIsBlockingUser] = useState(false)
   const [action, setAction] = useState<string | null>(null);
   const [loading, setLoading] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [adminConfirmation, setAdminConfirmation] = useState(false)
   const [selectedMember, setSelectedMember] = useState("")
   const [isReportingUser, setIsReportingUser] = useState(false)
   
@@ -68,25 +71,45 @@ export default function ChatInfo() {
 
   }, [])
 
+const adminToGroup = async() => {
+      try {
+        const addAdminToGroupResponse = await addAdminToGroup(chatMasterUUID, userUUID, [selectedMember]);
+
+          if(addAdminToGroupResponse.Status === STATUS_CODE.SUCCESS) {
+            fetchGroupDetails()
+          }
+        } catch(err) {
+          console.log(err)
+        }
+      }
+
   useEffect(() => {
 
+    
+  
     if(action === "1") {
-      // make selected member group admin
+      setShowConfirmModal(true)
     }
-
 
   }, [action])
 
-  const isUserAdmin = members.some((eachMember) => eachMember.UserUUID === userUUID && eachMember.ChatMemberTypeCode === MEMBER_ROLES.ADMIN )
+
+  useEffect(() => {
+    if(adminConfirmation) {
+      adminToGroup()
+    } else {
+      setAdminConfirmation(false)
+      setShowConfirmModal(false)
+    }
+  },[adminConfirmation])
 
 
   const renderMember = ({item} : {item : ChatMembers}) => {
     return (
-      <View style={{flexDirection: "row", alignItems: 'center'}}>
+      <View style={styles.memberItem}>
         <ProfileHeader noDate name={item.FirstName} ProfilePic={item.ProfilePicURL || "https://i.pravatar.cc/150"} />
-        <TouchableOpacity onPress={() => setSelectedMember(item.ChatMemberUUID)} style={{marginLeft:"auto", flexDirection: "row", alignItems:"center"}}> 
-          <GroupMemberDropdownComponent userRole={isUserAdmin ? MEMBER_ROLES.ADMIN : MEMBER_ROLES.MEMBER} action={action} setAction={setAction} />
-        </TouchableOpacity>
+        {item.ChatMemberTypeCode === MEMBER_ROLES.ADMIN && <Text style={styles.admin}>{MEMBER_ROLES.ADMIN}</Text>}
+        <GroupMemberDropdownComponent userUUID={userUUID} selectedMember={selectedMember} onDropdownFocus={() => {setSelectedMember(item.ChatMemberUUID)}} userRole={item.ChatMemberTypeCode} action={action} setAction={setAction} />
       </View>
     )
   }
@@ -108,8 +131,11 @@ export default function ChatInfo() {
               <Text style={styles.memberCount}>{members?.length} Members</Text>
             </View>
           
-            {chatType === chatTypes.GROUP && <CustomButton buttonStyle={styles.addMemberContainer} onPress={() => setAddingMembers(true)} iconPosition='left' icon={<AddMember strokeWidth={0.7} fill={colors.ACTIVE_ORANGE} width={23} height={23} />} title={"Add members"} />}
+            <View style={styles.groupActionsContainer}>
               <Text style={styles.members}>Members</Text>
+              {chatType === chatTypes.GROUP && <CustomButton buttonStyle={styles.addMemberContainer} textStyle={{color: colors.ACTIVE_ORANGE}} onPress={() => setAddingMembers(true)} iconPosition='left' /* icon={<AddMember strokeWidth={2} color='white' width={20} height={20} />} */ title={"Add members"} />}
+            </View>
+            
             </>
           }
           data={groupDetails?.ChatMembers || []}
@@ -144,7 +170,7 @@ export default function ChatInfo() {
       </View> 
 
         <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={addingMembers}>
-          <CreateGroup chatMasterUUID={chatMasterUUID} addingMembers={true} onClose={() => setAddingMembers(false)} />
+          <CreateGroup fetchGroupDetails={fetchGroupDetails} chatMasterUUID={chatMasterUUID} addingMembers={true} onClose={() => setAddingMembers(false)} />
         </CustomModal>
 
         <CustomModal isOpen={isBlockingUser} onClose={() => setIsBlockingUser(false)}>
@@ -153,6 +179,10 @@ export default function ChatInfo() {
 
         <CustomModal isOpen={isReportingUser} onClose={() => setIsReportingUser(false)}>
           <Report onClose={() => setIsReportingUser(false)} />
+        </CustomModal>
+        
+        <CustomModal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)}>
+          <ConfirmationModal warningText='You and this person will share all Admin privileges!.' setConfirmation={setAdminConfirmation} onClose={() => setShowConfirmModal(false)}  />
         </CustomModal>
 
     </SafeAreaView>
@@ -190,6 +220,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
     color: colors.LIGHT_TEXT
   },
+  memberItem: {
+    flexDirection: "row",
+    alignItems: 'center',
+    justifyContent: "space-between"
+  },
   mainActionsContainer: {
     padding: 20,
     /* borderWidth: 1, */
@@ -208,11 +243,13 @@ const styles = StyleSheet.create({
     fontSize: 17
   },
   addMemberContainer: {
-    marginTop: 10,
+/*     backgroundColor: colors.ACTIVE_ORANGE, */
+    color: colors.ACTIVE_ORANGE,
+    borderRadius: 3,
     flexDirection: "row",
-    gap: 5,
-    alignItems: "center",
-    paddingHorizontal: 5
+
+    padding: 5,
+    paddingHorizontal: 10
   },
   mainEncryptionContianer: {
     flexDirection: "row",
@@ -223,8 +260,22 @@ const styles = StyleSheet.create({
     gap: 5
   },
   members: {
-    marginTop: 20,
     color: colors.LIGHT_TEXT
+  },
+  admin: {
+    color: "#3CB371",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    fontSize: 10,
+    marginLeft: "auto",
+    backgroundColor: colors.BACKGROUND_COLOR,
+    borderRadius: 3 
+  },
+  groupActionsContainer: {
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between"
   }
 
 })

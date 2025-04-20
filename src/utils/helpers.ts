@@ -113,6 +113,23 @@ export function timeAgo(dateString: string): string {
 }
 
 
+export function getTimeFromISO(isoString: string) {
+  const date = new Date(isoString);
+  const hours = date.getUTCHours().toString().padStart(2, '0');
+  const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+export function formatLongDate(isoString: string): string {
+  const date = new Date(isoString);
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  };
+  return date.toLocaleDateString('en-US', options);
+}
+
 export const pickMedia = async (oneImage?: boolean) => {
   try {
     const result = await launchImageLibrary({

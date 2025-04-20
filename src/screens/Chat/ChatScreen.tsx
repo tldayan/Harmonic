@@ -5,7 +5,7 @@ import { CustomTextInput } from '../../components/CustomTextInput'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
-import { pickMedia, useKeyboardVisibility } from '../../utils/helpers'
+import { formatLongDate, pickMedia, useKeyboardVisibility } from '../../utils/helpers'
 import PaperClip from "../../assets/icons/paper-clip2.svg"
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
@@ -55,7 +55,7 @@ export default function ChatScreen() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
   const [showCamera, setShowCamera] = useState(false);
   const route = useRoute<ChatsScreenRouteProp>()
-  const {userUUID, chatMasterUUID, chatProfilePictureURL, chatMasterName, chatType, chatMemberUserUUID} = route.params || {}
+  const {userUUID, chatMasterUUID, createdDateTime,chatProfilePictureURL, chatMasterName, chatType, chatMemberUserUUID} = route.params || {}
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const paddingAnim = useRef(new Animated.Value(0)).current;
 
@@ -170,11 +170,15 @@ export default function ChatScreen() {
 
   }
 
-  const renderMessage = ({ item }: { item: ChatMessage }) => {
+  const renderMessage = ({ item, index }: { item: ChatMessage, index: number }) => {
 
     if (!item.Message?.trim() && !item.Attachment) {
       return null; 
     }
+
+    /* if(chats[chats.length - 1] === 0) {
+      return <Text style={styles.systemGeneratedMessage}>{formatDate(item.Timestamp)}</Text>
+    } */
 
     if (item.MessageType === "system-generated") {
       return <Text style={styles.systemGeneratedMessage}>{item.Message}</Text>;
@@ -279,6 +283,7 @@ export default function ChatScreen() {
         renderItem={renderMessage}
         inverted
         showsVerticalScrollIndicator={false}
+        ListFooterComponent={<Text style={styles.systemGeneratedMessage}>{formatLongDate(createdDateTime)}</Text>}
       />
 
     <View style={[styles.mainMessageFieldContainer, { padding: isKeyboardVisible ? 0 : Platform.OS === "ios" ? 20 : 0 }]}>
@@ -482,7 +487,8 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         textAlign: "center",
         alignSelf: "center",
-        width: "70%",
+      /*   width: "70%", */
+        paddingHorizontal: 15,
         fontSize: 13,
         fontWeight: 300,
         color: colors.LIGHT_TEXT,

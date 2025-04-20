@@ -20,6 +20,7 @@ import EditIcon from "../../assets/icons/edit.svg"
 import { pickMedia } from '../../utils/helpers'
 import { Asset } from 'react-native-image-picker'
 import { uploadMedia } from '../Post/postUtils'
+import CloseIcon from "../../assets/icons/close-light.svg"
 import { firebaseStoragelocations } from '../../utils/constants'
 
 interface CreateGroupProps {
@@ -27,6 +28,7 @@ interface CreateGroupProps {
     addingMembers?: boolean
     chatMasterUUID?: string
     fetchChats?: () => void
+    fetchGroupDetails?: () => void
 }
 
   const steps = [
@@ -83,7 +85,7 @@ interface CreateGroupProps {
     );
   };
 
-export default function CreateGroup({onClose, fetchChats, addingMembers, chatMasterUUID}: CreateGroupProps) {
+export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addingMembers, chatMasterUUID}: CreateGroupProps) {
 
   const [step, setStep] = useState(0)
   const [memberSearch, setMemberSearch] = useState("")
@@ -102,8 +104,9 @@ export default function CreateGroup({onClose, fetchChats, addingMembers, chatMas
   const addMembersToExistingGroup = async() => {
     
     const addMembersToGroupResponse = await addMembersToGroup(chatMasterUUID ?? "",userUUID,addedMembers,organizationUUID)
-    
+    console.log(addMembersToGroupResponse)
     if(addMembersToGroupResponse === STATUS_CODE.SUCCESS) {
+      fetchGroupDetails?.()
       onClose()
     }
 
@@ -181,18 +184,23 @@ export default function CreateGroup({onClose, fetchChats, addingMembers, chatMas
     }
   };
 
-  const handleAddGroupImage = async() => {
-    setLoading(true)
-    try {
-      const assets = await pickMedia(true)
-      if(assets[0].uri === groupImage?.uri) return
-      setGroupImage(assets[0])
-      console.log(groupImage)
-    } catch(err) {
-      console.log(err)
-    } finally {
-      setLoading(false)
+  const handleGroupImage = async() => {
+    if(!groupImage.uri) {
+        setLoading(true)
+      try {
+        const assets = await pickMedia(true)
+       /*  if(assets[0].uri === groupImage?.uri) return */
+        setGroupImage(assets[0])
+        console.log(groupImage)
+      } catch(err) {
+        console.log(err)
+      } finally {
+        setLoading(false)
+      }
+    } else {
+      setGroupImage({})
     }
+    
   }
   
   
@@ -265,7 +273,7 @@ export default function CreateGroup({onClose, fetchChats, addingMembers, chatMas
             <View style={[styles.groupImageContainer, !groupImage?.uri && {padding : 50}]}>
                 {!groupImage?.uri && <Group width={50} height={50} />}
                 {groupImage?.uri && <Image style={{borderRadius: 75}} width={150} height={150} source={{uri : groupImage?.uri ? groupImage?.uri : ""}}/>}
-                <CustomButton onPress={handleAddGroupImage} buttonStyle={styles.editGroupImage} icon={loading ? <ActivityIndicator size={"small"} color={"white"} /> : <EditIcon fill={"white"} color={colors.ACTIVE_ORANGE} width={20} height={20} />} /> 
+                <CustomButton onPress={handleGroupImage} buttonStyle={[styles.editGroupImage, groupImage?.uri ? {backgroundColor: "red"} : null]} icon={loading ? <ActivityIndicator size={"small"} color={"white"} /> : groupImage.uri ? <CloseIcon width={20} height={20} /> : <EditIcon fill={"white"} color={colors.ACTIVE_ORANGE} width={20} height={20} />} /> 
             </View>
            {/*  <DropdownComponent groupSubject={groupSubject} setGroupSubject={setGroupSubject} /> */}
             <CustomTextInput errorMessage={groupNameErrorMessage} label='Group Name' labelStyle={styles.groupName} inputStyle={defaultInputStyles} value={groupName} onChangeText={handleGroupNameChange} />
@@ -394,6 +402,16 @@ const styles = StyleSheet.create({
       borderRadius: 50,
       position: "absolute",
       right: 6,
+      bottom: 6,
+      backgroundColor: colors.ACTIVE_ORANGE,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    closeGroupImage: {
+      padding: 8,
+      borderRadius: 50,
+      position: "absolute",
+      left: 6,
       bottom: 6,
       backgroundColor: colors.ACTIVE_ORANGE,
       justifyContent: "center",

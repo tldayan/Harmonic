@@ -1,18 +1,22 @@
 import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import ThreeDots from "../assets/icons/three-dots-vertical.svg"
+import { MEMBER_ROLES } from "../utils/constants";
 
 
   interface DropdownComponentProps {
     action: string | null
     setAction: React.Dispatch<React.SetStateAction<string | null>>
-    userRole: string 
+    userRole: string
+    onDropdownFocus: () => void;
+    selectedMember: string,
+    userUUID: string
   }
   
-  export const GroupMemberDropdownComponent = ({action,setAction, userRole}: DropdownComponentProps) => {
-  
+  export const GroupMemberDropdownComponent = ({action,setAction, userRole, onDropdownFocus, selectedMember, userUUID}: DropdownComponentProps) => {
+
     const actions = [
-        ...(userRole === "ADMIN" ? [{ label: 'Make group admin', value: '1' }] : []),
+        ...((userRole !== MEMBER_ROLES.ADMIN && userUUID !== selectedMember) ? [{ label: 'Make group admin', value: '1' }] : []),
         { label: 'Message', value: '2' },
     ];
 
@@ -27,7 +31,7 @@ import ThreeDots from "../assets/icons/three-dots-vertical.svg"
         selectedTextStyle={{display :"none"}}
         itemTextStyle={{color: "black"}}
         containerStyle={{
-          borderRadius: 5,
+          borderRadius: 10,
           width: "90%",
           marginHorizontal: "5%",
           left: "auto",
@@ -37,7 +41,10 @@ import ThreeDots from "../assets/icons/three-dots-vertical.svg"
           shadowOffset: { width: 0, height: 4 }, 
           elevation: 5,
         }}
-        onFocus={() => setAction(null)}
+        onFocus={() => {
+          setAction(null);
+          onDropdownFocus();
+        }}
         maxHeight={300}
         labelField="label"
         valueField="value"
@@ -56,14 +63,14 @@ import ThreeDots from "../assets/icons/three-dots-vertical.svg"
 
   const styles = StyleSheet.create({
     dropdown: {
-  /*     backgroundColor: "red", */
+/*       backgroundColor: "red", */
       position: "relative",
       width : "6%",
-      marginLeft: "auto",
+      marginLeft: 10,
       height: 50,
     },
     iconStyle: {
-      width: "100%",
+      width: "0%",
       height: 50,
       alignItems: "center",
       justifyContent: "center",

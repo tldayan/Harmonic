@@ -47,6 +47,8 @@ interface NestedCategory {
     ChatMemberUserUUID: string;
     ChatProfilePictureURL: string | null;
     ChatTypeUUID: string;
+    LastMessage: string;
+    LastMessageTimestamp: string;
     ChatTypeCode: "GROUP_CHAT" | string;
     CreatedDateTime: string; // ISO Date format
     ModifiedDateTime: string | null;

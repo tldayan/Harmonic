@@ -645,7 +645,7 @@ export const addAdminToGroup = async(chatMasterUUID: string, userUUID: string, c
     "loggedInUserUUID": userUUID
 }
 
-
+console.log(bodyData)
   try {
     const addAdminToGroupResponse = await apiClient(ENDPOINTS.SOCIAL.ADD_ADMIN_TO_GROUP, bodyData, {}, "POST")
     console.log(addAdminToGroupResponse)
