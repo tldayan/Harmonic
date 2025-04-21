@@ -1,5 +1,5 @@
 import { ActivityIndicator, Alert, Animated, FlatList, Image, Keyboard, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import ProfileHeader from '../../components/ProfileHeader'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
@@ -7,7 +7,7 @@ import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import { formatLongDate, pickMedia, useKeyboardVisibility } from '../../utils/helpers'
 import PaperClip from "../../assets/icons/paper-clip2.svg"
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
 import { getGroupMessages, getMessages } from '../../api/network-utils'
 import { profilePic } from '../../styles/global-styles'
@@ -33,6 +33,7 @@ import { getCurrentLocation } from '../../utils/ChatScreen/Location'
 import { PhotoFile} from 'react-native-vision-camera';
 import CameraView from '../../components/CameraView'
 import { CapturedItem } from '../../components/FlatlistItems/CapturedItem'
+import { SocketContext } from '../../context/SocketContext'
 
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
@@ -59,7 +60,21 @@ export default function ChatScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const paddingAnim = useRef(new Animated.Value(0)).current;
 
+  const socket = useContext(SocketContext);
+
+  useEffect(() => {
+    if (socket && chatMasterUUID) {
+      socket.emit("join-room", chatMasterUUID);
+      console.log(`Joined chat room: ${chatMasterUUID}`);
+    }
+
+    return () => {
+      socket.emit("leave-room", chatMasterUUID);
+      console.log(`Left chat room: ${chatMasterUUID}`);
+    };
+  }, [chatMasterUUID, socket]);
   
+
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
 
 
@@ -69,11 +84,9 @@ export default function ChatScreen() {
       navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })
     }
   }, [chatAction])
+
   
-
-  useEffect(() => {
-
-    const fetchChats = async() => {
+    const fetchChats = async(initialMessages: boolean) => {
 
       let messagesResponse = undefined
 
@@ -88,7 +101,12 @@ export default function ChatScreen() {
       if(chats.length === 0) return
       
       console.log(chats)
-      setChats((prev) => [...prev, ...chats])
+      if(initialMessages) {
+        setChats(chats)
+      } else {
+        setChats((prev) => [...prev, ...chats])
+      }
+
       
       const lastTimestamp = chats[chats.length - 1]?.Timestamp;
       if (lastTimestamp) {
@@ -96,18 +114,22 @@ export default function ChatScreen() {
       }
 
     }
-  
-    fetchChats()
-    
-    if(userBlocked) {
-      chatActions.map((eachAction) => {
-        if(eachAction.label === "Block") {
-          eachAction.label = "Unblock"
-        }
-      })
-    }
 
-  }, [])
+
+    useFocusEffect(
+      useCallback(() => {
+        fetchChats(true);
+    
+        if (userBlocked) {
+          chatActions.map((eachAction) => {
+            if (eachAction.label === "Block") {
+              eachAction.label = "Unblock";
+            }
+          });
+        }
+    
+      }, [])
+    );
 
 
   const handleSendMessage = () => {

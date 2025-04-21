@@ -657,6 +657,49 @@ console.log(bodyData)
 
 }
 
+export const removeMemberFromAdmin = async(chatMasterUUID: string, userUUID: string, chatMemberUserUUIDs: string[]) => {
+
+  const bodyData = {
+    "chatMemberUUIDs": chatMemberUserUUIDs,
+    "chatMasterUUID": chatMasterUUID,
+    "loggedInUserUUID": userUUID
+}
+
+console.log(bodyData)
+
+  try {
+    const removeAdminFromGroup = await apiClient(ENDPOINTS.SOCIAL.REMOVE_ADMIN_FROM_GROUP, bodyData, {}, "POST")
+    console.log(removeAdminFromGroup)
+    return removeAdminFromGroup.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const removeGroupMembers = async(chatMasterUUID: string, userUUID: string, chatMemberUserUUIDs: string[]) => {
+
+  const bodyData = {
+    "chatMemberUUIDs": chatMemberUserUUIDs,
+    "chatMasterUUID": chatMasterUUID,
+    "loggedInUserUUID": userUUID
+}
+
+console.log(bodyData)
+
+  try {
+    const removeGroupMembersResponse = await apiClient(ENDPOINTS.SOCIAL.REMOVE_GROUP_MEMBERS, bodyData, {}, "POST")
+    console.log(removeGroupMembersResponse)
+    return removeGroupMembersResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
 
 export const saveGroup = async(groupName: string, userUUID: string, chatMasterUUID?: string, groupImageURL?: string) => {
 

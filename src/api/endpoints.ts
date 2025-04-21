@@ -40,6 +40,8 @@ export const ENDPOINTS = {
     GET_FRIENDS_LIST: `${BASE_URL}/social/getFriendsList`,
     ADD_MEMBERS_TO_GROUP: `${BASE_URL}/social/addMembersToGroup`,
     ADD_ADMIN_TO_GROUP: `${BASE_URL}/social/addAdminToGroup`,
+    REMOVE_ADMIN_FROM_GROUP: `${BASE_URL}/social/removeMemberFromAdmin`,
+    REMOVE_GROUP_MEMBERS: `${BASE_URL}/social/removeGroupMembers`,
     SAVE_GROUP: `${BASE_URL}/social/saveGroup`,
     INVITE_MEMBERS_TO_CHAT: `${BASE_URL}/social/inviteMembersToChat`,
     RESPOND_TO_CHAT_INVITE: `${BASE_URL}/social/respondToChatInvite`,

@@ -168,10 +168,10 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
 
 
     </View>
-  )
+  ) 
 }
 
-export default ChatsList
+  export default ChatsList
 
 
 const styles = StyleSheet.create({

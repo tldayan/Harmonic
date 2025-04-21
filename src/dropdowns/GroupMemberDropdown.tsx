@@ -17,7 +17,9 @@ import { MEMBER_ROLES } from "../utils/constants";
 
     const actions = [
         ...((userRole !== MEMBER_ROLES.ADMIN && userUUID !== selectedMember) ? [{ label: 'Make group admin', value: '1' }] : []),
-        { label: 'Message', value: '2' },
+        ...((userRole === MEMBER_ROLES.ADMIN && userUUID !== selectedMember) ? [{ label: 'Remove from admin', value: '2' }] : []),
+        ...((userRole !== MEMBER_ROLES.ADMIN && userUUID !== selectedMember) ? [{ label: 'Remove from group', value: '3' }] : []),
+        { label: 'Message', value: '3' },
     ];
 
 

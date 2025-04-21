@@ -16,7 +16,7 @@ interface ModalsHeaderProps {
 
 export default function ModalsHeader({title, onClose, lightCloseIcon, goBack = false, goBackFunc}: ModalsHeaderProps) {
   return (
-    <View style={[styles.headerContainer, !title ? {width: "100%"} : null]}>
+    <View style={[styles.headerContainer]}>
         {(goBack && goBackFunc) && <CustomButton buttonStyle={styles.goBackButton} onPress={goBackFunc} icon={<ChevronLeft />} />}
         <Text style={styles.title}>{title}</Text>
         <CustomButton buttonStyle={styles.closeButton} onPress={onClose} icon={lightCloseIcon ? <CloseIconLight /> : <CloseIconDark /> } />

@@ -5,8 +5,10 @@ import ModalsHeader from './ModalsHeader';
 import Video from 'react-native-video';
 import { Asset } from 'react-native-image-picker';
 import { PhotoFile } from 'react-native-vision-camera';
+import CustomButton from '../components/CustomButton';
 const Pinchable = require('react-native-pinchable').default;
-
+import Close from "../assets/icons/close-light.svg"
+import { colors } from '../styles/colors';
 
 const { width } = Dimensions.get('window'); 
 
@@ -45,7 +47,8 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
             return (
                 <TouchableWithoutFeedback>
                     <View style={styles.postImageContainer}>
-                        <MemoizedModalsHeader lightCloseIcon={true} onClose={onClose} />
+                        {/* <MemoizedModalsHeader lightCloseIcon={true} onClose={onClose} /> */}
+                        <CustomButton buttonStyle={styles.close} onPress={onClose} icon={<Close width={20} height={20} />} />
                         <View style={styles.contentWrapper}>
                             {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                             {!item.AttachmentType.includes("video") ? (
@@ -78,7 +81,8 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
             return (
                 <TouchableWithoutFeedback>
                     <View style={styles.postImageContainer}>
-                        <MemoizedModalsHeader lightCloseIcon={true} onClose={onClose} />
+                        {/* <MemoizedModalsHeader lightCloseIcon={true} onClose={onClose} /> */}
+                        <CustomButton buttonStyle={styles.close} onPress={onClose} icon={<Close width={20} height={20} />} />
                         <View style={styles.contentWrapper}>
                             {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                                 <Pinchable>
@@ -102,7 +106,8 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
             return (
                 <TouchableWithoutFeedback>
                     <View style={styles.postImageContainer}>
-                        <MemoizedModalsHeader lightCloseIcon={true} onClose={onClose} />
+                   {/*      <MemoizedModalsHeader lightCloseIcon={true} onClose={onClose} /> */}
+                   <CustomButton buttonStyle={styles.close} onPress={onClose} icon={<Close width={20} height={20} />} />
                         <View style={styles.contentWrapper}>
                             {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                             {!item.type?.includes("video") ? (
@@ -240,4 +245,13 @@ const styles = StyleSheet.create({
         left: "50%",
         transform: [{ translateX: "-50%" }, { translateY: "-50%" }]
     },
+    close: {
+        borderWidth: 1,
+        marginLeft: "auto",
+        marginBottom: 15,
+      /*     backgroundColor: colors.ACTIVE_ORANGE, */
+        borderColor: colors.ACTIVE_ORANGE,
+        borderRadius: 50,
+        padding: 10
+    }
 });

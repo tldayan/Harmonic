@@ -3,7 +3,7 @@ import React, { act, useEffect, useState } from 'react'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import CustomButton from '../../components/CustomButton'
 import ChevronLeft from "../../assets/icons/chevron-left.svg"
-import { addAdminToGroup, getGroupDetails } from '../../api/network-utils'
+import { addAdminToGroup, getGroupDetails, removeGroupMembers, removeMemberFromAdmin } from '../../api/network-utils'
 import { RootStackParamList } from '../../types/navigation-types'
 import ProfileHeader from '../../components/ProfileHeader'
 import Trash from "../../assets/icons/trash.svg"
@@ -36,7 +36,10 @@ export default function ChatInfo() {
   const [loading, setLoading] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [adminConfirmation, setAdminConfirmation] = useState(false)
-  const [selectedMember, setSelectedMember] = useState("")
+  const [selectedMember, setSelectedMember] = useState<{userUUID: string, chatMemberUUID: string}>({
+    userUUID: '',
+    chatMemberUUID: '',
+  });
   const [isReportingUser, setIsReportingUser] = useState(false)
   
     const navigation = useNavigation()
@@ -71,13 +74,44 @@ export default function ChatInfo() {
 
   }, [])
 
-const adminToGroup = async() => {
+const addAdmin = async() => {
       try {
-        const addAdminToGroupResponse = await addAdminToGroup(chatMasterUUID, userUUID, [selectedMember]);
+        const addAdminToGroupResponse = await addAdminToGroup(chatMasterUUID, userUUID, [selectedMember.userUUID]);
 
           if(addAdminToGroupResponse.Status === STATUS_CODE.SUCCESS) {
             fetchGroupDetails()
           }
+
+          setAction(null)
+        } catch(err) {
+          console.log(err)
+        }
+      }
+
+const removeAdmin = async() => {
+      try {
+        const removeAdminResponse = await removeMemberFromAdmin(chatMasterUUID, userUUID, [selectedMember.userUUID]);
+
+          if(removeAdminResponse.Status === STATUS_CODE.SUCCESS) {
+            fetchGroupDetails()
+          }
+
+          setAction(null)
+        } catch(err) {
+          console.log(err)
+        }
+      }
+
+const removeGroupMember = async() => {
+  console.log(selectedMember)
+      try {
+        const removeGroupMembersResponse = await removeGroupMembers(chatMasterUUID, userUUID, [selectedMember.chatMemberUUID]);
+
+          if(removeGroupMembersResponse.Status === STATUS_CODE.SUCCESS) {
+            fetchGroupDetails()
+          }
+
+          setAction(null)
         } catch(err) {
           console.log(err)
         }
@@ -85,23 +119,11 @@ const adminToGroup = async() => {
 
   useEffect(() => {
 
-    
-  
-    if(action === "1") {
+    if(action === "1" || action === "2" || action == "3") {
       setShowConfirmModal(true)
     }
 
   }, [action])
-
-
-  useEffect(() => {
-    if(adminConfirmation) {
-      adminToGroup()
-    } else {
-      setAdminConfirmation(false)
-      setShowConfirmModal(false)
-    }
-  },[adminConfirmation])
 
 
   const renderMember = ({item} : {item : ChatMembers}) => {
@@ -109,7 +131,7 @@ const adminToGroup = async() => {
       <View style={styles.memberItem}>
         <ProfileHeader noDate name={item.FirstName} ProfilePic={item.ProfilePicURL || "https://i.pravatar.cc/150"} />
         {item.ChatMemberTypeCode === MEMBER_ROLES.ADMIN && <Text style={styles.admin}>{MEMBER_ROLES.ADMIN}</Text>}
-        <GroupMemberDropdownComponent userUUID={userUUID} selectedMember={selectedMember} onDropdownFocus={() => {setSelectedMember(item.ChatMemberUUID)}} userRole={item.ChatMemberTypeCode} action={action} setAction={setAction} />
+        <GroupMemberDropdownComponent userUUID={userUUID} selectedMember={selectedMember.userUUID} onDropdownFocus={() => {setSelectedMember({userUUID: item.UserUUID, chatMemberUUID: item.ChatMemberUUID})}} userRole={item.ChatMemberTypeCode} action={action} setAction={setAction} />
       </View>
     )
   }
@@ -143,6 +165,31 @@ const adminToGroup = async() => {
           renderItem={renderMember}
           keyExtractor={(item) => item.ChatMemberUUID}
           contentContainerStyle={styles.memberList}
+          /* ListFooterComponent={
+          <>
+            <View style={styles.mainEncryptionContianer}>
+            <Lock width={20} height={20}/>
+            <View style={styles.encryptionContinaer}>
+              <Text style={{fontWeight: 500}}>Encryption</Text>
+              <Text style={{color: colors.TEXT_COLOR}}>Messages and calls are end-to-end encrypted</Text>
+            </View>
+            </View>
+
+        <View style={styles.mainActionsContainer}>
+          <TouchableOpacity onPress={() => setIsBlockingUser(true)} style={styles.actionContainer}>
+            <XCircle fill='red' width={20} height={20}/>
+            <Text style={styles.action}>Block user</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setIsReportingUser(true)} style={styles.actionContainer}>
+            <ThumbsDown fill='red' width={20} height={20}/>
+            <Text style={styles.action}>Report user</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {}} style={styles.actionContainer}>
+            <Trash fill='red' width={20} height={20}/>
+            <Text style={styles.action}>Delete chat</Text>
+          </TouchableOpacity>
+        </View>
+      </>} */
         />}
       </View>
 
@@ -182,7 +229,12 @@ const adminToGroup = async() => {
         </CustomModal>
         
         <CustomModal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)}>
-          <ConfirmationModal warningText='You and this person will share all Admin privileges!.' setConfirmation={setAdminConfirmation} onClose={() => setShowConfirmModal(false)}  />
+          {action === "1" ? <ConfirmationModal confirmText='Yes' declineText="No, Cancel" warningText='You and this person will share all Admin privileges!' setConfirmation={addAdmin} onClose={() => setShowConfirmModal(false)} /> 
+          : action === "2" ? 
+          <ConfirmationModal confirmText='Yes' declineText="No, Cancel" warningText="Are you sure you want to remove this person's admin privileges?" setConfirmation={removeAdmin} onClose={() => setShowConfirmModal(false)} /> 
+          : 
+          <ConfirmationModal confirmText='Yes' declineText="No, Cancel" warningText="This person will be removed permanently!" setConfirmation={removeGroupMember} onClose={() => setShowConfirmModal(false)} />
+        }
         </CustomModal>
 
     </SafeAreaView>
