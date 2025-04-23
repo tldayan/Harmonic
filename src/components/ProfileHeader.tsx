@@ -50,7 +50,7 @@ export default function ProfileHeader({name, fetchLatestMessages, onPress , goBa
 
   return (
     <View style={styles.mainProfileDetialsContainer}>
-        {goBack && <CustomButton buttonStyle={{flexDirection :"row", height: "100%", alignItems: "center"}} onPress={() => navigation.goBack()} icon={<ChevronLeft />} />}
+        {goBack && <CustomButton buttonStyle={{marginLeft: 10, flexDirection :"row", height: "100%", alignItems: "center"}} onPress={() => navigation.goBack()} icon={<ChevronLeft />} />}
         
         <TouchableOpacity style={{flexDirection: "row", gap: 10, alignItems: "center"}} onPress={onPress}>
           <Image source={{ uri: postData?.ProfilePic || ProfilePic === "" ? "https://i.pravatar.cc/150" : ProfilePic }} style={styles.profilePicture} />

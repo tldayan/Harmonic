@@ -15,7 +15,7 @@ import { STATUS_CODE } from '../../utils/constants'
 
 interface CreateChatProps {
     onClose: () => void
-    fetchChats: () => void
+    fetchChats: () => void   
 }
 
 const width = Dimensions.get("window").width

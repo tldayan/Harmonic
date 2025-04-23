@@ -24,69 +24,84 @@ const ChatsList = () => {
   const [chatSearch, setChatSearch] = useState("")
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
   const [loading, setLoading] = useState(false)
+  const [chatActionLoadingUUID, setChatActionLoadingUUID] = useState<string | null>(null)
   const [action, setAction] = useState<string | null>(null);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const [refreshing, setRefreshing] = useState(false)
 
-
-
-
-  const fetchChats = async() => {
-
-      setLoading(true)
-      try {
-        const chatsResponse = await getChatsList(userUUID)
-        console.log(chatsResponse)
-        setChats(chatsResponse)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
+  const fetchChats = async () => {
+    setLoading(true)
+    try {
+      const chatsResponse = await getChatsList(userUUID)
+      setChats(chatsResponse)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
     }
-
+  }
 
   useEffect(() => {
     fetchChats()
   }, [])
-  
 
   const handleNavigate = (item: ChatEntity) => {
-    if(item.LoggedInUserInviteStatusItemCode !== CHAT_INVITE_STATUS_CODES.APPROVED) return
-
-    navigation.navigate("ChatScreen", {userUUID: userUUID ,createdDateTime: item.CreatedDateTime, chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})
+    if (item.LoggedInUserInviteStatusItemCode !== CHAT_INVITE_STATUS_CODES.APPROVED) return
+    navigation.navigate("ChatScreen", {
+      userUUID,
+      createdDateTime: item.CreatedDateTime,
+      chatMasterUUID: item.ChatMasterUUID,
+      chatProfilePictureURL: item.ChatProfilePictureURL,
+      chatMasterName: item.ChatMasterName,
+      chatType: item.ChatTypeCode,
+      chatMemberUserUUID: item.ChatMemberUserUUID
+    })
   }
 
-  const handleChatInvite = async(item: ChatEntity, inviteStatus: string) => {
-
-    setLoading(true) 
-
+  const handleChatInvite = async (item: ChatEntity, inviteStatus: string) => {
+    setChatActionLoadingUUID(item.ChatMasterUUID)
     try {
       const chatInviteDetails = await getChatInviteDetails(userUUID, item.ChatMasterUUID)
       const inviteForUUID = chatInviteDetails.Payload.InviteFor
-      const respondToChatInviteResponse = await respondToChatInvite(userUUID, inviteForUUID, CHAT_INVITE_STATUS_CODES.APPROVED ,item.ChatMasterUUID)
-      if(respondToChatInviteResponse.Status === STATUS_CODE.SUCCESS) {
-        if(inviteStatus === CHAT_INVITE_STATUS_CODES.APPROVED) {
-          navigation.navigate("ChatScreen", {userUUID: userUUID ,createdDateTime: item.CreatedDateTime, chatMasterUUID: item.ChatMasterUUID, chatProfilePictureURL: item.ChatProfilePictureURL, chatMasterName: item.ChatMasterName, chatType: item.ChatTypeCode, chatMemberUserUUID: item.ChatMemberUserUUID})
+      const respondToChatInviteResponse = await respondToChatInvite(userUUID, inviteForUUID, inviteStatus, item.ChatMasterUUID)
+
+      if (respondToChatInviteResponse.Status === STATUS_CODE.SUCCESS) {
+        if (inviteStatus === CHAT_INVITE_STATUS_CODES.APPROVED) {
+          navigation.navigate("ChatScreen", {
+            userUUID,
+            createdDateTime: item.CreatedDateTime,
+            chatMasterUUID: item.ChatMasterUUID,
+            chatProfilePictureURL: item.ChatProfilePictureURL,
+            chatMasterName: item.ChatMasterName,
+            chatType: item.ChatTypeCode,
+            chatMemberUserUUID: item.ChatMemberUserUUID
+          })
+
+          setFilteredChats((prev) =>
+            prev.map((eachChat) =>
+              eachChat.ChatMasterUUID === item.ChatMasterUUID
+                ? { ...item, LoggedInUserInviteStatusItemCode: CHAT_INVITE_STATUS_CODES.APPROVED }
+                : eachChat
+            )
+          )
         } else {
-          setChats((prev) => prev.filter((eachChat) => eachChat.ChatMasterUUID !== item.ChatMasterUUID))
+          setFilteredChats((prev) =>
+            prev.filter((eachChat) => eachChat.ChatMasterUUID !== item.ChatMasterUUID)
+          )
         }
       }
-    
-    } catch(err) {
+    } catch (err) {
       console.log(err)
     } finally {
-      setLoading(false)
+      setChatActionLoadingUUID(null)
     }
-
   }
 
-
-  const handleRefresh = async() => {
+  const handleRefresh = async () => {
     setRefreshing(true)
     await fetchChats()
     setRefreshing(false)
-  } 
+  }
 
   useEffect(() => {
     const filtered = chats.filter((eachChat) =>
@@ -94,68 +109,77 @@ const ChatsList = () => {
     );
     setFilteredChats(filtered);
   }, [chatSearch, chats]);
-  
 
-const renderChatItem = ({ item }: { item: ChatEntity }) => {
-  return (
-    <TouchableOpacity style={styles.chatItem} onPress={() => handleNavigate(item)}>
-      <Image style={styles.chatMemberProfilePic} source={{ uri: item.ChatProfilePictureURL ? item.ChatProfilePictureURL : "https://i.pravatar.cc/150" }} />
-      <View style={styles.mainChatDetailsContainer}>
-        <View style={styles.chatDetailsContainer}>
-          <Text style={styles.chatMemberName}>{item.ChatMasterName}</Text>
-          <Text style={styles.chatTime}>{getTimeFromISO(item.LastMessageTimestamp)}</Text>
+  const renderChatItem = ({ item }: { item: ChatEntity }) => {
+    const isLoading = chatActionLoadingUUID === item.ChatMasterUUID;
+
+    return (
+      <TouchableOpacity style={styles.chatItem} onPress={() => handleNavigate(item)}>
+        <Image style={styles.chatMemberProfilePic} source={{ uri: item.ChatProfilePictureURL || "https://i.pravatar.cc/150" }} />
+        <View style={styles.mainChatDetailsContainer}>
+          <View style={styles.chatDetailsContainer}>
+            <Text style={styles.chatMemberName}>{item.ChatMasterName}</Text>
+            <Text style={styles.chatTime}>{getTimeFromISO(item.LastMessageTimestamp)}</Text>
+          </View>
+
+          {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.PENDING &&
+            <View style={styles.mainChatInviteButtonsContainer}>
+              {isLoading ? (
+                <ActivityIndicator size="small" color={colors.ACTIVE_ORANGE} />
+              ) : (
+                <>
+                  <Text style={styles.pending}>Pending Invite:</Text>
+                  <View style={styles.chatInviteButtonsContainer}>
+                    <CustomButton onPress={() => handleChatInvite(item, CHAT_INVITE_STATUS_CODES.DECLINED)} buttonStyle={styles.decline} textStyle={styles.declineText} title="Decline" />
+                    <CustomButton onPress={() => handleChatInvite(item, CHAT_INVITE_STATUS_CODES.APPROVED)} buttonStyle={styles.accept} textStyle={styles.acceptText} title="Accept" />
+                  </View>
+                </>
+              )}
+            </View>
+          }
+
+          {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.APPROVED && (
+            <Text ellipsizeMode="tail" numberOfLines={1} style={styles.latestText}>{item.LastMessage}</Text>
+          )}
         </View>
-
-        {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.PENDING && <View style={styles.mainChatInviteButtonsContainer}>
-          {loading ? <ActivityIndicator size={"small"} color={colors.ACTIVE_ORANGE} /> : 
-          <>
-          <Text style={styles.pending}>Pending Invite:</Text>
-          <View style={styles.chatInviteButtonsContainer}>
-            <CustomButton onPress={() => handleChatInvite(item, CHAT_INVITE_STATUS_CODES.DECLINED)} buttonStyle={styles.decline} textStyle={styles.declineText} title={"Decline"} />
-            <CustomButton onPress={() => handleChatInvite(item, CHAT_INVITE_STATUS_CODES.APPROVED)} buttonStyle={styles.accept} textStyle={styles.acceptText} title={"Accept"} />
-          </View></>}
-        </View>}
-
-        {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.APPROVED && <Text ellipsizeMode="tail" numberOfLines={1} style={styles.latestText}>{item.LastMessage}</Text>}
-      </View>
-    </TouchableOpacity>
-  );
-};
-
+      </TouchableOpacity>
+    );
+  }
 
   return (
-    <View style={{flex: 1,backgroundColor: "white"}}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       <FlatList
         ListHeaderComponent={
-        <>
-
-          <View style={styles.mainSearchFieldContainer}>
-            <CustomTextInput value={chatSearch} rightIcon={chatSearch && <CustomButton onPress={() => setChatSearch("")} icon={<Close opacity={0.8} width={18} height={18} />} /> } leftIcon={<SearchIcon width={20} height={20} opacity={0.5} />} mainInputStyle={styles.searchFieldContainer} inputStyle={styles.searchField} onChangeText={(e) => setChatSearch(e)} placeholder='Search messages or contact' />
-            <ChatListDropdownComponent action={action} setAction={setAction} />
-          </View>
-   
-    
-          <ScrollView contentContainerStyle={styles.chatCategoryButtonsContainer}>
-            <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"All"} />
-            <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"Unread"} />
-            <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"Groups"} />
-            <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"Starred"} />
-          </ScrollView>
-        </>
-        }
-        ListFooterComponent={
           <>
-            {loading ? <ActivityIndicator style={{marginTop: 50}} size="small" /> : null}
+            <View style={styles.mainSearchFieldContainer}>
+              <CustomTextInput
+                value={chatSearch}
+                rightIcon={chatSearch && <CustomButton onPress={() => setChatSearch("")} icon={<Close opacity={0.8} width={18} height={18} />} />}
+                leftIcon={<SearchIcon width={20} height={20} opacity={0.5} />}
+                mainInputStyle={styles.searchFieldContainer}
+                inputStyle={styles.searchField}
+                onChangeText={(e) => setChatSearch(e)}
+                placeholder='Search messages or contact'
+              />
+              <ChatListDropdownComponent action={action} setAction={setAction} />
+            </View>
+
+              <ScrollView contentContainerStyle={styles.chatCategoryButtonsContainer}>
+                <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"All"} />
+                <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"Unread"} />
+                <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"Groups"} />
+                <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"Starred"} />
+              </ScrollView>
           </>
         }
+        ListFooterComponent={loading ? <ActivityIndicator style={{ marginTop: 50 }} size="small" /> : null}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.chatList} 
+        contentContainerStyle={styles.chatList}
         data={filteredChats.length ? filteredChats : chats}
-        renderItem={renderChatItem} 
+        renderItem={renderChatItem}
         onRefresh={handleRefresh}
         refreshing={refreshing}
         keyExtractor={(item) => item.ChatMasterUUID}
-         
       />
 
       <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "1"}>
@@ -165,13 +189,12 @@ const renderChatItem = ({ item }: { item: ChatEntity }) => {
       <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "2"}>
         <CreateChat fetchChats={fetchChats} onClose={() => setAction(null)} />
       </CustomModal>
-
-
     </View>
-  ) 
+  )
 }
 
-  export default ChatsList
+export default ChatsList
+
 
 
 const styles = StyleSheet.create({

@@ -34,6 +34,9 @@ import { PhotoFile} from 'react-native-vision-camera';
 import CameraView from '../../components/CameraView'
 import { CapturedItem } from '../../components/FlatlistItems/CapturedItem'
 import { SocketContext } from '../../context/SocketContext'
+import { BaseMessage, GroupMessageReceived, PrivateMessageReceived } from '../../types/chat-types'
+import { convertToChatMessage } from '../../utils/ChatScreen/ConverMessage'
+import { useUser } from '../../context/AuthContext'
 
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
@@ -59,25 +62,173 @@ export default function ChatScreen() {
   const {userUUID, chatMasterUUID, createdDateTime,chatProfilePictureURL, chatMasterName, chatType, chatMemberUserUUID} = route.params || {}
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const paddingAnim = useRef(new Animated.Value(0)).current;
-
+  const isGroupChat = chatType === chatTypes.GROUP
   const socket = useContext(SocketContext);
-
-  useEffect(() => {
-    if (socket && chatMasterUUID) {
-      socket.emit("join-room", chatMasterUUID);
-      console.log(`Joined chat room: ${chatMasterUUID}`);
-    }
-
-    return () => {
-      socket.emit("leave-room", chatMasterUUID);
-      console.log(`Left chat room: ${chatMasterUUID}`);
-    };
-  }, [chatMasterUUID, socket]);
-  
-
+  const { user } = useUser();
+  const socketChatType = isGroupChat ? "group" : "private"
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
 
 
+// 1. Register the socket with the userUUID
+/* useEffect(() => {
+  if (!socket) return;
+
+  const registerSocket = () => {
+    if (socket.connected && userUUID) {
+      // Register user with socket
+      socket.emit("register", userUUID);
+      console.log("Registered socket with userUUID:", userUUID);
+    }
+  };
+
+  // If the socket is already connected, register
+  if (socket.connected) {
+    registerSocket();
+  }
+
+  // On socket connection, register user
+  socket.on("connect", registerSocket);
+
+  return () => {
+    socket.off("connect", registerSocket);
+    if (userUUID) {
+      // Deregister the user from the socket when component unmounts or userUUID changes
+      socket.emit("deregister", userUUID);
+      console.log("Deregistered socket with userUUID:", userUUID);
+    }
+  };
+}, [socket, userUUID]);
+ */
+
+
+useEffect(() => {
+  if (socket?.connected) {
+    if (chatMasterUUID && !isGroupChat) {
+      socket.emit("join_chat", chatMasterUUID);
+      console.log(`Joined private chat room: ${chatMasterUUID}`);
+    } else if (chatMasterUUID && isGroupChat) {
+      socket.emit("join_group", chatMasterUUID);
+      console.log(`Joined group chat room: ${chatMasterUUID}`);
+    }
+  }
+
+  return () => {
+    console.log(`Left room: ${chatMasterUUID}`);
+  };
+}, [chatMasterUUID, socket, isGroupChat]);
+;
+
+  useEffect(() => {
+    if (!socket) return;
+  
+  
+    const handleMessage = (data: BaseMessage) => {
+      console.log("New message received", data);
+      const senderFirstName = isGroupChat
+      ? (data as GroupMessageReceived).SenderFirstName
+      : (data as PrivateMessageReceived).SenderFirstName;
+
+      let newMessage = convertToChatMessage(data, userUUID, senderFirstName || chatMasterName)
+      setChats(prev => [newMessage,...prev]);
+    };
+  
+    socket.on(`${socketChatType}_message_received`, handleMessage);
+  
+    return () => {
+      socket.off(`${socketChatType}_message_received`, handleMessage);
+    };
+  }, [socket, isGroupChat]);
+  
+
+  useEffect(() => {
+    if (!socket || !chats.length) return;
+
+      chats.forEach(msg => {
+        if (msg.SenderUUID !== userUUID) {
+          socket.emit(`${socketChatType}_message_delivered`, {
+            ChatUUID: chatMasterUUID,
+            MessageId: msg.id,
+            UserUUID: userUUID
+          });
+        }
+      });
+    
+    
+  }, [socket, chats, isGroupChat]);
+
+
+  useEffect(() => {
+    if (!socket || !chats.length) return;
+      
+      socket.emit(`${socketChatType}_message_read`, {
+        ChatUUID: chatMasterUUID,
+        UserUUID: userUUID,
+      });
+    
+
+  }, [socket, isGroupChat, chats.length, chatMasterUUID, userUUID]);
+  
+  
+
+
+  useEffect(() => {
+    if (!socket) return;
+    
+  
+    const handleDelivered = ({ MessageId, UserUUID }: any) => {
+      setChats(prev =>
+        prev.map(m =>
+          m.id === MessageId
+            ? {
+                ...m,
+                Status: {
+                  ...m.Status,
+                  DeliveredTo: [...new Set([...(m.Status?.DeliveredTo || []), UserUUID])]
+                }
+              }
+            : m
+        )
+      );
+    };
+  
+    socket.on(`${socketChatType}_message_marked_delivered`, handleDelivered);
+  
+    return () => {
+      socket.off(`${socketChatType}_message_marked_delivered`, handleDelivered);
+    };
+  }, [socket, isGroupChat]);
+  
+  
+
+  useEffect(() => {
+    if (!socket) return;
+  
+    const handleRead = ({ ChatUUID, UserUUID }: { ChatUUID: string; UserUUID: string }) => {
+      console.log("hejre")
+      setChats((prevChats) =>
+        prevChats.map((chat) => {
+          if (chat.SenderUUID === userUUID && !chat.Status.ReadBy.includes(UserUUID)) {
+            return {
+              ...chat,
+              Status: {
+                ...chat.Status,
+                ReadBy: [...chat.Status.ReadBy, UserUUID],
+              },
+            };
+          }
+          return chat;
+        })
+      );
+    };
+  
+    socket.on(`${socketChatType}_message_marked_read`, handleRead);
+  
+    return () => {
+      socket.off(`${socketChatType}_message_marked_read`, handleRead);
+    };
+  }, [socket, chatMasterUUID, userUUID, isGroupChat]);
+  
+  
 
   useEffect(() => {
     if(chatAction === "1") {
@@ -86,34 +237,26 @@ export default function ChatScreen() {
   }, [chatAction])
 
   
-    const fetchChats = async(initialMessages: boolean) => {
-
-      let messagesResponse = undefined
-
-      if(chatType === chatTypes.PRIVATE) {
-        messagesResponse = await getMessages(userUUID, chatMasterUUID, lastMessageTimeStamp)
-      } else {
-        messagesResponse = await getGroupMessages(userUUID, chatMasterUUID, lastMessageTimeStamp)
-      }
-
-      let chats = messagesResponse?.Messages || []
-
-      if(chats.length === 0) return
-      
-      console.log(chats)
-      if(initialMessages) {
-        setChats(chats)
-      } else {
-        setChats((prev) => [...prev, ...chats])
-      }
-
-      
-      const lastTimestamp = chats[chats.length - 1]?.Timestamp;
-      if (lastTimestamp) {
-        setLastMessageTimeStamp(lastTimestamp);
-      }
-
+  const fetchChats = useCallback(async (initialMessages: boolean) => {
+    let messagesResponse;
+  
+    if (chatType === chatTypes.PRIVATE) {
+      messagesResponse = await getMessages(userUUID, chatMasterUUID, lastMessageTimeStamp);
+    } else {
+      messagesResponse = await getGroupMessages(userUUID, chatMasterUUID, lastMessageTimeStamp);
     }
+    console.log(messagesResponse.Messages)
+    const chats = messagesResponse?.Messages || [];
+    if (chats.length === 0) return;
+  
+    setChats((prev) => initialMessages ? chats : [...prev, ...chats]);
+  
+    const lastTimestamp = chats[chats.length - 1]?.Timestamp;
+    if (lastTimestamp) {
+      setLastMessageTimeStamp(lastTimestamp);
+    }
+  }, [chatType, userUUID, chatMasterUUID, lastMessageTimeStamp]);
+  
 
 
     useFocusEffect(
@@ -133,9 +276,48 @@ export default function ChatScreen() {
 
 
   const handleSendMessage = () => {
-
     
+    if(!message.trim()) return
+    const timestamp = new Date().toISOString();
 
+    const payload = {
+      SenderUUID: userUUID, 
+      Message: message,
+      Attachment: null, 
+      AttachmentType: null,
+      ViewUUID: "", //optional
+      ...(isGroupChat
+        ? { GroupId: chatMasterUUID } // for group
+        : { ChatUUID: chatMasterUUID }) // for private
+    }
+    console.log(payload)
+    if(isGroupChat) {
+      socket.emit("group_message", payload)
+    } else {
+      socket.emit("private_message", payload)
+    }
+
+    const newMessage: ChatMessage = {
+      id : `msg-${Date.now()}`,
+      SenderUUID: userUUID,
+      Message: message,
+      MessageType: "user-generated",
+      Attachment: "",
+      AttachmentType: "",
+      Timestamp: timestamp,
+      Status: {
+        DeliveredTo: [],
+        ReadBy: [],
+      },
+      UserUUID: userUUID,
+      SenderFirstName: user?.displayName || "", 
+      SenderLastName: user?.displayName || "",
+    };
+
+
+    setChats((prev) => [newMessage, ...prev])
+    
+    setMessage("")
   }
 
 
@@ -193,46 +375,86 @@ export default function ChatScreen() {
   }
 
   const renderMessage = ({ item, index }: { item: ChatMessage, index: number }) => {
-
     if (!item.Message?.trim() && !item.Attachment) {
       return null; 
     }
+  
+    const isMessagefromOwner = item.SenderUUID === userUUID;
+    const isSeen = item.Status?.ReadBy?.some(uuid => uuid !== userUUID);
 
-    /* if(chats[chats.length - 1] === 0) {
-      return <Text style={styles.systemGeneratedMessage}>{formatDate(item.Timestamp)}</Text>
-    } */
-
+  const isLastSentMessage = isMessagefromOwner &&
+  index === chats.findIndex(
+    (msg) => msg.SenderUUID === userUUID && msg.MessageType === "user-generated"
+  )
+  
     if (item.MessageType === "system-generated") {
       return <Text style={styles.systemGeneratedMessage}>{item.Message}</Text>;
-    } else if (item.MessageType === "user-generated") {
+    }
+  
+    if (item.MessageType === "user-generated") {
       return ( 
-        <View style={styles.userGeneratedMessageContainer}>
-          <Image style={profilePic} source={{uri: chatProfilePictureURL || "https://i.pravatar.cc/150"}} />
-          <View style={styles.userMessageContainer}>
-            <Text style={styles.username}>{chatType === chatTypes.GROUP ? item.SenderFirstName : chatMasterName}</Text>
-            <TouchableOpacity style={[styles.userGeneratedMessage, item.Attachment ? {padding : 5} : null]}>
-              {item.Attachment ? (
-                <TouchableOpacity onPress={() => {setAttachment(item.Attachment);setViewingAttachments(true); setChatAttachments([])}}>
+        <View style={[
+          styles.userGeneratedMessageContainer,
+          isMessagefromOwner && { flexDirection: "row-reverse", alignSelf: "flex-end" }
+        ]}>
+          <Image
+            style={[
+              profilePic
+            ]}
+            source={{
+              uri:
+                item.SenderUUID === userUUID
+                  ? user?.photoURL || "https://i.pravatar.cc/150"
+                  : chatProfilePictureURL || "https://i.pravatar.cc/150"
+            }}
+          />
+          <View style={[styles.userMessageContainer, isMessagefromOwner && { alignItems: "flex-end" }]}>
+            <Text style={styles.username}>
+              {isMessagefromOwner ? user?.displayName : item.SenderFirstName ? item.SenderFirstName : chatMasterName}
+            </Text>
+  
+            <TouchableOpacity
+              style={[
+                styles.userGeneratedMessage,
+                item.Attachment && { padding: 5 },
+                isMessagefromOwner ? {borderTopRightRadius : 0, borderTopLeftRadius: 10} : {borderTopRightRadius : 10, borderTopLeftRadius: 0},
+                isMessagefromOwner && { marginLeft: "auto"}
+              ]}
+            >
+              {item.Attachment && (
+                <TouchableOpacity onPress={() => {
+                  setAttachment(item.Attachment);
+                  setViewingAttachments(true);
+                  setChatAttachments([]);
+                }}>
                   <Image
                     style={styles.attachmentImage}
                     source={{ uri: item.Attachment }}
                   />
                 </TouchableOpacity>
-              
-              ) : null}
-              
-              {item.Message === "" ? null : <Text /* style={styles.userGeneratedMessage} */>{item.Message}</Text>}
-                  <Text style={styles.messageTime}> {formatDate(item.Timestamp, true)}</Text>
+              )}
+  
+              {item.Message !== "" && (
+                <Text>
+                  {item.Message}
+                </Text>
+              )}
+  
+              <Text style={[styles.messageTime, isMessagefromOwner && {left : -38} ]}>
+                {formatDate(item.Timestamp, true)}
+              </Text>
+            
             </TouchableOpacity>
-        
- 
-          </View>
+          {isMessagefromOwner && isLastSentMessage && isSeen && (
+            <Text style={styles.seenText}>Seen</Text>
+          )}
 
+          </View>
         </View>
-      )
-    } else {
-      return null
+      );
     }
+  
+    return null;
   };
   
   useEffect(() => {
@@ -530,16 +752,18 @@ const styles = StyleSheet.create({
         gap: 5,
       },
       userGeneratedMessageContainer: {
-     /*    borderWidth:1, */
+        borderWidth:1,
         marginBottom: 10,
         flexDirection: "row",
         gap: 10,
         alignItems :"flex-start",
       },
       userGeneratedMessage: {
-  /*       borderWidth: 1, */
-        borderRadius: 10,
-        marginRight: 5,
+/*         borderWidth: 1, */
+/*         borderRadius: 50, */
+        borderBottomRightRadius: 10,
+        borderBottomLeftRadius: 10,
+/*         marginRight: 5, */
         padding: 10,
         position: "relative",
         backgroundColor: colors.LIGHT_COLOR,
@@ -611,6 +835,10 @@ const styles = StyleSheet.create({
       justifyContent: 'center', 
       padding: 2, 
       height:"100%"
+    },
+    seenText: {
+      fontSize: 12,
+      color: colors.LIGHT_TEXT
     }
 
 })
