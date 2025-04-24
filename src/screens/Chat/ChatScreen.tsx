@@ -1,5 +1,5 @@
 import { ActivityIndicator, Alert, Animated, FlatList, Image, Keyboard, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { ReactEventHandler, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import ProfileHeader from '../../components/ProfileHeader'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
@@ -19,7 +19,7 @@ import MuteNotifications from '../../modals/Chat/MuteNotifications'
 import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
 import DeleteChat from '../../modals/Chat/DeleteChat'
-import { chatTypes } from '../../utils/constants'
+import { CHAT_INVITE_STATUS_CODES, chatTypes } from '../../utils/constants'
 import CameraIcon from "../../assets/icons/chat-camera.svg"
 import DocumentUpload from "../../assets/icons/document-upload.svg"
 import Location from "../../assets/icons/location.svg"
@@ -37,7 +37,7 @@ import { SocketContext } from '../../context/SocketContext'
 import { BaseMessage, GroupMessageReceived, PrivateMessageReceived } from '../../types/chat-types'
 import { convertToChatMessage } from '../../utils/ChatScreen/ConverMessage'
 import { useUser } from '../../context/AuthContext'
-
+import uuid from 'react-native-uuid';
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 
@@ -64,41 +64,11 @@ export default function ChatScreen() {
   const paddingAnim = useRef(new Animated.Value(0)).current;
   const isGroupChat = chatType === chatTypes.GROUP
   const socket = useContext(SocketContext);
+  const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
   const { user } = useUser();
   const socketChatType = isGroupChat ? "group" : "private"
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
 
-
-// 1. Register the socket with the userUUID
-/* useEffect(() => {
-  if (!socket) return;
-
-  const registerSocket = () => {
-    if (socket.connected && userUUID) {
-      // Register user with socket
-      socket.emit("register", userUUID);
-      console.log("Registered socket with userUUID:", userUUID);
-    }
-  };
-
-  // If the socket is already connected, register
-  if (socket.connected) {
-    registerSocket();
-  }
-
-  // On socket connection, register user
-  socket.on("connect", registerSocket);
-
-  return () => {
-    socket.off("connect", registerSocket);
-    if (userUUID) {
-      // Deregister the user from the socket when component unmounts or userUUID changes
-      socket.emit("deregister", userUUID);
-      console.log("Deregistered socket with userUUID:", userUUID);
-    }
-  };
-}, [socket, userUUID]);
- */
 
 
 useEffect(() => {
@@ -169,6 +139,39 @@ useEffect(() => {
   }, [socket, isGroupChat, chats.length, chatMasterUUID, userUUID]);
   
   
+  useEffect(() => {
+
+    if(!socket) return
+
+    socket.on("respond_to_chat_invite_received", ({ StatusItemCode }: { StatusItemCode: string }) => {
+      const timestamp = new Date().toISOString();
+      const inviteResult = StatusItemCode === CHAT_INVITE_STATUS_CODES.APPROVED ? "accepted" : "declined" 
+
+      const newMessage: ChatMessage = {
+        id : uuid.v4(),
+        SenderUUID: userUUID,
+        Message: `${chatMasterName} ${inviteResult} the invite`,
+        MessageType: "system-generated",
+        Attachment: "",
+        AttachmentType: "",
+        Timestamp: timestamp,
+        Status: {
+          DeliveredTo: [],
+          ReadBy: [],
+        },
+        UserUUID: userUUID,
+      };
+
+      setChats((prev) => [newMessage, ...prev])
+
+    })
+
+
+    return () => {
+      socket.off("respond_to_chat_invite_received")
+    }
+
+  }, [socket, userUUID, chatMemberUserUUID])
 
 
   useEffect(() => {
@@ -204,7 +207,7 @@ useEffect(() => {
     if (!socket) return;
   
     const handleRead = ({ ChatUUID, UserUUID }: { ChatUUID: string; UserUUID: string }) => {
-      console.log("hejre")
+/*       console.log(ChatUUID, userUUID) */
       setChats((prevChats) =>
         prevChats.map((chat) => {
           if (chat.SenderUUID === userUUID && !chat.Status.ReadBy.includes(UserUUID)) {
@@ -298,7 +301,7 @@ useEffect(() => {
     }
 
     const newMessage: ChatMessage = {
-      id : `msg-${Date.now()}`,
+      id : uuid.v4(),
       SenderUUID: userUUID,
       Message: message,
       MessageType: "user-generated",
@@ -319,6 +322,62 @@ useEffect(() => {
     
     setMessage("")
   }
+
+
+  let typingTimeout: NodeJS.Timeout | null = null
+
+  const handleTyping = (text: string) => {
+    setMessage(text);
+    if(isGroupChat) return
+
+    console.log("typing")
+    socket.emit("typing", {
+      senderUUID: userUUID,
+      isTyping: true,
+      chatMasterUUID: chatMasterUUID
+    });
+
+    if(typingTimeout) clearTimeout(typingTimeout)
+
+    typingTimeout = setTimeout(() => {
+      socket.emit("typing", {
+        senderUUID: userUUID,
+        isTyping: false,
+        chatMasterUUID: chatMasterUUID
+      });
+    }, 3000)
+
+  };
+
+
+useFocusEffect(
+  useCallback(() => {
+    if (!socket) return;
+
+    socket.on("notify_typing", (senderUUID: string) => {
+      if (senderUUID !== userUUID) {
+        setIsOtherUserTyping(true);
+      }
+    });
+
+    socket.on("notify_stop_typing", (senderUUID: string) => {
+      if (senderUUID !== userUUID) {
+        setIsOtherUserTyping(false);
+      }
+    });
+
+    return () => {
+      socket.off("notify_typing");
+      socket.off("notify_stop_typing");
+    };
+  }, [socket, userUUID])
+);
+
+
+
+
+
+
 
 
   const addMedia = async() => {
@@ -373,6 +432,11 @@ useEffect(() => {
     }
 
   }
+
+
+
+
+
 
   const renderMessage = ({ item, index }: { item: ChatMessage, index: number }) => {
     if (!item.Message?.trim() && !item.Attachment) {
@@ -515,7 +579,7 @@ useEffect(() => {
     <View style={styles.container}>
       <>
       <View style={styles.header}>
-        <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack online noDate name={chatMasterName} showMemberActions  />
+        <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack typing={isOtherUserTyping} /* online */ noDate name={chatMasterName} showMemberActions  />
         <ChatActionDropdownComponent chatAction={chatAction} setChatAction={setChatAction} />
       </View>
 
@@ -591,7 +655,7 @@ useEffect(() => {
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.messageField}
             value={message}
-            onChangeText={e => setMessage(e)}
+            onChangeText={handleTyping}
             onPress={() => setShowActions(false)}
           />
           <CustomButton
@@ -752,7 +816,7 @@ const styles = StyleSheet.create({
         gap: 5,
       },
       userGeneratedMessageContainer: {
-        borderWidth:1,
+  /*       borderWidth:1, */
         marginBottom: 10,
         flexDirection: "row",
         gap: 10,

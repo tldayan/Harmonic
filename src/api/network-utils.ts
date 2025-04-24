@@ -621,7 +621,7 @@ export const getOrganizationUsers = async(organizationUUID: string, searchExpres
     "OrganizationUUID": organizationUUID,
     "Count": 15,
     "StartIndex": 0,
-    "SearchExpression": searchExpression ? searchExpression : ""
+    "SearchExpression": searchExpression ? `(RU.FirstName LIKE '%${searchExpression}%' OR RU.LastName LIKE '%${searchExpression}%')` : ""
   }
 
 

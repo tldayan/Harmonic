@@ -79,8 +79,8 @@ interface NestedCategory {
     };
 /*     IsRead: boolean; */
     UserUUID: string;
-    SenderFirstName: string;
-    SenderLastName: string;
+    SenderFirstName?: string;
+    SenderLastName?: string;
   }
   
   
@@ -125,4 +125,30 @@ interface OrganizationUser {
   EmailAddress: string;
   ProfilePicURL: string;
   UserRole: string;
+}
+
+
+interface WorkOrder {
+  WorkOrderUUID: string;
+  WorkOrderNumber: string;
+  WorkOrderTitle: string | null;
+  ProblemDescription: string;
+  WorkDescription: string;
+  WorkPriorityName: string;
+  AssetName: string;
+  StatusItemName: string;
+  StatusItemCode: string;
+  ScheduleDateTimeFrom: string;
+  ScheduleDateTimeTo: string;
+  CreatedByFullName: string;
+  CreatedDateTime: string;
+  WorkOrderCategories: any[]; // Replace `any` with a proper type if available
+  WorkOrderCategoryUUID: string | null;
+  CategoryUUID: string | null;
+  CategoryName: string | null;
+  CategoryItemUUID: string | null;
+  CategoryItemName: string | null;
+  CategoryItemURL: string | null;
+  WorkRequestUUID: string | null;
+  WorkRequestNumber: string | null;
 }

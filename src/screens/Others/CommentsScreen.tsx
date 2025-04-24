@@ -146,18 +146,6 @@ export default function CommentsScreen() {
 
     if(!comment && !postUUID) return
 
-    const newReplyorComment = {
-          "MessageBoardCommentUUID": null, 
-          "Comment": comment,
-          "TotalRepliesCount": 0,
-          "CreatedDateTime": new Date().toISOString(),
-          "CreatedBy": userUUID,
-          "UserName": null,
-          "FirstName": user?.displayName ?? "",
-          "LastName": null,
-          "ProfilePicURL": user?.photoURL ?? ""
-      }
-
       let response = await saveMBMessageComment( comment ? comment : editPost.updatedEdit, userUUID, messageDetails?.MessageBoardUUID,replyingTo.MessageBoardCommentUUID, postUUID)
       if(response === STATUS_CODE.SUCCESS) {
         console.log("comment update successfull")

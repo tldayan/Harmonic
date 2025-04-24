@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors';
 import { CustomTextInput } from '../../components/CustomTextInput';
@@ -9,25 +9,28 @@ import { RootState } from '../../store/store';
 import { useSelector } from 'react-redux';
 import { CustomModal } from '../../components/CustomModal';
 import CreateGroup from '../../modals/Chat/CreateGroup';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation-types';
 import { ChatListDropdownComponent } from '../../dropdowns/ChatListDropdown';
 import Close from "../../assets/icons/close-dark.svg"
 import CreateChat from '../../modals/Chat/CreateChat';
-import { CHAT_INVITE_STATUS_CODES, STATUS_CODE } from '../../utils/constants';
+import { CHAT_INVITE_STATUS_CODES, chatTypes, STATUS_CODE } from '../../utils/constants';
 import { getTimeFromISO } from '../../utils/helpers';
+import { SocketContext } from '../../context/SocketContext';
 
 const ChatsList = () => {
   const [chats, setChats] = useState<ChatEntity[]>([])
   const [filteredChats, setFilteredChats] = useState<ChatEntity[]>([])
   const [chatSearch, setChatSearch] = useState("")
+  const [typingChats, setTypingChats] = useState<Set<string>>(new Set())
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
   const [loading, setLoading] = useState(false)
   const [chatActionLoadingUUID, setChatActionLoadingUUID] = useState<string | null>(null)
   const [action, setAction] = useState<string | null>(null);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const [refreshing, setRefreshing] = useState(false)
+  const socket = useContext(SocketContext);
 
   const fetchChats = async () => {
     setLoading(true)
@@ -45,6 +48,64 @@ const ChatsList = () => {
     fetchChats()
   }, [])
 
+  useEffect(() => {
+    if (!socket) return;
+  
+    const registerSocket = () => {
+      if (socket.connected && userUUID) {
+        socket.emit("register", userUUID);
+        console.log("Registered socket with userUUID:", userUUID);
+      }
+    };
+  
+    if (socket.connected) {
+      registerSocket();
+    }
+  
+    socket.on("connect", registerSocket);
+  
+    return () => {
+      socket.off("connect", registerSocket);
+      if (userUUID) {
+    
+        socket.emit("deregister", userUUID);
+        console.log("Deregistered socket with userUUID:", userUUID);
+      }
+    };
+  }, [socket, userUUID]);
+
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!socket) return;
+  
+      const handleTyping = (senderUUID: string) => {
+        setTypingChats(prev => {
+          const updated = new Set(prev);
+          updated.add(senderUUID);
+          return updated;
+        });
+      };
+  
+      const handleStopTyping = (senderUUID: string) => {
+        setTypingChats(prev => {
+          const updated = new Set(prev);
+          updated.delete(senderUUID);
+          return updated;
+        });
+      };
+  
+      socket.on("notify_typing", handleTyping);
+      socket.on("notify_stop_typing", handleStopTyping);
+  
+      return () => {
+        socket.off("notify_typing", handleTyping);
+        socket.off("notify_stop_typing", handleStopTyping);
+      };
+    }, [socket])
+  );
+
+
   const handleNavigate = (item: ChatEntity) => {
     if (item.LoggedInUserInviteStatusItemCode !== CHAT_INVITE_STATUS_CODES.APPROVED) return
     navigation.navigate("ChatScreen", {
@@ -58,6 +119,15 @@ const ChatsList = () => {
     })
   }
 
+  const respondToInvite = (chatUUID: string, status: string) => {
+    if (!socket) return;
+  
+    socket.emit("respond_to_chat_invite", {
+      ChatUUID: chatUUID,
+      StatusItemCode: status,
+    });
+  };
+  
   const handleChatInvite = async (item: ChatEntity, inviteStatus: string) => {
     setChatActionLoadingUUID(item.ChatMasterUUID)
     try {
@@ -76,6 +146,8 @@ const ChatsList = () => {
             chatType: item.ChatTypeCode,
             chatMemberUserUUID: item.ChatMemberUserUUID
           })
+          respondToInvite(item.ChatMasterUUID, inviteStatus)
+          
 
           setFilteredChats((prev) =>
             prev.map((eachChat) =>
@@ -139,7 +211,7 @@ const ChatsList = () => {
           }
 
           {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.APPROVED && (
-            <Text ellipsizeMode="tail" numberOfLines={1} style={styles.latestText}>{item.LastMessage}</Text>
+            typingChats.has(item.ChatMemberUserUUID) && item.ChatTypeCode === chatTypes.PRIVATE ? <Text style={{color: colors.GREEN}}>Typing...</Text> : <Text ellipsizeMode="tail" numberOfLines={1} style={styles.latestText}>{item.LastMessage ? item.LastMessage : "Attachment"}</Text>
           )}
         </View>
       </TouchableOpacity>

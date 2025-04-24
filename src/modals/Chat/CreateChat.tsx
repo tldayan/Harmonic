@@ -73,9 +73,10 @@ export default function CreateChat({onClose, fetchChats}: CreateChatProps) {
 
   const memberItem = ({item} : {item: OrganizationUser}) => {
 
-    return <TouchableOpacity style={styles.memberItemContainer} onPress={() => setChatMember(item.UserUUID)}>
+    return <TouchableOpacity style={styles.memberItemContainer} onPress={() => {item.UserUUID !== userUUID && setChatMember(item.UserUUID)}}>
                 <View style={{flexDirection: "row", alignItems: "center"}}>
                   <ProfileHeader noDate ProfilePic={item.ProfilePicURL} name={item.FullName} />
+                  {item.UserUUID === userUUID && <Text style={styles.you}>You</Text>}
                 </View>
                 
                 {chatMember === item.UserUUID && <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />}
@@ -94,13 +95,13 @@ export default function CreateChat({onClose, fetchChats}: CreateChatProps) {
             <View style={styles.selectedMembersContainer}>
                 <CustomTextInput inputStyle={styles.memberSearchField} placeholderTextColor={colors.LIGHT_TEXT} value={memberSearch} placeholder='Search members to add' onChangeText={(e) => setMemberSearch(e)} />
             </View>
-            {loading && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} />}
+            {loading ? <ActivityIndicator style={{marginTop: "50%"}} size={"small"} /> :
             <FlatList
                 contentContainerStyle={styles.friendList}
                 renderItem={memberItem} 
                 keyExtractor={(item) => item.UserUUID}
                 data={organizationUsers}
-            />
+            />}
         </View>
 
         {chatMember && <CustomButton onPress={startChat} buttonStyle={{position: "absolute", bottom: "5%", right: "10%"}} title={""} icon={loading ? <ActivityIndicator size="large" color={colors.ACTIVE_ORANGE} /> : <ChevronRight fill={colors.ACTIVE_ORANGE} stroke='white'  width={60} height={60}/>} />}
@@ -126,13 +127,13 @@ const styles = StyleSheet.create({
         marginTop: 30,
         gap: 15,
         paddingHorizontal: 10,
-        borderWidth: 2,
+/*         borderWidth: 2, */
     },
     mainCreateGroupForm: {
 /*         borderWidth: 1, */
     },
     memberTitle: {
-        color: colors.ACTIVE_ACCENT_COLOR
+        color: colors.LIGHT_TEXT
     },
     member : {
         flexDirection: "row-reverse",
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom:5,
         borderBottomWidth: 2,
-        borderBottomColor: colors.ACTIVE_ACCENT_COLOR
+        borderBottomColor: colors.ACTIVE_ORANGE
     },
     memberSearchField : {
 /*         borderWidth: 2, */
@@ -176,5 +177,12 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0
     },
-
+    you: {
+        paddingHorizontal: 5,
+        paddingVertical: 2,
+        fontSize: 10,
+        borderRadius: 3,
+        backgroundColor: colors.LIGHT_COLOR,
+        color: colors.LIGHT_TEXT
+      }
 })

@@ -8,6 +8,7 @@ import PostActions from '../modals/Post/PostActions'
 import { AttachmentData, PostItemProps, PostLikeProps } from '../types/post-types'
 import ChevronLeft from "../assets/icons/chevron-left.svg"
 import { useNavigation } from '@react-navigation/native'
+import { colors } from '../styles/colors'
 
 interface ProfileHeaderProps {
     name?: string,
@@ -20,12 +21,13 @@ interface ProfileHeaderProps {
     noDate?: boolean
     online?: boolean
     goBack?: boolean
+    typing?: boolean
     showStatus?: boolean,
     onPress?: () => void
     fetchLatestMessages?: (messageBoardUUID?: string) => void
 }
 
-export default function ProfileHeader({name, fetchLatestMessages, onPress , goBack, showStatus, online = false,post,postLikes,showMemberActions, showPostActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {
+export default function ProfileHeader({name, typing,fetchLatestMessages, onPress , goBack, showStatus, online = false,post,postLikes,showMemberActions, showPostActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {
 
     const [isEditingPost, setIsEditingPost] = useState(false)
     const navigation = useNavigation()
@@ -56,10 +58,11 @@ export default function ProfileHeader({name, fetchLatestMessages, onPress , goBa
           <Image source={{ uri: postData?.ProfilePic || ProfilePic === "" ? "https://i.pravatar.cc/150" : ProfilePic }} style={styles.profilePicture} />
           <View style={styles.userNameContainer}>
               <Text style={styles.name}>{postData?.FirstName ? postData?.FirstName : name}</Text>
-              {showStatus && <View style={styles.memberStatusContainer}>
+              {/* {showStatus && <View style={styles.memberStatusContainer}>
                 <View style={[styles.ellipse, {backgroundColor: online ? "#0E9F6E" : "red"}]}></View>
-                <Text style={{color: online ? "#0E9F6E" : "red"}}>{online ? "Online" : "Offline"}</Text>
-              </View>}
+                <Text style={{color: online ? colors.GREEN : "red"}}>{online ? "Online" : "Offline"}</Text>
+              </View>} */}
+              {typing && <Text style={{color: colors.GREEN, fontSize: 12}}>Typing...</Text>}
               {!noDate && <View style={styles.dateContainer}>
                   <Text style={styles.postDate}>{formattedDate}</Text>
               </View>}
@@ -89,7 +92,7 @@ const styles = StyleSheet.create({
         borderRadius: 50
       },
     userNameContainer: {
-        gap: 2
+   /*      gap: 2 */
       },
       name: {
         fontWeight: 500,

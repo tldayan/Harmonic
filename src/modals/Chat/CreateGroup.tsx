@@ -256,13 +256,13 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
                 })}
                 <CustomTextInput inputStyle={styles.memberSearchField} placeholderTextColor={colors.LIGHT_TEXT} value={memberSearch} placeholder='Search members to add' onChangeText={(e) => setMemberSearch(e)} />
             </View>
-            {loading && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} />}
+            {loading ? <ActivityIndicator style={{marginTop: "50%"}} size={"small"} /> : 
             <FlatList
                 contentContainerStyle={styles.friendList}
                 renderItem={memberItem} 
                 keyExtractor={(item) => item.UserUUID}
                 data={organizationUsers}
-            />
+            />}
         </View>
     )
   }
@@ -388,6 +388,7 @@ const styles = StyleSheet.create({
       paddingHorizontal: 5,
       paddingVertical: 2,
       fontSize: 10,
+      borderRadius: 3,
       backgroundColor: colors.LIGHT_COLOR,
       color: colors.LIGHT_TEXT
     },

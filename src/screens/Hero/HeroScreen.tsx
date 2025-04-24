@@ -15,7 +15,7 @@ export default function HeroScreen({navigation}: Props) {
         <View style={styles.bar} />
         <Text style={styles.heading}>We invest in the world’s potential</Text>
         <Text style={styles.subHeading}>Be a part of a community you could only dream of.</Text>
-        <CustomButton iconPosition='right' buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: 0,backgroundColor : "#EF863C", height: 48, width: 151, borderWidth: 1, borderColor: "#B4652E"}]} textStyle={{fontWeight : 500, fontSize: 16, color: "white"}} onPress={() => {navigation.navigate("Auth")}} title="Learn more" icon={<Image height={10} width={10} source={require("../../assets/images/arrow-right.png")} />} />
+        <CustomButton iconPosition='right' buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: 0,backgroundColor : colors.BRIGHT_ORANGE, height: 48, width: 151, borderWidth: 1, borderColor: colors.BORDER_ORANGE}]} textStyle={{fontWeight : 500, fontSize: 16, color: "white"}} onPress={() => {navigation.navigate("Auth")}} title="Learn more" icon={<Image height={10} width={10} source={require("../../assets/images/arrow-right.png")} />} />
       </View>
       
       <View style={styles.socialsContainer}>
