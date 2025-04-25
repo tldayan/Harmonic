@@ -3,7 +3,7 @@ import { TabParamList } from "../types/navigation-types";
 import { globalScreenOptions } from "./navigationConfig/globalScreenOptions";
 import StoresScreen from "../screens/Tabs/StoresScreen";
 import ModulesScreen from "../screens/Tabs/MoreScreen";
-import TasksScreen from "../screens/Tabs/TasksScreen";
+import TasksScreen from "../screens/Task/TasksScreen";
 import AssetsScreen from "../screens/Tabs/AssetsScreen";
 import SocialScreen from "../screens/Tabs/SocialScreen";
 import SocialIcon from "../assets/icons/social.svg";

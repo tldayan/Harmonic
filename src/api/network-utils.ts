@@ -2,7 +2,7 @@ import { FirebaseAuthTypes } from "@react-native-firebase/auth"
 import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
 import { ENDPOINTS } from "./endpoints";
-import { AttachmentData, CategoryProps } from "../types/post-types";
+import { AttachmentData, CategoryProps, FirebaseAttachment } from "../types/post-types";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -230,7 +230,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const saveMBMessage = async(message: string, attachmentUrls: { url: string, type: 'image' | 'video'}[] | AttachmentData[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[], messageBoardUUID: string | null = null, postType: "edit" | "post") => {
+  export const saveMBMessage = async(message: string, attachmentUrls: FirebaseAttachment[] | AttachmentData[] = [] ,OragnizationUUID: string, UserUUID: string, postCategories: CategoryProps[], messageBoardUUID: string | null = null, postType: "edit" | "post") => {
 
 
     let allMBAttachments = attachmentUrls?.map((urlObj) => ({
@@ -781,3 +781,28 @@ export const getChatInviteDetails = async(LoggedInUserUUID: string, ChatMasterUU
 
 }
 
+//WORK ORDERS
+
+export const getWorkOrderList = async(userUUID: string,organizationUUID:string, startIndex: number) => {
+
+  const bodyData = {
+    "OrganizationUUID": organizationUUID,
+    "PageSize": 30,
+    "StartIndex": startIndex,
+    "CategoryItemUUIDs": [],
+    "SearchExpression": "",
+    "SortExpression": "",
+    "LoggedInUserUUID": userUUID
+}
+
+console.log(bodyData)
+  try {
+    const getWorkOrderListResponse = await apiClient(ENDPOINTS.WORK_ORDER.GET_WORK_ORDER_LIST, bodyData, {}, "POST")
+    console.log(getWorkOrderListResponse)
+    return getWorkOrderListResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}

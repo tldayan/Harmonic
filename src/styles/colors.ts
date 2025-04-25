@@ -17,6 +17,8 @@ export const colors = {
   MAIN_BACKGROUND_COLOR: "#FAFAFA",
   GREEN: "#0E9F6E",
   INDIGO: "#3730a3",
+  GRAY_DARK_TEXT: "#111827",
+  
   //SOCIALS SCREEN
   DARK_TEXT: "#4D4D4D",
   LIGHT_TEXT: "#7D7D7D",

@@ -24,48 +24,6 @@ export const filterOptions = (options : PollOption[]) => {
 }
 
 
-export const uploadMedia = async (mediaFiles: Asset[], firebaseStoragelocation: string): Promise<{ url: string, type: 'image' | 'video' }[]> => {
-
-    if (!mediaFiles.length) return [];
-
-    try {
-        const uploadPromises = mediaFiles.map(async (media: Asset) => {
-            const { uri, fileName, type } = media;
-
-            if (!uri || !fileName || !type) {
-                console.log("Invalid media file:", media);
-                return undefined;
-            }
-
-            let mediaType: 'image' | 'video';
-
-            if (type.includes('image')) {
-                mediaType = 'image';
-            } else if (type.includes('video')) {
-                mediaType = 'video';
-            } else {
-                console.log("Unknown media type:", type);
-                return undefined;
-            }
-
-            const fileRef = storage().ref(`uploads/${firebaseStoragelocation}/${fileName}`);
-
-            await fileRef.putFile(uri);
-            const downloadUrl = await fileRef.getDownloadURL();
-
-            return { url: downloadUrl, type: mediaType };
-        });
-
-        const mediaData = await Promise.all(uploadPromises);
-
-        return mediaData.filter((data): data is { url: string, type: 'image' | 'video'} => data !== undefined);
-    } catch (err) {
-        console.error('Error uploading media files:', err);
-        return [];
-    }
-};
-
-
 
 const extractStoragePath = (imageUrl: string) => {
     const storageBaseUrl = "https://firebasestorage.googleapis.com/v0/b/harmonicdevapp.appspot.com/o/";

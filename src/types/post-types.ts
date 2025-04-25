@@ -108,3 +108,8 @@ export interface PostItemProps extends BasePostProps {
     updatedEdit: string;
     postUUID: string;
   };
+
+  export interface FirebaseAttachment { 
+    url: string,
+    type: 'image' | 'video'
+  }

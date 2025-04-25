@@ -46,6 +46,13 @@ export const ENDPOINTS = {
     INVITE_MEMBERS_TO_CHAT: `${BASE_URL}/social/inviteMembersToChat`,
     RESPOND_TO_CHAT_INVITE: `${BASE_URL}/social/respondToChatInvite`,
   },
+  WORK_ORDER: {
+    GET_WORK_ORDER_LIST: `${BASE_URL}/work-order/getWorkOrderList`
+
+  },
+  WORK_REQUEST: {
+    GET_WORK_REQUEST_DETAILS: `${BASE_URL}/work-request/getWorkRequestDetails`
+  },
   ALERT : {
     GET_CHAT_INVITE_DETAILS: `${BASE_URL}/alert/getChatInviteDetails`
   },  

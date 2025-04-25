@@ -5,7 +5,7 @@ import { CustomTextInput } from '../../components/CustomTextInput'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
-import { formatLongDate, pickMedia, useKeyboardVisibility } from '../../utils/helpers'
+import { formatLongDate, pickMedia, uploadMedia, useKeyboardVisibility } from '../../utils/helpers'
 import PaperClip from "../../assets/icons/paper-clip2.svg"
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
@@ -19,7 +19,7 @@ import MuteNotifications from '../../modals/Chat/MuteNotifications'
 import Block from '../../modals/Chat/Block'
 import Report from '../../modals/Chat/Report'
 import DeleteChat from '../../modals/Chat/DeleteChat'
-import { CHAT_INVITE_STATUS_CODES, chatTypes } from '../../utils/constants'
+import { CHAT_INVITE_STATUS_CODES, chatTypes, firebaseStoragelocations } from '../../utils/constants'
 import CameraIcon from "../../assets/icons/chat-camera.svg"
 import DocumentUpload from "../../assets/icons/document-upload.svg"
 import Location from "../../assets/icons/location.svg"
@@ -38,6 +38,7 @@ import { BaseMessage, GroupMessageReceived, PrivateMessageReceived } from '../..
 import { convertToChatMessage } from '../../utils/ChatScreen/ConverMessage'
 import { useUser } from '../../context/AuthContext'
 import uuid from 'react-native-uuid';
+import { FirebaseAttachment } from '../../types/post-types'
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 
@@ -55,6 +56,8 @@ export default function ChatScreen() {
   const [viewingAttachments, setViewingAttachments] = useState(false)
   const [showActions, setShowActions] = useState(false)
   const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
+  const [firebaseAttachmentUrls, setFirebaseAttachmentUrls] = useState<FirebaseAttachment[]>([])
+  const [firebaseUploading, setFirebaseUploading] = useState(false)
   const [attachment, setAttachment] = useState<string | null>(null)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
   const [showCamera, setShowCamera] = useState(false);
@@ -93,7 +96,6 @@ useEffect(() => {
   
   
     const handleMessage = (data: BaseMessage) => {
-      console.log("New message received", data);
       const senderFirstName = isGroupChat
       ? (data as GroupMessageReceived).SenderFirstName
       : (data as PrivateMessageReceived).SenderFirstName;
@@ -207,7 +209,6 @@ useEffect(() => {
     if (!socket) return;
   
     const handleRead = ({ ChatUUID, UserUUID }: { ChatUUID: string; UserUUID: string }) => {
-/*       console.log(ChatUUID, userUUID) */
       setChats((prevChats) =>
         prevChats.map((chat) => {
           if (chat.SenderUUID === userUUID && !chat.Status.ReadBy.includes(UserUUID)) {
@@ -286,14 +287,14 @@ useEffect(() => {
     const payload = {
       SenderUUID: userUUID, 
       Message: message,
-      Attachment: null, 
-      AttachmentType: null,
+      Attachment: firebaseAttachmentUrls[0].url, 
+      AttachmentType: "image/jpeg",
       ViewUUID: "", //optional
       ...(isGroupChat
         ? { GroupId: chatMasterUUID } // for group
         : { ChatUUID: chatMasterUUID }) // for private
     }
-    console.log(payload)
+
     if(isGroupChat) {
       socket.emit("group_message", payload)
     } else {
@@ -305,7 +306,7 @@ useEffect(() => {
       SenderUUID: userUUID,
       Message: message,
       MessageType: "user-generated",
-      Attachment: "",
+      Attachment: firebaseAttachmentUrls[0].url,
       AttachmentType: "",
       Timestamp: timestamp,
       Status: {
@@ -321,6 +322,9 @@ useEffect(() => {
     setChats((prev) => [newMessage, ...prev])
     
     setMessage("")
+    setFirebaseAttachmentUrls([])
+    setChatAttachments([])
+    setCapturedAttachments([])
   }
 
 
@@ -330,7 +334,6 @@ useEffect(() => {
     setMessage(text);
     if(isGroupChat) return
 
-    console.log("typing")
     socket.emit("typing", {
       senderUUID: userUUID,
       isTyping: true,
@@ -381,13 +384,19 @@ useFocusEffect(
 
 
   const addMedia = async() => {
+
     try {
       const assets = await pickMedia()
+      setFirebaseUploading(true)
+      setShowActions(false)
       setChatAttachments((prev) => [...prev, ...assets ?? []])
+      const uploadedFirebaseAttachments = await uploadMedia(assets, firebaseStoragelocations.chat)
+      setFirebaseUploading(false)
+      console.log(uploadedFirebaseAttachments)
+      setFirebaseAttachmentUrls(uploadedFirebaseAttachments)
+
     } catch(err) {
       console.log(err)
-    } finally {
-      setShowActions(false)
     }
 
   }
@@ -485,7 +494,7 @@ useFocusEffect(
                 isMessagefromOwner && { marginLeft: "auto"}
               ]}
             >
-              {item.Attachment && (
+              {item?.Attachment && (
                 <TouchableOpacity onPress={() => {
                   setAttachment(item.Attachment);
                   setViewingAttachments(true);
@@ -493,7 +502,7 @@ useFocusEffect(
                 }}>
                   <Image
                     style={styles.attachmentImage}
-                    source={{ uri: item.Attachment }}
+                    source={{ uri: typeof item?.Attachment === "string" ? item.Attachment : item.Attachment.url }} // DELETE FIRST CAR IMAGE MESSSAGE FROM TL Account (Object was sent under "Attachment")
                   />
                 </TouchableOpacity>
               )}
@@ -660,14 +669,15 @@ useFocusEffect(
           />
           <CustomButton
             onPress={handleSendMessage}
-            icon={
+            icon={!firebaseUploading ? 
               <SendIcon
                 width={30}
                 height={30}
                 strokeWidth={1}
                 fill={(message || chatAttachments.length || chatDocuments.length) ? colors.ACTIVE_ORANGE : 'grey'}
                 stroke={(message || chatAttachments.length || chatDocuments.length) ? 'white' : 'white'}
-              />
+              /> : 
+              <ActivityIndicator size={"small"} />
             }
           />
     </View>

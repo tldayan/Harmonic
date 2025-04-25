@@ -1,3 +1,5 @@
+import { colors } from "../styles/colors";
+
 export const IOS_GOOGLE_CLIENT_ID = "860846154434-4kkm4r82o65trp9c2nl180l09snv3pht.apps.googleusercontent.com";
 export const ANDROID_GOOGLE_CLIENT_ID = "860846154434-dvo1o24543jkpa2gl0cu875nd5lekhk7.apps.googleusercontent.com";
 
@@ -14,7 +16,7 @@ export const chatTypes = {
 
 export const firebaseStoragelocations = {
     attachmentMB : "attachmentMB",
-    chat: "chat/messageAttachment"
+    chat: "chat/messageAttachment",
 }
 
 export const CHAT_INVITE_STATUS_CODES = {
@@ -27,6 +29,36 @@ export const MEMBER_ROLES = {
     ADMIN: "ADMIN",
     MEMBER: "MEMBER"
 }
+
+export const WORK_PRIORITY_COLOR_CODES: Record<string, string> = {
+    Low: "#F7FAFC",      
+    Moderate: "#FEF3C7",  
+    High: "#FDF6B2",      
+    Urgent: "#FECACA"
+  };
+
+  
+export const WORK_PRIORITY_TEXT_COLOR_CODES: Record<string, string> = {
+    Low: "#1A202C",      
+    Moderate: "#B45309",  
+    High: "#92400E",     
+    Urgent: "#991B1B",   
+  };
+  
+export const WORK_STATUS_COLOR_CODES: Record<string, string> = {
+    Scheduled: "#DBEAFE",      
+    Pending: "#FED7D7",  
+    High: "#BEE3F8",       
+    Draft: colors.LIGHT_COLOR,       
+  };
+
+export const WORK_STATUS__NOTIFICATION_COLOR_CODES: Record<string, string> = {
+    Scheduled: "#4F46E5",      
+    Pending: "#EF4444",  
+    High: "#22C55E",
+    Draft: "black",         
+  };
+  
 
 export const COUNTRY_CODES = [
       {

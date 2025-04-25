@@ -17,9 +17,9 @@ import { RootState } from '../../store/store'
 import { STATUS_CODE } from '../../utils/constants'
 import { defaultInputStyles } from '../../styles/global-styles'
 import EditIcon from "../../assets/icons/edit.svg"
-import { pickMedia } from '../../utils/helpers'
+import { pickMedia, uploadMedia } from '../../utils/helpers'
 import { Asset } from 'react-native-image-picker'
-import { uploadMedia } from '../Post/postUtils'
+
 import CloseIcon from "../../assets/icons/close-light.svg"
 import { firebaseStoragelocations } from '../../utils/constants'
 
