@@ -15,6 +15,7 @@ import HamburgerIcon from "../assets/icons/hamburger.svg"
 import Header from "../components/Header";
 import { colors } from "../styles/colors";
 import ChatsTabs from "../screens/Chat/ChatsTabs";
+import Plus from "../assets/icons/plus.svg"
 
 export const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -42,7 +43,25 @@ export default function TabNavigator(): JSX.Element {
         return {
           ...globalScreenOptions,
           tabBarIcon: ({ color, focused}) =>
-            IconComponent ? <IconComponent width={16} height={16} fill={focused ? colors.ACTIVE_ORANGE : color}/> : null, headerShown : true, header: () => <Header />
+            IconComponent ? <IconComponent width={20} height={20} fill={focused ? colors.ACTIVE_ORANGE : color}/> : null, headerShown : true, header: () => <Header />,
+          tabBarStyle: {
+            position: "absolute",
+            bottom: 20,
+            width: "80%",
+            marginHorizontal: "10%",
+            elevation: 0,
+            backgroundColor: "white",
+            borderRadius: 50,
+            height: 64,
+            paddingHorizontal: 10,
+            borderWidth: 1,
+            flexDirection: "row",
+            justifyContent: "space-around", 
+            alignItems: "center", 
+          },
+          tabBarShowLabel: false,
+          tabBarActiveTintColor: colors.ACTIVE_ORANGE,
+          tabBarInactiveTintColor: "gray",
         };
       }}
     >

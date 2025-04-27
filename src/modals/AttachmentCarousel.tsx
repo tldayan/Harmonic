@@ -20,7 +20,7 @@ interface AttachmentCarouselProps {
     onClose: () => void
     initialIndex?: number
 }
-const MemoizedModalsHeader = React.memo(ModalsHeader);
+/* const MemoizedModalsHeader = React.memo(ModalsHeader); */
 
 export default function AttachmentCarousel({onClose,AttachmentData, initialIndex = 0,Assets, Attachment,capturedAttachments} : AttachmentCarouselProps) {
     const [loading, setLoading] = useState(true)

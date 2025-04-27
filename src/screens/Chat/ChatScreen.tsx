@@ -1,5 +1,5 @@
-import { ActivityIndicator, Alert, Animated, FlatList, Image, Keyboard, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { ReactEventHandler, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { ActivityIndicator, Animated, FlatList, Image, Keyboard, Platform, StyleSheet, Text, View } from 'react-native'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import ProfileHeader from '../../components/ProfileHeader'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
@@ -10,8 +10,6 @@ import PaperClip from "../../assets/icons/paper-clip2.svg"
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
 import { getGroupMessages, getMessages } from '../../api/network-utils'
-import { profilePic } from '../../styles/global-styles'
-import { formatDate } from '../../utils/helpers'
 import { CustomModal } from '../../components/CustomModal'
 import AttachmentCarousel from '../../modals/AttachmentCarousel'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -29,7 +27,7 @@ import { Asset } from 'react-native-image-picker'
 import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
 import { DocumentPickerResponse, pick } from '@react-native-documents/picker'
 import { DocumentItem } from '../../components/FlatlistItems/DocumentItem'
-import { getCurrentLocation } from '../../utils/ChatScreen/Location'
+import { getLocation } from '../../utils/ChatScreen/Location'
 import { PhotoFile} from 'react-native-vision-camera';
 import CameraView from '../../components/CameraView'
 import { CapturedItem } from '../../components/FlatlistItems/CapturedItem'
@@ -39,6 +37,7 @@ import { convertToChatMessage } from '../../utils/ChatScreen/ConverMessage'
 import { useUser } from '../../context/AuthContext'
 import uuid from 'react-native-uuid';
 import { FirebaseAttachment } from '../../types/post-types'
+import { MemoedMessageItem } from '../../components/FlatlistItems/ChatMessageItem'
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 
@@ -50,6 +49,8 @@ export default function ChatScreen() {
   const [userBlocked, setUserBlocked] = useState(false)
   const [chatAction, setChatAction] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false)
+  const [chatLoading, setChatLoading] = useState(false)
+  const [chatEndReached, setChatEndReached] = useState(false)
   const [chatAttachments, setChatAttachments] = useState<Asset[]>([])
   const [capturedAttachments, setCapturedAttachments] = useState<PhotoFile[]>([])
   const [chatDocuments, setChatDocuments] = useState<DocumentPickerResponse[]>([])
@@ -61,17 +62,18 @@ export default function ChatScreen() {
   const [attachment, setAttachment] = useState<string | null>(null)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
   const [showCamera, setShowCamera] = useState(false);
+  const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
+
   const route = useRoute<ChatsScreenRouteProp>()
   const {userUUID, chatMasterUUID, createdDateTime,chatProfilePictureURL, chatMasterName, chatType, chatMemberUserUUID} = route.params || {}
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const paddingAnim = useRef(new Animated.Value(0)).current;
   const isGroupChat = chatType === chatTypes.GROUP
   const socket = useContext(SocketContext);
-  const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
   const { user } = useUser();
   const socketChatType = isGroupChat ? "group" : "private"
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
-
+  console.log(chatProfilePictureURL)
 
 
 useEffect(() => {
@@ -88,8 +90,55 @@ useEffect(() => {
   return () => {
     console.log(`Left room: ${chatMasterUUID}`);
   };
-}, [chatMasterUUID, socket, isGroupChat]);
-;
+}, [chatMasterUUID]);
+
+
+const fetchChats = async(initialMessages: boolean) => {
+  if(chatLoading || chatEndReached) return
+
+  setChatLoading(true)
+  let messagesResponse;
+
+  try {
+    if (chatType === chatTypes.PRIVATE) {
+        messagesResponse = await getMessages(userUUID, chatMasterUUID, lastMessageTimeStamp);
+      } else {
+        messagesResponse = await getGroupMessages(userUUID, chatMasterUUID, lastMessageTimeStamp);
+      }
+      console.log(messagesResponse.Messages)
+      const chats = messagesResponse?.Messages || [];
+      if (chats.length === 0) return;
+
+      if(chats.length < 20) {
+        setChatEndReached(true)
+      }
+      setChats((prev) => initialMessages ? chats : [...prev, ...chats]);
+
+      const lastTimestamp = chats[chats.length - 1]?.Timestamp;
+      if (lastTimestamp) {
+        setLastMessageTimeStamp(lastTimestamp);
+      }
+  } catch (err) {
+    console.log(err)
+  } finally {
+    setChatLoading(false)
+  }
+}
+
+
+useEffect(() => {
+  fetchChats(true)
+
+  if (userBlocked) {
+    chatActions.map((eachAction) => {
+      if (eachAction.label === "Block") {
+        eachAction.label = "Unblock";
+      }
+    });
+  }
+}, [])
+
+
 
   useEffect(() => {
     if (!socket) return;
@@ -109,7 +158,7 @@ useEffect(() => {
     return () => {
       socket.off(`${socketChatType}_message_received`, handleMessage);
     };
-  }, [socket, isGroupChat]);
+  }, [socket]);
   
 
   useEffect(() => {
@@ -126,7 +175,7 @@ useEffect(() => {
       });
     
     
-  }, [socket, chats, isGroupChat]);
+  }, [socket, chats]);
 
 
   useEffect(() => {
@@ -138,7 +187,7 @@ useEffect(() => {
       });
     
 
-  }, [socket, isGroupChat, chats.length, chatMasterUUID, userUUID]);
+  }, [socket, chats.length, chatMasterUUID, userUUID]);
   
   
   useEffect(() => {
@@ -173,7 +222,7 @@ useEffect(() => {
       socket.off("respond_to_chat_invite_received")
     }
 
-  }, [socket, userUUID, chatMemberUserUUID])
+  }, [socket, chatMasterUUID])
 
 
   useEffect(() => {
@@ -201,7 +250,7 @@ useEffect(() => {
     return () => {
       socket.off(`${socketChatType}_message_marked_delivered`, handleDelivered);
     };
-  }, [socket, isGroupChat]);
+  }, [socket, chatMasterUUID]);
   
   
 
@@ -230,7 +279,7 @@ useEffect(() => {
     return () => {
       socket.off(`${socketChatType}_message_marked_read`, handleRead);
     };
-  }, [socket, chatMasterUUID, userUUID, isGroupChat]);
+  }, [socket, chatMasterUUID, userUUID]);
   
   
 
@@ -239,44 +288,6 @@ useEffect(() => {
       navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })
     }
   }, [chatAction])
-
-  
-  const fetchChats = useCallback(async (initialMessages: boolean) => {
-    let messagesResponse;
-  
-    if (chatType === chatTypes.PRIVATE) {
-      messagesResponse = await getMessages(userUUID, chatMasterUUID, lastMessageTimeStamp);
-    } else {
-      messagesResponse = await getGroupMessages(userUUID, chatMasterUUID, lastMessageTimeStamp);
-    }
-    console.log(messagesResponse.Messages)
-    const chats = messagesResponse?.Messages || [];
-    if (chats.length === 0) return;
-  
-    setChats((prev) => initialMessages ? chats : [...prev, ...chats]);
-  
-    const lastTimestamp = chats[chats.length - 1]?.Timestamp;
-    if (lastTimestamp) {
-      setLastMessageTimeStamp(lastTimestamp);
-    }
-  }, [chatType, userUUID, chatMasterUUID, lastMessageTimeStamp]);
-  
-
-
-    useFocusEffect(
-      useCallback(() => {
-        fetchChats(true);
-    
-        if (userBlocked) {
-          chatActions.map((eachAction) => {
-            if (eachAction.label === "Block") {
-              eachAction.label = "Unblock";
-            }
-          });
-        }
-    
-      }, [])
-    );
 
 
   const handleSendMessage = () => {
@@ -287,8 +298,8 @@ useEffect(() => {
     const payload = {
       SenderUUID: userUUID, 
       Message: message,
-      Attachment: firebaseAttachmentUrls[0].url, 
-      AttachmentType: "image/jpeg",
+      Attachment: firebaseAttachmentUrls.length ? firebaseAttachmentUrls[0].url : "", 
+      AttachmentType: firebaseAttachmentUrls.length ? "image/jpeg" : "",
       ViewUUID: "", //optional
       ...(isGroupChat
         ? { GroupId: chatMasterUUID } // for group
@@ -306,8 +317,8 @@ useEffect(() => {
       SenderUUID: userUUID,
       Message: message,
       MessageType: "user-generated",
-      Attachment: firebaseAttachmentUrls[0].url,
-      AttachmentType: "",
+      Attachment: firebaseAttachmentUrls.length ? firebaseAttachmentUrls[0].url : "", 
+      AttachmentType: firebaseAttachmentUrls.length ? "image/jpeg" : "",
       Timestamp: timestamp,
       Status: {
         DeliveredTo: [],
@@ -414,121 +425,12 @@ useFocusEffect(
     }
   }
 
-  const getLocation = async() => {
-    setLocationLoading(true)
-    try {
-      const location  = await getCurrentLocation()
-      console.log(location)
-      if(location) {
-        Alert.alert("Send location?", "Are you sure you want to send your location?",[
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Send',
-            onPress: () => {
-              console.log('Sending location:', location);
-            },
-          },
-        ],
-        { cancelable: true })
-      }
-    } catch(err) {
-      console.log(err)
-    } finally {
-      setLocationLoading(false)
-    }
-
-  }
 
 
 
 
 
 
-  const renderMessage = ({ item, index }: { item: ChatMessage, index: number }) => {
-    if (!item.Message?.trim() && !item.Attachment) {
-      return null; 
-    }
-  
-    const isMessagefromOwner = item.SenderUUID === userUUID;
-    const isSeen = item.Status?.ReadBy?.some(uuid => uuid !== userUUID);
-
-  const isLastSentMessage = isMessagefromOwner &&
-  index === chats.findIndex(
-    (msg) => msg.SenderUUID === userUUID && msg.MessageType === "user-generated"
-  )
-  
-    if (item.MessageType === "system-generated") {
-      return <Text style={styles.systemGeneratedMessage}>{item.Message}</Text>;
-    }
-  
-    if (item.MessageType === "user-generated") {
-      return ( 
-        <View style={[
-          styles.userGeneratedMessageContainer,
-          isMessagefromOwner && { flexDirection: "row-reverse", alignSelf: "flex-end" }
-        ]}>
-          <Image
-            style={[
-              profilePic
-            ]}
-            source={{
-              uri:
-                item.SenderUUID === userUUID
-                  ? user?.photoURL || "https://i.pravatar.cc/150"
-                  : chatProfilePictureURL || "https://i.pravatar.cc/150"
-            }}
-          />
-          <View style={[styles.userMessageContainer, isMessagefromOwner && { alignItems: "flex-end" }]}>
-            <Text style={styles.username}>
-              {isMessagefromOwner ? user?.displayName : item.SenderFirstName ? item.SenderFirstName : chatMasterName}
-            </Text>
-  
-            <TouchableOpacity
-              style={[
-                styles.userGeneratedMessage,
-                item.Attachment && { padding: 5 },
-                isMessagefromOwner ? {borderTopRightRadius : 0, borderTopLeftRadius: 10} : {borderTopRightRadius : 10, borderTopLeftRadius: 0},
-                isMessagefromOwner && { marginLeft: "auto"}
-              ]}
-            >
-              {item?.Attachment && (
-                <TouchableOpacity onPress={() => {
-                  setAttachment(item.Attachment);
-                  setViewingAttachments(true);
-                  setChatAttachments([]);
-                }}>
-                  <Image
-                    style={styles.attachmentImage}
-                    source={{ uri: typeof item?.Attachment === "string" ? item.Attachment : item.Attachment.url }} // DELETE FIRST CAR IMAGE MESSSAGE FROM TL Account (Object was sent under "Attachment")
-                  />
-                </TouchableOpacity>
-              )}
-  
-              {item.Message !== "" && (
-                <Text>
-                  {item.Message}
-                </Text>
-              )}
-  
-              <Text style={[styles.messageTime, isMessagefromOwner && {left : -38} ]}>
-                {formatDate(item.Timestamp, true)}
-              </Text>
-            
-            </TouchableOpacity>
-          {isMessagefromOwner && isLastSentMessage && isSeen && (
-            <Text style={styles.seenText}>Seen</Text>
-          )}
-
-          </View>
-        </View>
-      );
-    }
-  
-    return null;
-  };
   
   useEffect(() => {
     let toValue = 0;
@@ -563,9 +465,6 @@ useFocusEffect(
       let updatedCapturedImages = capturedAttachments.filter((eachImage) => eachImage.path !== imageFilename)
       setCapturedAttachments(updatedCapturedImages)
     }
-
-
-
   }
 
   const deleteDocument = (uri: string) => {
@@ -582,7 +481,23 @@ useFocusEffect(
 
     setShowActions((prev) => !prev)
   }
-
+  
+  
+  const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => (
+    <MemoedMessageItem
+      item={item}
+      index={index}
+      userUUID={userUUID}
+      user={user}
+      chats={chats}
+      chatProfilePictureURL={chatProfilePictureURL}
+      chatMasterName={chatMasterName}
+      setAttachment={setAttachment}
+      setViewingAttachments={setViewingAttachments}
+      setChatAttachments={setChatAttachments}
+    />
+  );
+  
 
   return (
     <View style={styles.container}>
@@ -599,9 +514,12 @@ useFocusEffect(
         keyExtractor={(item) => item.id}
         renderItem={renderMessage}
         inverted
+        onEndReached={() => fetchChats(false)}
+        onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
-        ListFooterComponent={<Text style={styles.systemGeneratedMessage}>{formatLongDate(createdDateTime)}</Text>}
+        ListFooterComponent={chatLoading ? <ActivityIndicator size={"small"} /> : <Text style={styles.systemGeneratedMessage}>{formatLongDate(createdDateTime)}</Text>}
       />
+      
 
     <View style={[styles.mainMessageFieldContainer, { padding: isKeyboardVisible ? 0 : Platform.OS === "ios" ? 20 : 0 }]}>
       
@@ -677,7 +595,7 @@ useFocusEffect(
                 fill={(message || chatAttachments.length || chatDocuments.length) ? colors.ACTIVE_ORANGE : 'grey'}
                 stroke={(message || chatAttachments.length || chatDocuments.length) ? 'white' : 'white'}
               /> : 
-              <ActivityIndicator size={"small"} />
+              <ActivityIndicator style={{marginRight: 8}} size={"small"} />
             }
           />
     </View>
@@ -686,7 +604,7 @@ useFocusEffect(
       <>
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={addMedia} icon={<ImageUpload width={23} height={23} />} title={""} />
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={addDocument} icon={<DocumentUpload width={23} height={23} />} title={""} />
-        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={getLocation} icon={locationLoading ? <ActivityIndicator color={colors.ACTIVE_ORANGE} size={"small"} /> : <Location width={23} height={23} />} title={""} />
+        <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={() => getLocation(setLocationLoading)} icon={locationLoading ? <ActivityIndicator color={colors.ACTIVE_ORANGE} size={"small"} /> : <Location width={23} height={23} />} title={""} />
       </>}
     </Animated.View>
     </>
@@ -833,12 +751,13 @@ const styles = StyleSheet.create({
         alignItems :"flex-start",
       },
       userGeneratedMessage: {
-/*         borderWidth: 1, */
+       /*  borderWidth: 1, */
 /*         borderRadius: 50, */
         borderBottomRightRadius: 10,
         borderBottomLeftRadius: 10,
 /*         marginRight: 5, */
         padding: 10,
+        gap: 5,
         position: "relative",
         backgroundColor: colors.LIGHT_COLOR,
         color: '#111928',

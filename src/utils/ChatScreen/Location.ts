@@ -73,3 +73,31 @@ export const getCurrentLocation = async (): Promise<{
     );
   });
 };
+
+export const getLocation = async(setLocationLoading : (value: boolean) => void) => {
+    setLocationLoading(true)
+    try {
+      const location  = await getCurrentLocation()
+      console.log(location)
+      if(location) {
+        Alert.alert("Send location?", "Are you sure you want to send your location?",[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Send',
+            onPress: () => {
+              console.log('Sending location:', location);
+            },
+          },
+        ],
+        { cancelable: true })
+      }
+    } catch(err) {
+      console.log(err)
+    } finally {
+      setLocationLoading(false)
+    }
+
+  }
