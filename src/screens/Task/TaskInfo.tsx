@@ -18,9 +18,9 @@ export default function TaskInfo() {
     })
 
 
-    const fetchWorkRequestDetials = () => {
+    const fetchWorkRequestDetails = () => {
 
-                
+        
 
     }
 

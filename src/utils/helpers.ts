@@ -131,6 +131,26 @@ export function formatLongDate(isoString: string): string {
   return date.toLocaleDateString('en-US', options);
 }
 
+export function formatProperDate(timestamp: string): string {
+  const date = new Date(timestamp);
+
+  const year = date.getFullYear();
+  const month = date.toLocaleString('en-US', { month: 'short' });
+  const day = date.getDate();
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+
+  return `${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
+}
+
+
+
+
+
 export const pickMedia = async (oneImage?: boolean) => {
   try {
     const result = await launchImageLibrary({

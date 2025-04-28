@@ -806,3 +806,65 @@ console.log(bodyData)
   }
 
 }
+
+
+
+export const getWorkOrderTypes = async(organizationUUID:string) => {
+
+  try {
+    const getWorkOrderTypesResponse = await apiClient(ENDPOINTS.WORK_ORDER.GET_WORK_ORDER_TYPES, {}, {}, "GET", {organizationUUID})
+    console.log(getWorkOrderTypesResponse)
+    return getWorkOrderTypesResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+
+//WORK-REQUEST
+export const getPendingWorkRequestCount = async(organizationUUID:string) => {
+
+  try {
+    const getPendingWorkRequestCountResponse = await apiClient(ENDPOINTS.WORK_REQUEST.GET_PENDING_WORK_REQUEST_COUNT, {}, {}, "GET", {organizationUUID})
+    console.log(getPendingWorkRequestCountResponse)
+    return getPendingWorkRequestCountResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+export const getWorkRequestDetails = async(workRequestUUID:string) => {
+
+  try {
+    const getWorkRequestDetailsResponse = await apiClient(ENDPOINTS.WORK_REQUEST.GET_WORK_REQUEST_DETAILS, {}, {}, "GET", {workRequestUUID})
+    console.log(getWorkRequestDetailsResponse)
+    return getWorkRequestDetailsResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+//COMMON
+export const getWorkPriorities = async(organizationUUID: string) => {
+
+  try {
+    const getWorkPrioritiesResponse = await apiClient(ENDPOINTS.COMMON.GET_WORK_PRIORITIES, {}, {}, "GET", {organizationUUID})
+    console.log(getWorkPrioritiesResponse)
+    return getWorkPrioritiesResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+

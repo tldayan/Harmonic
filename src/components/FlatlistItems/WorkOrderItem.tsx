@@ -3,7 +3,7 @@ import React from 'react'
 import { colors } from '../../styles/colors'
 import { WORK_PRIORITY_COLOR_CODES, WORK_PRIORITY_TEXT_COLOR_CODES, WORK_STATUS__NOTIFICATION_COLOR_CODES, WORK_STATUS_COLOR_CODES } from '../../utils/constants'
 import { shadowStyles } from '../../styles/global-styles'
-import { formatDate, formatLongDate } from '../../utils/helpers'
+import { formatProperDate } from '../../utils/helpers'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
@@ -28,7 +28,7 @@ export default function WorkOrderItem({workOrderItem}: WorkOrderItemProps) {
           </View>
         </View>
 
-        {workOrderItem.CreatedDateTime && <Text style={{color: colors.LIGHT_TEXT}}>Created on <Text style={{color: "black"}}>{formatDate(workOrderItem.CreatedDateTime)}</Text></Text>}
+        {workOrderItem.CreatedDateTime && <Text style={{color: colors.LIGHT_TEXT}}>Created on <Text style={{color: "black"}}>{formatProperDate(workOrderItem.CreatedDateTime)}</Text></Text>}
         <Text>{workOrderItem.AssetName}</Text>
         <Text style={{fontSize: 16, color: colors.GRAY_DARK_TEXT}}>{workOrderItem.ProblemDescription}</Text>
         <Text>{workOrderItem.WorkDescription}</Text>
@@ -41,13 +41,12 @@ const styles = StyleSheet.create({
   mainWorkOrderContainer: {
     width: "95%",
     borderRadius: 24,
-    marginHorizontal: "2.5%",
- /*    padding: 16 */
+    alignSelf :"center"
   },
   workOrderContainer: {
 /*     borderWidth: 1, */
     borderRadius: 24,
-    width: "98%",
+    width: "100%",
     gap: 10,
     marginLeft: "auto",
     backgroundColor: "white",

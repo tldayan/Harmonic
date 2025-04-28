@@ -47,17 +47,19 @@ export const ENDPOINTS = {
     RESPOND_TO_CHAT_INVITE: `${BASE_URL}/social/respondToChatInvite`,
   },
   WORK_ORDER: {
-    GET_WORK_ORDER_LIST: `${BASE_URL}/work-order/getWorkOrderList`
-
+    GET_WORK_ORDER_LIST: `${BASE_URL}/work-order/getWorkOrderList`,
+    GET_WORK_ORDER_TYPES: `${BASE_URL}/work-order/getWorkOrderTypes`,
   },
   WORK_REQUEST: {
-    GET_WORK_REQUEST_DETAILS: `${BASE_URL}/work-request/getWorkRequestDetails`
+    GET_WORK_REQUEST_DETAILS: `${BASE_URL}/work-request/getWorkRequestDetails`,
+    GET_PENDING_WORK_REQUEST_COUNT: `${BASE_URL}/work-request/getPendingWorkRequestCount`,
   },
   ALERT : {
     GET_CHAT_INVITE_DETAILS: `${BASE_URL}/alert/getChatInviteDetails`
   },  
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,
-    CATEGORY_ITEMS: `${BASE_URL}/common/getCategoryItemsForACategory`
+    CATEGORY_ITEMS: `${BASE_URL}/common/getCategoryItemsForACategory`,
+    GET_WORK_PRIORITIES: `${BASE_URL}/common/getWorkPriorities`
   }
 };

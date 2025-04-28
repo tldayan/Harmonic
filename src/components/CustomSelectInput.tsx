@@ -1,0 +1,80 @@
+import * as React from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import ChevronDown from "../assets/icons/chevron-down.svg"
+
+interface SelectInputProps {
+  placeholder: string;
+  onSelect?: () => void;
+}
+
+const CustomSelectInput: React.FC<SelectInputProps> = ({ placeholder, onSelect }) => {
+  return (
+    <TouchableOpacity
+      style={styles.selectInput}
+      onPress={onSelect}
+      activeOpacity={0.7}
+    >
+      <View style={styles.content}>
+        <View style={styles.placeholderContainer}>
+          <Text style={styles.placeholderText}>{placeholder}</Text>
+        </View>
+          <ChevronDown width={12} height={12} />
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  selectInput: {
+    alignItems: "stretch",
+    borderRadius: 9999,
+    backgroundColor: "#F9FAFB",
+    display: "flex",
+    minWidth: 240,
+    width: "100%",
+    flexDirection: "column",
+    justifyContent: "center",
+    padding: 12,
+    flex: 1,
+    flexShrink: 1,
+    flexBasis: "0%",
+    marginTop: 10,
+    minHeight: 42,
+    fontFamily: "Inter, -apple-system, Roboto, Helvetica, sans-serif",
+    fontSize: 14,
+    color: "#6b7280",
+    fontWeight: "400",
+    lineHeight: 1,
+  },
+  content: {
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  placeholderContainer: {
+    alignSelf: "stretch",
+    marginTop: "auto",
+    marginBottom: "auto",
+    flex: 1,
+    flexShrink: 1,
+    flexBasis: "0%",
+  },
+  placeholderText: {
+    fontFamily: "Inter, -apple-system, Roboto, Helvetica, sans-serif",
+    fontSize: 14,
+    color: "#6b7280",
+    fontWeight: "400",
+  },
+  dropdownIcon: {
+    aspectRatio: 1,
+    width: 10,
+    height: 10,
+    alignSelf: "stretch",
+    marginTop: "auto",
+    marginBottom: "auto",
+    flexShrink: 0,
+  },
+});
+
+export default CustomSelectInput;

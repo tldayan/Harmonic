@@ -152,3 +152,26 @@ interface WorkOrder {
   WorkRequestUUID: string | null;
   WorkRequestNumber: string | null;
 }
+
+interface TaskInformationState {
+  asset: { assetName: string; assetUUID: string };
+  workOrderType: { workOrderTypeName: string; workOrderTypeUUID: string };
+  taskDescription: string;
+  workPriorityUUID: string;
+  images: string[];
+  imageDescription: string;
+  creatorName: string;
+  creatorEmail: string;
+  creatorNumber: string;
+  creatorLocation: string;
+}
+
+
+
+interface WorkPriority {
+  WorkPriorityId: number;
+  WorkPriorityUUID: string;
+  WorkPriorityName: string;
+  WorkPriorityDescription: string;
+  IsDeleted: boolean;
+}

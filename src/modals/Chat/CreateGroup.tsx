@@ -291,7 +291,8 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
             ref={flatListRef}
             pagingEnabled
             style={styles.mainCreateGroupForm} 
-            horizontal data={steps} 
+            horizontal
+            data={steps} 
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => index === 0 ? stepOne() : stepTwo()}
         />
