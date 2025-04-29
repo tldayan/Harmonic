@@ -3,35 +3,37 @@ import React, { useEffect, useState } from 'react'
 import ModalsHeader from '../ModalsHeader'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
-import { getWorkOrderTypes } from '../../api/network-utils'
+import { getAssetList } from '../../api/network-utils'
 import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
 import { ScrollView } from 'react-native-gesture-handler'
 import { TaskInformationState } from '../../types/work-order.types'
 
-interface WorkOrderType {
-    WorkOrderTypeUUID: string;    
-    WorkOrderTypeName: string;        
-    WorkOrderTypeDescription: string | null; 
-}
-
-interface WorkOrderTypesProps {
+interface AssetTypesProps {
     onClose: () => void
     setTaskInformation: React.Dispatch<React.SetStateAction<TaskInformationState>>
 }
 
-export default function WorkOrderTypes({onClose, setTaskInformation} : WorkOrderTypesProps) {
+export default function AssetTypes({onClose, setTaskInformation} : AssetTypesProps) {
     
-    const [workTypes, setWorkTypes] = useState<WorkOrderType[]>([])
+    const [assets, setAssetsList] = useState<WorkAsset[]>([])
     const [loading, setLoading] = useState(false)
+    const [startIndex, setStartIndex] = useState(0)
+    const [hasMoreAssets, setHasMoreAssets] = useState(true)
     const {organizationUUID} = useSelector((state: RootState) => state.auth)
 
-    useEffect(() => {
-        const fetchWorkOrderTypes = async () => {
+
+    const fetchAssetList = async () => {
+            if(!hasMoreAssets) return
+
             setLoading(true)
             try {
-                const WorkOrderTypes = await getWorkOrderTypes(organizationUUID)
-                setWorkTypes(WorkOrderTypes.Payload)
+                const Assets = await getAssetList(organizationUUID, startIndex)
+                if(Assets.Payload.length < 20) {
+                    setHasMoreAssets(false)
+                }
+                setStartIndex((prev) => prev + 20)
+                setAssetsList((prev) => [...prev, ...Assets.Payload])
             } catch (err) {
                 console.log(err)
             } finally {
@@ -39,36 +41,38 @@ export default function WorkOrderTypes({onClose, setTaskInformation} : WorkOrder
             }
         }
 
-        fetchWorkOrderTypes()
-    }, [organizationUUID])
+/*     useEffect(() => {
+        
+
+        fetchAssetList()
+        
+    }, [organizationUUID]) */
 
 
-    const workOrderTypeItem = ({ item }: { item: WorkOrderType }) => (
+    const assetItem = ({ item }: { item: WorkAsset }) => (
         <CustomButton
-            buttonStyle={styles.workOrderType}
-            onPress={() => {setTaskInformation((prev) => ({
-                ...prev,
-                workOrderType: {
-                  workOrderTypeUUID: item.WorkOrderTypeUUID,
-                  workOrderTypeName: item.WorkOrderTypeName,
-                },
-              })); onClose()}}
-            title={item.WorkOrderTypeName}
+            buttonStyle={styles.asset}
+            onPress={() => {setTaskInformation((prev) => (
+                {...prev, asset: {assetName: item.AssetName, assetUUID: item.AssetUUID}}
+            ));onClose()}}
+            title={item.AssetName}
         />
     )
 
   return (
     <View style={styles.container}>
-        <ModalsHeader onClose={onClose} title='Task Type' />
+        <ModalsHeader onClose={onClose} title='Asset' />
         {loading ? <ActivityIndicator size="small" /> : (
-            <ScrollView style={styles.mainWorkOrderTypesList} horizontal={true} scrollEnabled={false} showsHorizontalScrollIndicator={false}>
+            <ScrollView style={styles.mainAssetList} horizontal={true} scrollEnabled={false} showsHorizontalScrollIndicator={false}>
                 <FlatList
-                    style={styles.workOrderTypesList}
-                    data={workTypes}
+                    style={styles.assetList}
+                    data={assets}
                     contentContainerStyle= {{gap: 15}}
-                    keyExtractor={(item) => item.WorkOrderTypeUUID}
-                    renderItem={workOrderTypeItem}
-                    ListEmptyComponent={<Text>No Work Order Types Available</Text>}
+                    keyExtractor={(item) => item.AssetUUID}
+                    renderItem={assetItem}
+                    onEndReached={fetchAssetList}
+                    onEndReachedThreshold={0.5}
+                    ListEmptyComponent={<Text>No Assets Available</Text>}
                     ListFooterComponent={loading ? <ActivityIndicator size={"small"} /> : null}
                 />
             </ScrollView>
@@ -84,18 +88,18 @@ const styles = StyleSheet.create({
         width: 343,
         paddingBottom: 10
     },
-    mainWorkOrderTypesList: {
+    mainAssetList: {
         flexDirection: "column", 
         width: "90%", 
         alignSelf: "center",
-        paddingBottom: 10
+        paddingBottom: 10,
     },
-    workOrderTypesList: {
+    assetList: {
         width: "90%",
         alignSelf: "center",
         paddingHorizontal: 10,
     },
-    workOrderType: {
+    asset: {
         backgroundColor: colors.LIGHT_COLOR,
         borderRadius: 25,
         paddingVertical: 5

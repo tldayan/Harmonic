@@ -1,4 +1,4 @@
-import { Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import ModalsHeader from '../ModalsHeader'
@@ -9,6 +9,12 @@ import TaskInformation from './TaskInformation'
 import { getWorkPriorities } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
+import UploadSection from './TaskImageUpload'
+import ProgressBar from '../../components/ProgressBar'
+import TaskImageUpload from './TaskImageUpload'
+import { TaskInformationState } from '../../types/work-order.types'
+import TaskUserInfo from './TaskUserInfo'
+import ReviewTask from './ReviewTask'
 
 interface TaskCreationProps {
     onClose: () => void
@@ -40,13 +46,14 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
         asset: { assetName: '', assetUUID: '' },
         workOrderType: { workOrderTypeName: '', workOrderTypeUUID: '' },
         taskDescription: '',
-        workPriorityUUID: '',
+        workPriority: {workPriorityUUID: "", workPriorityName: ""},
         images: [],
         imageDescription: '',
         creatorName: '',
         creatorEmail: '',
         creatorNumber: '',
         creatorLocation: '',
+        loading: false
       });
       
 
@@ -77,6 +84,7 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
 
         return (
             <View style={styles.innerContainer}>
+                <Text>1. Task Information</Text>
                 <TaskInformation taskInformation={taskInformation} setTaskInformation={setTaskInformation} priorityOptions={workPriorities}/>            
             </View>
         )
@@ -87,7 +95,8 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
 
         return (
             <View style={styles.innerContainer}>
-                <Text>Members</Text>
+                <Text>2. Additional Information</Text>
+                <TaskImageUpload setTaskInformation={setTaskInformation} taskInformation={taskInformation} />
             </View>
         )
 
@@ -97,7 +106,8 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
 
         return (
             <View style={styles.innerContainer}>
-                <Text>User Info</Text>
+                <Text>3. Task requested by</Text>
+                <TaskUserInfo setTaskInformation={setTaskInformation} taskInformation={taskInformation} />
             </View>
         )
 
@@ -107,7 +117,8 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
 
         return (
             <View style={styles.innerContainer}>
-                <Text>Review and submit</Text>
+                <Text>4. Review</Text>
+                <ReviewTask taskInformation={taskInformation} />
             </View>
         )
 
@@ -131,6 +142,9 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
   return (
     <SafeAreaView style={styles.container}>
         <ModalsHeader onClose={onClose} title={"Create Task"} />
+
+        <ProgressBar width={"90%"} max={steps.length} value={step + 1} />    
+    
         <FlatList
             ref={flatListRef}
             style={styles.mainCreateTaskForm} 
@@ -144,7 +158,7 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
 
         <View style={styles.formButtonsContainer}>
             {step >= 1 && <CustomButton onPress={back} textStyle={{color: "black"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.backButton]} title={"Back"} />}
-            <CustomButton onPress={next} textStyle={{color: "white"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.nextButton]} title={step <= 2 ? "Next" : "Request Task"} />
+            {taskInformation.loading ? <ActivityIndicator style={{marginLeft: "auto"}} size={"large"} /> : <CustomButton onPress={next} textStyle={{color: "white"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.nextButton]} title={step <= 2 ? "Next" : "Request Task"} />}
         </View>
 
 
@@ -159,12 +173,11 @@ const styles = StyleSheet.create({
     },
     innerContainer : {
         padding: 16,
-        borderWidth: 2,
+/*         borderWidth: 2, */
         width: width
     },
     mainCreateTaskForm: {
-        borderWidth: 3,
-        borderColor: "red",
+        marginTop: 15,
         height: 100
     },
     formButtonsContainer: {

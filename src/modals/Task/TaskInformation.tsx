@@ -6,6 +6,8 @@ import CustomTextAreaInput from '../../components/CustomTextAreaInput';
 import CustomSelectInput from '../../components/CustomSelectInput';
 import { CustomModal } from '../../components/CustomModal';
 import WorkOrderTypes from './WorkOrderTypes';
+import AssetTypes from './AssetTypes';
+import { TaskInformationState } from '../../types/work-order.types';
   
 
 interface TaskInformationProps {
@@ -18,13 +20,11 @@ export default function TaskInformation({priorityOptions, setTaskInformation, ta
 
 
     const [selectingWorkType, setSelectingWorkType] = useState(false)
-    const [selectingAssetType, setSelectingAssetType] = useState(false)
+    const [selectingAsset, setSelectingAsset] = useState(false)
 
     
   return (
         <View style={styles.modalBody}>
-            <Text style={styles.labelText}>1. Task Information</Text>
-
             <View style={styles.inputRow}>
                 <View style={styles.row}>
                 <CustomSelectInput onSelect={() => setSelectingWorkType(true)} placeholder={taskInformation.workOrderType.workOrderTypeName ? taskInformation.workOrderType.workOrderTypeName : "Washing Machine" }/>
@@ -33,7 +33,7 @@ export default function TaskInformation({priorityOptions, setTaskInformation, ta
             
             <View style={styles.inputRow}>
             <View style={styles.row}>
-                <CustomSelectInput placeholder="Water leakage" />
+                <CustomSelectInput onSelect={() => setSelectingAsset(true)} placeholder={taskInformation.asset.assetName ? taskInformation.asset.assetName : "Water leakage"} />
             </View>
             </View>
                 <CustomTextAreaInput onChangeText={(e) => setTaskInformation((prev) => ({...prev, taskDescription: e}))} placeholder="Write issue description here" />
@@ -47,16 +47,23 @@ export default function TaskInformation({priorityOptions, setTaskInformation, ta
                 label="Priority" 
                 options={priorityOptions} 
                 onSelect={(selectedPriority) => {
-                    setTaskInformation(prev => ({
+                  setTaskInformation(prev => ({
                     ...prev,
-                    workPriorityUUID: selectedPriority.WorkPriorityUUID
-                    }));
+                    workPriority: {
+                      workPriorityUUID: selectedPriority.WorkPriorityUUID,
+                      workPriorityName: selectedPriority.WorkPriorityName
+                    }
+                  }));
                 }}
             />
 
 
             <CustomModal isOpen={selectingWorkType} onClose={() => setSelectingWorkType(false)}>
                 <WorkOrderTypes setTaskInformation={setTaskInformation} onClose={() => setSelectingWorkType(false)} />
+            </CustomModal>
+
+            <CustomModal isOpen={selectingAsset} onClose={() => setSelectingAsset(false)}>
+                <AssetTypes setTaskInformation={setTaskInformation} onClose={() => setSelectingAsset(false)} />
             </CustomModal>
                 
 
@@ -70,12 +77,8 @@ const styles = StyleSheet.create({
         width: "100%",
         flexDirection: "column", 
         gap: 10, 
+        marginTop: 10,
       },
-    labelText: {
-      fontFamily: "Inter, -apple-system, Roboto, Helvetica, sans-serif",
-      color: "#111928",
-      fontWeight: "500",
-    },
     inputRow: {
       minHeight: 42,
       width: "100%",

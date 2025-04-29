@@ -852,6 +852,35 @@ export const getWorkRequestDetails = async(workRequestUUID:string) => {
 
 }
 
+
+
+//ASSET 
+
+export const getAssetList = async(organizationUUID:string, startIndex: number) => {
+
+  const bodyData = {
+    "DefaultSearchExpression": "",
+    "SearchExpression": "(A.AssetName LIKE '%%')",
+    "StartIndex": startIndex,
+    "ParentAssetUUID": "",
+    "PageSize": 20,
+    "SortQuery": "",
+    "CategoryItemUUIDs": [],
+    "OrganizationUUID": organizationUUID
+}
+
+console.log(bodyData)
+  try {
+    const getAssetListResponse = await apiClient(ENDPOINTS.ASSET.GET_ASSET_LIST, bodyData, {}, "POST")
+    console.log(getAssetListResponse)
+    return getAssetListResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
 //COMMON
 export const getWorkPriorities = async(organizationUUID: string) => {
 

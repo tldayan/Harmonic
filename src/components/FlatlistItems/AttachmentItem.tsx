@@ -11,23 +11,24 @@ interface AttachmentItemProps {
     deleteAttachment: (fileName: string) => void;
     setViewingAttachments: (value: boolean) => void;
     setInitialAttachmentIndex: (index: number) => void;
+    imageSize?: number
   }
 
 
-export const Attachmentitem = ({item,index,deleteAttachment, setViewingAttachments, setInitialAttachmentIndex, setAttachment} : AttachmentItemProps) => {
-    return (
+export const Attachmentitem = ({item,index,deleteAttachment, setViewingAttachments, setInitialAttachmentIndex, setAttachment, imageSize} : AttachmentItemProps) => {
+  return (
         <View style={styles.imageContainer}>
             <CustomButton onPress={() => deleteAttachment(item.fileName || "")} buttonStyle={styles.deleteImage} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
             <CustomButton buttonStyle={styles.contentButtonContainer} onPress={() => {setAttachment?.(null);setViewingAttachments(true); setInitialAttachmentIndex(index)}} icon={item.type?.includes("video") ? 
                 <Video 
                     paused 
                     renderLoader={<ActivityIndicator style={styles.loader} size={'small'} color={"black"} />} 
-                    style={styles.content}
+                    style={[styles.content, imageSize ? {width : imageSize, height: imageSize} : null]}
                     controls={false}
                     source={{ uri: item.uri }}
                 /> 
                 : 
-                <Image style={styles.content} source={{uri: item.uri ? item.uri : undefined}} />} />
+                <Image style={[styles.content, imageSize ? {width : imageSize, height: imageSize} : null]} source={{uri: item.uri ? item.uri : undefined}} />} />
         </View>
     )
 }

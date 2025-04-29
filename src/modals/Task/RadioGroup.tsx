@@ -1,6 +1,7 @@
 import * as React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import CheckIcon from "../../assets/icons/check.svg";
+import { colors } from "../../styles/colors";
 
 interface WorkPriority {
   WorkPriorityId: number;
@@ -97,6 +98,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
     width: 16,
     height: 16,
+    borderWidth: 1,
+    borderColor: colors.BORDER_COLOR
   },
   radioButtonSelected: {
     backgroundColor: "#1A56DB",

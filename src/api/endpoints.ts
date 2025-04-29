@@ -54,6 +54,9 @@ export const ENDPOINTS = {
     GET_WORK_REQUEST_DETAILS: `${BASE_URL}/work-request/getWorkRequestDetails`,
     GET_PENDING_WORK_REQUEST_COUNT: `${BASE_URL}/work-request/getPendingWorkRequestCount`,
   },
+  ASSET: {
+    GET_ASSET_LIST: `${BASE_URL}/asset/getAssetList`,
+  },
   ALERT : {
     GET_CHAT_INVITE_DETAILS: `${BASE_URL}/alert/getChatInviteDetails`
   },  

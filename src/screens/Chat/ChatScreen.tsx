@@ -709,7 +709,6 @@ const styles = StyleSheet.create({
       },
       mainSelectedAttachments : {
         marginRight: "auto",
-        borderColor: "aqua",
         flexGrow: 0, height: 'auto'
       },
       selectedImagesList : {

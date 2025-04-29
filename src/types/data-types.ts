@@ -153,18 +153,6 @@ interface WorkOrder {
   WorkRequestNumber: string | null;
 }
 
-interface TaskInformationState {
-  asset: { assetName: string; assetUUID: string };
-  workOrderType: { workOrderTypeName: string; workOrderTypeUUID: string };
-  taskDescription: string;
-  workPriorityUUID: string;
-  images: string[];
-  imageDescription: string;
-  creatorName: string;
-  creatorEmail: string;
-  creatorNumber: string;
-  creatorLocation: string;
-}
 
 
 
@@ -175,3 +163,44 @@ interface WorkPriority {
   WorkPriorityDescription: string;
   IsDeleted: boolean;
 }
+
+
+interface AssetCategory {
+  AssetCategoryUUID: string;
+  CategoryUUID: string;
+  CategoryName: string;
+  CategoryItemUUID: string;
+  CategoryItemName: string;
+  CategoryItemURL: string;
+}
+
+interface WorkAsset {
+  AssetUUID: string;
+  AssetURL: string;
+  AssetName: string;
+  AssetDescription: string;
+  AssetTypeUUID: string;
+  AssetTypeName: string;
+  AssetIcon: string | null;
+  ParentAssetUUID: string | null;
+  StatusItemName: string;
+  StatusItemCode: string;
+  CurrentCustodianFullName: string | null;
+  CurrentCustodianProfilePicURL: string | null;
+  CreatedBy: string;
+  CreatedByFullName: string;
+  CreatedDateTime: string; // or `Date` if you plan to parse it
+  NoOfChildren: number;
+  HasChildren: number;
+  AssetCategories: AssetCategory[];
+  AssetCategoryUUID: string;
+  CategoryUUID: string;
+  CategoryName: string;
+  CategoryItemUUID: string;
+  CategoryItemName: string;
+  CategoryItemURL: string;
+  DepartmentUUID: string | null;
+  DepartmentName: string | null;
+  DepartmentIcon: string | null;
+}
+

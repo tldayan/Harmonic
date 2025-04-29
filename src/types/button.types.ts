@@ -8,4 +8,5 @@ export interface CustomButtonProps {
   icon?: React.ReactNode,
   iconPosition?: string
   disableOpacity?: boolean
+  loading?: boolean
 }
