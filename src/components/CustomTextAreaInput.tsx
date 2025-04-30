@@ -4,11 +4,13 @@ import { View, Text, StyleSheet, TextInput } from "react-native";
 interface TextAreaInputProps {
   placeholder: string;
   onChangeText?: (text: string) => void;
+  flex?: boolean
 }
 
 const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
   placeholder,
   onChangeText,
+  flex
 }) => {
   const [value, setValue] = React.useState("");
 
@@ -20,7 +22,7 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, flex ? {flex: 1, minHeight: 218} : null]}>
       <View style={styles.input}>
         <TextInput
           style={styles.textInput}
@@ -39,9 +41,9 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
-    minHeight: 218,
+/*     minHeight: 218, */
+    height: 45,
     width: "100%",
-    fontFamily: "Inter, -apple-system, Roboto, Helvetica, sans-serif",
     fontSize: 14,
     color: "#6b7280",
     fontWeight: "400",
@@ -66,7 +68,6 @@ const styles = StyleSheet.create({
     flexBasis: "0%",
     minWidth: 240,
     width: "100%",
-    fontFamily: "Inter, -apple-system, Roboto, Helvetica, sans-serif",
     fontSize: 14,
     color: "#111928",
     paddingHorizontal: 12,

@@ -78,11 +78,11 @@ export default function TasksScreen() {
           <CustomButton buttonStyle={styles.taskStageButtons} textStyle={{color: colors.INDIGO}} onPress={() => {}} title={"Completed tasks"} />
         </ScrollView>
       </View>
-      {pendingWorkRequests && <View style={styles.pendingRequestsContainer}>
+      {pendingWorkRequests ? <View style={[styles.pendingRequestsContainer, shadowStyles ]}>
           <Alert fill='red' color='white' width={22} height={22}/>
           <Text style={styles.pending}>You have {pendingWorkRequests} request pending to approve</Text>
           <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, styles.seeAll]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} onPress={() => {}} title={"See all"} />
-        </View>}
+        </View>: null}
       {(workOrders?.length === 0 && loading) && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={"black"} />}
       <FlatList
         contentContainerStyle={styles.workOrderContainer} 
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   workOrderContainer: {
     gap: 20,
-    paddingBottom: 15  
+    paddingBottom: 100  
   },
   pendingRequestsContainer: {
     width: "95%",

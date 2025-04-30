@@ -13,7 +13,7 @@ export const ENDPOINTS = {
     GET_ORGANIZATION_USERS: `${BASE_URL}/organization/getOrganizationUsers`
   },
   USER: {
-    PROFILE: `${BASE_URL}/user/getUserProfile`
+    PROFILE: `${BASE_URL}/user/getUserProfile`,
   },
   SOCIAL: {
     MBMESSAGES: `${BASE_URL}/social/getMBMessages`,
@@ -49,6 +49,8 @@ export const ENDPOINTS = {
   WORK_ORDER: {
     GET_WORK_ORDER_LIST: `${BASE_URL}/work-order/getWorkOrderList`,
     GET_WORK_ORDER_TYPES: `${BASE_URL}/work-order/getWorkOrderTypes`,
+    SAVE_WORK_ORDER: `${BASE_URL}/work-order/saveWorkOrder`,
+    SAVE_WORK_ORDER_ATTACHMENTS: `${BASE_URL}/work-order/saveWorkOrderAttachments`
   },
   WORK_REQUEST: {
     GET_WORK_REQUEST_DETAILS: `${BASE_URL}/work-request/getWorkRequestDetails`,

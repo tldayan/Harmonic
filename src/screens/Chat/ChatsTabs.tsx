@@ -21,10 +21,10 @@ function ChatsTabs() {
         tabBarItemStyle: {flexDirection : "row", alignItems: 'center'}
       }}>
         <Tab.Screen options={{tabBarIcon: () => (
-              <ChatsIcon name="account-group" fill="red" width={15} height={15} />
+              <ChatsIcon name="account-group" fill={"black"} width={15} height={15} />
             )}} name="Community" component={ChatsList} />
         <Tab.Screen options={{tabBarIcon: () => (
-              <StoreIcon name="account-group" fill="red" width={15} height={15} />
+              <StoreIcon name="account-group" fill={"black"} width={15} height={15} />
             )}} name="Store" component={ChatsList} />
       </Tab.Navigator>
     );

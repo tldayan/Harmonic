@@ -6,15 +6,16 @@ import CustomButton from '../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES } from '../../styles/button-styles'
 import { colors } from '../../styles/colors'
 import TaskInformation from './TaskInformation'
-import { getWorkPriorities } from '../../api/network-utils'
+import { getWorkPriorities, saveWorkOrder, saveWorkOrderAttachments } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
-import UploadSection from './TaskImageUpload'
 import ProgressBar from '../../components/ProgressBar'
 import TaskImageUpload from './TaskImageUpload'
 import { TaskInformationState } from '../../types/work-order.types'
 import TaskUserInfo from './TaskUserInfo'
 import ReviewTask from './ReviewTask'
+import { firebaseStoragelocations, STATUS_CODE } from '../../utils/constants'
+import { uploadDocuments } from '../../utils/helpers'
 
 interface TaskCreationProps {
     onClose: () => void
@@ -29,13 +30,6 @@ const steps = [
    {id: "4", title : "Review and submit"},
 ]
 
-const priorityOptions = [
-    { id: "high", label: "High", selected: true },
-    { id: "medium", label: "Medium", selected: false },
-    { id: "low", label: "Low", selected: false },
-    { id: "lowest", label: "Lowest", selected: false },
-  ];
-
 
 
 export default function TaskCreation({onClose} : TaskCreationProps) {
@@ -43,12 +37,15 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
     const [step, setStep] = useState(0)
     const [workPriorities, setWorkPriorities] = useState<WorkPriority[]>()
     const [taskInformation, setTaskInformation] = React.useState<TaskInformationState>({
+        workOrderUUID: "",
         asset: { assetName: '', assetUUID: '' },
         workOrderType: { workOrderTypeName: '', workOrderTypeUUID: '' },
+        problemDescription: '',
         taskDescription: '',
         workPriority: {workPriorityUUID: "", workPriorityName: ""},
         images: [],
-        imageDescription: '',
+        attachments: [],
+        attachmentDescription: '',
         creatorName: '',
         creatorEmail: '',
         creatorNumber: '',
@@ -57,7 +54,7 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
       });
       
 
-    const {organizationUUID} = useSelector((state: RootState) => state.auth)
+    const {organizationUUID, userUUID} = useSelector((state: RootState) => state.auth)
 
     const flatListRef = useRef<FlatList<any>>(null)
 
@@ -80,61 +77,96 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
     }, [taskInformation])
 
 
-    function stepOne() {
+    function stepOne(index: number) {
 
         return (
             <View style={styles.innerContainer}>
-                <Text>1. Task Information</Text>
+                <Text>{steps[index].id}. {steps[index].title}</Text>
                 <TaskInformation taskInformation={taskInformation} setTaskInformation={setTaskInformation} priorityOptions={workPriorities}/>            
             </View>
         )
 
     }
     
-    function stepTwo() {
+    function stepTwo(index: number) {
 
         return (
             <View style={styles.innerContainer}>
-                <Text>2. Additional Information</Text>
+                <Text>{steps[index].id}. {steps[index].title}</Text>
                 <TaskImageUpload setTaskInformation={setTaskInformation} taskInformation={taskInformation} />
             </View>
         )
 
     }
 
-    function stepThree() {
+    function stepThree(index: number) {
 
         return (
             <View style={styles.innerContainer}>
-                <Text>3. Task requested by</Text>
+                <Text>{steps[index].id}. {steps[index].title}</Text>
                 <TaskUserInfo setTaskInformation={setTaskInformation} taskInformation={taskInformation} />
             </View>
         )
 
     }
 
-    function stepFour() {
+    function stepFour(index: number) {
 
         return (
             <View style={styles.innerContainer}>
-                <Text>4. Review</Text>
-                <ReviewTask taskInformation={taskInformation} />
+                <Text>{steps[index].id}. {steps[index].title}</Text>
+                <ReviewTask setStep={setStep} taskInformation={taskInformation} />
             </View>
         )
 
     }
     
-    const next = () => {
+    const next = async() => {
+            setTaskInformation((prev) => ({...prev, loading : true}))
 
-        flatListRef.current?.scrollToIndex({index: step + 1})
+        try {
+
+        if(step === 0) {
+            const saveWorkOrderRequest = await saveWorkOrder(userUUID, organizationUUID, taskInformation)
+            if(saveWorkOrderRequest.Status === STATUS_CODE.SUCCESS) {
+                const workOrderUUID = saveWorkOrderRequest.Payload.WorkOrderUUID
+                setTaskInformation((prev) => ({...prev, workOrderUUID: workOrderUUID, loading: false}))
+            } /* else {
+                return
+            } */
+        } else if(step === 1) {
+
+            const firebaseAttachmentUrls = await uploadDocuments(taskInformation.attachments,firebaseStoragelocations.workOrder)
+            console.log(firebaseAttachmentUrls)
+        
+
+            const saveWorkOrderRequest = await saveWorkOrderAttachments(userUUID, taskInformation.workOrderUUID, firebaseAttachmentUrls)
+
+        } else if(step === 2) {
+
+            if(!taskInformation.creatorEmail || !taskInformation.creatorName || !taskInformation.creatorNumber) {
+                return
+            }
+
+        }
+
+        } catch(err) {
+            console.log(err)
+        } finally {
+            setTaskInformation((prev) => ({...prev, loading : false}))
+        }
+
+        
+
         setStep((prev) => prev + 1)
-
     }
+
+    useEffect(() => {
+        flatListRef.current?.scrollToIndex({index: step})
+    }, [step])
+
     const back = () => {
-
-        flatListRef.current?.scrollToIndex({index: step - 1})
         setStep((prev) => prev - 1)
-
     }
 
 
@@ -153,7 +185,7 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
             data={steps}
             horizontal
             pagingEnabled
-            renderItem={({item, index}) => index === 0 ? stepOne() : index === 1 ? stepTwo() : index === 2 ? stepThree() : stepFour() }
+            renderItem={({item, index}) => index === 0 ? stepOne(index) : index === 1 ? stepTwo(index) : index === 2 ? stepThree(index) : stepFour(index) }
         />
 
         <View style={styles.formButtonsContainer}>
@@ -184,19 +216,25 @@ const styles = StyleSheet.create({
         flexDirection: "row", 
         justifyContent:"space-between",
         borderWidth: 1,
+        alignItems: "center",
         width: "90%",
-        alignSelf: "center"
+        alignSelf: "center",
+        paddingVertical: 20
     },
     backButton: {
         paddingHorizontal: 20,
         borderColor: colors.BORDER_COLOR,
         borderWidth: 1,
+        marginBottom: 0,
+        marginTop: 0,
         backgroundColor: "white"
     },
     nextButton: {
         paddingHorizontal: 20,
         borderColor: colors.BORDER_ORANGE,
         borderWidth: 1,
+        marginBottom: 0,
+        marginTop: 0,
         marginLeft: "auto"
     }
 })

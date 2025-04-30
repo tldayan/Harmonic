@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
-import SelectInput from '../../components/CustomSelectInput';
 import RadioGroup from './RadioGroup';
 import CustomTextAreaInput from '../../components/CustomTextAreaInput';
 import CustomSelectInput from '../../components/CustomSelectInput';
@@ -8,6 +7,8 @@ import { CustomModal } from '../../components/CustomModal';
 import WorkOrderTypes from './WorkOrderTypes';
 import AssetTypes from './AssetTypes';
 import { TaskInformationState } from '../../types/work-order.types';
+import { CustomTextInput } from '../../components/CustomTextInput';
+import { defaultInputStyles } from '../../styles/global-styles';
   
 
 interface TaskInformationProps {
@@ -21,6 +22,7 @@ export default function TaskInformation({priorityOptions, setTaskInformation, ta
 
     const [selectingWorkType, setSelectingWorkType] = useState(false)
     const [selectingAsset, setSelectingAsset] = useState(false)
+
 
     
   return (
@@ -36,7 +38,8 @@ export default function TaskInformation({priorityOptions, setTaskInformation, ta
                 <CustomSelectInput onSelect={() => setSelectingAsset(true)} placeholder={taskInformation.asset.assetName ? taskInformation.asset.assetName : "Water leakage"} />
             </View>
             </View>
-                <CustomTextAreaInput onChangeText={(e) => setTaskInformation((prev) => ({...prev, taskDescription: e}))} placeholder="Write issue description here" />
+                <CustomTextAreaInput onChangeText={(e) => setTaskInformation((prev) => ({...prev, problemDescription: e}))} placeholder="Write Problem" />
+                <CustomTextAreaInput flex onChangeText={(e) => setTaskInformation((prev) => ({...prev, taskDescription: e}))} placeholder="Write issue description here" />
             <View style={styles.inputRow}>
             <View style={styles.row}>
                 <CustomSelectInput placeholder="Repair" />
@@ -82,7 +85,6 @@ const styles = StyleSheet.create({
     inputRow: {
       minHeight: 42,
       width: "100%",
-      fontFamily: "Inter, -apple-system, Roboto, Helvetica, sans-serif",
       fontSize: 14,
       color: "#6b7280",
       fontWeight: "400",

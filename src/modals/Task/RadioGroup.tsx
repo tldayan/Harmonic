@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
   },
   labelText: {
     color: "#111928",
-    fontFamily: "Inter, -apple-system, Roboto, Helvetica, sans-serif",
     fontSize: 14,
   },
   optionsContainer: {
@@ -109,7 +108,6 @@ const styles = StyleSheet.create({
   },
   radioLabelText: {
     color: "#111928",
-    fontFamily: "Inter, -apple-system, Roboto, Helvetica, sans-serif",
     fontSize: 14,
   },
 });

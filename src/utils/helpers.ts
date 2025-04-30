@@ -1,9 +1,11 @@
+import uuid from 'react-native-uuid';
 import storage from "@react-native-firebase/storage"
 import { useEffect } from "react";
 import { PasswordCheck } from "../types/password.types";
 import Toast from "react-native-toast-message"
 import { Keyboard } from "react-native";
 import { Asset, launchImageLibrary } from "react-native-image-picker";
+import { DocumentPickerResponse } from "@react-native-documents/picker";
 
   
 //GET RECTANGLE COLOR FOR CREATE PASSWORD VALIDATION
@@ -185,6 +187,8 @@ export const uploadMedia = async (mediaFiles: Asset[], firebaseStoragelocation: 
               return undefined;
           }
 
+          const uniqueFileName = `${uuid.v4()}-${fileName}`
+
           let mediaType: 'image' | 'video';
 
           if (type.includes('image')) {
@@ -196,7 +200,7 @@ export const uploadMedia = async (mediaFiles: Asset[], firebaseStoragelocation: 
               return undefined;
           }
 
-          const fileRef = storage().ref(`uploads/${firebaseStoragelocation}/${fileName}`);
+          const fileRef = storage().ref(`uploads/${firebaseStoragelocation}/${uniqueFileName}`);
 
           await fileRef.putFile(uri);
           const downloadUrl = await fileRef.getDownloadURL();
@@ -209,6 +213,60 @@ export const uploadMedia = async (mediaFiles: Asset[], firebaseStoragelocation: 
       return mediaData.filter((data): data is { url: string, type: 'image' | 'video'} => data !== undefined);
   } catch (err) {
       console.error('Error uploading media files:', err);
+      return [];
+  }
+};
+
+
+
+
+
+export const uploadDocuments = async (documents: any, firebaseStoragelocation: string) => {
+
+  if (!documents.length) return [];
+
+  try {
+      const uploadPromises = documents.map(async (document: any) => {
+          const { localUri, name, type } = document;
+
+          if (!localUri || !name || !type) {
+              console.log("Invalid media file:", document);
+              return undefined;
+          }
+          
+          const uniqueFileName = `${uuid.v4()}-${name}`
+
+          let documentType: 'image' | 'video' | 'pdf' | 'doc' | 'unknown';
+
+          if (type.includes('image')) {
+            documentType = 'image';
+          } else if (type.includes('video')) {
+            documentType = 'video';
+          } else if (type === 'application/pdf') {
+            documentType = 'pdf';
+          } else if (type === 'application/msword' || type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            documentType = 'doc';
+          } else {
+            documentType = 'unknown';
+            console.log("Unknown media type:", type);
+          }
+
+          const fileRef = storage().ref(`uploads/${firebaseStoragelocation}/${uniqueFileName}`);
+
+          await fileRef.putFile(localUri);
+          const downloadUrl = await fileRef.getDownloadURL();
+
+          return { url: downloadUrl, type: documentType };
+      });
+
+      const documentData = await Promise.all(uploadPromises);
+
+      return documentData.filter(
+        (data): data is { url: string; type: 'image' | 'video' | 'pdf' | 'doc' | 'unknown' } => data !== undefined
+      );
+      
+  } catch (err) {
+      console.error('Error uploading document files:', err);
       return [];
   }
 };

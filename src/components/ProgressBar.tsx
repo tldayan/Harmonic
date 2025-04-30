@@ -1,20 +1,33 @@
-import React from "react";
-import { View, StyleSheet, DimensionValue } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, StyleSheet, DimensionValue, Animated } from "react-native";
 
 interface ProgressBarProps {
-  value: number; 
-  max: number;  
+  value: number;
+  max: number;
   width: DimensionValue;
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ value, max, width }) => {
   const progress = Math.min(value / max, 1);
-  const progressWidth = `${progress * 100}%` as const;
+  const animatedWidth = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(animatedWidth, {
+      toValue: progress,
+      duration: 500,
+      useNativeDriver: false,
+    }).start();
+  }, [progress]);
+
+  const widthInterpolate = animatedWidth.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+  });
 
   return (
     <View style={[styles.progressContainer, { width }]}>
       <View style={styles.progressBackground} />
-      <View style={[styles.progressFill, { width: progressWidth }]} />
+      <Animated.View style={[styles.progressFill, { width: widthInterpolate }]} />
     </View>
   );
 };
@@ -25,7 +38,7 @@ const styles = StyleSheet.create({
     position: "relative",
     justifyContent: "center",
     alignSelf: "center",
-    borderRadius: 10
+    borderRadius: 10,
   },
   progressBackground: {
     height: 6,

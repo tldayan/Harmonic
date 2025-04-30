@@ -3,6 +3,7 @@ import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
 import { ENDPOINTS } from "./endpoints";
 import { AttachmentData, CategoryProps, FirebaseAttachment } from "../types/post-types";
+import { TaskInformationState } from "../types/work-order.types";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -806,6 +807,74 @@ console.log(bodyData)
   }
 
 }
+
+
+
+export const saveWorkOrder = async(userUUID: string,organizationUUID:string, taskInformation: TaskInformationState) => {
+
+  
+  const bodyData = {
+    "WorkOrderTypeUUID": taskInformation.workOrderType.workOrderTypeUUID,
+    "WorkOrderTypeName": taskInformation.workOrderType.workOrderTypeName,
+    "AssetUUID": taskInformation.asset.assetUUID,
+    "AssetName": taskInformation.asset.assetName ?? null, 
+    "ProblemDescription": taskInformation.problemDescription,
+    "WorkDescription": taskInformation.taskDescription,
+    "WorkPriorityUUID": taskInformation.workPriority.workPriorityUUID,
+    "WorkPriorityName": taskInformation.workPriority.workPriorityUUID,
+    "OrganizationUUID": organizationUUID,
+    "LoggedInUserUUID": userUUID,
+    "CreatorUserUUID": userUUID
+}
+
+console.log(bodyData)
+  try {
+    const saveWorkOrderResponse = await apiClient(ENDPOINTS.WORK_ORDER.SAVE_WORK_ORDER, bodyData, {}, "POST")
+    console.log(saveWorkOrderResponse)
+    return saveWorkOrderResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+
+export const saveWorkOrderAttachments= async(userUUID: string,workOrderUUID:string, firebaseAttachments: any) => {
+
+  if(!firebaseAttachments.lenght) return
+  let attachmentsData = firebaseAttachments.attachments.map((eachAttachment: any) => {
+    return {
+      "AllowDownload": true,
+      "CanBeDownloaded": true,
+      "AttachmentUUID": "",
+      "Attachment": eachAttachment.url,
+      "AttachmentType": eachAttachment.type
+    }
+  })
+  
+  const bodyData = {
+    "WorkOrderUUID": workOrderUUID,
+    "LoggedInUserUUID": userUUID,
+    "WorkOrderAttachments": attachmentsData
+}
+
+console.log(bodyData)
+  try {
+    const saveWorkOrderAttachmentsResponse = await apiClient(ENDPOINTS.WORK_ORDER.SAVE_WORK_ORDER_ATTACHMENTS, bodyData, {}, "POST")
+    console.log(saveWorkOrderAttachmentsResponse)
+    return saveWorkOrderAttachmentsResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
 
 
 

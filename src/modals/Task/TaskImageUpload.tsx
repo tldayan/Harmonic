@@ -5,13 +5,13 @@ import SearchIcon from '../../assets/icons/search.svg';
 import { colors } from '../../styles/colors';
 import CustomButton from '../../components/CustomButton';
 import CustomTextAreaInput from '../../components/CustomTextAreaInput';
-import { pickMedia, uploadMedia } from '../../utils/helpers';
-import { firebaseStoragelocations } from '../../utils/constants';
+import { pickMedia } from '../../utils/helpers';
 import { FirebaseAttachment } from '../../types/post-types';
 import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem';
-import { Asset } from 'react-native-image-picker';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { TaskInformationState } from '../../types/work-order.types';
+import { keepLocalCopy, pick } from '@react-native-documents/picker';
+import { DocumentItem } from '../../components/FlatlistItems/DocumentItem';
 
 interface TaskImageUploadProps {
     setTaskInformation: React.Dispatch<React.SetStateAction<TaskInformationState>>
@@ -21,36 +21,73 @@ interface TaskImageUploadProps {
 const TaskImageUpload = ({setTaskInformation, taskInformation} : TaskImageUploadProps) => {
 
       const [firebaseAttachmentUrls, setFirebaseAttachmentUrls] = useState<FirebaseAttachment[]>([])
-      /* const [attachments, setAttachments] = useState<Asset[]>([]) */
-      const [viewingAttachments, setViewingAttachments] = useState(false)
-      const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
       const [loading, setLoading] = useState(false)
 
-  const addMedia = async() => {
-    
-/*     setTaskInformation((prev) => ({...prev, loading: true})) */
-    setLoading(true)
-      try {
-        const assets = await pickMedia()
-        /* const uploadedFirebaseAttachments = await uploadMedia(assets, firebaseStoragelocations.workOrder) */
-/*         setAttachments((prev) => [...prev, ...assets]) */
-        setTaskInformation((prev) => ({...prev, images: assets}))
-        /* console.log(uploadedFirebaseAttachments) */
-  
-      } catch(err) {
-        console.log(err)
-      } finally {
-        setLoading(false)
-      }
-  
-    }
 
-    const deleteAttachment = (url: string) => {
-        if(taskInformation.images.length) {
-          let updatedSelectedImages = firebaseAttachmentUrls.filter((eachImage) => eachImage.url !== url)
-          setTaskInformation((prev) => ({...prev, images: updatedSelectedImages}))
+      const addDocument = async () => {
+        setLoading(true);
+        try {
+          const pickResults = await pick({ allowMultiSelection: true, keepLocalCopy: "cachesDirectory" });
+      
+          console.log('Picked Documents:', pickResults);
+      
+          const copyResults = await Promise.all(
+            pickResults.map(async (doc) => {
+              const [copyResult] = await keepLocalCopy({
+                files: [
+                  {
+                    uri: doc.uri,
+                    fileName: doc.name ?? 'fallback-name',
+                  },
+                ],
+                destination: 'cachesDirectory', 
+              });
+      
+              return copyResult; 
+            })
+          );
+      
+         
+          const nonDuplicateDocuments = pickResults.filter((eachDoc) =>
+            !taskInformation.attachments.some((doc) => doc.uri === eachDoc.uri)
+          );
+      
+          const documentsWithLocalUri = nonDuplicateDocuments.map((doc, index) => {
+            const copyResult = copyResults[index];
+      
+            if (copyResult.status === 'success') {
+              return {
+                ...doc,
+                localUri: copyResult.localUri ?? copyResult.sourceUri, 
+              };
+            } else {
+              console.error('Failed to copy file:', copyResult.copyError);
+              return doc;
+            }
+          });
+      
+          setTaskInformation((prev) => ({
+            ...prev,
+            attachments: [
+              ...prev.attachments,
+              ...documentsWithLocalUri,
+            ],
+          }));
+      
+        } catch (err: unknown) {
+          console.log(err);
+        } finally {
+          setLoading(false);
         }
-      }
+      };
+      
+
+  const deleteDocument = (attachemtnUri: string) => {
+    if(taskInformation.attachments.length) {
+      let updatedSelectedImages = taskInformation.attachments.filter((eachImage) => eachImage.uri !== attachemtnUri)
+      setTaskInformation((prev) => ({...prev, attachments: [...updatedSelectedImages]}))
+    }
+  }
 
 
   return (
@@ -68,24 +105,23 @@ const TaskImageUpload = ({setTaskInformation, taskInformation} : TaskImageUpload
 
         
 
-        {taskInformation.images.length > 0 ? (
+        {taskInformation.attachments.length > 0 ? (
 
             <FlatList indicatorStyle='black' 
-                horizontal 
+              /*   horizontal  */
                 style={styles.mainSelectedAttachments} 
+                numColumns={3}
                 contentContainerStyle={styles.attachmentsList} 
-                data={taskInformation.images} 
+                data={taskInformation.attachments} 
                 renderItem={({ item, index }) => (
-                <Attachmentitem
+                <DocumentItem
                     item={item}
                     index={index}
-                    deleteAttachment={deleteAttachment}
-                    setViewingAttachments={setViewingAttachments}
-                    setInitialAttachmentIndex={setInitialAttachmentIndex}
-                    imageSize={200}
+                    deleteDocument={deleteDocument}
                 />
                 )}
                 keyExtractor={(item) => String(item.uri)}
+                columnWrapperStyle={{gap: 10 }}
                 /* ListFooterComponent={<AddAdditionalMediaButton />} */ 
                 />
         ) : (
@@ -117,9 +153,9 @@ const TaskImageUpload = ({setTaskInformation, taskInformation} : TaskImageUpload
     </View>
 
 
-        <CustomButton loading={loading} textStyle={styles.browseButtonText} buttonStyle={styles.browseButton} onPress={addMedia} title={"Browse File"} icon={<SearchIcon color={colors.LIGHT_COLOR} strokeWidth={2} width={18} height={18} />} />
+        <CustomButton loading={loading} textStyle={styles.browseButtonText} buttonStyle={styles.browseButton} onPress={addDocument} title={"Browse File"} icon={<SearchIcon color={colors.LIGHT_COLOR} strokeWidth={2} width={18} height={18} />} />
       </View>
-      <CustomTextAreaInput onChangeText={(e) => setTaskInformation((prev) => ({...prev, imageDescription: e}))} placeholder='Image Description' />
+      <CustomTextAreaInput flex onChangeText={(e) => setTaskInformation((prev) => ({...prev, imageDescription: e}))} placeholder='Attachment Description' />
     </ScrollView>
     </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -173,7 +209,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   instructionText: {
-    fontFamily: 'Inter',
     fontSize: 14,
     color: '#6B7280',
     textAlign: 'center',
@@ -182,7 +217,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   fileSizeText: {
-    fontFamily: 'Inter',
     fontSize: 12,
     fontWeight: '600',
     color: '#6B7280',
@@ -204,13 +238,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3A46D',
   },
   browseButtonText: {
-    fontFamily: 'Inter',
     fontSize: 12,
     color: '#FFF',
   },
   attachmentsList: {
     flexGrow:1,
-    gap: 10
+    gap: 10,
+    
   },
   mainSelectedAttachments : {
 /*     borderWidth: 2, */

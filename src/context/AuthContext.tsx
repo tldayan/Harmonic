@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import auth, { FirebaseAuthTypes, getAuth } from '@react-native-firebase/auth';
+import { FirebaseAuthTypes, getAuth } from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { ANDROID_GOOGLE_CLIENT_ID, IOS_GOOGLE_CLIENT_ID} from '../utils/constants';
 import { Platform } from 'react-native';

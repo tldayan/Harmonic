@@ -1,10 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import { defaultInputStyles } from '../../styles/global-styles'
 import { TaskInformationState } from '../../types/work-order.types'
 import CustomSelectInput from '../../components/CustomSelectInput'
 import { colors } from '../../styles/colors'
+import { getUserProfile } from '../../api/network-utils'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../store/store'
 
 
 interface TaskUserInfoProps {
@@ -14,14 +17,38 @@ interface TaskUserInfoProps {
 
 export default function TaskUserInfo({setTaskInformation, taskInformation}: TaskUserInfoProps) {
 
+  const {userUUID} = useSelector((state: RootState) => state.auth)
 
+  useEffect(() => {
+
+    const fetchUserProfile = async() => {
+
+      try {
+        const userProfileResposne = await getUserProfile(userUUID)
+        setTaskInformation((prev) => ({
+          ...prev,
+          creatorEmail: userProfileResposne?.data?.Payload?.EmailAddress ?? "",
+          creatorNumber: userProfileResposne?.data?.Payload?.PhoneNumber ?? "",
+          creatorName: userProfileResposne?.data?.Payload?.FirstName ?? ""
+        }))
+        
+
+      } catch(err) {
+        console.log(err)
+      }
+      
+    }
+
+    fetchUserProfile()
+
+  }, [])
 
 
   return (
     <View style={styles.userInfoContainer}>
-      <CustomTextInput value={taskInformation.creatorName} inputStyle={defaultInputStyles} onChangeText={(e) => setTaskInformation((prev) => ({...prev, creatorName: e}))} placeholder='Tarun' />
-      <CustomTextInput value={taskInformation.creatorEmail} inputStyle={defaultInputStyles} onChangeText={(e) => setTaskInformation((prev) => ({...prev, creatorEmail: e}))} placeholder='tarun@gmail.com' />
-      <CustomTextInput inputStyle={[styles.inputField, styles.numberField]} placeholder="123 456 7890" countryCode={"971"} onChangeText={(e) => setTaskInformation((prev) => ({...prev, creatorNumber: e}))} value={taskInformation.creatorNumber} inputMode="tel" />
+      <CustomTextInput value={taskInformation.creatorName} placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={defaultInputStyles} onChangeText={(e) => setTaskInformation((prev) => ({...prev, creatorName: e}))} placeholder='Tarun' />
+      <CustomTextInput value={taskInformation.creatorEmail} placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={defaultInputStyles} onChangeText={(e) => setTaskInformation((prev) => ({...prev, creatorEmail: e}))} placeholder='tarun@gmail.com' />
+      <CustomTextInput inputStyle={[styles.inputField, styles.numberField]} placeholderTextColor={colors.LIGHT_TEXT_COLOR} placeholder="123 456 7890" countryCode={"971"} onChangeText={(e) => setTaskInformation((prev) => ({...prev, creatorNumber: e}))} value={taskInformation.creatorNumber} inputMode="tel" />
       <CustomSelectInput placeholder='Unit D3' onSelect={() => {}}  />
     </View>
   )
