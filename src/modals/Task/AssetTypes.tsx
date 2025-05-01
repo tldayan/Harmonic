@@ -8,13 +8,21 @@ import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
 import { ScrollView } from 'react-native-gesture-handler'
 import { TaskInformationState } from '../../types/work-order.types'
+import { WorkRequestInformationState } from '../../types/work-request.types'
 
 interface AssetTypesProps {
-    onClose: () => void
-    setTaskInformation: React.Dispatch<React.SetStateAction<TaskInformationState>>
-}
+    onClose: () => void;
+    setTaskInformation?: React.Dispatch<React.SetStateAction<TaskInformationState>>;
+    setWorkRequestInformation?: React.Dispatch<React.SetStateAction<WorkRequestInformationState>>;
+  }
 
-export default function AssetTypes({onClose, setTaskInformation} : AssetTypesProps) {
+  export default function AssetTypes({
+    onClose,
+    setTaskInformation,
+    setWorkRequestInformation
+  }: AssetTypesProps) {
+  
+  
     
     const [assets, setAssetsList] = useState<WorkAsset[]>([])
     const [loading, setLoading] = useState(false)
@@ -52,9 +60,24 @@ export default function AssetTypes({onClose, setTaskInformation} : AssetTypesPro
     const assetItem = ({ item }: { item: WorkAsset }) => (
         <CustomButton
             buttonStyle={styles.asset}
-            onPress={() => {setTaskInformation((prev) => (
-                {...prev, asset: {assetName: item.AssetName, assetUUID: item.AssetUUID}}
-            ));onClose()}}
+            onPress={() => {
+                const update = {
+                  asset: {
+                    assetName: item.AssetName,
+                    assetUUID: item.AssetUUID,
+                  },
+                };
+              
+                if (setTaskInformation) {
+                  setTaskInformation(prev => ({ ...prev, ...update }));
+                } else if (setWorkRequestInformation) {
+                  setWorkRequestInformation(prev => ({ ...prev, ...update }));
+                }
+              
+                onClose();
+              }}
+              
+              
             title={item.AssetName}
         />
     )

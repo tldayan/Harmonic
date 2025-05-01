@@ -4,6 +4,8 @@ import { apiClient } from "./api-client";
 import { ENDPOINTS } from "./endpoints";
 import { AttachmentData, CategoryProps, FirebaseAttachment } from "../types/post-types";
 import { TaskInformationState } from "../types/work-order.types";
+import { Alert } from "react-native";
+import { WorkRequestInformationState } from "../types/work-request.types";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -94,9 +96,12 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     
     try {
 
-      const response = await apiClient(ENDPOINTS.AUTH.SIGN_IN, transformFirebaseUser(authUser), {}, 'POST');
+      const bodyData = {...transformFirebaseUser(authUser)}
+     
 
-      return {UserUUID: response.data.Payload.UserUUID, OrganizationUUID: response.data.Payload.OrganizationUUID}
+      const response = await apiClient(ENDPOINTS.AUTH.SIGN_IN, bodyData, {}, "POST");
+/*        Alert.alert("bodydata", JSON.stringify(response, null, 2)); */
+      return {UserUUID: response?.data?.Payload?.UserUUID, OrganizationUUID: response?.data?.Payload?.OrganizationUUID}
 
     } catch (error) {
       console.log("Error fetching organization based modules")
@@ -908,6 +913,19 @@ export const getPendingWorkRequestCount = async(organizationUUID:string) => {
 
 }
 
+export const getWorkRequestTypes = async(organizationUUID:string) => {
+
+  try {
+    const getWorkRequestTypes = await apiClient(ENDPOINTS.WORK_REQUEST.GET_WORK_REQUEST_TYPES, {}, {}, "GET", {organizationUUID})
+    console.log(getWorkRequestTypes)
+    return getWorkRequestTypes.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
 export const getWorkRequestDetails = async(workRequestUUID:string) => {
 
   try {
@@ -921,6 +939,53 @@ export const getWorkRequestDetails = async(workRequestUUID:string) => {
 
 }
 
+
+export const saveWorkRequestNote = async(userUUID:string, workRequestUUID: string, note: string) => {
+
+  const bodyData = {
+    "WorkRequestUUID": workRequestUUID,
+    "LoggedInUserUUID": userUUID,
+    "Note": note,
+    "WorkRequestNoteUUID": null
+}
+
+  try {
+    const saveWorkRequestNote = await apiClient(ENDPOINTS.WORK_REQUEST.SAVE_WORK_REQUEST_NOTE, bodyData, {}, "POST")
+    console.log(saveWorkRequestNote)
+    return saveWorkRequestNote.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const saveWorkRequest = async(userUUID:string,organizationUUID: string, workRequestInformation: WorkRequestInformationState) => {
+
+  const bodyData = {
+    "WorkRequestTypeUUID": "f5af7064-23fe-11f0-a1bd-42010a400006",
+    "WorkRequestTypeName": null,
+    "AssetUUID": "92409f6f-9010-4579-baf4-58cc06f04671",
+    "AssetName": null,
+    "ProblemDescription": "TEST",
+    "WorkPriorityUUID": "784fe631-23fd-11f0-a1bd-42010a400006",
+    "WorkPriorityName": null,
+    "OrganizationUUID": organizationUUID,
+    "LoggedInUserUUID": userUUID,
+    "CreatorUserUUID": userUUID
+}
+
+  try {
+    const saveWorkRequestResponse = await apiClient(ENDPOINTS.WORK_REQUEST.SAVE_WORK_REQUEST, bodyData, {}, "POST")
+    console.log(saveWorkRequestResponse)
+    return saveWorkRequestResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
 
 
 //ASSET 
@@ -938,7 +1003,6 @@ export const getAssetList = async(organizationUUID:string, startIndex: number) =
     "OrganizationUUID": organizationUUID
 }
 
-console.log(bodyData)
   try {
     const getAssetListResponse = await apiClient(ENDPOINTS.ASSET.GET_ASSET_LIST, bodyData, {}, "POST")
     console.log(getAssetListResponse)

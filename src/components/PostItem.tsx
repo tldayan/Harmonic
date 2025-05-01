@@ -10,7 +10,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ProfileHeader from './ProfileHeader'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../store/store'
-import LikeButton from "../assets/icons/heart.svg"
+import LikeButton from "../assets/icons/like.svg"
 import Comment from "../assets/icons/comment.svg"
 import CommentIcon from "../assets/icons/comment-icon.svg"
 import Share from "../assets/icons/share-icon.svg"
@@ -22,6 +22,7 @@ import Video from 'react-native-video'
 import VideoIcon from "../assets/icons/video.svg"
 import { fetchWithErrorHandling } from '../utils/helpers'
 import ImageSkeleton from '../skeletons/ImageSkeleton'
+import { PostShadowStyles, shadowStyles } from '../styles/global-styles'
 
 interface PostItemChildProps {
   post: PostItemProps
@@ -128,9 +129,9 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
     )
   }
 
-
+console.log(route.name)
   return (
-    <View style={styles.mainContainer}>
+    <View style={[ route.name === "Comments" ?  styles.defaultMainContainer : styles.mainContainer, PostShadowStyles]}>
 
         {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
           <ProfileHeader fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} showPostActions post={post} />
@@ -149,14 +150,14 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
       </ScrollView>
       
       <View style={styles.postActionButtonsContainer}>
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={handlePostLike} icon={<LikeButton fill={reduxHasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={reduxHasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
-        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={""} onPress={() => route.name !== "Comments" && navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData, createdBy: post.CreatedBy})} icon={<CommentIcon width={20} style={styles.postActionButtonIcon} />} />
-        <CustomButton buttonStyle={styles.postActionButton} onPress={() => {}} icon={<Share width={20} style={styles.postActionButtonIcon} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={"Like"} onPress={handlePostLike} icon={<LikeButton fill={reduxHasLiked ? colors.ACTIVE_COLOR : "none" } width={20} strokeWidth={1.25} stroke={reduxHasLiked ? "white" : "currentColor"}  style={styles.postActionButtonIcon} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={"Comment"} onPress={() => route.name !== "Comments" && navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData, createdBy: post.CreatedBy})} icon={<CommentIcon width={20} style={styles.postActionButtonIcon} />} />
+        <CustomButton buttonStyle={styles.postActionButton} textStyle={styles.postActionButtonText} title={"Share"} onPress={() => {}} icon={<Share width={20} style={styles.postActionButtonIcon} />} />
       </View>
-      <View style={styles.postStatsContainer}>
+      {/* <View style={styles.postStatsContainer}>
         {reduxPostLikeCount > 0 && <CustomButton textStyle={styles.likeStats} icon={<LikeButton fill={colors.ACTIVE_COLOR} stroke='none' width={15} height={15} />} title={reduxPostLikeCount} onPress={handleGetLikes} buttonStyle={styles.likeStatsContainer} />}
         {post.NoOfComments > 0 && <CustomButton textStyle={styles.commentStats} icon={<Comment stroke='none' fill={colors.ACTIVE_ORANGE} width={15} height={15} />} title={post.NoOfComments} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData, createdBy: post.CreatedBy})} buttonStyle={styles.commentStatsContainer} />}
-      </View>
+      </View> */}
         
       <CustomModal presentationStyle="formSheet" fullScreen isOpen={viewingLikes} onClose={() => setViewingLikes(false)}>
         <PostLikes MessageBoardUUID={post.MessageBoardUUID} onClose={() => setViewingLikes(false)} />
@@ -173,6 +174,16 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
 const styles = StyleSheet.create({
 
   mainContainer :{
+    borderBottomColor: "#ECECEC",
+    backgroundColor: "white",
+    width: "94%",
+    marginHorizontal: "3%",
+    borderRadius: 24,
+    marginTop: 20,
+    paddingTop: 15,
+    paddingHorizontal: 12
+  },
+  defaultMainContainer :{
     borderBottomColor: "#ECECEC",
     backgroundColor: "white",
     width: "100%",
@@ -244,12 +255,13 @@ const styles = StyleSheet.create({
     paddingTop: 8
   },
   postActionButtonsContainer: {
-/*     borderColor: "#0000001A",
-    borderWidth: 2, */
+    borderColor: "#0000001A",
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     flexDirection: "row",
     width: "100%",
     justifyContent: "space-around",
-    marginTop: 4,
+    marginVertical: 10,
     paddingVertical: 4,
     gap: 4
   },
@@ -260,14 +272,13 @@ const styles = StyleSheet.create({
     gap: 5,
     flex: 1,
     borderColor: colors.LIGHT_COLOR,
-    borderWidth: 0.75,
+/*     borderWidth: 0.75, */
    /*  backgroundColor: colors.LIGHT_COLOR, */
     borderRadius: 50,
     paddingVertical: 4
   },
   postActionButtonText: {
     fontSize: 12,
-    fontWeight:300
   },
   postActionButtonIcon: {
     width: 20,

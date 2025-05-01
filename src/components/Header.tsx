@@ -15,6 +15,8 @@ import { handleSignOut } from "../services/auth-service";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation-types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import Chat from "../assets/icons/chats.svg"
+
 
 const Header = () => {
 
@@ -45,7 +47,10 @@ const Header = () => {
         <CustomButton buttonStyle={styles.organization} onPress={() => setSwitchingOrganization(true)} icon={<Switch width={20} height={20} />} />
 
         <CustomButton buttonStyle={styles.signOut} title="Sign Out" onPress={handleSignOut} />
+        
         <CustomButton buttonStyle={styles.bell} onPress={() => setNotificationsOpen(true)} icon={<BellIcon width={20} height={20} />} />
+        <CustomButton buttonStyle={styles.chat} onPress={() => navigation.navigate("ChatsScreen")} icon={<Chat width={20} height={20} />} />
+        
         <CustomButton onPress={() => navigation.navigate("Profile")} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
 
         <CustomModal fullScreen={true} isOpen={notificationsOpen}>
@@ -81,6 +86,9 @@ const styles = StyleSheet.create({
   },
   bell: {
     marginLeft: "auto",
+  },
+  chat: {
+    marginLeft: 15,
   },
   profileIcon: {
     width: 30,

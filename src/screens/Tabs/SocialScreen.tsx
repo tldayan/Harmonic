@@ -219,6 +219,7 @@ const styles = StyleSheet.create({
 
   postsContainerList: {
     flexGrow: 1,
+    paddingBottom: 100
 /*     gap: 10 */
   },
 

@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import CustomButton from '../../components/CustomButton'
-import { TaskInformationState } from '../../types/work-order.types'
-import { colors } from '../../styles/colors'
-import Edit from "../../assets/icons/editPage.svg"
-import { WORK_PRIORITY_COLOR_CODES, WORK_PRIORITY_TEXT_COLOR_CODES } from '../../utils/constants'
-import { ScrollView } from 'react-native-gesture-handler'
+import CustomButton from '../../../components/CustomButton'
+import { TaskInformationState } from '../../../types/work-order.types'
+import { colors } from '../../../styles/colors'
+import Edit from "../../../assets/icons/editPage.svg"
+import { WORK_PRIORITY_COLOR_CODES, WORK_PRIORITY_TEXT_COLOR_CODES } from '../../../utils/constants'
+import { FlatList, ScrollView } from 'react-native-gesture-handler'
+import { DocumentItem } from '../../../components/FlatlistItems/DocumentItem'
 
 interface ReviewTaskProps {
     taskInformation: TaskInformationState
@@ -30,8 +31,8 @@ export default function ReviewTask({ taskInformation, setStep }: ReviewTaskProps
   };
 
   const attachments = {
-    Images: taskInformation.images,
-    Attachment: taskInformation.attachments
+    /* Images: taskInformation.images, */
+    Attachments: taskInformation.attachments
   }
 
   return (
@@ -77,7 +78,7 @@ export default function ReviewTask({ taskInformation, setStep }: ReviewTaskProps
           />
         </View>
         <View style={{ marginTop: 10 }}>
-        {Object.entries(creatorFields).map(([label, value]) => (
+        {Object.entries(TaskFields).map(([label, value]) => (
             <Text style={styles.infoLabel} key={label}>
                 <Text style={styles.label}>{label}: </Text>{value ? String(value).trim() : "N/A"}
             </Text>
@@ -105,11 +106,26 @@ export default function ReviewTask({ taskInformation, setStep }: ReviewTaskProps
           />
         </View>
         <View style={{ marginTop: 10 }}>
-        {Object.entries(attachments).map(([label, value]) => (
+
+          <FlatList indicatorStyle='black'  
+              style={styles.mainSelectedAttachments} 
+              contentContainerStyle={styles.attachmentsList} 
+              data={taskInformation.attachments} 
+              numColumns={3}
+              renderItem={({ item, index }) => (
+              <DocumentItem
+                  item={item}
+                  index={index}
+              />
+              )}
+              keyExtractor={(item) => String(item.uri)}
+              columnWrapperStyle={{gap: 5 }}
+          />
+        {/* {Object.entries(attachments).map(([label, value]) => (
             <Text style={styles.infoLabel} key={label}>
                 <Text style={styles.label}>{label}: </Text>{value ? String(value).trim() : "N/A"}
             </Text>
-        ))}
+        ))} */}
         </View>
       </View>
     </ScrollView>
@@ -141,5 +157,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 24
+  },
+  mainSelectedAttachments : {
+  /*   borderWidth: 1, */
+  }, 
+  attachmentsList: {
+    gap: 10,
+
   }
 })

@@ -13,6 +13,7 @@ const Stack = createNativeStackNavigator()
 
 function ChatsTabs() {
     return (
+      
       <Tab.Navigator screenOptions={{
         tabBarShowIcon: true, 
         tabBarIndicatorStyle: { backgroundColor: colors.ACTIVE_ORANGE },
@@ -34,7 +35,7 @@ function ChatsTabs() {
   export default function ChatsScreen() {
 
     return (
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator screenOptions={{headerShown: false, headerBackButtonDisplayMode: "default"}}>
         <Stack.Screen name="ChatsTabs" component={ChatsTabs}  />
 {/*         <Stack.Screen name="ChatScreen" component={ChatScreen} /> */}
       </Stack.Navigator>

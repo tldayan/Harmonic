@@ -1,5 +1,6 @@
 //global-styles.ts  
 
+import { Platform } from "react-native";
 import { colors } from "./colors"
 
 export const shadowStyles = {
@@ -7,6 +8,25 @@ export const shadowStyles = {
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
   }
+
+
+export const PostShadowStyles =  {
+  ...Platform.select({
+    ios: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+    },
+    android: {
+      backgroundColor: 'white',
+        borderRadius: 15,
+        shadowColor: colors.LIGHT_TEXT,
+        shadowRadius: 24,
+        elevation: 10,
+    },
+  }),
+};
 
 export const profilePic = {
   width: 34,

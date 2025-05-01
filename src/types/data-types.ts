@@ -204,3 +204,8 @@ interface WorkAsset {
   DepartmentIcon: string | null;
 }
 
+type WorkRequestType = {
+  WorkRequestTypeUUID: string;
+  WorkRequestTypeName: string;
+  WorkRequestTypeDescription: string | null;
+};

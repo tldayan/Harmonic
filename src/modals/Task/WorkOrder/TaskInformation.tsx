@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
-import RadioGroup from './RadioGroup';
-import CustomTextAreaInput from '../../components/CustomTextAreaInput';
-import CustomSelectInput from '../../components/CustomSelectInput';
-import { CustomModal } from '../../components/CustomModal';
+import RadioGroup from '../RadioGroup';
+import CustomTextAreaInput from '../../../components/CustomTextAreaInput';
+import CustomSelectInput from '../../../components/CustomSelectInput';
+import { CustomModal } from '../../../components/CustomModal';
 import WorkOrderTypes from './WorkOrderTypes';
-import AssetTypes from './AssetTypes';
-import { TaskInformationState } from '../../types/work-order.types';
-import { CustomTextInput } from '../../components/CustomTextInput';
-import { defaultInputStyles } from '../../styles/global-styles';
+import AssetTypes from '../AssetTypes';
+import { TaskInformationState } from '../../../types/work-order.types';
+import { CustomTextInput } from '../../../components/CustomTextInput';
+import { defaultInputStyles } from '../../../styles/global-styles';
   
 
 interface TaskInformationProps {
@@ -39,7 +39,7 @@ export default function TaskInformation({priorityOptions, setTaskInformation, ta
             </View>
             </View>
                 <CustomTextAreaInput onChangeText={(e) => setTaskInformation((prev) => ({...prev, problemDescription: e}))} placeholder="Write Problem" />
-                <CustomTextAreaInput flex onChangeText={(e) => setTaskInformation((prev) => ({...prev, taskDescription: e}))} placeholder="Write issue description here" />
+                <CustomTextAreaInput multiline={true} flex={true} onChangeText={(e) => setTaskInformation((prev) => ({...prev, taskDescription: e}))} placeholder="Write issue description here" />
             <View style={styles.inputRow}>
             <View style={styles.row}>
                 <CustomSelectInput placeholder="Repair" />
@@ -49,7 +49,7 @@ export default function TaskInformation({priorityOptions, setTaskInformation, ta
             <RadioGroup 
                 label="Priority" 
                 options={priorityOptions} 
-                onSelect={(selectedPriority) => {
+                onSelect={(selectedPriority: WorkPriority) => {
                   setTaskInformation(prev => ({
                     ...prev,
                     workPriority: {

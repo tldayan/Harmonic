@@ -1,13 +1,13 @@
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import ModalsHeader from '../ModalsHeader'
+import ModalsHeader from '../../ModalsHeader'
 import { useSelector } from 'react-redux'
-import { RootState } from '../../store/store'
-import { getWorkOrderTypes } from '../../api/network-utils'
-import CustomButton from '../../components/CustomButton'
-import { colors } from '../../styles/colors'
+import { RootState } from '../../../store/store'
+import { getWorkOrderTypes } from '../../../api/network-utils'
+import CustomButton from '../../../components/CustomButton'
+import { colors } from '../../../styles/colors'
 import { ScrollView } from 'react-native-gesture-handler'
-import { TaskInformationState } from '../../types/work-order.types'
+import { TaskInformationState } from '../../../types/work-order.types'
 
 interface WorkOrderType {
     WorkOrderTypeUUID: string;    

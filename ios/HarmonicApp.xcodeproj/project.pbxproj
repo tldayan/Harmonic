@@ -115,7 +115,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				D37B15A84127D093A42B7EF4 /* [CP] Copy Pods Resources */,
 				9C7B665BCB19B881B419D1A0 /* [CP-User] [RNFB] Core Configuration */,
-				EF6B2DF1F23596469776D9FB /* [CP] Embed Pods Frameworks */,
+				F7BF00547257E3C093CB7A85 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -218,23 +218,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HarmonicApp/Pods-HarmonicApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		EF6B2DF1F23596469776D9FB /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-HarmonicApp/Pods-HarmonicApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-HarmonicApp/Pods-HarmonicApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HarmonicApp/Pods-HarmonicApp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		F3921AF21F3DB66E0B4FFA86 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -255,6 +238,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F7BF00547257E3C093CB7A85 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-HarmonicApp/Pods-HarmonicApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-HarmonicApp/Pods-HarmonicApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HarmonicApp/Pods-HarmonicApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

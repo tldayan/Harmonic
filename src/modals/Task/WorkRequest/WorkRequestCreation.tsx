@@ -1,23 +1,25 @@
 import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import ModalsHeader from '../ModalsHeader'
-import CustomButton from '../../components/CustomButton'
-import { PRIMARY_BUTTON_STYLES } from '../../styles/button-styles'
-import { colors } from '../../styles/colors'
-import TaskInformation from './TaskInformation'
-import { getWorkPriorities, saveWorkOrder, saveWorkOrderAttachments } from '../../api/network-utils'
+import ModalsHeader from '../../ModalsHeader'
+import CustomButton from '../../../components/CustomButton'
+import { PRIMARY_BUTTON_STYLES } from '../../../styles/button-styles'
+import { colors } from '../../../styles/colors'
+import { getWorkPriorities, saveWorkOrder, saveWorkOrderAttachments, saveWorkRequestNote } from '../../../api/network-utils'
 import { useSelector } from 'react-redux'
-import { RootState } from '../../store/store'
-import ProgressBar from '../../components/ProgressBar'
-import TaskImageUpload from './TaskImageUpload'
-import { TaskInformationState } from '../../types/work-order.types'
+import { RootState } from '../../../store/store'
+import ProgressBar from '../../../components/ProgressBar'
+import TaskImageUpload from './TaskDocumentUpload'
+import { TaskInformationState } from '../../../types/work-order.types'
 import TaskUserInfo from './TaskUserInfo'
 import ReviewTask from './ReviewTask'
-import { firebaseStoragelocations, STATUS_CODE } from '../../utils/constants'
-import { uploadDocuments } from '../../utils/helpers'
+import { firebaseStoragelocations, STATUS_CODE } from '../../../utils/constants'
+import { uploadDocuments } from '../../../utils/helpers'
+import TaskDocumentUpload from './TaskDocumentUpload'
+import { WorkRequestInformationState } from '../../../types/work-request.types'
+import WorkRequestInformation from './WorkRequestInformation'
 
-interface TaskCreationProps {
+interface WorkRequestCreationProps {
     onClose: () => void
 }
 
@@ -32,19 +34,20 @@ const steps = [
 
 
 
-export default function TaskCreation({onClose} : TaskCreationProps) {
+export default function WorkRequestCreation({onClose} : WorkRequestCreationProps) {
 
     const [step, setStep] = useState(0)
     const [workPriorities, setWorkPriorities] = useState<WorkPriority[]>()
-    const [taskInformation, setTaskInformation] = React.useState<TaskInformationState>({
-        workOrderUUID: "",
+    const [workRequestInformation, setWorkRequestInformation] = React.useState<WorkRequestInformationState>({
+        workRequestUUID: "",
         asset: { assetName: '', assetUUID: '' },
-        workOrderType: { workOrderTypeName: '', workOrderTypeUUID: '' },
+        workRequestType: { workRequestTypeName: '', workRequestTypeUUID: '' },
         problemDescription: '',
         taskDescription: '',
         workPriority: {workPriorityUUID: "", workPriorityName: ""},
         images: [],
         attachments: [],
+        attachmentCount: 0,
         attachmentDescription: '',
         creatorName: '',
         creatorEmail: '',
@@ -73,8 +76,8 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
 
     useEffect(() => {
 
-        console.log(taskInformation)
-    }, [taskInformation])
+        console.log(workRequestInformation)
+    }, [workRequestInformation])
 
 
     function stepOne(index: number) {
@@ -82,7 +85,7 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <TaskInformation taskInformation={taskInformation} setTaskInformation={setTaskInformation} priorityOptions={workPriorities}/>            
+                <WorkRequestInformation workRequestInformation={workRequestInformation} setWorkRequestInformation={setWorkRequestInformation} priorityOptions={workPriorities}/>            
             </View>
         )
 
@@ -93,7 +96,7 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <TaskImageUpload setTaskInformation={setTaskInformation} taskInformation={taskInformation} />
+                <TaskDocumentUpload setWorkRequestInformation={setWorkRequestInformation} workRequestInformation={workRequestInformation} />
             </View>
         )
 
@@ -104,7 +107,7 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <TaskUserInfo setTaskInformation={setTaskInformation} taskInformation={taskInformation} />
+                <TaskUserInfo setWorkRequestInformation={setWorkRequestInformation} workRequestInformation={workRequestInformation} />
             </View>
         )
 
@@ -115,36 +118,41 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <ReviewTask setStep={setStep} taskInformation={taskInformation} />
+                <ReviewTask setStep={setStep} workRequestInformation={workRequestInformation} />
             </View>
         )
 
     }
     
     const next = async() => {
-            setTaskInformation((prev) => ({...prev, loading : true}))
+            setWorkRequestInformation((prev) => ({...prev, loading : true}))
 
         try {
 
         if(step === 0) {
-            const saveWorkOrderRequest = await saveWorkOrder(userUUID, organizationUUID, taskInformation)
+            const saveWorkOrderRequest = await saveWorkOrder(userUUID, organizationUUID, workRequestInformation)
             if(saveWorkOrderRequest.Status === STATUS_CODE.SUCCESS) {
                 const workOrderUUID = saveWorkOrderRequest.Payload.WorkOrderUUID
-                setTaskInformation((prev) => ({...prev, workOrderUUID: workOrderUUID, loading: false}))
+                setWorkRequestInformation((prev) => ({...prev, workOrderUUID: workOrderUUID, loading: false}))
             } /* else {
                 return
             } */
         } else if(step === 1) {
+            const prevAttachmentCount = workRequestInformation.attachmentCount
+            
+            if(workRequestInformation.attachments.length !== prevAttachmentCount) {
 
-            const firebaseAttachmentUrls = await uploadDocuments(taskInformation.attachments,firebaseStoragelocations.workOrder)
-            console.log(firebaseAttachmentUrls)
-        
+                const firebaseAttachmentUrls = await uploadDocuments(workRequestInformation.attachments,firebaseStoragelocations.workOrder)
+                /* await saveWorkRequestNote(userUUID, workRequestInformation.workOrderUUID , workRequestInformation.attachmentDescription) */
+                console.log(firebaseAttachmentUrls)
+                const saveWorkOrderRequest = await saveWorkOrderAttachments(userUUID, workRequestInformation.workRequestUUID, firebaseAttachmentUrls)
+            }
 
-            const saveWorkOrderRequest = await saveWorkOrderAttachments(userUUID, taskInformation.workOrderUUID, firebaseAttachmentUrls)
+            setWorkRequestInformation((prev) => ({...prev, attachmentCount: prev.attachments.length}))
 
         } else if(step === 2) {
 
-            if(!taskInformation.creatorEmail || !taskInformation.creatorName || !taskInformation.creatorNumber) {
+            if(!workRequestInformation.creatorEmail || !workRequestInformation.creatorName || !workRequestInformation.creatorNumber) {
                 return
             }
 
@@ -153,7 +161,7 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
         } catch(err) {
             console.log(err)
         } finally {
-            setTaskInformation((prev) => ({...prev, loading : false}))
+            setWorkRequestInformation((prev) => ({...prev, loading : false}))
         }
 
         
@@ -190,7 +198,7 @@ export default function TaskCreation({onClose} : TaskCreationProps) {
 
         <View style={styles.formButtonsContainer}>
             {step >= 1 && <CustomButton onPress={back} textStyle={{color: "black"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.backButton]} title={"Back"} />}
-            {taskInformation.loading ? <ActivityIndicator style={{marginLeft: "auto"}} size={"large"} /> : <CustomButton onPress={next} textStyle={{color: "white"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.nextButton]} title={step <= 2 ? "Next" : "Request Task"} />}
+            {workRequestInformation.loading ? <ActivityIndicator style={{marginLeft: "auto"}} size={"large"} /> : <CustomButton onPress={next} textStyle={{color: "white"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.nextButton]} title={step <= 2 ? "Next" : "Request Task"} />}
         </View>
 
 

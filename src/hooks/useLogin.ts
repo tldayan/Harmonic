@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { firebase, FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { auth, handleGoogleLogin, handleLogin, handleMicrosoftLogin, signInWithPhoneNumber, verifyOtpCode } from "../services/auth-service";
 import { ErrorMessageType } from "../types/text-input.types";
 

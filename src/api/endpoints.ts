@@ -54,7 +54,10 @@ export const ENDPOINTS = {
   },
   WORK_REQUEST: {
     GET_WORK_REQUEST_DETAILS: `${BASE_URL}/work-request/getWorkRequestDetails`,
+    GET_WORK_REQUEST_TYPES: `${BASE_URL}/work-request/getWorkRequestTypes`,
     GET_PENDING_WORK_REQUEST_COUNT: `${BASE_URL}/work-request/getPendingWorkRequestCount`,
+    SAVE_WORK_REQUEST_NOTE: `${BASE_URL}/work-request/saveWorkRequestNote`,
+    SAVE_WORK_REQUEST: `${BASE_URL}/work-request/saveWorkRequest`,
   },
   ASSET: {
     GET_ASSET_LIST: `${BASE_URL}/asset/getAssetList`,

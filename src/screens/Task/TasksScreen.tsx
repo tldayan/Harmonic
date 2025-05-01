@@ -16,7 +16,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
 import Alert from "../../assets/icons/circle-alert.svg"
 import { CustomModal } from '../../components/CustomModal'
-import TaskCreation from '../../modals/Task/TaskCreation'
+import TaskCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
+import WorkOrderCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
 
 export default function TasksScreen() {
 
@@ -24,7 +25,7 @@ export default function TasksScreen() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
   const [pendingWorkRequests, setPendingWorkRequests] = useState(0)
   const [startIndex, setStartIndex] = useState(0)
-  const [creatingTask, setCreatingTask] = useState(false)
+  const [creatingRequest, setCreatingRequest] = useState(false)
   const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)
   const [hasMoreWorkOrders, setHasMoreWordOrders] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -69,7 +70,7 @@ export default function TasksScreen() {
         
         <View style={styles.createTaskContainer}>
           <CustomTextInput placeholder='Search Task ID' placeholderTextColor={colors.LIGHT_TEXT} inputStyle={[defaultInputStyles, styles.searchField]} onChangeText={(e) => setSearchTask(e)} value={searchTask} leftIcon={<SearchIcon color={colors.LIGHT_TEXT} width={18} height={18} />} />
-          <CustomButton onPress={() => setCreatingTask(true)}  textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.createTask, {marginTop: 10, marginBottom: 10}]} icon={<CirclePlus width={15} height={15} />} iconPosition="right" title={"Create Task"} />
+          <CustomButton onPress={() => setCreatingRequest(true)}  textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.createTask, {marginTop: 10, marginBottom: 10}]} icon={<CirclePlus width={15} height={15} />} iconPosition="right" title={"Create Request"} />
         </View>
         
         <ScrollView showsHorizontalScrollIndicator={false} horizontal contentContainerStyle={styles.taskStageButtonsContainer}>
@@ -96,8 +97,12 @@ export default function TasksScreen() {
       />
 
 
-      <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingTask} onClose={() => setCreatingTask(false)}>
-        <TaskCreation onClose={() => setCreatingTask(false)} />
+      {/* <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest} onClose={() => setCreatingRequest(false)}>
+        <WorkOrderCreation onClose={() => setCreatingRequest(false)} />
+      </CustomModal> */}
+
+      <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest} onClose={() => setCreatingRequest(false)}>
+        <WorkOrderCreation onClose={() => setCreatingRequest(false)} />
       </CustomModal>
 
 

@@ -1,10 +1,10 @@
 import { DocumentPickerResponse } from "@react-native-documents/picker";
 import { Asset } from "react-native-image-picker";
 
-export interface TaskInformationState {
-    workOrderUUID: string;
+export interface WorkRequestInformationState {
+    workRequestUUID: string;
     asset: { assetName: string; assetUUID: string };
-    workOrderType: { workOrderTypeName: string; workOrderTypeUUID: string };
+    workRequestType: { workRequestTypeName: string; workRequestTypeUUID: string };
     problemDescription: string;
     taskDescription: string;
     workPriority: {workPriorityUUID: string, workPriorityName: string};

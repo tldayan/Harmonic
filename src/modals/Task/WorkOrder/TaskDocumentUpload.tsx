@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import UploadIcon from "../../assets/icons/upload.svg";
-import SearchIcon from '../../assets/icons/search.svg';
-import { colors } from '../../styles/colors';
-import CustomButton from '../../components/CustomButton';
-import CustomTextAreaInput from '../../components/CustomTextAreaInput';
-import { pickMedia } from '../../utils/helpers';
-import { FirebaseAttachment } from '../../types/post-types';
-import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem';
+import { View, Text, StyleSheet, Image, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import UploadIcon from "../../../assets/icons/upload.svg";
+import SearchIcon from '../../../assets/icons/search.svg';
+import { colors } from '../../../styles/colors';
+import CustomButton from '../../../components/CustomButton';
+import CustomTextAreaInput from '../../../components/CustomTextAreaInput';
+import { FirebaseAttachment } from '../../../types/post-types';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
-import { TaskInformationState } from '../../types/work-order.types';
+import { TaskInformationState } from '../../../types/work-order.types';
 import { keepLocalCopy, pick } from '@react-native-documents/picker';
-import { DocumentItem } from '../../components/FlatlistItems/DocumentItem';
+import { DocumentItem } from '../../../components/FlatlistItems/DocumentItem';
 
-interface TaskImageUploadProps {
+interface TaskDocumentUploadProps {
     setTaskInformation: React.Dispatch<React.SetStateAction<TaskInformationState>>
     taskInformation: TaskInformationState
 }
 
-const TaskImageUpload = ({setTaskInformation, taskInformation} : TaskImageUploadProps) => {
+const TaskDocumentUpload = ({setTaskInformation, taskInformation} : TaskDocumentUploadProps) => {
 
       const [firebaseAttachmentUrls, setFirebaseAttachmentUrls] = useState<FirebaseAttachment[]>([])
       const [loading, setLoading] = useState(false)
@@ -30,6 +28,7 @@ const TaskImageUpload = ({setTaskInformation, taskInformation} : TaskImageUpload
           const pickResults = await pick({ allowMultiSelection: true, keepLocalCopy: "cachesDirectory" });
       
           console.log('Picked Documents:', pickResults);
+  
       
           const copyResults = await Promise.all(
             pickResults.map(async (doc) => {
@@ -107,8 +106,9 @@ const TaskImageUpload = ({setTaskInformation, taskInformation} : TaskImageUpload
 
         {taskInformation.attachments.length > 0 ? (
 
-            <FlatList indicatorStyle='black' 
-              /*   horizontal  */
+          <ScrollView>
+            <FlatList
+              showsHorizontalScrollIndicator={false}
                 style={styles.mainSelectedAttachments} 
                 numColumns={3}
                 contentContainerStyle={styles.attachmentsList} 
@@ -122,8 +122,8 @@ const TaskImageUpload = ({setTaskInformation, taskInformation} : TaskImageUpload
                 )}
                 keyExtractor={(item) => String(item.uri)}
                 columnWrapperStyle={{gap: 10 }}
-                /* ListFooterComponent={<AddAdditionalMediaButton />} */ 
-                />
+              />
+          </ScrollView>
         ) : (
             <>
             <Image
@@ -153,9 +153,9 @@ const TaskImageUpload = ({setTaskInformation, taskInformation} : TaskImageUpload
     </View>
 
 
-        <CustomButton loading={loading} textStyle={styles.browseButtonText} buttonStyle={styles.browseButton} onPress={addDocument} title={"Browse File"} icon={<SearchIcon color={colors.LIGHT_COLOR} strokeWidth={2} width={18} height={18} />} />
+       { <CustomButton loading={loading} textStyle={styles.browseButtonText} buttonStyle={styles.browseButton} onPress={addDocument} title={"Browse File"} icon={<SearchIcon color={colors.LIGHT_COLOR} strokeWidth={2} width={18} height={18} />} />}
       </View>
-      <CustomTextAreaInput flex onChangeText={(e) => setTaskInformation((prev) => ({...prev, imageDescription: e}))} placeholder='Attachment Description' />
+      <CustomTextAreaInput flex multiline={true} onChangeText={(e) => setTaskInformation((prev) => ({...prev, imageDescription: e}))} placeholder='Attachment Description' />
     </ScrollView>
     </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     paddingRight: 12,
     paddingBottom: 8,
     paddingLeft: 12,
-    marginBottom: 10,
+    marginVertical: 10,
     borderRadius: 25,
     gap: 8,
     width: 110,
@@ -254,4 +254,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default TaskImageUpload;
+export default TaskDocumentUpload;

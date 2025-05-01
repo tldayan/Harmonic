@@ -1,13 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect } from 'react'
-import { CustomTextInput } from '../../components/CustomTextInput'
-import { defaultInputStyles } from '../../styles/global-styles'
-import { TaskInformationState } from '../../types/work-order.types'
-import CustomSelectInput from '../../components/CustomSelectInput'
-import { colors } from '../../styles/colors'
-import { getUserProfile } from '../../api/network-utils'
+import { CustomTextInput } from '../../../components/CustomTextInput'
+import { defaultInputStyles } from '../../../styles/global-styles'
+import { TaskInformationState } from '../../../types/work-order.types'
+import CustomSelectInput from '../../../components/CustomSelectInput'
+import { colors } from '../../../styles/colors'
+import { getUserProfile } from '../../../api/network-utils'
 import { useSelector } from 'react-redux'
-import { RootState } from '../../store/store'
+import { RootState } from '../../../store/store'
 
 
 interface TaskUserInfoProps {

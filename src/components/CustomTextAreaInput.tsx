@@ -1,37 +1,48 @@
 import * as React from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
+import { View, TextInput, StyleSheet } from "react-native";
+import { colors } from "../styles/colors";
 
 interface TextAreaInputProps {
   placeholder: string;
   onChangeText?: (text: string) => void;
-  flex?: boolean
+  flex?: boolean;
+  multiline?: boolean;
 }
 
 const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
   placeholder,
   onChangeText,
-  flex
+  flex,
+  multiline = false,
 }) => {
   const [value, setValue] = React.useState("");
 
   const handleChangeText = (text: string) => {
     setValue(text);
-    if (onChangeText) {
-      onChangeText(text);
-    }
+    onChangeText?.(text);
   };
 
   return (
-    <View style={[styles.container, flex ? {flex: 1, minHeight: 218} : null]}>
-      <View style={styles.input}>
+    <View
+      style={[
+        styles.container,
+        multiline && { minHeight: flex ? 218 : 100 },
+        !multiline && { height: 42 },
+      ]}
+    >
+      <View style={[styles.input, multiline ? {paddingVertical : 12} : null]}>
         <TextInput
-          style={styles.textInput}
+          style={[
+            styles.textInput,
+            multiline && styles.textAreaInput,
+            !multiline && { height: "100%" },
+          ]}
           placeholder={placeholder}
-          placeholderTextColor="#6b7280"
-          multiline={true}
-          numberOfLines={4}
+          placeholderTextColor={colors.LIGHT_TEXT}
+          multiline={multiline}
           value={value}
           onChangeText={handleChangeText}
+          textAlignVertical={multiline ? "top" : "center"}
         />
       </View>
     </View>
@@ -41,8 +52,6 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
-/*     minHeight: 218, */
-    height: 45,
     width: "100%",
     fontSize: 14,
     color: "#6b7280",
@@ -56,22 +65,17 @@ const styles = StyleSheet.create({
     width: "100%",
     gap: 10,
     flex: 1,
-    height: "100%",
-    paddingTop: 12,
-    paddingRight: 0,
-    paddingBottom: 16,
-    paddingLeft: 0,
+/*     paddingVertical: 12, */
+    paddingHorizontal: 0,
   },
   textInput: {
     flex: 1,
-    flexShrink: 1,
-    flexBasis: "0%",
-    minWidth: 240,
-    width: "100%",
     fontSize: 14,
     color: "#111928",
     paddingHorizontal: 12,
-    textAlignVertical: "top",
+  },
+  textAreaInput: {
+    minWidth: 240,
   },
 });
 

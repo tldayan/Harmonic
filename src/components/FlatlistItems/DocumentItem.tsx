@@ -6,7 +6,7 @@ import { colors } from "../../styles/colors";
 interface DocumentItemProps {
   item: DocumentPickerResponse;
   index: number;
-  deleteDocument: (uri: string) => void;
+  deleteDocument?: (uri: string) => void;
 }
 
 export const DocumentItem = ({ item, index, deleteDocument }: DocumentItemProps) => {
@@ -14,7 +14,7 @@ export const DocumentItem = ({ item, index, deleteDocument }: DocumentItemProps)
 
   return (
     <View style={[styles.documentContainer, {padding: isImage ? 0 : 10}]}>
-      <CustomButton onPress={() => deleteDocument(item.uri || "")} buttonStyle={styles.deleteDocument} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
+      {deleteDocument && <CustomButton onPress={() => deleteDocument?.(item.uri || "")} buttonStyle={styles.deleteDocument} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />}
       
       {isImage ? (
 

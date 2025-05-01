@@ -10,6 +10,8 @@ import ChatScreen from "../screens/Chat/ChatScreen"
 import UserInfo from "../screens/Chat/ChatInfo"
 import ProfileScreen from "../screens/Others/ProfileScreen"
 import TaskInfo from "../screens/Task/TaskInfo"
+import ChatsList from "../screens/Chat/ChatList"
+import ChatsScreen from "../screens/Chat/ChatsTabs"
 
 
 export const RootNavigator: React.FC = () => {
@@ -27,6 +29,7 @@ export const RootNavigator: React.FC = () => {
                 <Stack.Screen name="ChatScreen" component={ChatScreen} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="ChatInfo" component={UserInfo} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="TaskInfo" component={TaskInfo} options={{animation: "slide_from_right"}} />
+                <Stack.Screen name="ChatsScreen" component={ChatsScreen} options={{animation: "slide_from_right"}} />
                 
             </>
 
