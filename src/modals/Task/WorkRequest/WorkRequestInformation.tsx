@@ -52,16 +52,6 @@ export default function WorkRequestInformation({
                     />
                 </View>
             </View>
-
-            <CustomTextAreaInput
-                onChangeText={(e) =>
-                    setWorkRequestInformation((prev) => ({
-                        ...prev,
-                        problemDescription: e
-                    }))
-                }
-                placeholder="Write Problem"
-            />
             <CustomTextAreaInput
                 multiline={true}
                 flex={true}

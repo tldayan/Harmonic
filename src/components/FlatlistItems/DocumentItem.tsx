@@ -4,21 +4,26 @@ import { DocumentPickerResponse } from "@react-native-documents/picker";
 import { colors } from "../../styles/colors";
 
 interface DocumentItemProps {
-  item: DocumentPickerResponse;
+  item: ExtendedDocument;
   index: number;
   deleteDocument?: (uri: string) => void;
 }
 
+interface ExtendedDocument extends DocumentPickerResponse {
+  localUri?: string;
+}
+
+
 export const DocumentItem = ({ item, index, deleteDocument }: DocumentItemProps) => {
   const isImage = item.name?.match(/\.(jpeg|jpg|gif|png)$/i);
-
+  const uriToUse = item.localUri ?? item.uri;
   return (
     <View style={[styles.documentContainer, {padding: isImage ? 0 : 10}]}>
       {deleteDocument && <CustomButton onPress={() => deleteDocument?.(item.uri || "")} buttonStyle={styles.deleteDocument} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />}
       
       {isImage ? (
 
-        <Image source={{ uri: item.uri }} style={styles.content} />
+        <Image source={{ uri: uriToUse }} style={styles.content} />
       ) : (
 
         <CustomButton onPress={() => {}} textStyle={{fontSize: 10}} title={item.name} buttonStyle={styles.contentButtonContainer} />

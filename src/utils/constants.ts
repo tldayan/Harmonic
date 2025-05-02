@@ -17,7 +17,8 @@ export const chatTypes = {
 export const firebaseStoragelocations = {
     attachmentMB : "attachmentMB",
     chat: "chat/messageAttachment",
-    workOrder: "work-order" 
+    workOrder: "work-order",
+    workRequest: "work-request" 
 }
 
 export const CHAT_INVITE_STATUS_CODES = {
@@ -47,6 +48,7 @@ export const WORK_PRIORITY_TEXT_COLOR_CODES: Record<string, string> = {
   };
   
 export const WORK_STATUS_COLOR_CODES: Record<string, string> = {
+    Approved: "#C6F6D5",
     Scheduled: "#DBEAFE",      
     Pending: "#FED7D7",  
     High: "#BEE3F8",       
@@ -54,6 +56,7 @@ export const WORK_STATUS_COLOR_CODES: Record<string, string> = {
   };
 
 export const WORK_STATUS__NOTIFICATION_COLOR_CODES: Record<string, string> = {
+    Approved: colors.GREEN,
     Scheduled: "#4F46E5",      
     Pending: "#EF4444",  
     High: "#22C55E",

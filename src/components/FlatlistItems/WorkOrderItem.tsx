@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   workOrderContainer: {
 /*     borderWidth: 1, */
     borderRadius: 24,
-    width: "100%",
+    width: "99%",
     gap: 10,
     marginLeft: "auto",
     backgroundColor: "white",

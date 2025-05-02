@@ -5,22 +5,23 @@ import ModalsHeader from '../../ModalsHeader'
 import CustomButton from '../../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES } from '../../../styles/button-styles'
 import { colors } from '../../../styles/colors'
-import { getWorkPriorities, saveWorkOrder, saveWorkOrderAttachments, saveWorkRequestNote } from '../../../api/network-utils'
+import { getWorkPriorities , getWorkRequestDetails, saveWorkRequest, saveWorkRequestAttachments, saveWorkRequestNote } from '../../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/store'
 import ProgressBar from '../../../components/ProgressBar'
-import TaskImageUpload from './TaskDocumentUpload'
-import { TaskInformationState } from '../../../types/work-order.types'
-import TaskUserInfo from './TaskUserInfo'
-import ReviewTask from './ReviewTask'
 import { firebaseStoragelocations, STATUS_CODE } from '../../../utils/constants'
 import { uploadDocuments } from '../../../utils/helpers'
-import TaskDocumentUpload from './TaskDocumentUpload'
 import { WorkRequestInformationState } from '../../../types/work-request.types'
 import WorkRequestInformation from './WorkRequestInformation'
+import ReviewTask from '../ReviewTask'
+import TaskUserInfo from '../TaskUserInfo'
+import TaskDocumentUpload from '../TaskDocumentUpload'
+import { statusCodes } from '@react-native-google-signin/google-signin'
+import { createOptimisticWorkRequest } from './createOptimisticWorkRequest'
 
 interface WorkRequestCreationProps {
     onClose: () => void
+    setWorkRequests: React.Dispatch<React.SetStateAction<WorkRequest[]>>;
 }
 
 const width = Dimensions.get("window").width
@@ -34,7 +35,7 @@ const steps = [
 
 
 
-export default function WorkRequestCreation({onClose} : WorkRequestCreationProps) {
+export default function WorkRequestCreation({onClose, setWorkRequests} : WorkRequestCreationProps) {
 
     const [step, setStep] = useState(0)
     const [workPriorities, setWorkPriorities] = useState<WorkPriority[]>()
@@ -42,7 +43,6 @@ export default function WorkRequestCreation({onClose} : WorkRequestCreationProps
         workRequestUUID: "",
         asset: { assetName: '', assetUUID: '' },
         workRequestType: { workRequestTypeName: '', workRequestTypeUUID: '' },
-        problemDescription: '',
         taskDescription: '',
         workPriority: {workPriorityUUID: "", workPriorityName: ""},
         images: [],
@@ -130,10 +130,22 @@ export default function WorkRequestCreation({onClose} : WorkRequestCreationProps
         try {
 
         if(step === 0) {
-            const saveWorkOrderRequest = await saveWorkOrder(userUUID, organizationUUID, workRequestInformation)
-            if(saveWorkOrderRequest.Status === STATUS_CODE.SUCCESS) {
-                const workOrderUUID = saveWorkOrderRequest.Payload.WorkOrderUUID
-                setWorkRequestInformation((prev) => ({...prev, workOrderUUID: workOrderUUID, loading: false}))
+            const saveWorkRequestResponse = await saveWorkRequest(userUUID, organizationUUID, workRequestInformation)
+            if(saveWorkRequestResponse.Status === STATUS_CODE.SUCCESS) {
+                const {ProblemDescription,WorkRequestNumber, WorkRequestUUID} = saveWorkRequestResponse.Payload
+               
+                setWorkRequestInformation((prev) => ({...prev, workRequestUUID: WorkRequestUUID, loading: false}))
+
+                const optimisticWorkRequest = createOptimisticWorkRequest({
+                    WorkRequestNumber,
+                    ProblemDescription,
+                    WorkPriorityName: workRequestInformation.workPriority.workPriorityName,
+                    WorkRequestTypeName: workRequestInformation.workRequestType.workRequestTypeName,
+                    AssetName: workRequestInformation.asset.assetName,
+                    PrimaryRequestor: workRequestInformation.creatorName
+                  });
+                  setWorkRequests(prev => [optimisticWorkRequest, ...prev])
+
             } /* else {
                 return
             } */
@@ -142,10 +154,10 @@ export default function WorkRequestCreation({onClose} : WorkRequestCreationProps
             
             if(workRequestInformation.attachments.length !== prevAttachmentCount) {
 
-                const firebaseAttachmentUrls = await uploadDocuments(workRequestInformation.attachments,firebaseStoragelocations.workOrder)
-                /* await saveWorkRequestNote(userUUID, workRequestInformation.workOrderUUID , workRequestInformation.attachmentDescription) */
+                const firebaseAttachmentUrls = await uploadDocuments(workRequestInformation.attachments,firebaseStoragelocations.workRequest)
+                await saveWorkRequestNote(userUUID, workRequestInformation.workRequestUUID , workRequestInformation.attachmentDescription)
                 console.log(firebaseAttachmentUrls)
-                const saveWorkOrderRequest = await saveWorkOrderAttachments(userUUID, workRequestInformation.workRequestUUID, firebaseAttachmentUrls)
+                await saveWorkRequestAttachments(userUUID, workRequestInformation.workRequestUUID, firebaseAttachmentUrls)
             }
 
             setWorkRequestInformation((prev) => ({...prev, attachmentCount: prev.attachments.length}))
@@ -156,6 +168,22 @@ export default function WorkRequestCreation({onClose} : WorkRequestCreationProps
                 return
             }
 
+      
+            const workRequestDetails = await getWorkRequestDetails(workRequestInformation?.workRequestUUID)
+            const {AssetName,AssetUUID, WorkPriorityName,WorkPriorityUUID, ProblemDescription,WorkRequestTypeName,WorkRequestTypeUUID} = workRequestDetails.Payload
+            console.log(workRequestDetails)
+            setWorkRequestInformation((prev) => ({
+                ...prev, 
+                asset: {assetName: AssetName, assetUUID: AssetUUID,}, 
+                problemDescription: ProblemDescription,
+                workPriority: {workPriorityName: WorkPriorityName, workPriorityUUID: WorkPriorityUUID},
+                workRequestType: {workRequestTypeName: WorkRequestTypeName, workRequestTypeUUID: WorkRequestTypeUUID }
+            }))
+
+        } else if (step === 3) {
+
+            onClose()
+           
         }
 
         } catch(err) {
@@ -164,9 +192,10 @@ export default function WorkRequestCreation({onClose} : WorkRequestCreationProps
             setWorkRequestInformation((prev) => ({...prev, loading : false}))
         }
 
-        
-
-        setStep((prev) => prev + 1)
+        if(step <= 2) {
+            setStep((prev) => prev + 1)
+        }
+ 
     }
 
     useEffect(() => {
@@ -181,7 +210,7 @@ export default function WorkRequestCreation({onClose} : WorkRequestCreationProps
 
   return (
     <SafeAreaView style={styles.container}>
-        <ModalsHeader onClose={onClose} title={"Create Task"} />
+        <ModalsHeader onClose={onClose} title={"Create Work Request"} />
 
         <ProgressBar width={"90%"} max={steps.length} value={step + 1} />    
     
@@ -223,7 +252,7 @@ const styles = StyleSheet.create({
     formButtonsContainer: {
         flexDirection: "row", 
         justifyContent:"space-between",
-        borderWidth: 1,
+/*         borderWidth: 1, */
         alignItems: "center",
         width: "90%",
         alignSelf: "center",

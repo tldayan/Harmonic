@@ -8,7 +8,7 @@ import CustomButton from '../../components/CustomButton'
 import CirclePlus from "../../assets/icons/circle-plus.svg"
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
 import WorkOrderItem from '../../components/FlatlistItems/WorkOrderItem'
-import { getPendingWorkRequestCount, getWorkOrderList } from '../../api/network-utils'
+import { getPendingWorkRequestCount, getWorkOrderList, getWorkRequestList } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { useNavigation } from '@react-navigation/native'
@@ -18,38 +18,55 @@ import Alert from "../../assets/icons/circle-alert.svg"
 import { CustomModal } from '../../components/CustomModal'
 import TaskCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
 import WorkOrderCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
+import WorkRequestCreation from '../../modals/Task/WorkRequest/WorkRequestCreation'
+import WorkRequestItem from '../../components/FlatlistItems/WorkRequestItem'
 
 export default function TasksScreen() {
 
+  const [userRole, setUserRole] = useState("admin")
   const [searchTask, setSearchTask] = useState("")
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
+  const [workRequests, setWorkRequests] = useState<WorkRequest[]>([])
   const [pendingWorkRequests, setPendingWorkRequests] = useState(0)
   const [startIndex, setStartIndex] = useState(0)
   const [creatingRequest, setCreatingRequest] = useState(false)
   const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)
-  const [hasMoreWorkOrders, setHasMoreWordOrders] = useState(true)
+  const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
-
+  const isAdmin = userRole === "admin";
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-  const fetchWorkOrderList = async() => {
-    if(!hasMoreWorkOrders || loading) return
-
-    setLoading(true)
+  const fetchTasksList = async () => {
+    if (!hasMore || loading) return;
+  
+    setLoading(true);
+  
     try {
-      const workOrdersResponse = await getWorkOrderList(userUUID, organizationUUID, startIndex)
-      if(workOrdersResponse.Payload.length < 30) {
-        setHasMoreWordOrders(false)
-      }
-      setWorkOrders((prev) => [...prev, ...workOrdersResponse.Payload])
-      setStartIndex((prev) => prev + 30)
 
-    } catch(err) {
-      console.log(err)
+      const fetchFn = isAdmin ? getWorkOrderList : getWorkRequestList;
+  
+      const TaskListResponse = await fetchFn(userUUID, organizationUUID, startIndex);
+      const tasks = TaskListResponse?.Payload || [];
+      console.log(tasks)
+      if (tasks.length < 30) {
+        setHasMore(false);
+      }
+
+      if (isAdmin) {
+        setWorkOrders((prev) => [...prev, ...tasks]);
+      } else {
+        setWorkRequests((prev) => [...prev, ...tasks]);
+      }
+  
+      setStartIndex((prev) => prev + tasks.length);
+  
+    } catch (err) {
+      console.error("Failed to fetch task list:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
 
   useEffect(() => {
 
@@ -61,6 +78,18 @@ export default function TasksScreen() {
     fetchPendingWorkRequestCount()
 
   }, [])
+
+
+
+  const flatListData = userRole === "admin" ? workOrders : workRequests;
+
+  const renderFlatListItem = ({ item }: { item: WorkOrder | WorkRequest }) => {
+    return isAdmin
+      ? <WorkOrderItem workOrderItem={item as WorkOrder} />
+      : <WorkRequestItem workRequestItem={item as WorkRequest} />;
+  };
+
+
 
 
   return (
@@ -87,14 +116,20 @@ export default function TasksScreen() {
       {(workOrders?.length === 0 && loading) && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={"black"} />}
       <FlatList
         contentContainerStyle={styles.workOrderContainer} 
-        style={{ marginTop: 15}} 
-        renderItem={({item}) => <WorkOrderItem workOrderItem={item} />} 
-        data={workOrders} 
-        keyExtractor={(item) => item.WorkOrderUUID}
-        onEndReached={fetchWorkOrderList}
+        style={{ marginTop: 15 }} 
+        renderItem={renderFlatListItem}
+        data={userRole === "admin" ? workOrders : workRequests}
+        keyExtractor={(item, index) => {
+          const key = isAdmin ? item.WorkOrderUUID : item.WorkRequestUUID;
+          return key ?? index.toString(); // Fallback to index if key is undefined
+        }}        
+        onEndReached={fetchTasksList}
         onEndReachedThreshold={0.8}
-        ListFooterComponent={(loading && workOrders?.length > 0) ? <ActivityIndicator style={{marginBottom: "5%"}} size={"small"} color={"black"} /> : null}  
+        ListFooterComponent={(loading && flatListData?.length > 0) ? (
+          <ActivityIndicator style={{ marginBottom: "5%" }} size="small" color="black" />
+        ) : null}
       />
+
 
 
       {/* <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest} onClose={() => setCreatingRequest(false)}>
@@ -102,7 +137,7 @@ export default function TasksScreen() {
       </CustomModal> */}
 
       <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest} onClose={() => setCreatingRequest(false)}>
-        <WorkOrderCreation onClose={() => setCreatingRequest(false)} />
+        <WorkRequestCreation setWorkRequests={setWorkRequests} onClose={() => setCreatingRequest(false)} />
       </CustomModal>
 
 

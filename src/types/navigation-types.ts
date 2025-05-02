@@ -26,5 +26,6 @@ export type TabParamList = {
     Stores: undefined;
     Chat: undefined;
     More: undefined; // Modules
+    Add: undefined // Add Post/task/event Button
 };
 

@@ -10,13 +10,12 @@ import { getWorkPriorities, saveWorkOrder, saveWorkOrderAttachments, saveWorkReq
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/store'
 import ProgressBar from '../../../components/ProgressBar'
-import TaskImageUpload from './TaskDocumentUpload'
 import { TaskInformationState } from '../../../types/work-order.types'
-import TaskUserInfo from './TaskUserInfo'
-import ReviewTask from './ReviewTask'
+import TaskUserInfo from '../TaskUserInfo'
+import ReviewTask from '../ReviewTask'
 import { firebaseStoragelocations, STATUS_CODE } from '../../../utils/constants'
 import { uploadDocuments } from '../../../utils/helpers'
-import TaskDocumentUpload from './TaskDocumentUpload'
+import TaskDocumentUpload from '../TaskDocumentUpload'
 
 interface WorkOrderCreationProps {
     onClose: () => void

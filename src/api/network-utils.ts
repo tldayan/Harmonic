@@ -900,6 +900,33 @@ export const getWorkOrderTypes = async(organizationUUID:string) => {
 
 
 //WORK-REQUEST
+
+export const getWorkRequestList = async(userUUID: string,organizationUUID:string, startIndex: number) => {
+
+  const bodyData = {
+    "OrganizationUUID": organizationUUID,
+    "PageSize": 30,
+    "StartIndex": startIndex,
+    "CategoryItemUUIDs": [],
+    "SearchExpression": "",
+    "SortExpression": "",
+    "LoggedInUserUUID": userUUID
+}
+
+console.log(bodyData)
+  try {
+    const getWorkRequestListResponse = await apiClient(ENDPOINTS.WORK_REQUEST.GET_WORK_REQUEST_LIST, bodyData, {}, "POST")
+    console.log(getWorkRequestListResponse)
+    return getWorkRequestListResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
 export const getPendingWorkRequestCount = async(organizationUUID:string) => {
 
   try {
@@ -926,10 +953,10 @@ export const getWorkRequestTypes = async(organizationUUID:string) => {
 
 }
 
-export const getWorkRequestDetails = async(workRequestUUID:string) => {
+export const getWorkRequestDetails = async(WorkRequestUUID:string) => {
 
   try {
-    const getWorkRequestDetailsResponse = await apiClient(ENDPOINTS.WORK_REQUEST.GET_WORK_REQUEST_DETAILS, {}, {}, "GET", {workRequestUUID})
+    const getWorkRequestDetailsResponse = await apiClient(ENDPOINTS.WORK_REQUEST.GET_WORK_REQUEST_DETAILS, {}, {}, "GET", {WorkRequestUUID})
     console.log(getWorkRequestDetailsResponse)
     return getWorkRequestDetailsResponse.data
 
@@ -961,21 +988,57 @@ export const saveWorkRequestNote = async(userUUID:string, workRequestUUID: strin
 }
 
 
+
+
+export const saveWorkRequestAttachments= async(userUUID: string,workRequestUUID:string, firebaseAttachments: any) => {
+
+  if(!firebaseAttachments.lenght) return
+  let attachmentsData = firebaseAttachments.attachments.map((eachAttachment: any) => {
+    return {
+      "AllowDownload": true,
+      "CanBeDownloaded": true,
+      "AttachmentUUID": "",
+      "Attachment": eachAttachment.url,
+      "AttachmentType": eachAttachment.type
+    }
+  })
+  
+  const bodyData = {
+    "WorkRequestUUID": workRequestUUID,
+    "LoggedInUserUUID": userUUID,
+    "WorkRequestAttachments": attachmentsData
+}
+
+console.log(bodyData)
+  try {
+    const saveWorkOrderAttachmentsResponse = await apiClient(ENDPOINTS.WORK_ORDER.SAVE_WORK_ORDER_ATTACHMENTS, bodyData, {}, "POST")
+    console.log(saveWorkOrderAttachmentsResponse)
+    return saveWorkOrderAttachmentsResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+
 export const saveWorkRequest = async(userUUID:string,organizationUUID: string, workRequestInformation: WorkRequestInformationState) => {
 
   const bodyData = {
-    "WorkRequestTypeUUID": "f5af7064-23fe-11f0-a1bd-42010a400006",
-    "WorkRequestTypeName": null,
-    "AssetUUID": "92409f6f-9010-4579-baf4-58cc06f04671",
-    "AssetName": null,
-    "ProblemDescription": "TEST",
-    "WorkPriorityUUID": "784fe631-23fd-11f0-a1bd-42010a400006",
-    "WorkPriorityName": null,
+    "WorkRequestTypeUUID": workRequestInformation.workRequestType.workRequestTypeUUID,
+    "WorkRequestTypeName": workRequestInformation.workRequestType.workRequestTypeName,
+    "AssetUUID": workRequestInformation.asset.assetUUID,
+    "AssetName": workRequestInformation.asset.assetName,
+    "ProblemDescription": workRequestInformation.taskDescription,
+    "WorkPriorityUUID": workRequestInformation.workPriority.workPriorityUUID,
+    "WorkPriorityName": workRequestInformation.workPriority.workPriorityName,
     "OrganizationUUID": organizationUUID,
     "LoggedInUserUUID": userUUID,
     "CreatorUserUUID": userUUID
 }
-
+console.log(bodyData)
   try {
     const saveWorkRequestResponse = await apiClient(ENDPOINTS.WORK_REQUEST.SAVE_WORK_REQUEST, bodyData, {}, "POST")
     console.log(saveWorkRequestResponse)

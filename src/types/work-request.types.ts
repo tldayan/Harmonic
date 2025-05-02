@@ -5,7 +5,6 @@ export interface WorkRequestInformationState {
     workRequestUUID: string;
     asset: { assetName: string; assetUUID: string };
     workRequestType: { workRequestTypeName: string; workRequestTypeUUID: string };
-    problemDescription: string;
     taskDescription: string;
     workPriority: {workPriorityUUID: string, workPriorityName: string};
     images: Asset[];

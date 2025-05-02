@@ -153,6 +153,29 @@ interface WorkOrder {
   WorkRequestNumber: string | null;
 }
 
+interface WorkRequest {
+  WorkRequestUUID: string;
+  WorkRequestNumber: string;
+  WorkRequestTitle: string | null;
+  ProblemDescription: string;
+  WorkRequestTypeName: string;
+  WorkPriorityName: string;
+  AssetName: string;
+  StatusItemName: string;
+  StatusItemCode: string;
+  PrimaryRequestor: string;
+  CountOfAdditionalUsers: number;
+  WorkRequestCategories: any[];
+  WorkRequestCategoryUUID: string | null;
+  CategoryUUID: string | null;
+  CategoryName: string | null;
+  CategoryItemUUID: string | null;
+  CategoryItemName: string | null;
+  CategoryItemURL: string | null;
+  WorkOrderUUID: string | null;
+  WorkOrderNumber: string | null;
+}
+
 
 
 

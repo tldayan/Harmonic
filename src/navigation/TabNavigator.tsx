@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Platform, View } from "react-native";
+import { Platform, TouchableOpacity, View } from "react-native";
 import { TabParamList } from "../types/navigation-types";
 import { globalScreenOptions } from "./navigationConfig/globalScreenOptions";
 import StoresScreen from "../screens/Tabs/StoresScreen";
@@ -14,6 +14,7 @@ import TaskIcon from "../assets/icons/clipboard.svg";
 import HamburgerIcon from "../assets/icons/hamburger.svg";
 import Header from "../components/Header";
 import { colors } from "../styles/colors";
+import PlusIcon from "../assets/icons/plus.svg"
 
 export const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -40,7 +41,7 @@ export default function TabNavigator(): JSX.Element {
           headerShown: true,
           header: () => <Header />,
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ justifyContent: "center", alignItems: "center", height: "100%" }}>
+            <View style={[{ alignItems: "center", height: "100%" }, Platform.OS === "android" ? {justifyContent: "center"} : null]}>
               {IconComponent ? (
                 <IconComponent
                   width={22}
@@ -53,8 +54,8 @@ export default function TabNavigator(): JSX.Element {
           tabBarStyle: {
             position: "absolute",
             bottom: 10,
-            width: "80%",
-            marginHorizontal: "10%",
+            width: "86%",
+            marginHorizontal: "7%",
             elevation: 0,
             backgroundColor: "white",
             borderRadius: 50,
@@ -65,7 +66,7 @@ export default function TabNavigator(): JSX.Element {
             justifyContent: "center",
             alignItems: "center",
           },
-          tabBarItemStyle: Platform.OS === "android" && {flexDirection: "row", alignItems: "center"},
+          tabBarItemStyle: Platform.OS === "android" && { flexDirection: "row", alignItems: "center" },
           tabBarShowLabel: false,
           tabBarActiveTintColor: colors.ACTIVE_ORANGE,
           tabBarInactiveTintColor: "gray",
@@ -73,8 +74,35 @@ export default function TabNavigator(): JSX.Element {
       }}
     >
       <Tab.Screen name="Social" component={SocialScreen} />
-      <Tab.Screen name="Assets" component={AssetsScreen} />
+      {/* <Tab.Screen name="Assets" component={AssetsScreen} /> */}
       <Tab.Screen name="Tasks" component={TasksScreen} />
+      <Tab.Screen
+        name="Add"
+        component={() => null}
+        options={{
+          tabBarButton: () => (
+            <TouchableOpacity
+              onPress={() => {
+                
+              }}
+              style={{
+                position: "absolute", 
+                top: 5, 
+                left: 10,          
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: colors.ACTIVE_ORANGE,
+                padding: 10,
+                borderRadius: 30,
+                transform: [{ translateX: "-0%" }, { translateY: "-20%" }],
+              }}
+            >
+          <PlusIcon width={20} height={20} fill="white" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      
       <Tab.Screen name="Stores" component={StoresScreen} />
       <Tab.Screen name="More" component={ModulesScreen} />
     </Tab.Navigator>
