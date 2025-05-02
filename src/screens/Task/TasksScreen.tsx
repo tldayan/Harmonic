@@ -23,7 +23,7 @@ import WorkRequestItem from '../../components/FlatlistItems/WorkRequestItem'
 
 export default function TasksScreen() {
 
-  const [userRole, setUserRole] = useState("admin")
+  const [userRole, setUserRole] = useState("tenant")
   const [searchTask, setSearchTask] = useState("")
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
   const [workRequests, setWorkRequests] = useState<WorkRequest[]>([])
