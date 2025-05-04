@@ -22,7 +22,7 @@ import Video from 'react-native-video'
 import VideoIcon from "../assets/icons/video.svg"
 import { fetchWithErrorHandling } from '../utils/helpers'
 import ImageSkeleton from '../skeletons/ImageSkeleton'
-import { PostShadowStyles, shadowStyles } from '../styles/global-styles'
+import { CardShadowStyles, shadowStyles } from '../styles/global-styles'
 
 interface PostItemChildProps {
   post: PostItemProps
@@ -131,7 +131,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
 
 console.log(route.name)
   return (
-    <View style={[ route.name === "Comments" ?  styles.defaultMainContainer : styles.mainContainer, PostShadowStyles]}>
+    <View style={[ route.name === "Comments" ?  styles.defaultMainContainer : styles.mainContainer, CardShadowStyles]}>
 
         {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
           <ProfileHeader fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} showPostActions post={post} />

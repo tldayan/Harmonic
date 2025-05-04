@@ -296,3 +296,30 @@ export const fetchWithErrorHandling = async <T extends unknown[]>(apiFunction: A
 
   }
 }
+
+
+
+export function getCleanFileNameFromUrl(url: string, maxLength: number = 20): string | null {
+  try {
+    const decodedUrl = decodeURIComponent(url);
+    const match = decodedUrl.match(/\/([^\/?]+\.[a-zA-Z0-9]+)(\?|$)/);
+
+    if (!match) return null;
+
+    const fullFileName = match[1];
+    const cleanedFileName = fullFileName.replace(/^\d+_/, '');
+
+    if (cleanedFileName.length > maxLength) {
+      const dotIndex = cleanedFileName.lastIndexOf('.');
+      const name = cleanedFileName.substring(0, dotIndex);
+      const ext = cleanedFileName.substring(dotIndex);
+      return `${name.substring(0, maxLength - ext.length - 3)}...${ext}`;
+    }
+
+    return cleanedFileName;
+  } catch (error) {
+    console.error("Error parsing URL:", error);
+    return null;
+  }
+}
+

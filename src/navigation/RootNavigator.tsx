@@ -12,6 +12,7 @@ import ProfileScreen from "../screens/Others/ProfileScreen"
 import TaskInfo from "../screens/Task/TaskInfo"
 import ChatsList from "../screens/Chat/ChatList"
 import ChatsScreen from "../screens/Chat/ChatsTabs"
+import AddModalScreen from "../modals/BottomTabActions"
 
 
 export const RootNavigator: React.FC = () => {
@@ -30,7 +31,13 @@ export const RootNavigator: React.FC = () => {
                 <Stack.Screen name="ChatInfo" component={UserInfo} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="TaskInfo" component={TaskInfo} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="ChatsScreen" component={ChatsScreen} options={{animation: "slide_from_right"}} />
-                
+                <Stack.Screen name="AddModal" component={AddModalScreen}
+                    options={{
+                        presentation: "transparentModal",
+                        animation: "slide_from_bottom",
+                        headerShown: false,
+                    }}
+                />
             </>
 
             ): (

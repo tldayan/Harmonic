@@ -18,10 +18,13 @@ import TaskUserInfo from '../TaskUserInfo'
 import TaskDocumentUpload from '../TaskDocumentUpload'
 import { statusCodes } from '@react-native-google-signin/google-signin'
 import { createOptimisticWorkRequest } from './createOptimisticWorkRequest'
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RootStackParamList, TabParamList } from '../../../types/navigation-types'
 
 interface WorkRequestCreationProps {
     onClose: () => void
-    setWorkRequests: React.Dispatch<React.SetStateAction<WorkRequest[]>>;
+    setWorkRequests?: React.Dispatch<React.SetStateAction<WorkRequest[]>>;
 }
 
 const width = Dimensions.get("window").width
@@ -36,7 +39,7 @@ const steps = [
 
 
 export default function WorkRequestCreation({onClose, setWorkRequests} : WorkRequestCreationProps) {
-
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [step, setStep] = useState(0)
     const [workPriorities, setWorkPriorities] = useState<WorkPriority[]>()
     const [workRequestInformation, setWorkRequestInformation] = React.useState<WorkRequestInformationState>({
@@ -144,7 +147,7 @@ export default function WorkRequestCreation({onClose, setWorkRequests} : WorkReq
                     AssetName: workRequestInformation.asset.assetName,
                     PrimaryRequestor: workRequestInformation.creatorName
                   });
-                  setWorkRequests(prev => [optimisticWorkRequest, ...prev])
+                  setWorkRequests?.(prev => [optimisticWorkRequest, ...prev])
 
             } /* else {
                 return
@@ -183,7 +186,8 @@ export default function WorkRequestCreation({onClose, setWorkRequests} : WorkReq
         } else if (step === 3) {
 
             onClose()
-           
+            navigation.navigate("Tabs", {screen: "Tasks"});
+
         }
 
         } catch(err) {

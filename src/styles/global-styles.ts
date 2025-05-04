@@ -10,7 +10,7 @@ export const shadowStyles = {
   }
 
 
-export const PostShadowStyles =  {
+export const CardShadowStyles =  {
   ...Platform.select({
     ios: {
       shadowColor: "#000",

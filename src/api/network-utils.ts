@@ -966,6 +966,33 @@ export const getWorkRequestDetails = async(WorkRequestUUID:string) => {
 
 }
 
+export const getWorkRequestHistory = async(workRequestUUID:string) => {
+
+  try {
+    const getWorkRequestHistoryResponse = await apiClient(ENDPOINTS.WORK_REQUEST.GET_WORK_REQUEST_HISTORY, {}, {}, "GET", {workRequestUUID})
+    console.log(getWorkRequestHistoryResponse)
+    return getWorkRequestHistoryResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const getWorkRequestAttachments = async(workRequestUUID:string) => {
+
+  try {
+    const getWorkRequestAttachmentsResponse = await apiClient(ENDPOINTS.WORK_REQUEST.GET_WORK_REQUEST_ATTACHMENTS, {}, {}, "GET", {workRequestUUID})
+    console.log(getWorkRequestAttachmentsResponse)
+    return getWorkRequestAttachmentsResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
 
 export const saveWorkRequestNote = async(userUUID:string, workRequestUUID: string, note: string) => {
 

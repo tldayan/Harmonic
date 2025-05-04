@@ -176,6 +176,49 @@ interface WorkRequest {
   WorkOrderNumber: string | null;
 }
 
+interface WorkRequestDetails {
+  WorkRequestUUID?: string;
+  WorkRequestNumber?: string;
+  WorkRequestTitle?: string | null;
+  ProblemDescription?: string;
+  WorkRequestTypeUUID?: string;
+  WorkRequestTypeName?: string;
+  WorkPriorityUUID?: string;
+  WorkPriorityName?: string;
+  AssetUUID?: string;
+  AssetName?: string;
+  StatusItemUUID?: string;
+  StatusItemName?: string;
+  StatusItemCode?: string;
+  PrimaryRequestorUserUUID?: string;
+  WorkOrderUUID?: string | null;
+  WorkOrderNumber?: string | null;
+}
+
+interface WorkRequestAttachment {
+  WorkRequestUUID: string;
+  WorkRequestAttachmentUUID: string;
+  WorkRequestAttachmentName: string | null;
+  WorkRequestAttachmentDescription: string | null;
+  AttachmentUUID: string;
+  Attachment: string;
+  CanBeDownloaded: boolean;
+  AllowDownload: boolean;
+}
+
+interface WorkRequestHistory {
+  WorkRequestStatusUUID: string;
+  WorkRequestUUID: string;
+  StatusItemUUID: string;
+  WorkRequestNoteUUID: string | null;
+  CreatedDateTime: string; 
+  ModifiedDateTime: string | null;
+  StatusItemName: string;
+  StatusItemCode: string;
+  Note: string | null;
+  CreatedByFullName: string;
+  ModifiedByFullName: string | null;
+}
 
 
 

@@ -21,6 +21,9 @@ import AttachmentCarousel from '../AttachmentCarousel'
 import { pickMedia, uploadMedia } from '../../utils/helpers'
 import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
 import { firebaseStoragelocations } from '../../utils/constants'
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RootStackParamList } from '../../types/navigation-types'
 
 interface CreatePostProps {
     onClose: () => void
@@ -47,6 +50,7 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
     const [creatingPoll, setCreatingPoll] = useState(false)
     const [loading, setLoading] = useState(false)
     const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth);
+        const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
     const handlePostClose = () => {
         setTimeout(() => {
@@ -150,6 +154,12 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
             if(response.Status === STATUS_CODE.SUCCESS) {
                 onClose()
                 fetchLatestMessages?.(post?.MessageBoardUUID)
+                navigation.navigate("Tabs", {
+                    screen: "Social",
+                    params: {}
+                  });
+                  
+                
             }
 
         } catch (err: any) {
@@ -233,9 +243,10 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
 const styles = StyleSheet.create({
 
     container : {
-        flex: 1,
+        flex: 1,        backgroundColor: "white",
     },
     innerContainer : {
+
 /*         borderWidth: 2, */
         padding: 16,
 /*         flexGrow: 1, */

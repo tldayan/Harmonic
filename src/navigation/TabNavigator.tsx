@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Platform, TouchableOpacity, View } from "react-native";
-import { TabParamList } from "../types/navigation-types";
+import { RootStackParamList, TabParamList } from "../types/navigation-types";
 import { globalScreenOptions } from "./navigationConfig/globalScreenOptions";
 import StoresScreen from "../screens/Tabs/StoresScreen";
 import ModulesScreen from "../screens/Tabs/MoreScreen";
@@ -15,10 +15,17 @@ import HamburgerIcon from "../assets/icons/hamburger.svg";
 import Header from "../components/Header";
 import { colors } from "../styles/colors";
 import PlusIcon from "../assets/icons/plus.svg"
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 export const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function TabNavigator(): JSX.Element {
+
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const EmptyScreen = () => null;
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {
@@ -66,6 +73,7 @@ export default function TabNavigator(): JSX.Element {
             justifyContent: "center",
             alignItems: "center",
           },
+          tabBarHideOnKeyboard: true,
           tabBarItemStyle: Platform.OS === "android" && { flexDirection: "row", alignItems: "center" },
           tabBarShowLabel: false,
           tabBarActiveTintColor: colors.ACTIVE_ORANGE,
@@ -78,13 +86,13 @@ export default function TabNavigator(): JSX.Element {
       <Tab.Screen name="Tasks" component={TasksScreen} />
       <Tab.Screen
         name="Add"
-        component={() => null}
+        component={EmptyScreen}
         options={{
           tabBarButton: () => (
             <TouchableOpacity
-              onPress={() => {
-                
-              }}
+            onPress={() => {
+              navigation.navigate("AddModal");
+            }}
               style={{
                 position: "absolute", 
                 top: 5, 

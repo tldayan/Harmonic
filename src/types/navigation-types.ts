@@ -1,15 +1,17 @@
+import { NavigatorScreenParams } from "@react-navigation/native";
 import { AttachmentData } from "./post-types"
 
 export type RootStackParamList = {
-    Tabs: undefined
+    Tabs: NavigatorScreenParams<TabParamList>;
     Auth: undefined
     Hero: undefined
     Comments: {postUUID?: string, attachmentData?: AttachmentData[], createdBy: string}
     Profile: undefined
     ChatScreen: {userUUID: string, chatMasterUUID: string, chatProfilePictureURL: string | null, chatMasterName: string, chatType: string, chatMemberUserUUID: string, createdDateTime: string}
     ChatInfo: {chatMasterUUID: string,chatType: string}
-    TaskInfo: {workRequestUUID?: string}
+    TaskInfo: {workRequestUUID: string}
     ChatsScreen: undefined
+    AddModal: undefined;
 }
 
 export type ProfileStackParamList = {
