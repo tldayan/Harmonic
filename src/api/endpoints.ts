@@ -62,10 +62,12 @@ export const ENDPOINTS = {
     SAVE_WORK_REQUEST_NOTE: `${BASE_URL}/work-request/saveWorkRequestNote`,
     SAVE_WORK_REQUEST: `${BASE_URL}/work-request/saveWorkRequest`,
     SAVE_WORK_REQUEST_ATTACHMENTS: `${BASE_URL}/work-request/saveWorkRequestAttachments`,
-
   },
   ASSET: {
     GET_ASSET_LIST: `${BASE_URL}/asset/getAssetList`,
+  },
+  EVENT: {
+    GET_EVENT_LIST: `${BASE_URL}/event/getEventList`,
   },
   ALERT : {
     GET_CHAT_INVITE_DETAILS: `${BASE_URL}/alert/getChatInviteDetails`

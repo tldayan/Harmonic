@@ -27,6 +27,9 @@ export default function TasksScreen() {
   const [searchTask, setSearchTask] = useState("")
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
   const [workRequests, setWorkRequests] = useState<WorkRequest[]>([])
+  const [filteredWorkOrders, setFilteredWorkOrders] = useState<WorkOrder[]>([])
+  const [filteredWorkRequests, setFilteredWorkRequests] = useState<WorkRequest[]>([])
+
   const [pendingWorkRequests, setPendingWorkRequests] = useState(0)
   const [startIndex, setStartIndex] = useState(0)
   const [creatingRequest, setCreatingRequest] = useState(false)
@@ -79,6 +82,37 @@ export default function TasksScreen() {
 
   }, [])
 
+  useEffect(() => {
+    const task = searchTask.trim().toLowerCase();
+  
+    if (!task) {
+      setFilteredWorkOrders([]);
+      setFilteredWorkRequests([]);
+      return;
+    }
+  
+    if (isAdmin) {
+      const filtered = workOrders.filter((order: WorkOrder) =>
+        order.WorkOrderNumber?.toLowerCase().includes(task) ||
+        order.WorkOrderTitle?.toLowerCase().includes(task) ||
+        order.ProblemDescription?.toLowerCase().includes(task) ||
+        order.AssetName?.toLowerCase().includes(task) ||
+        order.StatusItemName?.toLowerCase().includes(task) ||
+        order.CreatedByFullName?.toLowerCase().includes(task)
+      );
+      setFilteredWorkOrders(filtered);
+    } else {
+      const filtered = workRequests.filter((req: WorkRequest) =>
+        req.WorkRequestNumber?.toLowerCase().includes(task) ||
+        req.ProblemDescription?.toLowerCase().includes(task) ||
+        req.AssetName?.toLowerCase().includes(task) ||
+        req.StatusItemName?.toLowerCase().includes(task)
+      );
+      setFilteredWorkRequests(filtered);
+    }
+  }, [searchTask, workOrders, workRequests]);
+  
+
 
 
   const flatListData = userRole === "admin" ? workOrders : workRequests;
@@ -96,10 +130,10 @@ export default function TasksScreen() {
     <View style={{flex: 1}}>
       
       <View style={[styles.searchTaskContainer, shadowStyles]}>
+        <CustomTextInput placeholder='Search Task ID' placeholderTextColor={colors.LIGHT_TEXT} inputStyle={[defaultInputStyles, styles.searchField]} onChangeText={(e) => setSearchTask(e)} value={searchTask} leftIcon={<SearchIcon color={colors.LIGHT_TEXT} width={18} height={18} />} />
         
         <View style={styles.createTaskContainer}>
-          <CustomTextInput placeholder='Search Task ID' placeholderTextColor={colors.LIGHT_TEXT} inputStyle={[defaultInputStyles, styles.searchField]} onChangeText={(e) => setSearchTask(e)} value={searchTask} leftIcon={<SearchIcon color={colors.LIGHT_TEXT} width={18} height={18} />} />
-          <CustomButton onPress={() => setCreatingRequest(true)}  textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.createTask, {marginTop: 10, marginBottom: 10}]} icon={<CirclePlus width={15} height={15} />} iconPosition="right" title={"Create Request"} />
+          <CustomButton onPress={() => setCreatingRequest(true)}  textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.createTask, {marginTop: 0, marginBottom: 0}]} icon={<CirclePlus width={15} height={15} />} iconPosition="right" title={"Create Request"} />
         </View>
         
         <ScrollView showsHorizontalScrollIndicator={false} horizontal contentContainerStyle={styles.taskStageButtonsContainer}>
@@ -113,16 +147,23 @@ export default function TasksScreen() {
           <Text style={styles.pending}>You have {pendingWorkRequests} request pending to approve</Text>
           <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, styles.seeAll]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} onPress={() => {}} title={"See all"} />
         </View>: null}
-      {(workOrders?.length === 0 && loading) && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={"black"} />}
+      {(flatListData?.length === 0 && loading) && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={"black"} />}
+      
       <FlatList
         contentContainerStyle={styles.workOrderContainer} 
         style={{ marginTop: 15 }} 
         renderItem={renderFlatListItem}
-        data={userRole === "admin" ? workOrders : workRequests}
+        data={
+          isAdmin
+            ? (searchTask.trim() ? filteredWorkOrders : workOrders)
+            : (searchTask.trim() ? filteredWorkRequests : workRequests)
+        }
         keyExtractor={(item, index) => {
           const key = isAdmin ? item.WorkOrderUUID : item.WorkRequestUUID;
-          return key ?? index.toString(); // Fallback to index if key is undefined
-        }}        
+          return key ?? index.toString();
+        }}
+        onRefresh={fetchTasksList}
+        refreshing={loading}        
         onEndReached={fetchTasksList}
         onEndReachedThreshold={0.8}
         ListFooterComponent={(loading && flatListData?.length > 0) ? (
@@ -153,11 +194,13 @@ const styles = StyleSheet.create({
     width: "95%",
     alignItems: "center",
     alignSelf: "center",
-    marginTop: 25,
+    marginTop: 16,
+    gap: 16,
+    padding: 16,
     borderRadius: 15
   },
   searchField : {
-    paddingLeft: 40,
+    paddingLeft: 35,
     borderColor: colors.BORDER_COLOR,
 		borderWidth: 1,
   },
@@ -167,9 +210,10 @@ const styles = StyleSheet.create({
   },
   createTaskContainer: {
     flexDirection: "row", 
+    marginLeft: "auto",
     alignItems: "center", 
-    gap: 10, 
-    paddingVertical: 10}
+    gap: 10
+  }
   ,
   taskStageButtonsContainer: {
     backgroundColor: "white",
@@ -180,10 +224,9 @@ const styles = StyleSheet.create({
   taskStageButtons: {
     /*     borderWidth: 1, */
     paddingHorizontal: 15,
-    paddingVertical:5,
+    paddingVertical: 5,
     borderRadius: 50,
     backgroundColor: colors.LIGHT_COLOR,
-    marginVertical: 10
   },
   workOrderContainer: {
     gap: 20,

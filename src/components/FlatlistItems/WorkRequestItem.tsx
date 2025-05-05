@@ -46,7 +46,7 @@ export default function WorkRequestItem({ workRequestItem }: WorkRequestItemProp
     >
       <View style={[styles.workRequestContainer, shadowStyles]}>
         <View style={styles.workRequestStatsContainer}>
-          <Text style={{ fontSize: 15, color: "#111827", fontWeight: "500" }}>
+          <Text style={{color: "#111827", fontWeight: "500" }}>
             {workRequestItem.WorkRequestNumber || "N/A"}
           </Text>
           <Text style={[
@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
     padding: 16
   },
   workRequestStatsContainer: {
+/*     borderWidth: 1, */
     flexDirection: "row",
     alignItems: "center",
   },
@@ -113,6 +114,8 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     paddingHorizontal: 10,
     paddingVertical: 5,
+    fontSize: 10,
+    fontWeight: '500',
     borderRadius: 24
   },
   workRequestStatusItemNameContainer: {
@@ -126,6 +129,7 @@ const styles = StyleSheet.create({
   },
   workRequestStatusItemName: {
     color: "#1A202C",
+    fontSize: 10
   },
   workRequestNotificationDot: {
     height: 10,

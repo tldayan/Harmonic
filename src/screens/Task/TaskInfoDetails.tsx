@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Image, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
@@ -22,11 +22,11 @@ export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps
     const route = useRoute<TaskInfoScreenRouteProp>()
     const [workRequestDetails, setWorkRequestDetails] = useState<WorkRequestDetails>({})
     const [workRequestAttachments, setWorkRequestAttachments] = useState<WorkRequestAttachment[]>([])
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
 
 
     const fetchWorkRequestDetails = async() => {
-
+        
         try {
             const workRequestDetailsResponse = await getWorkRequestDetails(workRequestUUID)
             const workRequestAttachmentsRespose = await getWorkRequestAttachments(workRequestUUID)
@@ -34,6 +34,8 @@ export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps
             setWorkRequestAttachments(workRequestAttachmentsRespose.Payload)
         } catch(err) {
             console.log(err)
+        } finally {
+          setLoading(false)
         }
     }
 
@@ -66,22 +68,30 @@ export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps
       };
       
       
-      
+      const openDocument = (url: string) => {
+        Linking.canOpenURL(url)
+          .then((supported) => {
+            if (supported) {
+              Linking.openURL(url);
+            } else {
+              Alert.alert("Error", "Unable to open the document.");
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to open URL:", err);
+            Alert.alert("Error", "An error occurred while trying to open the file.");
+          });
+      }
     
 
 
     return (
       <View style={[styles.container, CardShadowStyles]}>
+        {loading ? <ActivityIndicator size={"small"} style={{marginVertical: "35%"}} /> : <>
         <View style={styles.header}>
           <View style={styles.taskInfoContainer}>
             <Text style={styles.taskInfoText}>Task Info</Text>
           </View>
-          <Image
-            source={{
-              uri: "https://cdn.builder.io/api/v1/image/assets/TEMP/d9011a0fff2c76820d0633aa12846764012746a5?placeholderIfAbsent=true&apiKey=c91de5f0cb9b4186a3a7de3645b59a9d",
-            }}
-            style={styles.closeIcon}
-          />
         </View>
   
         <View style={styles.detailsContainer}>
@@ -135,7 +145,7 @@ export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps
                 const IconComponent = getFileIconComponent(eachAttachment.Attachment);
 
                 return (
-                <TouchableOpacity key={eachAttachment.AttachmentUUID} style={styles.filePreview}>
+                <TouchableOpacity onPress={() => openDocument(eachAttachment.Attachment)} key={eachAttachment.AttachmentUUID} style={styles.filePreview}>
                     <View style={styles.fileInfoContainer}>
                         <IconComponent style={styles.fileIcon} />
                         <Text>
@@ -153,6 +163,7 @@ export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps
             </View>
           </View>
         </View>
+        </>}
       </View>
     );
   }
@@ -160,7 +171,6 @@ export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps
   const styles = StyleSheet.create({
     container: {
 /*       borderWidth: 1, */
-      marginTop: 12,
       backgroundColor: "white",
       borderRadius: 24,
       padding: 24,

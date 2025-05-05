@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     justifyContent: "space-around",
-    marginVertical: 10,
+    marginVertical: 15,
     paddingVertical: 4,
     gap: 4
   },

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Text, Image, ViewStyle } from "react-native";
+import { View, StyleSheet, Text, Image, ViewStyle, ActivityIndicator, TouchableOpacity } from "react-native";
 import { CardShadowStyles } from "../../styles/global-styles";
 import Check from "../../assets/icons/mini-check.svg"
 import { formatLongDate, getTimeFromISO } from "../../utils/helpers";
-import { colors } from "../../styles/colors";
 import { getWorkRequestHistory } from "../../api/network-utils";
+import ChevronDown from "../../assets/icons/chevron-down.svg"
+import CustomButton from "../../components/CustomButton";
 
 interface TimelineItemProps {
   heading: string;
@@ -28,9 +29,13 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
   style
 }) => (
   <View style={[styles.timelineItem, style]}>
-    <View style={styles.iconContainer}>
-        <Check  width={15} height={15} />  
+
+      <View style={styles.iconContainer}>
+        <View style={styles.iconBackground}>
+        <Check  width={10} height={10} />  
+        </View>
     </View>
+
 
     <Text style={styles.headingText}>{heading}</Text>
     <View style={styles.row}>
@@ -47,45 +52,62 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
 
 
 function TaskHistory({ workRequestUUID }: TaskInfoHistoryProps) {
+  const [loading, setLoading] = useState(true);
+  const [workRequestHistory, setWorkRequestHistory] = useState<WorkRequestHistory[]>([]);
+  const [expanded, setExpanded] = useState(false);
 
-    
-    const [workRequestHistory, setWorkRequestHistory] = useState<WorkRequestHistory[]>([])
-
-    useEffect(() => {
-
-        const fetchWorkHistory = async() => {
-            const workRequestHistoryResponse = await getWorkRequestHistory(workRequestUUID)
-            console.log(workRequestHistoryResponse)
-            setWorkRequestHistory(workRequestHistoryResponse.Payload)
-        }
-
-        fetchWorkHistory()
-
-    }, [])
+  useEffect(() => {
+    const fetchWorkHistory = async () => {
+      try {
+        const workRequestHistoryResponse = await getWorkRequestHistory(workRequestUUID);
+        setWorkRequestHistory(workRequestHistoryResponse.Payload);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchWorkHistory();
+  }, []);
 
   return (
-    <View style={[styles.container, CardShadowStyles]}>
-      <Text style={styles.headerText}>Task Tracker</Text>
-      <View style={styles.timeline}>
-        {workRequestHistory.map((item, index) => {
-          const date = formatLongDate(item.CreatedDateTime)
-          const time = getTimeFromISO(item.CreatedDateTime);
-          return (
-            <TimelineItem
-              key={item.WorkRequestStatusUUID}
-              heading={item.StatusItemName}
-              time={time}
-              date={date}
-              description={item.Note || `Created by ${item.CreatedByFullName}`}
-              status={item.StatusItemCode}
-              style={index > 0 ? { marginTop: 40 } : undefined}
-            />
-          );
-        })}
-      </View>
-    </View>
+    <TouchableOpacity activeOpacity={0.7} onPress={() => setExpanded((prev) => !prev)}  style={[styles.container, CardShadowStyles]}>
+      {loading ? (
+        <ActivityIndicator style={{ marginVertical: "10%" }} size={"small"} />
+      ) : (
+        <>
+          <View style={{ flexDirection: "row", justifyContent: "space-between"}}>
+            <Text style={styles.headerText}>Task Tracker</Text>
+                <View style={{ transform: [{ rotate: expanded ? "180deg" : "0deg" }] }}>
+                  <ChevronDown strokeWidth={3} width={15} height={15} />
+                </View>
+          </View>
+
+          {expanded && (
+            <View style={styles.timeline}>
+              {workRequestHistory.map((item, index) => {
+                const date = formatLongDate(item.CreatedDateTime);
+                const time = getTimeFromISO(item.CreatedDateTime);
+                return (
+                  <TimelineItem
+                    key={item.WorkRequestStatusUUID}
+                    heading={item.StatusItemName}
+                    time={time}
+                    date={date}
+                    description={item.Note || `Created by ${item.CreatedByFullName}`}
+                    status={item.StatusItemCode}
+                    style={index > 0 ? { marginTop: 40 } : undefined}
+                  />
+                );
+              })}
+            </View>
+          )}
+        </>
+      )}
+    </TouchableOpacity>
   );
 }
+
 
 
 const styles = StyleSheet.create({
@@ -103,13 +125,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#111928",
-    marginBottom: 24,
   },
   timeline: {
     borderLeftWidth: 1,
     borderColor: "rgba(229, 231, 235, 1)",
     paddingLeft: 20,
     position: "relative",
+    marginTop: 24 
   },
   timelineItem: {
 /*     borderWidth: 1, */
@@ -149,11 +171,17 @@ const styles = StyleSheet.create({
     color: "#03543f",
     fontWeight: "500",
   },
+  iconBackground: {
+    backgroundColor: "#FEECDC",
+    borderRadius: 50,
+    padding: 3
+  },
   iconContainer: {
     position: "absolute",
-    left: -30,
+    left: -32,
+    top: -1,
     backgroundColor: "white",
-    padding: 2,
+    padding: 3,
     borderRadius: 50
   },
   ellipse: {

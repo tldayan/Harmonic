@@ -40,6 +40,19 @@ import { DocumentPickerResponse } from "@react-native-documents/picker";
     const now = new Date();
     const timeDiff = now.getTime() - date.getTime();
   
+    const options = {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    } as const;
+  
+    if (timeDiff < 0) {
+      return new Intl.DateTimeFormat("en-GB", options).format(date).replace(" at", ",");
+    }
+  
     if (timeDiff < 60000) {
       return "now";
     }
@@ -54,18 +67,8 @@ import { DocumentPickerResponse } from "@react-native-documents/picker";
       return `${hours}h`; 
     }
   
-    const options = {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    } as const;
-  
     return new Intl.DateTimeFormat("en-GB", options).format(date).replace(" at", ",");
   };
-  
   
 
 export const useKeyboardVisibility = (onShow: () => void, onHide: () => void) => {

@@ -12,12 +12,14 @@ import AssetIcon from "../assets/icons/asset.svg";
 import StoreIcon from "../assets/icons/store.svg";
 import TaskIcon from "../assets/icons/clipboard.svg";
 import HamburgerIcon from "../assets/icons/hamburger.svg";
+import EventsIcon from "../assets/icons/calendar.svg"
 import Header from "../components/Header";
 import { colors } from "../styles/colors";
 import PlusIcon from "../assets/icons/plus.svg"
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import EventsScreen from "../screens/Tabs/EventsScreen";
 
 export const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -39,6 +41,8 @@ export default function TabNavigator(): JSX.Element {
           IconComponent = TaskIcon;
         } else if (route.name === "Stores") {
           IconComponent = StoreIcon;
+        } else if (route.name === "Events") {
+          IconComponent = EventsIcon;
         } else if (route.name === "More") {
           IconComponent = HamburgerIcon;
         }
@@ -110,9 +114,9 @@ export default function TabNavigator(): JSX.Element {
           ),
         }}
       />
-      
+      <Tab.Screen name="Events" component={EventsScreen} />
       <Tab.Screen name="Stores" component={StoresScreen} />
-      <Tab.Screen name="More" component={ModulesScreen} />
+{/*       <Tab.Screen name="More" component={ModulesScreen} /> */}
     </Tab.Navigator>
   );
 }

@@ -132,7 +132,7 @@ export default function SocialScreen() {
         <FlatList 
             ListHeaderComponent={
                 <View style={styles.container}>
-                    <View style={styles.createPostContainer}>
+                    {/* <View style={styles.createPostContainer}>
                         <View style={styles.postInputContainer}>
                             <Image 
                               source={{ uri: user?.photoURL ? user?.photoURL : "https://i.pravatar.cc/150" }} 
@@ -152,7 +152,7 @@ export default function SocialScreen() {
                             />
                         </View>
                     </View>
-
+ */}
                     <View style={styles.filterButtonsContainer}>
                       <CustomButton textStyle={styles.filter} onPress={() => setFiltering((prev) => ({...prev, state: true}))} title={`Filters${filtering.categories.length > 0 ? `(${filtering.categories.length})` : ""}`} />
                       {filtering.categories.length ? <CustomButton textStyle={styles.clearFilter} onPress={() => setFiltering({state: false, categories: []})} title={"Clear Filters"} /> : null}

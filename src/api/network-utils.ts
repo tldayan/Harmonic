@@ -1120,3 +1120,27 @@ export const getWorkPriorities = async(organizationUUID: string) => {
 
 
 
+//EVENT 
+export const getEventList = async(userUUID:string,organizationUUID: string, startIndex: number) => {
+
+  const bodyData = {
+    "OrganizationUUID": organizationUUID,
+    "PageSize": 10,
+    "StartIndex": startIndex,
+    "CategoryItemUUIDs": [],
+    "SortExpression": "",
+    "LoggedInUserUUID": userUUID
+  }
+
+  console.log(bodyData)
+
+  try {
+    const getEventListResponse = await apiClient(ENDPOINTS.EVENT.GET_EVENT_LIST, bodyData, {}, "POST")
+    console.log(getEventListResponse)
+    return getEventListResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}

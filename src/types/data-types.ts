@@ -275,3 +275,37 @@ type WorkRequestType = {
   WorkRequestTypeName: string;
   WorkRequestTypeDescription: string | null;
 };
+
+
+interface EventCategory {
+  CategoryUUID: string | null;
+  CategoryName: string | null;
+  CategoryItemUUID: string | null;
+  CategoryItemName: string | null;
+  CategoryItemURL: string | null;
+}
+
+interface Event {
+  EventUUID: string;
+  EventName: string;
+  EventDescription: string;
+  EventIcon: string | null;
+  EventBanner: string;
+  EventStartDateTime: string;
+  EventEndDateTime: string;
+  PublishDateTime: string;
+  MaxParticipantLimit: number | null;
+  CanLeaveEvent: boolean;
+  EventRegistrationStartDateTime: string;
+  EventRegistrationEndDateTime: string;
+  StatusItemCode: string;
+  EventTypeUUID: string;
+  EventType: string;
+  EventTypeCode: string;
+  NoOfParticipants: number;
+  HostFullName: string;
+  LoggedInUserParticipationStatus: string | null;
+  EventCategories: EventCategory[];
+  EventUserRoles: any[];
+  EventDepartments: any[]; 
+}
