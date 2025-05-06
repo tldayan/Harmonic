@@ -93,8 +93,9 @@ export function MessageItem({
                 setAttachment(
                   typeof item.Attachment === "string"
                     ? item.Attachment
-                    : item.Attachment.url
+                    : (item.Attachment as { url: string }).url
                 );
+                
                 setViewingAttachments(true);
                 setChatAttachments([]);
               }
@@ -107,11 +108,10 @@ export function MessageItem({
                   uri:
                     typeof item.Attachment === "string"
                       ? item.Attachment
-                      : item.Attachment.url,
+                      : (item.Attachment as { url: string }).url,
                 }}
               />
             )}
-
             {item.Message !== "" && (
               <Text>{item.Message}</Text>
             )}

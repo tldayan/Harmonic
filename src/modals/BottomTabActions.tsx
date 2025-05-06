@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, Alert, TouchableWithoutFeedback } from "react-native";
 import { colors } from "../styles/colors";
 import { shadowStyles } from "../styles/global-styles";
 import CustomButton from "../components/CustomButton";
@@ -13,6 +13,7 @@ import { useState } from "react";
 import { CustomModal } from "../components/CustomModal";
 import CreatePost from "./Post/CreatePost";
 import WorkRequestCreation from "./Task/WorkRequest/WorkRequestCreation";
+import EventCreation from "./Event/EventCreation";
 
 
 
@@ -54,41 +55,48 @@ export default function AddModalScreen() {
         setCreatingTask(false) 
          
     }
+    const closeCreateEventModal = () => {
+        setCreatingEvent(false) 
+         
+    }
 
-  return (
-    <View style={{flex: 1}}>
-
-
-    <View style={styles.overlay}>
-      <View style={styles.sheet}>
-      {options.map((item, idx) => (
-        <CustomButton
-            key={idx}
-            onPress={item.action}
-            buttonStyle={[styles.actionButton, shadowStyles]}
-            title={item.label}
-            iconPosition="right"
-            icon={item.icon}
-        />
-        ))}
-        <CustomButton buttonStyle={styles.chevronDown} onPress={() => navigation.goBack()} icon={<ChevronDown color="white" width={20} height={20} />} />
-      </View>
-
-
-
-    </View> 
-      <CustomModal fullScreen isOpen={creatingPost} onClose={() => setCreatingPost(false)} presentationStyle="fullScreen">
-        <CreatePost onClose={closeCreatePostModal} />
-      </CustomModal>
-
-      <CustomModal fullScreen isOpen={creatingTask} onClose={() => setCreatingTask(false)} presentationStyle="fullScreen">
-        <WorkRequestCreation onClose={closeCreateTaskModal} />
-      </CustomModal>
+    return (
+      <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+        <View style={{ flex: 1 }}>
+          <View style={styles.overlay}>
+            <View style={styles.sheet}>
+              {options.map((item, idx) => (
+                <CustomButton
+                  key={idx}
+                  onPress={item.action}
+                  buttonStyle={[styles.actionButton, shadowStyles]}
+                  title={item.label}
+                  iconPosition="right"
+                  icon={item.icon}
+                />
+              ))}
+              <CustomButton
+                buttonStyle={styles.chevronDown}
+                onPress={() => navigation.goBack()}
+                icon={<ChevronDown color="white" width={20} height={20} />}
+              />
+            </View>
+          </View>
     
+          <CustomModal fullScreen isOpen={creatingPost} onClose={closeCreatePostModal} presentationStyle="fullScreen">
+            <CreatePost onClose={closeCreatePostModal} />
+          </CustomModal>
     
+          <CustomModal fullScreen isOpen={creatingTask} onClose={closeCreateTaskModal} presentationStyle="fullScreen">
+            <WorkRequestCreation onClose={closeCreateTaskModal} />
+          </CustomModal>
     
-    </View>
-  );
+          <CustomModal fullScreen isOpen={creatingEvent} onClose={closeCreateEventModal} presentationStyle="fullScreen">
+            <EventCreation onClose={closeCreateEventModal} />
+          </CustomModal>
+        </View>
+      </TouchableWithoutFeedback>
+    );
 }
 
 const styles = StyleSheet.create({

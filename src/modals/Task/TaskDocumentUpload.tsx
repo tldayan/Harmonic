@@ -10,6 +10,7 @@ import { TaskInformationState } from '../../types/work-order.types';
 import { keepLocalCopy, pick } from '@react-native-documents/picker';
 import { DocumentItem } from '../../components/FlatlistItems/DocumentItem';
 import { WorkRequestInformationState } from '../../types/work-request.types';
+import { uploadLocalDocuments } from '../../utils/helpers';
 
 interface TaskDocumentUploadProps {
   setTaskInformation?: React.Dispatch<React.SetStateAction<TaskInformationState>>;
@@ -31,29 +32,10 @@ const TaskDocumentUpload = ({
 
   const addDocument = async () => {
     setLoading(true);
+    
     try {
-      const pickResults = await pick({ allowMultiSelection: true, keepLocalCopy: "cachesDirectory" });
-      const copyResults = await Promise.all(
-        pickResults.map(async (doc) => {
-          const [copyResult] = await keepLocalCopy({
-            files: [{ uri: doc.uri, fileName: doc.name ?? 'fallback-name' }],
-            destination: 'cachesDirectory',
-          });
-          return copyResult;
-        })
-      );
-  
-      const nonDuplicateDocuments = pickResults.filter(
-        (eachDoc) => !data?.attachments?.some((doc) => doc.uri === eachDoc.uri)
-      );
-  
-      const documentsWithLocalUri = nonDuplicateDocuments.map((doc, index) => {
-        const copyResult = copyResults[index];
-        return copyResult.status === 'success'
-          ? { ...doc, localUri: copyResult.localUri ?? copyResult.sourceUri }
-          : doc;
-      });
-  
+      const documentsWithLocalUri = await uploadLocalDocuments(data)
+
       if (setTaskInformation && taskInformation) {
         setTaskInformation((prev) => ({
           ...prev,
@@ -113,12 +95,11 @@ const TaskDocumentUpload = ({
                       uri: 'https://cdn.builder.io/api/v1/image/assets/TEMP/9af5c245a81d67256eabfdba9613f9326049b673?placeholderIfAbsent=true',
                     }}
                     style={styles.uploadImage}
-                    accessibilityLabel="Upload image"
                   />
 
                   <View style={styles.uploadInstructions}>
                     <View style={styles.iconContainer}>
-                      <UploadIcon width={20} height={20} />
+                      <UploadIcon color={colors.LIGHT_TEXT} width={20} height={20} />
                     </View>
                   </View>
 

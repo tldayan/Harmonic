@@ -9,6 +9,7 @@ import { colors } from '../../styles/colors'
 import { ScrollView } from 'react-native-gesture-handler'
 import { TaskInformationState } from '../../types/work-order.types'
 import { WorkRequestInformationState } from '../../types/work-request.types'
+import { STATUS_CODE } from '../../utils/constants'
 
 interface AssetTypesProps {
     onClose: () => void;
@@ -37,6 +38,7 @@ interface AssetTypesProps {
             setLoading(true)
             try {
                 const Assets = await getAssetList(organizationUUID, startIndex)
+                if(Assets.Status === STATUS_CODE.ERROR) return
                 if(Assets.Payload.length < 20) {
                     setHasMoreAssets(false)
                 }
@@ -49,12 +51,12 @@ interface AssetTypesProps {
             }
         }
 
-/*     useEffect(() => {
+    useEffect(() => {
         
 
         fetchAssetList()
         
-    }, [organizationUUID]) */
+    }, [organizationUUID])
 
 
     const assetItem = ({ item }: { item: WorkAsset }) => (
@@ -93,8 +95,6 @@ interface AssetTypesProps {
                     contentContainerStyle= {{gap: 15}}
                     keyExtractor={(item) => item.AssetUUID}
                     renderItem={assetItem}
-                    onEndReached={fetchAssetList}
-                    onEndReachedThreshold={0.5}
                     ListEmptyComponent={<Text>No Assets Available</Text>}
                     ListFooterComponent={loading ? <ActivityIndicator size={"small"} /> : null}
                 />

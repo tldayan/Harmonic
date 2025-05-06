@@ -13,6 +13,7 @@ import { RootState } from '../../store/store'
 import EventItem from '../../components/FlatlistItems/EventItem'
 import { Animated } from 'react-native';
 import { CustomModal } from '../../components/CustomModal'
+import EventCreation from '../../modals/Event/EventCreation'
 
 
 
@@ -92,9 +93,9 @@ export default function EventsScreen() {
       />
 
 
-        {/* <CustomModal>
-
-        </CustomModal> */}
+        <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingEvent} onClose={() => setCreatingEvent(false)}>
+          <EventCreation onClose={() => setCreatingEvent(false)} />
+        </CustomModal>
 
 
     </View>

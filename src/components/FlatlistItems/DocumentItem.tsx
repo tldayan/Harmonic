@@ -5,7 +5,7 @@ import { colors } from "../../styles/colors";
 
 interface DocumentItemProps {
   item: ExtendedDocument;
-  index: number;
+  index?: number;
   deleteDocument?: (uri: string) => void;
 }
 
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 0, 
-    width: 100,
+/*     width: 100, */
     flex: 1,
     height: 100,
     borderRadius: 10,

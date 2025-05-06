@@ -1144,3 +1144,19 @@ export const getEventList = async(userUUID:string,organizationUUID: string, star
   }
 
 }
+
+
+
+export const getEventTypes = async(organizationUUID: string) => {
+
+  try {
+    const getEventTypesResponse = await apiClient(ENDPOINTS.EVENT.GET_EVENT_TYPES, {}, {}, "GET", {organizationUUID})
+    
+    console.log(getEventTypesResponse)
+    return getEventTypesResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}

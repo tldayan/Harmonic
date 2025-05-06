@@ -5,7 +5,7 @@ import { PasswordCheck } from "../types/password.types";
 import Toast from "react-native-toast-message"
 import { Keyboard } from "react-native";
 import { Asset, launchImageLibrary } from "react-native-image-picker";
-import { DocumentPickerResponse } from "@react-native-documents/picker";
+import { DocumentPickerResponse, keepLocalCopy, pick } from "@react-native-documents/picker";
 
   
 //GET RECTANGLE COLOR FOR CREATE PASSWORD VALIDATION
@@ -326,3 +326,35 @@ export function getCleanFileNameFromUrl(url: string, maxLength: number = 20): st
   }
 }
 
+
+export const uploadLocalDocuments = async (data: any) => {
+  try {
+    const pickResults = await pick({ allowMultiSelection: true, keepLocalCopy: "cachesDirectory" });
+
+    const copyResults = await Promise.all(
+      pickResults.map(async (doc) => {
+        const [copyResult] = await keepLocalCopy({
+          files: [{ uri: doc.uri, fileName: doc.name ?? 'fallback-name' }],
+          destination: 'cachesDirectory',
+        });
+        return copyResult;
+      })
+    );
+
+    const nonDuplicateDocuments = pickResults.filter(
+      (eachDoc) => !data?.attachments?.some((doc: any) => doc.uri === eachDoc.uri)
+    );
+
+    const documentsWithLocalUri = nonDuplicateDocuments.map((doc, index) => {
+      const copyResult = copyResults[index];
+      return copyResult.status === 'success'
+        ? { ...doc, localUri: copyResult.localUri ?? copyResult.sourceUri }
+        : doc;
+    });
+
+    return documentsWithLocalUri;
+  } catch (error) {
+    console.error("Error while adding documents:", error);
+    return [];
+  }
+};

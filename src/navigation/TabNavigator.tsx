@@ -52,7 +52,7 @@ export default function TabNavigator(): JSX.Element {
           headerShown: true,
           header: () => <Header />,
           tabBarIcon: ({ color, focused }) => (
-            <View style={[{ alignItems: "center", height: "100%" }, Platform.OS === "android" ? {justifyContent: "center"} : null]}>
+            <View style={{ position: "absolute"}}>
               {IconComponent ? (
                 <IconComponent
                   width={22}
@@ -68,17 +68,12 @@ export default function TabNavigator(): JSX.Element {
             width: "86%",
             marginHorizontal: "7%",
             elevation: 0,
-            backgroundColor: "white",
             borderRadius: 50,
             height: 64,
-            paddingHorizontal: 10,
             borderWidth: 1,
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
           },
           tabBarHideOnKeyboard: true,
-          tabBarItemStyle: Platform.OS === "android" && { flexDirection: "row", alignItems: "center" },
+          tabBarItemStyle: {flexDirection :"row", alignItems:"center", height: 64},
           tabBarShowLabel: false,
           tabBarActiveTintColor: colors.ACTIVE_ORANGE,
           tabBarInactiveTintColor: "gray",
@@ -99,14 +94,13 @@ export default function TabNavigator(): JSX.Element {
             }}
               style={{
                 position: "absolute", 
-                top: 5, 
-                left: 10,          
+                top: "50%",    
                 justifyContent: "center",
                 alignItems: "center",
                 backgroundColor: colors.ACTIVE_ORANGE,
                 padding: 10,
                 borderRadius: 30,
-                transform: [{ translateX: "-0%" }, { translateY: "-20%" }],
+                transform: [{ translateX: "25%" }, { translateY: "-50%" }],
               }}
             >
           <PlusIcon width={20} height={20} fill="white" />

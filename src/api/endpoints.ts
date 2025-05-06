@@ -68,6 +68,7 @@ export const ENDPOINTS = {
   },
   EVENT: {
     GET_EVENT_LIST: `${BASE_URL}/event/getEventList`,
+    GET_EVENT_TYPES: `${BASE_URL}/event/getEventTypes`,
   },
   ALERT : {
     GET_CHAT_INVITE_DETAILS: `${BASE_URL}/alert/getChatInviteDetails`

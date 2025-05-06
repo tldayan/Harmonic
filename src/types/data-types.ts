@@ -309,3 +309,12 @@ interface Event {
   EventUserRoles: any[];
   EventDepartments: any[]; 
 }
+
+interface EventType {
+  EventTypeId: number;
+  EventTypeUUID: string;
+  EventType: string;
+  EventTypeCode: string;
+  EventTypeDescription: string | null;
+}
+

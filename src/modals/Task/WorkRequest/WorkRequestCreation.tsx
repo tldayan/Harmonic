@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import ModalsHeader from '../../ModalsHeader'
@@ -133,6 +133,13 @@ export default function WorkRequestCreation({onClose, setWorkRequests} : WorkReq
         try {
 
         if(step === 0) {
+
+           /*  if(!workRequestInformation.asset.assetUUID) {
+                Alert.alert("Asset missing")
+                return
+            }  */
+            
+
             const saveWorkRequestResponse = await saveWorkRequest(userUUID, organizationUUID, workRequestInformation)
             if(saveWorkRequestResponse.Status === STATUS_CODE.SUCCESS) {
                 const {ProblemDescription,WorkRequestNumber, WorkRequestUUID} = saveWorkRequestResponse.Payload

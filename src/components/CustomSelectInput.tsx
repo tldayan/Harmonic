@@ -1,13 +1,21 @@
 import * as React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import ChevronDown from "../assets/icons/chevron-down.svg"
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import ChevronDown from "../assets/icons/chevron-down.svg";
+import { colors } from "../styles/colors";
 
 interface SelectInputProps {
   placeholder: string;
   onSelect?: () => void;
+  leftIcon?: React.ReactNode;  
+  rightIcon?: React.ReactNode;
 }
 
-const CustomSelectInput: React.FC<SelectInputProps> = ({ placeholder, onSelect }) => {
+const CustomSelectInput: React.FC<SelectInputProps> = ({
+  placeholder,
+  onSelect,
+  leftIcon,
+  rightIcon,
+}) => {
   return (
     <TouchableOpacity
       style={styles.selectInput}
@@ -15,10 +23,17 @@ const CustomSelectInput: React.FC<SelectInputProps> = ({ placeholder, onSelect }
       activeOpacity={0.7}
     >
       <View style={styles.content}>
+        {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
+
         <View style={styles.placeholderContainer}>
           <Text style={styles.placeholderText}>{placeholder}</Text>
         </View>
+
+        {rightIcon ? (
+          <View style={styles.iconContainer}>{rightIcon}</View>
+        ) : (
           <ChevronDown width={12} height={12} />
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -29,8 +44,9 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     borderRadius: 9999,
     backgroundColor: "#F9FAFB",
+    borderWidth: 1,
+    borderColor: colors.BORDER_COLOR,
     display: "flex",
-    minWidth: 240,
     width: "100%",
     flexDirection: "column",
     justifyContent: "center",
@@ -63,6 +79,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6b7280",
     fontWeight: "400",
+  },
+  iconContainer: {
+    marginHorizontal: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
   dropdownIcon: {
     aspectRatio: 1,
