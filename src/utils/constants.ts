@@ -18,7 +18,8 @@ export const firebaseStoragelocations = {
     attachmentMB : "attachmentMB",
     chat: "chat/messageAttachment",
     workOrder: "work-order",
-    workRequest: "work-request" 
+    workRequest: "work-request",
+    event: "event"
 }
 
 export const CHAT_INVITE_STATUS_CODES = {

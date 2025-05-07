@@ -22,6 +22,7 @@ import { Asset } from 'react-native-image-picker'
 
 import CloseIcon from "../../assets/icons/close-light.svg"
 import { firebaseStoragelocations } from '../../utils/constants'
+import { OrganizationUserItem } from '../../components/FlatlistItems/OrganizationUserItem'
 
 interface CreateGroupProps {
     onClose: () => void
@@ -227,7 +228,7 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
     }
   }
 
-  const memberItem = ({item} : {item: OrganizationUser}) => {
+/*   const memberItem = ({item} : {item: OrganizationUser}) => {
 
     return <TouchableOpacity style={styles.memberItemContainer} onPress={() => handleAddMember(item)}>
                 <View style={{flexDirection: "row", alignItems: "center"}}>
@@ -237,7 +238,7 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
                 
                 {addedMembers.some((member) => member.memberUUID === item.UserUUID) && <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />}
             </TouchableOpacity>
-  }
+  } */
 
 
   const handleRemoveMember = (memberUUID: string) => {
@@ -259,7 +260,7 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
             {loading ? <ActivityIndicator style={{marginTop: "50%"}} size={"small"} /> : 
             <FlatList
                 contentContainerStyle={styles.friendList}
-                renderItem={memberItem} 
+                renderItem={({item}) => <OrganizationUserItem item={item} addedMembers={addedMembers} handleAddMember={handleAddMember} />} 
                 keyExtractor={(item) => item.UserUUID}
                 data={organizationUsers}
             />}

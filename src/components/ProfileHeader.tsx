@@ -56,7 +56,7 @@ export default function ProfileHeader({name, typing,fetchLatestMessages, onPress
         
         <TouchableOpacity style={{flexDirection: "row", gap: 10, alignItems: "center"}} onPress={onPress}>
           <Image source={{ uri: postData?.ProfilePic || ProfilePic === "" ? "https://i.pravatar.cc/150" : ProfilePic }} style={styles.profilePicture} />
-          <View style={styles.userNameContainer}>
+          <View style={styles.userNameContainer}> 
               <Text style={styles.name}>{postData?.FirstName ? postData?.FirstName : name}</Text>
               {/* {showStatus && <View style={styles.memberStatusContainer}>
                 <View style={[styles.ellipse, {backgroundColor: online ? "#0E9F6E" : "red"}]}></View>

@@ -103,7 +103,7 @@ export default function TabNavigator(): JSX.Element {
                 transform: [{ translateX: "25%" }, { translateY: "-50%" }],
               }}
             >
-          <PlusIcon width={20} height={20} fill="white" />
+          <PlusIcon width={20} height={20} color="white" />
             </TouchableOpacity>
           ),
         }}

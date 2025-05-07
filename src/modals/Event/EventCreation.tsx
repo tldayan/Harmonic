@@ -2,7 +2,6 @@ import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View } from 
 import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
-/* import ProgressBar from '../../../components/ProgressBar' */
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
@@ -14,6 +13,12 @@ import { PRIMARY_BUTTON_STYLES } from '../../styles/button-styles'
 import { Details } from './Details'
 import { EventInformation } from '../../types/event.types'
 import { Timings } from './Timings'
+import { Guests } from './Guests'
+import { saveEventDetails } from '../../api/network-utils'
+import { uploadDocuments } from '../../utils/helpers'
+import { firebaseStoragelocations } from '../../utils/constants'
+import { EventSummary } from './EventSummary'
+
 
 interface EventCreationProps {
     onClose: () => void
@@ -38,8 +43,10 @@ export default function EventCreation({onClose} : EventCreationProps) {
         eventName: "",
         createdBy: "",
         eventType: { eventTypeName: '', eventTypeUUID: '' },
+        participants: [],
         eventDescription: '',
-        time: "",
+        eventStartDateTime: "",
+        eventEndDateTime: "",
         eventBanner: [],
         loading: false
       });
@@ -66,7 +73,6 @@ export default function EventCreation({onClose} : EventCreationProps) {
 
         return (
             <View style={styles.innerContainer}>
-                
                 <Timings eventInformation={eventInformation} setEventInformation={setEventInformation}/>
             </View>
         )
@@ -77,8 +83,17 @@ export default function EventCreation({onClose} : EventCreationProps) {
 
         return (
             <View style={styles.innerContainer}>
-                
-                
+                <Guests eventInformation={eventInformation} setEventInformation={setEventInformation} />
+            </View>
+        )
+
+    }
+
+    function stepFour(index: number) {
+
+        return (
+            <View style={styles.innerContainer}>
+                <EventSummary eventInformation={eventInformation} />
             </View>
         )
 
@@ -86,6 +101,27 @@ export default function EventCreation({onClose} : EventCreationProps) {
 
     
     const next = async() => {
+
+        if(step === 3 && eventInformation.eventName) {
+
+            try {
+                
+                const uploadedBanner = await uploadDocuments(eventInformation.eventBanner, firebaseStoragelocations.event)
+                const eventBannerUrl = uploadedBanner[0].url
+                const saveEventDetailsResponse = await saveEventDetails(userUUID, organizationUUID,eventBannerUrl, eventInformation)
+                
+                console.log(saveEventDetailsResponse)
+
+
+            } catch (err) {
+                console.log(err)
+            }
+
+        }
+
+
+
+
         if(step <= 2) {
             setStep((prev) => prev + 1)
         }
@@ -105,7 +141,7 @@ export default function EventCreation({onClose} : EventCreationProps) {
     <SafeAreaView style={styles.container}>
         <ModalsHeader onClose={onClose} title={"Create Event"} />
 
-       <View style={styles.progressContainer}>
+       {step < 3 && <View style={styles.progressContainer}>
         <View  style={{flexDirection: "row"}}> 
             {steps.map((eachStep, index) => {
                 if (eachStep.id === "4") return null;
@@ -126,9 +162,8 @@ export default function EventCreation({onClose} : EventCreationProps) {
                 </React.Fragment>
                 );
             })}
-        </View>
-
-        </View>
+            </View>
+        </View>}
 
 
 
@@ -140,7 +175,7 @@ export default function EventCreation({onClose} : EventCreationProps) {
             data={steps}
             horizontal
             pagingEnabled
-            renderItem={({item, index}) => index === 0 ? stepOne(index) : index === 1 ? stepTwo(index) : stepThree(index)}
+            renderItem={({item, index}) => index === 0 ? stepOne(index) : index === 1 ? stepTwo(index) : index === 2 ? stepThree(index) : stepFour(index)}
         />
 
         <View style={styles.formButtonsContainer}>
@@ -164,7 +199,8 @@ const styles = StyleSheet.create({
         width: width
     },
     mainCreateEventForm: {
-        marginTop: 15,
+ /*        borderWidth: 3, */
+  /*       marginTop: 15, */
         height: 100
     },
     formButtonsContainer: {
@@ -196,7 +232,8 @@ const styles = StyleSheet.create({
 
     progressContainer: {
 /*         borderWidth: 1, */
-        padding: 5,
+        paddingHorizontal: 5,
+        paddingVertical: 20,
         width: "90%",
         marginHorizontal: "5%",
       /*   flexDirection: 'row', */

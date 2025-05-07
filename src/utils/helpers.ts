@@ -225,9 +225,7 @@ export const uploadMedia = async (mediaFiles: Asset[], firebaseStoragelocation: 
 
 
 export const uploadDocuments = async (documents: any, firebaseStoragelocation: string) => {
-
   if (!documents.length) return [];
-
   try {
       const uploadPromises = documents.map(async (document: any) => {
           const { localUri, name, type } = document;
@@ -263,7 +261,7 @@ export const uploadDocuments = async (documents: any, firebaseStoragelocation: s
       });
 
       const documentData = await Promise.all(uploadPromises);
-
+      console.log(documentData)
       return documentData.filter(
         (data): data is { url: string; type: 'image' | 'video' | 'pdf' | 'doc' | 'unknown' } => data !== undefined
       );

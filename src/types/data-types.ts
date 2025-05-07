@@ -1,4 +1,27 @@
 
+interface UserProfile {
+  UserId: number
+  UserUUID: string
+  UserName: string
+  FirstName: string
+  LastName: string | null
+  Description: string | null
+  EmailAddress: string
+  GenderUUID: string | null
+  CountryUUID: string | null
+  NationalityUUID: string | null
+  PhoneCountryUUID: string | null
+  PhoneNumber: string
+  DateOfBirth: string
+  CreatedBy: string | null
+  CreatedDateTime: string
+  ModifiedBy: string | null
+  ModifiedDateTime: string | null
+  ProfilePicURL: string
+  BannerURL: string | null
+}
+
+
 interface Category {
   CategoryUUID: string;
   CategoryName: string;

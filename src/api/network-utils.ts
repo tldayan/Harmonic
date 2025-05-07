@@ -6,6 +6,7 @@ import { AttachmentData, CategoryProps, FirebaseAttachment } from "../types/post
 import { TaskInformationState } from "../types/work-order.types";
 import { Alert } from "react-native";
 import { WorkRequestInformationState } from "../types/work-request.types";
+import { EventInformation } from "../types/event.types";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -621,7 +622,7 @@ export const getFriendsList = async(userUUID: string) => {
 }
 
 
-export const getOrganizationUsers = async(organizationUUID: string, searchExpression: string) => {
+export const getOrganizationUsers = async(organizationUUID: string, searchExpression?: string) => {
 
   const bodyData = {
     "OrganizationUUID": organizationUUID,
@@ -1154,6 +1155,58 @@ export const getEventTypes = async(organizationUUID: string) => {
     
     console.log(getEventTypesResponse)
     return getEventTypesResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const saveEventDetails = async(userUUID:string,organizationUUID: string, eventBannerUrl: string, eventInformation: EventInformation) => {
+
+  const bodyData = {
+    "EventCategories": null,
+    "EventBanner": eventBannerUrl,
+    "EventTypeUUID": eventInformation.eventType.eventTypeUUID,
+    "EventType": null,
+    "EventName": eventInformation.eventName,
+    "EventDescription": eventInformation.eventDescription,
+    "OrganizationUUID": organizationUUID,
+    "LoggedInUserUUID": userUUID
+}
+
+  console.log(bodyData)
+
+  try {
+    const saveEventDetailsResponse = await apiClient(ENDPOINTS.EVENT.SAVE_EVENT_DETAILS, bodyData, {}, "POST")
+    console.log(saveEventDetailsResponse)
+    return saveEventDetailsResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const saveEventSchedule = async(userUUID:string, eventInformation: EventInformation) => {
+
+  const bodyData = {
+    "EventUUID": eventInformation.eventUUID,
+    "EventStartDateTime": eventInformation.eventStartDateTime,
+    "EventEndDateTime": eventInformation.eventEndDateTime,
+    "EventRegistrationStartDateTime": "",
+    "EventRegistrationEndDateTime": "",
+    "LoggedInUserUUID": userUUID
+}
+
+  console.log(bodyData)
+
+  try {
+    const saveEventScheduleResponse = await apiClient(ENDPOINTS.EVENT.SAVE_EVENT_SCHEDULE, bodyData, {}, "POST")
+    console.log(saveEventScheduleResponse)
+    return saveEventScheduleResponse.data
 
   } catch(err) {
     console.error(err)

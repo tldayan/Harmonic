@@ -14,7 +14,6 @@ import { CustomTextInput } from "../../components/CustomTextInput";
 import { defaultInputStyles } from "../../styles/global-styles";
 
 interface EventInformationProps {
-    priorityOptions?: WorkPriority[]
     setEventInformation: React.Dispatch<React.SetStateAction<EventInformation>>
     eventInformation: EventInformation
 }
@@ -28,8 +27,10 @@ export const Details = ({eventInformation, setEventInformation} : EventInformati
 
     const addDocument = async() => {
         if(eventInformation.eventBanner.length) return
+        console.log(eventInformation)
+        console.log("ehre")
         const documentsWithLocalUri = await uploadLocalDocuments(eventInformation.eventBanner)
-
+        console.log(documentsWithLocalUri)
         setEventInformation((prev) => ({...prev, eventBanner: [...documentsWithLocalUri]}))
 
     }
@@ -64,7 +65,7 @@ export const Details = ({eventInformation, setEventInformation} : EventInformati
       </View>}
     </TouchableOpacity>
 
-    <CustomTextInput onChangeText={(e) => setEventInformation((prev) => ({...prev, eventName: e}))} labelStyle={styles.eventNameLabel} value={eventInformation.eventName} placeholder="Birthday Bash" inputStyle={defaultInputStyles} label="Event Name" />
+    <CustomTextInput onChangeText={(e) => setEventInformation((prev) => ({...prev, eventName: e}))} labelStyle={styles.eventNameLabel} value={eventInformation.eventName} placeholderTextColor={colors.LIGHT_TEXT} placeholder="Birthday Bash" inputStyle={defaultInputStyles} label="Event Name" />
     <Text style={styles.description}>Description</Text>
     <CustomTextAreaInput
         multiline={true}
@@ -76,7 +77,7 @@ export const Details = ({eventInformation, setEventInformation} : EventInformati
             setEventInformation((prev) => ({ ...prev, eventDescription: e }));
             scrollViewRef.current?.scrollToEnd({ animated: true });
         }}
-        placeholder="Write issue description here"
+        placeholder="Write event description here"
     />
 
 
@@ -87,7 +88,8 @@ export const Details = ({eventInformation, setEventInformation} : EventInformati
         <EventTypes setEventInformation={setEventInformation} onClose={() => setSelectingEventType(false)} />
     </CustomModal>
 
-    </ScrollView></CustomKeyboardAvoidingView>
+    </ScrollView>
+    </CustomKeyboardAvoidingView>
 
   );
 };

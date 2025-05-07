@@ -71,7 +71,7 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
       ]}
     >
       <TouchableOpacity
-        style={[styles.input, !noInput ? {flexDirection :"column", alignItems: "flex-start"} : null  ,multiline ? { paddingVertical: 12 } : null]}
+        style={[styles.input, !noInput ? {flexDirection :"column", alignItems: "flex-start"} : null  ,multiline ? { paddingVertical: 5 } : null]}
         onPress={noInput ? onPressInput : undefined}
         activeOpacity={noInput ? 0.7 : 1}
       >
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: "#111928",
-    paddingHorizontal: 8,
+/*     paddingHorizontal: 8, */
   },
   textAreaInput: {
     minWidth: 240,

@@ -70,7 +70,7 @@ export default function EventsScreen() {
       <View style={[styles.searchEventContainer, shadowStyles]}>
         <CustomTextInput placeholder='Search for events' placeholderTextColor={colors.LIGHT_TEXT} inputStyle={[defaultInputStyles, styles.searchField]} onChangeText={(e) => setSearchEvent(e)} value={searchEvent} leftIcon={<SearchIcon color={colors.LIGHT_TEXT} width={18} height={18} />} />
         <View style={styles.createEventContainer}>
-          <CustomButton onPress={() => setCreatingEvent(true)}  textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.createEvent, {marginTop: 0, marginBottom: 0}]} icon={<Plus width={12} height={12} />} iconPosition="left" title={"Add new event"} />
+          <CustomButton onPress={() => setCreatingEvent(true)}  textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.createEvent, {marginTop: 0, marginBottom: 0}]} icon={<Plus color='white' width={20} height={20} />} iconPosition="left" title={"Add new event"} />
         </View>
       </View>
 

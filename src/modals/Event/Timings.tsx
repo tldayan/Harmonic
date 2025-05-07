@@ -1,21 +1,13 @@
-import React, { useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from "react-native";
-import CustomTextAreaInput from "../../components/CustomTextAreaInput";
+import React, { useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import CustomSelectInput from "../../components/CustomSelectInput";
-import { uploadLocalDocuments } from "../../utils/helpers";
 import { EventInformation } from "../../types/event.types";
-import UploadIcon from "../../assets/icons/upload.svg"
 import { colors } from "../../styles/colors";
-import { DocumentItem } from "../../components/FlatlistItems/DocumentItem";
 import CustomKeyboardAvoidingView from "../../components/CustomKeyboardAvoidingView";
-import { CustomTextInput } from "../../components/CustomTextInput";
-import { defaultInputStyles } from "../../styles/global-styles";
 import Calender from "../../assets/icons/calendar.svg"
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import Clock from "../../assets/icons/clock.svg"
 
 interface EventInformationProps {
-    priorityOptions?: WorkPriority[]
     setEventInformation: React.Dispatch<React.SetStateAction<EventInformation>>
     eventInformation: EventInformation
 }
@@ -49,37 +41,58 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
   const hideEndTimePicker = () => setEndTimePickerVisibility(false);
 
 
+  useEffect(() => {
+    if (selectedDate && startTime && endTime) {
+      const startDateTime = createEventDateTimeString(selectedDate, startTime);
+      const endDateTime = createEventDateTimeString(selectedDate, endTime);
+  
+      setEventInformation((prev) => ({...prev, eventStartDateTime: startDateTime, eventEndDateTime: endDateTime}))
+    
+    }
+  }, [startTime, endTime, selectedDate]);
+  
+
   const handleDateConfirm = (date: Date) => {
     setSelectedDate(date);
-    setEventInformation((prev) => ({ ...prev, eventDate: date }));
     hideDatePicker();
   };
 
 
   const handleStartTimeConfirm = (time: Date) => {
+    console.log(time.toTimeString())
     setStartTime(time);
-    setEventInformation((prev) => ({ ...prev, startTime: time }));
     hideStartTimePicker();
   };
 
 
   const handleEndTimeConfirm = (time: Date) => {
     setEndTime(time);
-    setEventInformation((prev) => ({ ...prev, endTime: time }));
     hideEndTimePicker();
   };
+
+
+  const createEventDateTimeString = (date: Date, time: Date) => {
+    const combined = new Date(date);
+    combined.setHours(time.getHours());
+    combined.setMinutes(time.getMinutes());
+    combined.setSeconds(0);
+    combined.setMilliseconds(0);
+  
+    return combined.toISOString(); 
+  };
+  
 
   return (
     <CustomKeyboardAvoidingView>
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
-        <Text>Date</Text>
+        <Text style={{marginTop: 15}}>Date</Text>
         <CustomSelectInput
           onSelect={showDatePicker}
           leftIcon={<Calender fill={colors.LIGHT_TEXT_COLOR} width={20} height={20} />}
           placeholder={selectedDate ? selectedDate.toLocaleDateString() : "Select Date"}
         />
 
-        <Text style={{marginTop: 25}}>Time</Text>
+        <Text style={{marginTop: 15}}>Time</Text>
         <View style={{flexDirection : 'row', alignItems :"center" , width : "100%", gap: 10}}>
 
     

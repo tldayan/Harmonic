@@ -1,4 +1,4 @@
-import { Animated, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Animated, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import Participants from "../../assets/icons/participants.svg"
 import Clock from "../../assets/icons/clock.svg"
@@ -38,7 +38,7 @@ export default function EventItem({ event, index, scrollX }: EventItemProps) {
     
 
   return (
-    <View style={styles.mainEventContainer}>
+    <ScrollView style={styles.mainEventContainer}>
         <AnimatedTouchableOpacity
         onPress={() => {}}
         activeOpacity={0.7}
@@ -50,16 +50,16 @@ export default function EventItem({ event, index, scrollX }: EventItemProps) {
 
         <View style={styles.eventInfoContainer}>
             <View style={styles.participantInfo}>
-            <Participants width={16} height={16} />
-            <Text style={{ fontWeight: "300" }}>{event.NoOfParticipants ? event.NoOfParticipants : "-"}</Text>
+                <Participants width={16} height={16} />
+                <Text style={{ fontWeight: "300" }}>{event.NoOfParticipants ? event.NoOfParticipants : "-"}</Text>
             </View>
             <View style={styles.timeInfoContainer}>
-            <Clock width={16} height={16} />
-            <Text style={styles.time}>{formatDate(event.EventStartDateTime)}</Text>
+                <Clock width={16} height={16} />
+                <Text style={styles.time}>{formatDate(event.EventStartDateTime)}</Text>
             </View>
         </View>
         </AnimatedTouchableOpacity>
-    </View>
+    </ScrollView>
   )
 }
 
@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
         fontSize: 16
     },
     eventInfoContainer : {
+/*         borderWidth: 1, */
         marginTop: 10,
         flexDirection: "row",
         gap: 10,
@@ -106,6 +107,7 @@ const styles = StyleSheet.create({
         gap: 5
     },
     time : {
+        fontSize: 10,
         color: colors.LIGHT_TEXT
     },
     eventDescription: {
