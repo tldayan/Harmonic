@@ -1122,11 +1122,11 @@ export const getWorkPriorities = async(organizationUUID: string) => {
 
 
 //EVENT 
-export const getEventList = async(userUUID:string,organizationUUID: string, startIndex: number) => {
+export const getEventList = async(userUUID:string,organizationUUID: string, startIndex: number, pageSize?: number) => {
 
   const bodyData = {
     "OrganizationUUID": organizationUUID,
-    "PageSize": 10,
+    "PageSize": pageSize ? pageSize : 10,
     "StartIndex": startIndex,
     "CategoryItemUUIDs": [],
     "SortExpression": "",
@@ -1163,6 +1163,22 @@ export const getEventTypes = async(organizationUUID: string) => {
 }
 
 
+
+export const getEventDetails = async(userUUID: string, organizationUUID: string) => {
+
+  try {
+    const getEventDetailsResponse = await apiClient(ENDPOINTS.EVENT.GET_EVENT_DETAILS, {}, {}, "GET", {userUUID, organizationUUID})
+    
+    console.log(getEventDetailsResponse)
+    return getEventDetailsResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
 export const saveEventDetails = async(userUUID:string,organizationUUID: string, eventBannerUrl: string, eventInformation: EventInformation) => {
 
   const bodyData = {
@@ -1175,6 +1191,7 @@ export const saveEventDetails = async(userUUID:string,organizationUUID: string, 
     "OrganizationUUID": organizationUUID,
     "LoggedInUserUUID": userUUID
 }
+
 
   console.log(bodyData)
 
@@ -1192,12 +1209,16 @@ export const saveEventDetails = async(userUUID:string,organizationUUID: string, 
 
 export const saveEventSchedule = async(userUUID:string, eventInformation: EventInformation) => {
 
+  const eventStart = new Date(eventInformation.eventStartDateTime);
+
   const bodyData = {
     "EventUUID": eventInformation.eventUUID,
     "EventStartDateTime": eventInformation.eventStartDateTime,
     "EventEndDateTime": eventInformation.eventEndDateTime,
-    "EventRegistrationStartDateTime": "",
-    "EventRegistrationEndDateTime": "",
+    "EventRegistrationStartDateTime": eventInformation.registrationStartDateTime ? eventInformation.registrationStartDateTime : new Date().toISOString(),
+    "EventRegistrationEndDateTime": eventInformation.registrationEndDateTime 
+    ? eventInformation.registrationEndDateTime 
+    : new Date(eventStart.getTime() - 60 * 60 * 1000).toISOString(), // 1 hour before start
     "LoggedInUserUUID": userUUID
 }
 
@@ -1207,6 +1228,59 @@ export const saveEventSchedule = async(userUUID:string, eventInformation: EventI
     const saveEventScheduleResponse = await apiClient(ENDPOINTS.EVENT.SAVE_EVENT_SCHEDULE, bodyData, {}, "POST")
     console.log(saveEventScheduleResponse)
     return saveEventScheduleResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+export const publishEvent = async(userUUID:string, eventInformation: EventInformation) => {
+
+  const bodyData = {
+    "LoggedInUserUUID": userUUID,
+    "EventUUID": eventInformation.eventUUID,
+    "PublishDateTime": eventInformation.scheduledPublishDateTime ? eventInformation.scheduledPublishDateTime : new Date().toISOString()
+}
+  console.log(bodyData)
+
+  try {
+    const publishEventResponse = await apiClient(ENDPOINTS.EVENT.PUBLISH_EVENT, bodyData, {}, "POST")
+    console.log(publishEventResponse)
+    return publishEventResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+export const saveEventConfiguration = async(userUUID:string, eventInformation: EventInformation) => {
+
+  const eventStart = new Date(eventInformation.eventStartDateTime);
+
+  const bodyData = {
+    "EventUUID": eventInformation.eventUUID,
+    "EventStartDateTime": eventInformation.eventStartDateTime,
+    "EventStartDateTimeFormatted": "EventStartDateTime",
+    "EventEndDateTime": eventInformation.eventEndDateTime,
+    "EventEndDateTimeFormatted": "EventEndDateTime",
+    "EventRegistrationStartDateTime": eventInformation.registrationStartDateTime ? eventInformation.registrationStartDateTime : new Date().toISOString(),
+    "EventRegistrationStartDateTimeFormatted": "EventRegistrationStartDateTime",
+    "EventRegistrationEndDateTime": eventInformation.registrationEndDateTime ? eventInformation.registrationEndDateTime : new Date(eventStart.getTime() - 60 * 60 * 1000).toISOString(),
+    "EventRegistrationEndDateTimeFormatted": "EventRegistrationEndDateTime",
+    "InformationForRegisteredUsers": null,
+    "LoggedInUserUUID": userUUID
+}
+  console.log(bodyData)
+
+  try {
+    const saveEventConfigResponse = await apiClient(ENDPOINTS.EVENT.SAVE_EVENT_CONFIGURATION, bodyData, {}, "POST")
+    console.log(saveEventConfigResponse)
+    return saveEventConfigResponse.data
 
   } catch(err) {
     console.error(err)

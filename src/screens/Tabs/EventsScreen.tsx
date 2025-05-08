@@ -52,6 +52,31 @@ export default function EventsScreen() {
   }
 
 
+  const fetchLatestEvent = async () => {
+
+    setLoading(true);
+
+  
+    console.log("Fetching Latest Event");
+  
+    try {
+      const eventsListResponse = await getEventList(userUUID, organizationUUID, 0, 1);
+      const latestEvent = eventsListResponse.Payload?.[0];
+      console.log("eventLists", latestEvent);
+  
+      if (latestEvent) {
+        setEvents((prev) => [latestEvent, ...prev]);
+      }
+  
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+
   useEffect(() => {
     fetchEventsList()
   }, [])
@@ -75,7 +100,7 @@ export default function EventsScreen() {
       </View>
 
         {loading ? <ActivityIndicator style={{marginVertical: "50%"}} size={"small"} /> : null}
-      <Animated.FlatList
+      {!loading && <Animated.FlatList
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -90,11 +115,11 @@ export default function EventsScreen() {
         renderItem={({ item, index }) => (
             <EventItem event={item} index={index} scrollX={scrollX} />
         )}
-      />
+      />}
 
 
         <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingEvent} onClose={() => setCreatingEvent(false)}>
-          <EventCreation onClose={() => setCreatingEvent(false)} />
+          <EventCreation fetchLatestEvent={fetchLatestEvent} onClose={() => setCreatingEvent(false)} />
         </CustomModal>
 
 

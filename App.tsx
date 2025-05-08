@@ -10,6 +10,7 @@ import { Provider } from 'react-redux';
 import { store } from './src/store/store';
 import Toast from 'react-native-toast-message';
 import { SocketProvider } from './src/context/SocketContext';
+import { AuthModeProvider } from './src/context/AuthModeContext';
 
 function App(): React.JSX.Element {
   return (
@@ -17,15 +18,17 @@ function App(): React.JSX.Element {
     <SocketProvider>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, flexGrow : 1 }}>
         <CustomSafeAreaView>   
-          <RealmProvider>     
-            <UserProvider>
-              <SafeAreaProvider>
-                <NavigationContainer>
-                  <StatusBar translucent barStyle="dark-content" backgroundColor="white" />
-                    <RootNavigator />
-                </NavigationContainer>
-              </SafeAreaProvider>
-            </UserProvider>
+          <RealmProvider>
+            <AuthModeProvider>    
+              <UserProvider>
+                <SafeAreaProvider>
+                  <NavigationContainer>
+                    <StatusBar translucent barStyle="dark-content" backgroundColor="white" />
+                      <RootNavigator />
+                  </NavigationContainer>
+                </SafeAreaProvider>
+              </UserProvider>
+            </AuthModeProvider> 
           </RealmProvider>
         </CustomSafeAreaView>
       </KeyboardAvoidingView>

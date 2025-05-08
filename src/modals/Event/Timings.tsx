@@ -1,75 +1,44 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, Button, StyleSheet, TouchableOpacity } from "react-native";
 import CustomSelectInput from "../../components/CustomSelectInput";
 import { EventInformation } from "../../types/event.types";
 import { colors } from "../../styles/colors";
 import CustomKeyboardAvoidingView from "../../components/CustomKeyboardAvoidingView";
-import Calender from "../../assets/icons/calendar.svg"
+import Calender from "../../assets/icons/calendar.svg";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 interface EventInformationProps {
-    setEventInformation: React.Dispatch<React.SetStateAction<EventInformation>>
-    eventInformation: EventInformation
+  setEventInformation: React.Dispatch<React.SetStateAction<EventInformation>>;
+  eventInformation: EventInformation;
 }
-
-
 export const Timings = ({ eventInformation, setEventInformation }: EventInformationProps) => {
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [isStartTimePickerVisible, setStartTimePickerVisibility] = useState(false);
-  const [isEndTimePickerVisible, setEndTimePickerVisibility] = useState(false);
-  
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [endTime, setEndTime] = useState<Date | null>(null);
+  const [isEventStartDatePickerVisible, setEventStartDatePickerVisibility] = useState(false);
+  const [isEventStartTimePickerVisible, setEventStartTimePickerVisibility] = useState(false);
+  const [isEventEndDatePickerVisible, setEventEndDatePickerVisibility] = useState(false);
+  const [isEventEndTimePickerVisible, setEventEndTimePickerVisibility] = useState(false);
 
-  
-  const showDatePicker = () => setDatePickerVisibility(true);
+  const [showRegistration, setShowRegistration] = useState(false)
+  const [isRegStartDatePickerVisible, setRegStartDatePickerVisibility] = useState(false);
+  const [isRegStartTimePickerVisible, setRegStartTimePickerVisibility] = useState(false);
+  const [isRegEndDatePickerVisible, setRegEndDatePickerVisibility] = useState(false);
+  const [isRegEndTimePickerVisible, setRegEndTimePickerVisibility] = useState(false);
 
+  const [isPublishDatePickerVisible, setPublishDatePickerVisibility] = useState(false);
+  const [isPublishTimePickerVisible, setPublishTimePickerVisibility] = useState(false);
 
-  const hideDatePicker = () => setDatePickerVisibility(false);
+  const [eventStartDate, setEventStartDate] = useState<Date | null>(null);
+  const [eventStartTime, setEventStartTime] = useState<Date | null>(null);
+  const [eventEndDate, setEventEndDate] = useState<Date | null>(null);
+  const [eventEndTime, setEventEndTime] = useState<Date | null>(null);
 
+  const [regStartDate, setRegStartDate] = useState<Date | null>(null);
+  const [regStartTime, setRegStartTime] = useState<Date | null>(null);
+  const [regEndDate, setRegEndDate] = useState<Date | null>(null);
+  const [regEndTime, setRegEndTime] = useState<Date | null>(null);
 
-  const showStartTimePicker = () => setStartTimePickerVisibility(true);
-
-
-  const hideStartTimePicker = () => setStartTimePickerVisibility(false);
-
-
-  const showEndTimePicker = () => setEndTimePickerVisibility(true);
-
-
-  const hideEndTimePicker = () => setEndTimePickerVisibility(false);
-
-
-  useEffect(() => {
-    if (selectedDate && startTime && endTime) {
-      const startDateTime = createEventDateTimeString(selectedDate, startTime);
-      const endDateTime = createEventDateTimeString(selectedDate, endTime);
-  
-      setEventInformation((prev) => ({...prev, eventStartDateTime: startDateTime, eventEndDateTime: endDateTime}))
-    
-    }
-  }, [startTime, endTime, selectedDate]);
-  
-
-  const handleDateConfirm = (date: Date) => {
-    setSelectedDate(date);
-    hideDatePicker();
-  };
-
-
-  const handleStartTimeConfirm = (time: Date) => {
-    console.log(time.toTimeString())
-    setStartTime(time);
-    hideStartTimePicker();
-  };
-
-
-  const handleEndTimeConfirm = (time: Date) => {
-    setEndTime(time);
-    hideEndTimePicker();
-  };
-
+  const [publishDate, setPublishDate] = useState<Date | null>(null);
+  const [publishTime, setPublishTime] = useState<Date | null>(null);
+  const [isSchedulingPublish, setIsSchedulingPublish] = useState<boolean>(false);
 
   const createEventDateTimeString = (date: Date, time: Date) => {
     const combined = new Date(date);
@@ -77,62 +46,134 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
     combined.setMinutes(time.getMinutes());
     combined.setSeconds(0);
     combined.setMilliseconds(0);
-  
-    return combined.toISOString(); 
+    return combined.toISOString();
   };
-  
+
+  useEffect(() => {
+    if (eventStartDate && eventStartTime) {
+      setEventInformation((prev) => ({
+        ...prev,
+        eventStartDateTime: createEventDateTimeString(eventStartDate, eventStartTime),
+      }));
+    }
+  }, [eventStartDate, eventStartTime]);
+
+  useEffect(() => {
+    if (eventEndDate && eventEndTime) {
+      setEventInformation((prev) => ({
+        ...prev,
+        eventEndDateTime: createEventDateTimeString(eventEndDate, eventEndTime),
+      }));
+    }
+  }, [eventEndDate, eventEndTime]);
+
+  useEffect(() => {
+    if (regStartDate && regStartTime) {
+      setEventInformation((prev) => ({
+        ...prev,
+        registrationStartDateTime: createEventDateTimeString(regStartDate, regStartTime),
+      }));
+    }
+  }, [regStartDate, regStartTime]);
+
+  useEffect(() => {
+    if (regEndDate && regEndTime) {
+      setEventInformation((prev) => ({
+        ...prev,
+        registrationEndDateTime: createEventDateTimeString(regEndDate, regEndTime),
+      }));
+    }
+  }, [regEndDate, regEndTime]);
+
+  useEffect(() => {
+    if (isSchedulingPublish && publishDate && publishTime) {
+      setEventInformation((prev) => ({
+        ...prev,
+        scheduledPublishDateTime: createEventDateTimeString(publishDate, publishTime),
+      }));
+    }
+  }, [publishDate, publishTime]);
 
   return (
     <CustomKeyboardAvoidingView>
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
-        <Text style={{marginTop: 15}}>Date</Text>
-        <CustomSelectInput
-          onSelect={showDatePicker}
-          leftIcon={<Calender fill={colors.LIGHT_TEXT_COLOR} width={20} height={20} />}
-          placeholder={selectedDate ? selectedDate.toLocaleDateString() : "Select Date"}
-        />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: 30 }} style={{ paddingBottom: 30}}>
 
-        <Text style={{marginTop: 15}}>Time</Text>
-        <View style={{flexDirection : 'row', alignItems :"center" , width : "100%", gap: 10}}>
+        <Text style={{ marginTop: 15, fontWeight: 500 }}>Event Start</Text>
+        <View style={styles.checkboxContainer}>
+          <CustomSelectInput onSelect={() => setEventStartDatePickerVisibility(true)} placeholder={eventStartDate ? eventStartDate.toLocaleDateString() : "Select Date"} />
+        <CustomSelectInput onSelect={() => setEventStartTimePickerVisibility(true)} placeholder={eventStartTime ? eventStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+        </View>
+        
 
-    
-        <CustomSelectInput
-          onSelect={showStartTimePicker}
-          placeholder={startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Start Time"}
-        />
-    
-        <CustomSelectInput
-          onSelect={showEndTimePicker}
-          placeholder={endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "End Time"}
-        />
+        <Text style={{ marginTop: 15, fontWeight: 500 }}>Event End</Text>
+        <View style={styles.checkboxContainer}>
+          <CustomSelectInput onSelect={() => setEventEndDatePickerVisibility(true)} placeholder={eventEndDate ? eventEndDate.toLocaleDateString() : "Select Date"} />
+        <CustomSelectInput onSelect={() => setEventEndTimePickerVisibility(true)} placeholder={eventEndTime ? eventEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+        </View>
+        
 
+        <View style={{ flexDirection: "column", gap: 10, marginTop: 20 }}>
+          <TouchableOpacity onPress={() => setShowRegistration((prev) => !prev)} style={styles.checkboxContainer}>
+            <View style={styles.checkbox}>
+              {showRegistration && <View style={styles.innerCheckbox} />}
+            </View>
+            <Text>Set Registration Time</Text>
+          </TouchableOpacity>
+        </View>
 
+        {showRegistration && <View >
+          <Text style={{ marginTop: 15 }}>Registration Start</Text>
+          <View style={styles.checkboxContainer}>
+            <CustomSelectInput onSelect={() => setRegStartDatePickerVisibility(true)} placeholder={regStartDate ? regStartDate.toLocaleDateString() : "Select Date"} />
+          <CustomSelectInput onSelect={() => setRegStartTimePickerVisibility(true)} placeholder={regStartTime ? regStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+          </View>
+          
 
+          <Text style={{ marginTop: 15 }}>Registration End</Text>
+          <View style={styles.checkboxContainer}>
+            <CustomSelectInput onSelect={() => setRegEndDatePickerVisibility(true)} placeholder={regEndDate ? regEndDate.toLocaleDateString() : "Select Date"} />
+          <CustomSelectInput onSelect={() => setRegEndTimePickerVisibility(true)} placeholder={regEndTime ? regEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+          </View>
+        </View>}
 
-    </View>
+        {/* Publish Section */}
+        <Text style={{ marginTop: 25, fontWeight: 500 }}>Publish Options</Text>
+        <View style={{ flexDirection: "column", gap: 10, marginTop: 10 }}>
+          <TouchableOpacity onPress={() => setIsSchedulingPublish(false)} style={styles.checkboxContainer}>
+            <View style={styles.checkbox}>
+              {!isSchedulingPublish && <View style={styles.innerCheckbox} />}
+            </View>
+            <Text>Publish Now</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setIsSchedulingPublish(true)} style={styles.checkboxContainer}>
+            <View style={styles.checkbox}>
+              {isSchedulingPublish && <View style={styles.innerCheckbox} />}
+            </View>
+            <Text>Schedule Publish</Text>
+          </TouchableOpacity>
+        </View>
 
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible}
-          mode="date"
-          onConfirm={handleDateConfirm}
-          onCancel={hideDatePicker}
-          minimumDate={new Date()}
-        />
+        {isSchedulingPublish && (
+          <>
+            <Text style={{ marginTop: 15, fontWeight: 500 }}>Scheduled Publish Time</Text>
+            <CustomSelectInput onSelect={() => setPublishDatePickerVisibility(true)} placeholder={publishDate ? publishDate.toLocaleDateString() : "Select Date"} />
+            <CustomSelectInput onSelect={() => setPublishTimePickerVisibility(true)} placeholder={publishTime ? publishTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+          </>
+        )}
 
-        <DateTimePickerModal
-          isVisible={isStartTimePickerVisible}
-          mode="time"
-          onConfirm={handleStartTimeConfirm}
-          onCancel={hideStartTimePicker}
-        />
+        {/* Pickers */}
+        <DateTimePickerModal isVisible={isEventStartDatePickerVisible} mode="date" onConfirm={(d) => { setEventStartDate(d); setEventStartDatePickerVisibility(false); }} onCancel={() => setEventStartDatePickerVisibility(false)} minimumDate={new Date()} />
+        <DateTimePickerModal isVisible={isEventStartTimePickerVisible} mode="time" onConfirm={(t) => { setEventStartTime(t); setEventStartTimePickerVisibility(false); }} onCancel={() => setEventStartTimePickerVisibility(false)} />
+        <DateTimePickerModal isVisible={isEventEndDatePickerVisible} mode="date" onConfirm={(d) => { setEventEndDate(d); setEventEndDatePickerVisibility(false); }} onCancel={() => setEventEndDatePickerVisibility(false)} minimumDate={new Date()} />
+        <DateTimePickerModal isVisible={isEventEndTimePickerVisible} mode="time" onConfirm={(t) => { setEventEndTime(t); setEventEndTimePickerVisibility(false); }} onCancel={() => setEventEndTimePickerVisibility(false)} />
 
-        <DateTimePickerModal
-          isVisible={isEndTimePickerVisible}
-          mode="time"
-          onConfirm={handleEndTimeConfirm}
-          onCancel={hideEndTimePicker}
-        />
-    
+        <DateTimePickerModal isVisible={isRegStartDatePickerVisible} mode="date" onConfirm={(d) => { setRegStartDate(d); setRegStartDatePickerVisibility(false); }} onCancel={() => setRegStartDatePickerVisibility(false)} minimumDate={new Date()} />
+        <DateTimePickerModal isVisible={isRegStartTimePickerVisible} mode="time" onConfirm={(t) => { setRegStartTime(t); setRegStartTimePickerVisibility(false); }} onCancel={() => setRegStartTimePickerVisibility(false)} />
+        <DateTimePickerModal isVisible={isRegEndDatePickerVisible} mode="date" onConfirm={(d) => { setRegEndDate(d); setRegEndDatePickerVisibility(false); }} onCancel={() => setRegEndDatePickerVisibility(false)} minimumDate={new Date()} />
+        <DateTimePickerModal isVisible={isRegEndTimePickerVisible} mode="time" onConfirm={(t) => { setRegEndTime(t); setRegEndTimePickerVisibility(false); }} onCancel={() => setRegEndTimePickerVisibility(false)} />
+
+        <DateTimePickerModal isVisible={isPublishDatePickerVisible} mode="date" onConfirm={(d) => { setPublishDate(d); setPublishDatePickerVisibility(false); }} onCancel={() => setPublishDatePickerVisibility(false)} minimumDate={new Date()} />
+        <DateTimePickerModal isVisible={isPublishTimePickerVisible} mode="time" onConfirm={(t) => { setPublishTime(t); setPublishTimePickerVisibility(false); }} onCancel={() => setPublishTimePickerVisibility(false)} />
       </ScrollView>
     </CustomKeyboardAvoidingView>
   );
@@ -306,5 +347,27 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 10
   },
+
+
+  checkboxContainer: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+  },
+  innerCheckbox: {
+    height: 20,
+    width: 20,
+    borderRadius: 30,
+    backgroundColor: colors.ACTIVE_ORANGE,
+  },
+  checkbox: {
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.BORDER_COLOR,
+    justifyContent: "center",
+    alignItems: "center",
+  }
 });
 

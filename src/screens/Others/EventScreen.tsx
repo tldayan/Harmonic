@@ -6,26 +6,31 @@ import { formatLongDate } from '../../utils/helpers';
 import MapPin from "../../assets/icons/map-pin.svg"
 import Group from "../../assets/icons/participants.svg"
 import { colors } from '../../styles/colors';
-import { getUserProfile } from '../../api/network-utils';
+import { getEventDetails, getUserProfile } from '../../api/network-utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RootStackParamList } from '../../types/navigation-types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-interface EventInformationProps {
-    eventInformation: EventInformation
-}
+
+export type EventScreenRouteProp = RouteProp<RootStackParamList, "Event">
+
+export const EventScreen = (/* {eventInformation}: EventInformationProps */) => {
+
+  const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)
+
+  const route = useRoute<EventScreenRouteProp>()
+  const {eventUUID} =  route.params || {}
 
 
-export const EventSummary = ({eventInformation}: EventInformationProps) => {
+  const [eventDetails, setEventDetails] = useState({})
 
-  const userUUID = useSelector((state: RootState) => state.auth.userUUID)
-
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-
-  const fetchUserProfile = async () => {
+  const fetchEventDetails = async () => {
     try {
-      const response = await getUserProfile(userUUID);
+      const response = await getEventDetails(userUUID, eventUUID);
       if (response?.data?.Payload) {
-        setUserProfile(response.data.Payload);
+        setEventDetails(response.data.Payload);
       }
     } catch (error) {
       console.log(error);
@@ -33,7 +38,7 @@ export const EventSummary = ({eventInformation}: EventInformationProps) => {
   };
   
   useEffect(() => {
-    fetchUserProfile();
+    fetchEventDetails();
   }, []);
   
 
@@ -41,7 +46,8 @@ export const EventSummary = ({eventInformation}: EventInformationProps) => {
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{gap: 10}} style={[styles.eventInfoContainer, {marginVertical: 10}]}>
-      <Text style={styles.eventName}>{eventInformation.eventName}</Text>
+        <Text>{eventUUID}</Text>
+{/*       <Text style={styles.eventName}>{eventInformation.eventName}</Text>
       <Image style={styles.eventBanner} source={{uri: eventInformation.eventBanner?.[0]?.uri ?? "https://i.pravatar.cc/150"}}
 />
       <View style={styles.statsContainer}>
@@ -72,7 +78,7 @@ export const EventSummary = ({eventInformation}: EventInformationProps) => {
 
 
       <Text style={{fontSize: 16, fontWeight: 500}}>Description</Text>
-      <Text>{eventInformation.eventDescription}</Text>
+      <Text>{eventInformation.eventDescription}</Text> */}
     </ScrollView>
   )
 }

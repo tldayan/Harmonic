@@ -13,11 +13,14 @@ import TaskInfo from "../screens/Task/TaskInfo"
 import ChatsList from "../screens/Chat/ChatList"
 import ChatsScreen from "../screens/Chat/ChatsTabs"
 import AddModalScreen from "../modals/BottomTabActions"
-
+import { useAuthMode } from "../context/AuthModeContext"
+import { EventScreen } from "../screens/Others/EventScreen"
 
 export const RootNavigator: React.FC = () => {
 
     const {user} = useUser()
+    const { authMode } = useAuthMode();
+    console.log("Root Navigator",authMode) // if signUp, proceed to user profile form
 
     return (
         <Stack.Navigator screenOptions={globalScreenOptions}>
@@ -31,6 +34,7 @@ export const RootNavigator: React.FC = () => {
                 <Stack.Screen name="ChatInfo" component={UserInfo} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="TaskInfo" component={TaskInfo} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="ChatsScreen" component={ChatsScreen} options={{animation: "slide_from_right"}} />
+                <Stack.Screen name="Event" component={EventScreen} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="AddModal" component={AddModalScreen}
                     options={{
                         presentation: "transparentModal",

@@ -12,6 +12,9 @@ export interface EventInformation {
   };
   participants: {memberName: string, memberUUID: string, profileURL: string}[];
   eventDescription: string;
+  scheduledPublishDateTime: string;
+  registrationStartDateTime: string;
+  registrationEndDateTime: string;
   eventStartDateTime: string;
   eventEndDateTime: string
   eventBanner: DocumentPickerResponse[]; 

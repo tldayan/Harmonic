@@ -5,6 +5,7 @@ export type RootStackParamList = {
     Tabs: NavigatorScreenParams<TabParamList>;
     Auth: undefined
     Hero: undefined
+    Event: {eventUUID: string}
     Comments: {postUUID?: string, attachmentData?: AttachmentData[], createdBy: string}
     Profile: undefined
     ChatScreen: {userUUID: string, chatMasterUUID: string, chatProfilePictureURL: string | null, chatMasterName: string, chatType: string, chatMemberUserUUID: string, createdDateTime: string}

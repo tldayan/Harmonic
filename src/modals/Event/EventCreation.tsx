@@ -14,14 +14,15 @@ import { Details } from './Details'
 import { EventInformation } from '../../types/event.types'
 import { Timings } from './Timings'
 import { Guests } from './Guests'
-import { saveEventDetails } from '../../api/network-utils'
+import { publishEvent, saveEventConfiguration, saveEventDetails, saveEventSchedule } from '../../api/network-utils'
 import { uploadDocuments } from '../../utils/helpers'
-import { firebaseStoragelocations } from '../../utils/constants'
+import { firebaseStoragelocations, STATUS_CODE } from '../../utils/constants'
 import { EventSummary } from './EventSummary'
 
 
 interface EventCreationProps {
     onClose: () => void
+    fetchLatestEvent: () => void
 }
 
 const width = Dimensions.get("window").width
@@ -35,7 +36,7 @@ const steps = [
 
 
 
-export default function EventCreation({onClose} : EventCreationProps) {
+export default function EventCreation({onClose, fetchLatestEvent} : EventCreationProps) {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [step, setStep] = useState(0)
     const [eventInformation, setEventInformation] = React.useState<EventInformation>({
@@ -45,6 +46,9 @@ export default function EventCreation({onClose} : EventCreationProps) {
         eventType: { eventTypeName: '', eventTypeUUID: '' },
         participants: [],
         eventDescription: '',
+        scheduledPublishDateTime: "",
+        registrationStartDateTime: "",
+        registrationEndDateTime: "",
         eventStartDateTime: "",
         eventEndDateTime: "",
         eventBanner: [],
@@ -104,23 +108,31 @@ export default function EventCreation({onClose} : EventCreationProps) {
 
         if(step === 3 && eventInformation.eventName) {
 
+            setEventInformation((prev) => ({...prev, loading: true}))
             try {
                 
                 const uploadedBanner = await uploadDocuments(eventInformation.eventBanner, firebaseStoragelocations.event)
                 const eventBannerUrl = uploadedBanner[0].url
                 const saveEventDetailsResponse = await saveEventDetails(userUUID, organizationUUID,eventBannerUrl, eventInformation)
-                
-                console.log(saveEventDetailsResponse)
-
-
+                const {EventUUID} = saveEventDetailsResponse.Payload
+                console.log("eventUUID", EventUUID)
+                const updatedEventInfo = {...eventInformation, eventUUID: EventUUID}
+                setEventInformation(updatedEventInfo)
+                const saveEventConfigResponse = await saveEventConfiguration(userUUID, updatedEventInfo)
+                const saveEventScheduleResponse = await saveEventSchedule(userUUID, updatedEventInfo)
+                const publishEventResponse = await publishEvent(userUUID, updatedEventInfo)
+                console.log(publishEventResponse)
+                if (publishEventResponse.Payload.Status === STATUS_CODE.ERROR) {
+                    throw new Error("Failed to publish event");
+                }                
+              onClose()
             } catch (err) {
                 console.log(err)
+            } finally {
+                fetchLatestEvent()  
             }
 
         }
-
-
-
 
         if(step <= 2) {
             setStep((prev) => prev + 1)

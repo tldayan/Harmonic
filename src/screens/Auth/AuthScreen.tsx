@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Image, StyleSheet, View, Text, TouchableWithoutFeedback, Keyboard, ActivityIndicator, ScrollView } from "react-native";
 import CustomButton from "../../components/CustomButton";
 import { colors } from "../../styles/colors";
@@ -61,7 +61,9 @@ const AuthScreen = () => {
 		}
 	}
 
-
+	/* useEffect(() => {
+		console.log(authMode)
+	},[authMode]) */
 	
 
   return (
@@ -144,7 +146,9 @@ const AuthScreen = () => {
 			{(signinByEmail && authMode === "login") && <CustomButton textStyle={styles.forgotPassword} onPress={() => setForgotPasswordIntiated(true)} title="Forgot password?" />}
 
 			{authMode === "signup" && <Text style={styles.termsAndConditions}>By continuing, you acknowledge that you understand and agree to the Terms and Conditions</Text>}
+			
 			<CustomButton buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={PRIMARY_BUTTON_TEXT_STYLES} onPress={initializeAuth} title={loading ? null : confirm ? "Verify OTP" : userNumber ? "Send OTP" : authMode === "login" ? "Log in" : "Sign up"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null}/>
+			
 			{(confirm && !signinByEmail) && <View style={styles.resendCodeContainer}>
 				<Text style={styles.resendCodePrompt}>Didn’t receive OTP? </Text>
 				<CustomButton title="Resend code" textStyle={styles.resendText} onPress={() => initializeAuth(true)}/>

@@ -27,10 +27,7 @@ export const Details = ({eventInformation, setEventInformation} : EventInformati
 
     const addDocument = async() => {
         if(eventInformation.eventBanner.length) return
-        console.log(eventInformation)
-        console.log("ehre")
         const documentsWithLocalUri = await uploadLocalDocuments(eventInformation.eventBanner)
-        console.log(documentsWithLocalUri)
         setEventInformation((prev) => ({...prev, eventBanner: [...documentsWithLocalUri]}))
 
     }

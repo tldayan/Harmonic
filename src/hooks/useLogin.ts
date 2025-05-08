@@ -2,10 +2,12 @@ import { useMemo, useState } from "react";
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { auth, handleGoogleLogin, handleLogin, handleMicrosoftLogin, signInWithPhoneNumber, verifyOtpCode } from "../services/auth-service";
 import { ErrorMessageType } from "../types/text-input.types";
+import { useAuthMode } from "../context/AuthModeContext";
 
 export const useLogin = () => {
   
-const [authMode, setAuthMode] = useState("login")
+/* const [authMode, setAuthMode] = useState("login") */
+const { authMode, setAuthMode } = useAuthMode();
 const [signinByEmail, setSigninByEmail] = useState<boolean>(true);
 const [email, setEmail] = useState<string>("");
 const [password, setPassword] = useState<string>("");

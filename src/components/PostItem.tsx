@@ -129,7 +129,6 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
     )
   }
 
-console.log(route.name)
   return (
     <View style={[ route.name === "Comments" ?  styles.defaultMainContainer : styles.mainContainer, CardShadowStyles]}>
 

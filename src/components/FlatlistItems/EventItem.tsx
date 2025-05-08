@@ -3,7 +3,7 @@ import React from 'react'
 import Participants from "../../assets/icons/participants.svg"
 import Clock from "../../assets/icons/clock.svg"
 import { CardShadowStyles } from '../../styles/global-styles'
-import { formatDate } from '../../utils/helpers'
+import { formatDate, formatProperDate } from '../../utils/helpers'
 import { colors } from '../../styles/colors'
 
 
@@ -55,7 +55,7 @@ export default function EventItem({ event, index, scrollX }: EventItemProps) {
             </View>
             <View style={styles.timeInfoContainer}>
                 <Clock width={16} height={16} />
-                <Text style={styles.time}>{formatDate(event.EventStartDateTime)}</Text>
+                <Text style={styles.time}>{formatProperDate(event.EventStartDateTime)}</Text>
             </View>
         </View>
         </AnimatedTouchableOpacity>
