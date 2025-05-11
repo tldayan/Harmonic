@@ -1,10 +1,15 @@
 import { Animated, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import Participants from "../../assets/icons/participants.svg"
 import Clock from "../../assets/icons/clock.svg"
 import { CardShadowStyles } from '../../styles/global-styles'
 import { formatDate, formatProperDate } from '../../utils/helpers'
 import { colors } from '../../styles/colors'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RootStackParamList } from '../../types/navigation-types'
+import { useNavigation } from '@react-navigation/native'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../store/store'
 
 
 interface EventItemProps {
@@ -16,6 +21,9 @@ const {width : SCREEN_WIDTH} = Dimensions.get("window")
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function EventItem({ event, index, scrollX }: EventItemProps) {
+
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
 
     const inputRange = [
         (index - 1) * SCREEN_WIDTH,
@@ -40,11 +48,17 @@ export default function EventItem({ event, index, scrollX }: EventItemProps) {
   return (
     <ScrollView style={styles.mainEventContainer}>
         <AnimatedTouchableOpacity
-        onPress={() => {}}
+        onPress={() => navigation.navigate("Event", {eventUUID: event.EventUUID})}
         activeOpacity={0.7}
         style={[styles.eventContainer, CardShadowStyles, { transform: [{ scale }, { rotate }] }]}
         >
         <Image style={styles.banner} source={{ uri: event.EventBanner }} />
+
+        <View style={styles.eventCategoryContainer}>
+            <Text style={styles.eventCategory}>{event.StatusItemCode}</Text>
+            <Text style={styles.eventCategory}>{event.EventType}</Text>
+        </View>
+
         <Text style={styles.eventName}>{event.EventName}</Text>
         <Text numberOfLines={5} style={styles.eventDescription}>{event.EventDescription}</Text>
 
@@ -85,7 +99,7 @@ const styles = StyleSheet.create({
         resizeMode: "cover"
      },
     eventName: {
-        paddingTop: 10,
+        paddingTop: 5,
         fontWeight: 600,
         fontSize: 16
     },
@@ -112,6 +126,19 @@ const styles = StyleSheet.create({
     },
     eventDescription: {
         textAlign: "left",
-    }
+    },
+    eventCategoryContainer: {
+        flexDirection: "row",
+        gap: 10
+    },
+     eventCategory: {
+        paddingHorizontal: 10,
+        marginTop: 5,
+        backgroundColor: colors.LIGHT_COLOR,
+        fontSize: 12,
+        fontWeight: "500",
+        borderRadius: 24,
+        paddingVertical: 2
+     }
 
 })

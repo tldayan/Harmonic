@@ -24,10 +24,11 @@ interface ProfileHeaderProps {
     typing?: boolean
     showStatus?: boolean,
     onPress?: () => void
+    flex?: boolean
     fetchLatestMessages?: (messageBoardUUID?: string) => void
 }
 
-export default function ProfileHeader({name, typing,fetchLatestMessages, onPress , goBack, showStatus, online = false,post,postLikes,showMemberActions, showPostActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {
+export default function ProfileHeader({name, flex,typing,fetchLatestMessages, onPress , goBack, showStatus, online = false,post,postLikes,showMemberActions, showPostActions, attachmentData, noDate, ProfilePic = "https://i.pravatar.cc/150"} : ProfileHeaderProps) {
 
     const [isEditingPost, setIsEditingPost] = useState(false)
     const navigation = useNavigation()
@@ -54,7 +55,7 @@ export default function ProfileHeader({name, typing,fetchLatestMessages, onPress
     <View style={styles.mainProfileDetialsContainer}>
         {goBack && <CustomButton buttonStyle={{marginLeft: 10, flexDirection :"row", height: "100%", alignItems: "center"}} onPress={() => navigation.goBack()} icon={<ChevronLeft />} />}
         
-        <TouchableOpacity style={{flexDirection: "row", gap: 10, alignItems: "center"}} onPress={onPress}>
+        <TouchableOpacity style={[{flexDirection: "row", gap: 10, alignItems: "center"}, flex ? {flex: 1} : null]} onPress={onPress}>
           <Image source={{ uri: postData?.ProfilePic || ProfilePic === "" ? "https://i.pravatar.cc/150" : ProfilePic }} style={styles.profilePicture} />
           <View style={styles.userNameContainer}> 
               <Text style={styles.name}>{postData?.FirstName ? postData?.FirstName : name}</Text>

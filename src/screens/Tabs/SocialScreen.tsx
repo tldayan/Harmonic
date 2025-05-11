@@ -167,12 +167,12 @@ export default function SocialScreen() {
             )}
             keyExtractor={(item) => item.MessageBoardUUID}
             onEndReached={fetchMBMessages}
-            onEndReachedThreshold={0.5} // 0.5
+            onEndReachedThreshold={0.5} 
             onRefresh={handleRefresh}
             refreshing={refreshing}
             scrollEnabled={filteredMessages.length > 0}
             showsVerticalScrollIndicator={false}
-            ListFooterComponent={loading ? <ActivityIndicator size={"small"} /> : null}
+            ListFooterComponent={loading ? <ActivityIndicator size={"small"} style={{marginVertical: 30}} /> : null}
         />
 
         {(filteredMessages.length === 0 && filtering.categories.length !== 0) && <View style={styles.noResultsContainer}>

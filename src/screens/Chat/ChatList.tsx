@@ -252,6 +252,7 @@ const ChatsList = () => {
         onRefresh={handleRefresh}
         refreshing={refreshing}
         keyExtractor={(item) => item.ChatMasterUUID}
+        ListEmptyComponent={<Text style={{alignSelf: 'center', textAlign: "center", marginVertical: "50%", marginHorizontal: "20%", color: colors.LIGHT_TEXT}}>No chats yet. Start a chat to connect with someone!</Text>}
       />
 
       <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "1"}>

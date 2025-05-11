@@ -1,5 +1,35 @@
 import { DocumentPickerResponse } from "@react-native-documents/picker";
 
+export interface Event {
+  EventUUID: string;
+  EventName: string;
+  EventDescription: string;
+  EventIcon: string | null;
+  EventBanner: string;
+  EventStartDateTime: string;
+  EventEndDateTime: string;
+  PublishDateTime: string;
+  EventStatus: string;
+  StatusItemCode:  string;
+  EventTypeUUID: string;
+  EventType:  string;
+  EventTypeCode: string;
+  NoOfParticipants: number;
+  HostFullName: string;
+  LoggedInUserParticipationStatus: string | null;
+  MaximumPlusOnesAllowedPerParticipant: number | null;
+  AllowGuestToBringPlusOnes: boolean;
+  MaxParticipantLimit: number | null;
+  AllowQueueAfterMaxParticipantLimit: boolean;
+  EventRegistrationDetailUUID: string;
+  GetInterestBeforeRegistrationStart: boolean;
+  AllowedMinimumAge: number | null;
+  AllowedMaximumAge: number | null;
+  EventRegistrationStartDateTime: string;
+  EventRegistrationEndDateTime: string;
+  InformationForRegisteredUsers: string | null;
+  CanLeaveEvent: boolean;
+}
 
 
 export interface EventInformation {
@@ -20,3 +50,14 @@ export interface EventInformation {
   eventBanner: DocumentPickerResponse[]; 
   loading: boolean;
 }
+
+
+export type FormErrorKeys =
+  | "eventName"
+  | "eventType"
+  | "eventDescription"
+  | "eventBanner"
+
+export type FormErrors = Partial<
+  Record<FormErrorKeys, { hasError: boolean; message?: string }>
+>;

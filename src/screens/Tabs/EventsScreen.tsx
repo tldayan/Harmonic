@@ -30,50 +30,33 @@ export default function EventsScreen() {
   const scrollX = useRef(new Animated.Value(0)).current;
 
 
-  const fetchEventsList = async() => {
+const fetchEventsList = async (latest?: boolean) => {
+  if (!hasMoreEvents && !latest) return;
 
-    if(!hasMoreEvents) return
+  try {
+    const eventsListResponse = await getEventList(userUUID, organizationUUID, latest ? 0 : startIndex);
 
-    try {
-
-        const eventsListResponse = await getEventList(userUUID, organizationUUID, startIndex)
-        setStartIndex((prev) => prev + 10)
-        if(eventsListResponse.Payload.length < 10) {
-            setHasMoreEvents(false)
-        }
-        setEvents((prev) => [...prev, ...eventsListResponse.Payload])
-
-    } catch (err) {
-        console.log(err)
-    } finally {
-        setLoading(false)
-    }
-
-  }
-
-
-  const fetchLatestEvent = async () => {
-
-    setLoading(true);
-
-  
-    console.log("Fetching Latest Event");
-  
-    try {
-      const eventsListResponse = await getEventList(userUUID, organizationUUID, 0, 1);
-      const latestEvent = eventsListResponse.Payload?.[0];
-      console.log("eventLists", latestEvent);
-  
+    if (latest) {
+      const latestEvent = eventsListResponse.Payload[0];
       if (latestEvent) {
         setEvents((prev) => [latestEvent, ...prev]);
       }
-  
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
+    } else {
+      setStartIndex((prev) => prev + 10);
+      if (eventsListResponse.Payload.length < 10) {
+        setHasMoreEvents(false);
+      }
+      setEvents((prev) => [...prev, ...eventsListResponse.Payload]);
     }
-  };
+
+  } catch (err) {
+    console.log(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   
 
 
@@ -111,15 +94,22 @@ export default function EventsScreen() {
         scrollEventThrottle={16}
         data={searchEvent.trim() ? filteredEvents : events}
         style={{height: "100%"}}
+        onRefresh={fetchEventsList}
+        refreshing={loading}        
+        onEndReached={() => fetchEventsList(false)}
+        onEndReachedThreshold={0.5}
         keyExtractor={(item) => item.EventUUID}
         renderItem={({ item, index }) => (
             <EventItem event={item} index={index} scrollX={scrollX} />
         )}
+        ListFooterComponent={(loading && events?.length > 0) ? (
+                  <ActivityIndicator size="small" color="black" />
+                ) : null}
       />}
 
 
         <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingEvent} onClose={() => setCreatingEvent(false)}>
-          <EventCreation fetchLatestEvent={fetchLatestEvent} onClose={() => setCreatingEvent(false)} />
+          <EventCreation fetchEventsList={fetchEventsList} onClose={() => setCreatingEvent(false)} />
         </CustomModal>
 
 

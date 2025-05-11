@@ -31,6 +31,7 @@ export type CustomTextInputFieldProps = {
     confirmedPassword?: string
     onPress?: () => void
     multiline?: boolean
+    hasError?: boolean
     scrollEnabled?: boolean
     onContentSizeChange?: (event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) => void;
 }

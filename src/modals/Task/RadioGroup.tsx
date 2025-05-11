@@ -34,9 +34,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.labelContainer}>
         <Text style={styles.labelText}>{label}</Text>
-      </View>
       <View style={styles.optionsContainer}>
         {options?.map((option) => (
           <TouchableOpacity
@@ -67,16 +65,12 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 10,
+    marginTop: 15,
     width: "100%",
-    gap: 8,
-  },
-  labelContainer: {
-    marginBottom: 4,
   },
   labelText: {
     color: "#111928",
-    fontSize: 14,
+    fontWeight: 500
   },
   optionsContainer: {
     flexWrap: "wrap",

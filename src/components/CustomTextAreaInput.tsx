@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   GestureResponderEvent,
+  Text,
 } from "react-native";
 import { colors } from "../styles/colors";
 
@@ -18,7 +19,10 @@ interface TextAreaInputProps {
   onPressInput?: (event: GestureResponderEvent) => void;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  errorMessage?: string;
+  hasError?: boolean;
 }
+
 
 const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
   placeholder,
@@ -30,6 +34,8 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
   onPressInput,
   leftIcon,
   rightIcon,
+  hasError,
+  errorMessage
 }) => {
   const [value, setValue] = React.useState("");
 
@@ -64,20 +70,30 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
 
   return (
     <View
-      style={[
-        styles.container,
-        multiline && { minHeight: flex ? 218 : 100 },
-        !multiline && { height: 42 },
-      ]}
-    >
-      <TouchableOpacity
-        style={[styles.input, !noInput ? {flexDirection :"column", alignItems: "flex-start"} : null  ,multiline ? { paddingVertical: 5 } : null]}
-        onPress={noInput ? onPressInput : undefined}
-        activeOpacity={noInput ? 0.7 : 1}
-      >
-        {inputContent}
-      </TouchableOpacity>
-    </View>
+  style={[
+    styles.container,
+    multiline && { minHeight: flex ? 218 : 100 },
+    !multiline && { height: 42 },
+  ]}
+>
+  <TouchableOpacity
+    style={[
+      styles.input,
+      !noInput ? { flexDirection: "column", alignItems: "flex-start" } : null,
+      multiline ? { paddingVertical: 5 } : null,
+      (errorMessage || hasError) ? { borderColor: 'red', backgroundColor : colors.RED_SHADE } : null, // red border if error
+    ]}
+    onPress={noInput ? onPressInput : undefined}
+    activeOpacity={noInput ? 0.7 : 1}
+  >
+    {inputContent}
+  </TouchableOpacity>
+
+  {errorMessage && (
+    <Text style={styles.errorText}>{errorMessage}</Text>
+  )}
+</View>
+
   );
 };
 
@@ -115,6 +131,13 @@ const styles = StyleSheet.create({
   icon: {
     paddingHorizontal: 4,
   },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 12,
+  },
+  
 });
 
 export default CustomTextAreaInput;

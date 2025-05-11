@@ -5,7 +5,7 @@ import CustomSelectInput from "../../components/CustomSelectInput";
 import { CustomModal } from "../../components/CustomModal";
 import EventTypes from "./EventTypes";
 import { uploadLocalDocuments } from "../../utils/helpers";
-import { EventInformation } from "../../types/event.types";
+import { EventInformation, FormErrors } from "../../types/event.types";
 import UploadIcon from "../../assets/icons/upload.svg"
 import { colors } from "../../styles/colors";
 import { DocumentItem } from "../../components/FlatlistItems/DocumentItem";
@@ -16,10 +16,12 @@ import { defaultInputStyles } from "../../styles/global-styles";
 interface EventInformationProps {
     setEventInformation: React.Dispatch<React.SetStateAction<EventInformation>>
     eventInformation: EventInformation
+    formErrors: FormErrors
+    setFormErrors: React.Dispatch<React.SetStateAction<FormErrors>>;
 }
 
 
-export const Details = ({eventInformation, setEventInformation} : EventInformationProps) => {
+export const Details = ({eventInformation, setEventInformation, formErrors, setFormErrors} : EventInformationProps) => {
 
 
     const [selectingEventType, setSelectingEventType] = useState(false)
@@ -29,15 +31,18 @@ export const Details = ({eventInformation, setEventInformation} : EventInformati
         if(eventInformation.eventBanner.length) return
         const documentsWithLocalUri = await uploadLocalDocuments(eventInformation.eventBanner)
         setEventInformation((prev) => ({...prev, eventBanner: [...documentsWithLocalUri]}))
+        if (documentsWithLocalUri)(
+          setFormErrors((prev) => ({...prev, eventBanner: {...prev.eventBanner, hasError: false}}))
+        )
 
     }
 
   return (
 <CustomKeyboardAvoidingView>
-  <ScrollView ref={scrollViewRef} style={styles.container} contentContainerStyle={{paddingBottom: 30}}>
+  <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef} style={styles.container} contentContainerStyle={{paddingBottom: 30}}>
 
       {/* FILE UPLOAD SECTION */}
-      <TouchableOpacity onPress={addDocument} style={[styles.fileUploadContainer, eventInformation.eventBanner.length ? {borderColor: colors.GREEN} : null]}>
+      <TouchableOpacity onPress={addDocument} style={[styles.fileUploadContainer, eventInformation.eventBanner.length ? {borderColor: colors.GREEN} : null, formErrors.eventBanner?.hasError ? {borderColor: "red"} : null]}>
       {eventInformation.eventBanner.length ? <DocumentItem item={eventInformation.eventBanner[0]} deleteDocument={() => setEventInformation((prev) => ({...prev, eventBanner: []}))} /> : <View style={styles.dropFilesContainer}>
         <View style={styles.imagesContainer}>
             <Image
@@ -62,15 +67,17 @@ export const Details = ({eventInformation, setEventInformation} : EventInformati
       </View>}
     </TouchableOpacity>
 
-    <CustomTextInput onChangeText={(e) => setEventInformation((prev) => ({...prev, eventName: e}))} labelStyle={styles.eventNameLabel} value={eventInformation.eventName} placeholderTextColor={colors.LIGHT_TEXT} placeholder="Birthday Bash" inputStyle={defaultInputStyles} label="Event Name" />
+    <CustomTextInput hasError={formErrors.eventName?.hasError} onChangeText={(e) => {setFormErrors((prev) => ({...prev, eventName: {...prev.eventName, hasError: false}})); setEventInformation((prev) => ({...prev, eventName: e}))}} labelStyle={styles.eventNameLabel} value={eventInformation.eventName} placeholderTextColor={colors.LIGHT_TEXT} placeholder="Birthday Bash" inputStyle={defaultInputStyles} label="Event Name" />
     <Text style={styles.description}>Description</Text>
     <CustomTextAreaInput
+        hasError={formErrors.eventDescription?.hasError}
         multiline={true}
         flex={true}
         onFocus={() => {
             scrollViewRef.current?.scrollToEnd({ animated: true });
         }}
         onChangeText={(e) => {
+          setFormErrors((prev) => ({...prev, eventDescription: {...prev.eventDescription, hasError: false}}));
             setEventInformation((prev) => ({ ...prev, eventDescription: e }));
             scrollViewRef.current?.scrollToEnd({ animated: true });
         }}
@@ -78,7 +85,7 @@ export const Details = ({eventInformation, setEventInformation} : EventInformati
     />
 
 
-    <CustomSelectInput onSelect={() => setSelectingEventType(true)} placeholder={eventInformation.eventType.eventTypeName ? eventInformation.eventType.eventTypeName : "Event Type"} />
+    <CustomSelectInput hasError={formErrors.eventType?.hasError} onSelect={() => {setFormErrors((prev) => ({...prev, eventType: {...prev.eventType, hasError: false}}));setSelectingEventType(true);}} placeholder={eventInformation.eventType.eventTypeName ? eventInformation.eventType.eventTypeName : "Event Type"} />
     
 
     <CustomModal isOpen={selectingEventType} onClose={() => setSelectingEventType(false)}>
@@ -96,7 +103,8 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   description: {
-    marginTop: 20
+    marginTop: 20,
+    fontWeight: 500
   },
   fileUploadContainer: {
     justifyContent: "space-between",
@@ -256,6 +264,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   eventNameLabel: {
+    fontWeight: 500,
     paddingTop: 20,
     paddingBottom: 10
   },

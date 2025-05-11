@@ -8,6 +8,7 @@ interface SelectInputProps {
   onSelect?: () => void;
   leftIcon?: React.ReactNode;  
   rightIcon?: React.ReactNode;
+  hasError?: boolean; 
 }
 
 const CustomSelectInput: React.FC<SelectInputProps> = ({
@@ -15,13 +16,21 @@ const CustomSelectInput: React.FC<SelectInputProps> = ({
   onSelect,
   leftIcon,
   rightIcon,
+  hasError
 }) => {
   return (
     <TouchableOpacity
-      style={styles.selectInput}
-      onPress={onSelect}
-      activeOpacity={0.7}
-    >
+  style={[
+    styles.selectInput,
+    hasError && {
+      borderColor: "red",
+      backgroundColor: colors.RED_SHADE,
+    },
+  ]}
+  onPress={onSelect}
+  activeOpacity={0.7}
+>
+
       <View style={styles.content}>
         {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
 

@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import RadioGroup from "../RadioGroup"
 import CustomTextAreaInput from '../../../components/CustomTextAreaInput'
 import CustomSelectInput from '../../../components/CustomSelectInput'
@@ -9,21 +9,46 @@ import AssetTypes from "../AssetTypes"
 import { WorkRequestInformationState } from '../../../types/work-request.types'
 import { CustomTextInput } from '../../../components/CustomTextInput'
 import { defaultInputStyles } from '../../../styles/global-styles'
+import { getWorkPriorities } from '../../../api/network-utils'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../store/store'
 
 interface WorkRequestInformationProps {
-    priorityOptions?: WorkPriority[]
     setWorkRequestInformation: React.Dispatch<React.SetStateAction<WorkRequestInformationState>>
     workRequestInformation: WorkRequestInformationState
 }
 
 export default function WorkRequestInformation({
-    priorityOptions,
     setWorkRequestInformation,
     workRequestInformation
 }: WorkRequestInformationProps) {
 
     const [selectingWorkRequestType, setSelectingWorkRequestType] = useState(false)
     const [selectingAsset, setSelectingAsset] = useState(false)
+    const [workPriorities, setWorkPriorities] = useState<WorkPriority[]>()
+    const {organizationUUID} = useSelector((state: RootState) => state.auth)
+    const [loading, setLoading] = useState(false)
+
+        useEffect(() => {
+    
+            const fetchWorkPriorities = async() =>  {
+                setLoading(true)
+                try {
+                    const workPriorities = await getWorkPriorities(organizationUUID)
+                    console.log(workPriorities)
+                    setWorkPriorities(workPriorities.Payload)
+                } catch (err) {
+                    console.log(err)
+                } finally {
+                    setLoading(false)
+                }
+
+            }
+    
+            fetchWorkPriorities()
+    
+        }, [])
+    
 
     return (
         <View style={styles.modalBody}>
@@ -70,9 +95,9 @@ export default function WorkRequestInformation({
                 </View>
             </View>
 
-            <RadioGroup
+            {loading ? <ActivityIndicator size={"small"} style={{marginTop: 20}} /> :<RadioGroup
                 label="Priority"
-                options={priorityOptions}
+                options={workPriorities}
                 onSelect={(selectedPriority: WorkPriority) => {
                     setWorkRequestInformation((prev) => ({
                         ...prev,
@@ -82,7 +107,7 @@ export default function WorkRequestInformation({
                         }
                     }))
                 }}
-            />
+            />}
 
             <CustomModal isOpen={selectingWorkRequestType} onClose={() => setSelectingWorkRequestType(false)}>
                 <WorkRequestTypes setWorkRequestInformation={setWorkRequestInformation} onClose={() => setSelectingWorkRequestType(false)} />

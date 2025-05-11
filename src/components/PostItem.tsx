@@ -41,7 +41,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
   const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
   const [loading, setLoading] = useState<{[key: number]: boolean}>({})
   const reduxHasLiked = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.hasLiked ?? false)
-  const reduxPostLikeCount = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.likeCount)
+/*   const reduxPostLikeCount = useSelector((state: RootState) => state.postLikes.posts[post.MessageBoardUUID]?.likeCount) */
   const [videoPlaying, setVideoPlaying] = useState(false)
   const dispatch = useDispatch()
   const route = useRoute()

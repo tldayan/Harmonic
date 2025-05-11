@@ -37,17 +37,16 @@ export const EventSummary = ({eventInformation}: EventInformationProps) => {
   }, []);
   
 
-  
+  console.log(eventInformation.eventBanner[0])
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{gap: 10}} style={[styles.eventInfoContainer, {marginVertical: 10}]}>
       <Text style={styles.eventName}>{eventInformation.eventName}</Text>
-      <Image style={styles.eventBanner} source={{uri: eventInformation.eventBanner?.[0]?.uri ?? "https://i.pravatar.cc/150"}}
-/>
+      <Image style={styles.eventBanner} source={{uri: (eventInformation.eventBanner?.[0] as any)?.localUri ?? "https://i.pravatar.cc/150" ?? "https://i.pravatar.cc/150"}}/>
       <View style={styles.statsContainer}>
         <Clock width={15} height={15} />
         <Text style={styles.statInfo}>{formatLongDate(eventInformation.eventStartDateTime)}</Text>
-      </View>   
+      </View>    
       <View style={styles.statsContainer}>
         <MapPin width={15} height={15} />
         <Text style={styles.statInfo}>Carolina Palms Community Hall</Text>

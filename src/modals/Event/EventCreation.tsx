@@ -1,8 +1,8 @@
-import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
 import { RootState } from '../../store/store'
@@ -11,18 +11,19 @@ import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
 import { PRIMARY_BUTTON_STYLES } from '../../styles/button-styles'
 import { Details } from './Details'
-import { EventInformation } from '../../types/event.types'
+import { EventInformation, FormErrors } from '../../types/event.types'
 import { Timings } from './Timings'
 import { Guests } from './Guests'
 import { publishEvent, saveEventConfiguration, saveEventDetails, saveEventSchedule } from '../../api/network-utils'
 import { uploadDocuments } from '../../utils/helpers'
 import { firebaseStoragelocations, STATUS_CODE } from '../../utils/constants'
 import { EventSummary } from './EventSummary'
+import Toast from 'react-native-toast-message'
 
 
 interface EventCreationProps {
     onClose: () => void
-    fetchLatestEvent: () => void
+    fetchEventsList?: (value: boolean) => void
 }
 
 const width = Dimensions.get("window").width
@@ -36,7 +37,8 @@ const steps = [
 
 
 
-export default function EventCreation({onClose, fetchLatestEvent} : EventCreationProps) {
+export default function EventCreation({onClose,fetchEventsList} : EventCreationProps) {
+      const route = useRoute()
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [step, setStep] = useState(0)
     const [eventInformation, setEventInformation] = React.useState<EventInformation>({
@@ -54,6 +56,9 @@ export default function EventCreation({onClose, fetchLatestEvent} : EventCreatio
         eventBanner: [],
         loading: false
       });
+
+      const [formErrors, setFormErrors] = React.useState<FormErrors>({});
+
       
       
 
@@ -67,7 +72,7 @@ export default function EventCreation({onClose, fetchLatestEvent} : EventCreatio
         return (
             <View style={styles.innerContainer}>
                 
-                <Details eventInformation={eventInformation} setEventInformation={setEventInformation} />
+                <Details setFormErrors={setFormErrors} formErrors={formErrors} eventInformation={eventInformation} setEventInformation={setEventInformation} />
             </View>
         )
 
@@ -106,13 +111,61 @@ export default function EventCreation({onClose, fetchLatestEvent} : EventCreatio
     
     const next = async() => {
 
-        if(step === 3 && eventInformation.eventName) {
+        if (step === 0) {
+            let hasError = false;
+            const newErrors: FormErrors = {};
+          
+            if (!eventInformation.eventName) {
+              newErrors.eventName = { hasError: true };
+              hasError = true;
+            }
+          
+            if (!eventInformation.eventDescription) {
+              newErrors.eventDescription = { hasError: true };
+              hasError = true;
+            }
 
+            if (!eventInformation.eventBanner.length) {
+              newErrors.eventBanner = { hasError: true };
+              hasError = true;
+            }
+          
+            if (!eventInformation.eventType.eventTypeUUID) {
+              newErrors.eventType = { hasError: true };
+              hasError = true;
+            }
+          
+          
+            if (hasError) {
+              setFormErrors((prev) => ({ ...prev, ...newErrors }));
+              return;
+            }
+          
+          }
+
+
+          if (step === 1) {
+            if (!eventInformation.eventStartDateTime || !eventInformation.eventEndDateTime) {
+              Toast.show({
+                type: 'error',
+                text1: 'Event timing missing',
+                text2: 'Please fill in both start and end date/time fields.',
+                position: "bottom"
+              });
+              return;
+            }
+        
+          }
+          
+
+        if(step === 3 && eventInformation.eventName) {
+            console.log("cam here")
             setEventInformation((prev) => ({...prev, loading: true}))
             try {
                 
                 const uploadedBanner = await uploadDocuments(eventInformation.eventBanner, firebaseStoragelocations.event)
                 const eventBannerUrl = uploadedBanner[0].url
+                console.log(eventBannerUrl)
                 const saveEventDetailsResponse = await saveEventDetails(userUUID, organizationUUID,eventBannerUrl, eventInformation)
                 const {EventUUID} = saveEventDetailsResponse.Payload
                 console.log("eventUUID", EventUUID)
@@ -126,10 +179,18 @@ export default function EventCreation({onClose, fetchLatestEvent} : EventCreatio
                     throw new Error("Failed to publish event");
                 }                
               onClose()
+
+              if(route.name !== "Events") {
+                navigation.navigate("Tabs", {
+                    screen: "Events",
+                });
+              } else {
+                fetchEventsList?.(true)
+              }
+              
+              
             } catch (err) {
                 console.log(err)
-            } finally {
-                fetchLatestEvent()  
             }
 
         }
@@ -194,7 +255,7 @@ export default function EventCreation({onClose, fetchLatestEvent} : EventCreatio
             {step >= 1 && <CustomButton onPress={back} textStyle={{color: "black"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.backButton]} title={"Back"} />}
           {eventInformation.loading ? <ActivityIndicator style={{marginLeft: "auto"}} size={"large"} /> : <CustomButton onPress={next} textStyle={{color: "white"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.nextButton]} title={step <= 2 ? "Next" : "Publish Event"} />}
         </View>
-
+        <Toast />
 
     </SafeAreaView>
   )

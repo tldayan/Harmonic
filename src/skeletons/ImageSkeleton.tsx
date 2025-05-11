@@ -36,7 +36,7 @@ export default function ImageSkeleton({oneImage} : ImageSkeletonProps) {
 
 const styles = StyleSheet.create({
   postImageContainer: {
-    marginTop: 10,
+/*     marginTop: 10, */
     width: 150,
     height: 150,
     backgroundColor: colors.LIGHT_COLOR,

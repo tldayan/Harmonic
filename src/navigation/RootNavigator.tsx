@@ -18,7 +18,7 @@ import { EventScreen } from "../screens/Others/EventScreen"
 
 export const RootNavigator: React.FC = () => {
 
-    const {user} = useUser()
+    const {user} = useUser()    
     const { authMode } = useAuthMode();
     console.log("Root Navigator",authMode) // if signUp, proceed to user profile form
 

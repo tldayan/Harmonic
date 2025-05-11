@@ -10,6 +10,8 @@ interface DeleteChatProps {
 }
 
 export default function DeleteChat({onClose, name}: DeleteChatProps) {
+
+
   return (
     <View style={modalContainer}>
       <Text style={modalTitle}>Delete chat</Text>

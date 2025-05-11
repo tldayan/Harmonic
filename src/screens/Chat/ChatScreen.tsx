@@ -33,7 +33,7 @@ import CameraView from '../../components/CameraView'
 import { CapturedItem } from '../../components/FlatlistItems/CapturedItem'
 import { SocketContext } from '../../context/SocketContext'
 import { BaseMessage, GroupMessageReceived, PrivateMessageReceived } from '../../types/chat-types'
-import { convertToChatMessage } from '../../utils/ChatScreen/ConverMessage'
+import { convertToChatMessage } from '../../utils/ChatScreen/ConvertMessage'
 import { useUser } from '../../context/AuthContext'
 import uuid from 'react-native-uuid';
 import { FirebaseAttachment } from '../../types/post-types'

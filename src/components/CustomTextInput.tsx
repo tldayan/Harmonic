@@ -28,6 +28,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
       password,
       confirmedPassword,
       onPress,
+      hasError,
       multiline,
       scrollEnabled
     },
@@ -92,8 +93,8 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
             style={[
               styles.input,
               inputStyle,
-              errorMessage && { backgroundColor: colors.RED_SHADE, borderColor: "red" },
-              isFocused && !errorMessage && { borderColor: colors.ACTIVE_ACCENT_COLOR },
+              ((errorMessage || hasError) && { backgroundColor: colors.RED_SHADE, borderColor: "red" }),
+              (isFocused && !errorMessage) && { borderColor: colors.ACTIVE_ACCENT_COLOR },
               value === confirmedPassword && confirmedPasswordCheck && {
                 backgroundColor: "#f3faf7",
                 borderColor: "#0e9f6e",

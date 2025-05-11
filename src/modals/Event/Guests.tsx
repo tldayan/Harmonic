@@ -34,19 +34,27 @@ export const Guests = ({ eventInformation, setEventInformation }: EventGuestsPro
   useEffect(() => {
     fetchOrganizationUsers()
   }, [])
-  
 
   return (
     <CustomKeyboardAvoidingView>
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
+      <View style={styles.container}>
         <CustomButton onPress={() => setAddingGuests(true)} textStyle={{fontWeight: 500}} iconPosition="left" icon={<Plus color="black" strokeWidth={2} width={20} height={20} />} buttonStyle={styles.addMember}  title={"Add Member"} />
         <Text style={[styles.title, {borderBottomWidth: 0}]}>Invited Guests</Text>
 
-        {eventInformation.participants.length ? <ScrollView contentContainerStyle={{gap: 10}}>
-          {eventInformation.participants.map((eachGuest) => {
-          return <ProfileHeader key={eachGuest.memberUUID} ProfilePic={eachGuest.profileURL} name={eachGuest.memberName} noDate />
-          })}
-        </ScrollView> : <Text style={{color: colors.TEXT_COLOR}}>No guests invited</Text>}
+        {eventInformation.participants.length ? 
+        <View style={{ height: 300, borderWidth: 1 }}>
+          <ScrollView contentContainerStyle={{ gap: 10, padding: 10 }}>
+            {eventInformation.participants.map((eachGuest) => (
+              <ProfileHeader
+                flex
+                key={eachGuest.memberUUID}
+                ProfilePic={eachGuest.profileURL}
+                name={eachGuest.memberName}
+                noDate
+              />
+            ))}
+          </ScrollView>
+        </View> : <Text style={{color: colors.TEXT_COLOR}}>No guests invited</Text>}
         
       <Text style={styles.title}>Suggested members</Text>
       <View style={styles.suggestedMembersContainer}>
@@ -65,7 +73,7 @@ export const Guests = ({ eventInformation, setEventInformation }: EventGuestsPro
         
       
       
-      </ScrollView>
+      </View>
 
 
       <CustomModal presentationStyle="formSheet" fullScreen isOpen={addingGuests} onClose={() => setAddingGuests(false)}>
@@ -78,6 +86,7 @@ export const Guests = ({ eventInformation, setEventInformation }: EventGuestsPro
 const styles = StyleSheet.create({
   container: {
     gap: 0,
+    paddingBottom: 30
   },
   addMember: {
     borderWidth: 1,

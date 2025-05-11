@@ -1,7 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function ProfileScreen() {
+
+  const [userProfile, setUserProfile] = useState({})
+
+  
+
+
+
   return (
     <View>
       <Text>ProfileScreen</Text>

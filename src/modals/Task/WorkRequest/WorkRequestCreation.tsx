@@ -5,7 +5,7 @@ import ModalsHeader from '../../ModalsHeader'
 import CustomButton from '../../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES } from '../../../styles/button-styles'
 import { colors } from '../../../styles/colors'
-import { getWorkPriorities , getWorkRequestDetails, saveWorkRequest, saveWorkRequestAttachments, saveWorkRequestNote } from '../../../api/network-utils'
+import { getWorkRequestDetails, saveWorkRequest, saveWorkRequestAttachments, saveWorkRequestNote } from '../../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/store'
 import ProgressBar from '../../../components/ProgressBar'
@@ -16,11 +16,10 @@ import WorkRequestInformation from './WorkRequestInformation'
 import ReviewTask from '../ReviewTask'
 import TaskUserInfo from '../TaskUserInfo'
 import TaskDocumentUpload from '../TaskDocumentUpload'
-import { statusCodes } from '@react-native-google-signin/google-signin'
 import { createOptimisticWorkRequest } from './createOptimisticWorkRequest'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootStackParamList, TabParamList } from '../../../types/navigation-types'
+import { RootStackParamList } from '../../../types/navigation-types'
 
 interface WorkRequestCreationProps {
     onClose: () => void
@@ -41,7 +40,6 @@ const steps = [
 export default function WorkRequestCreation({onClose, setWorkRequests} : WorkRequestCreationProps) {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [step, setStep] = useState(0)
-    const [workPriorities, setWorkPriorities] = useState<WorkPriority[]>()
     const [workRequestInformation, setWorkRequestInformation] = React.useState<WorkRequestInformationState>({
         workRequestUUID: "",
         asset: { assetName: '', assetUUID: '' },
@@ -64,19 +62,6 @@ export default function WorkRequestCreation({onClose, setWorkRequests} : WorkReq
 
     const flatListRef = useRef<FlatList<any>>(null)
 
-
-    useEffect(() => {
-
-        const fetchWorkPriorities = async() =>  {
-            const workPriorities = await getWorkPriorities(organizationUUID)
-            console.log(workPriorities)
-            setWorkPriorities(workPriorities.Payload)
-        }
-
-        fetchWorkPriorities()
-
-    }, [])
-
     useEffect(() => {
 
         console.log(workRequestInformation)
@@ -88,7 +73,7 @@ export default function WorkRequestCreation({onClose, setWorkRequests} : WorkReq
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <WorkRequestInformation workRequestInformation={workRequestInformation} setWorkRequestInformation={setWorkRequestInformation} priorityOptions={workPriorities}/>            
+                <WorkRequestInformation workRequestInformation={workRequestInformation} setWorkRequestInformation={setWorkRequestInformation}/>            
             </View>
         )
 
@@ -133,11 +118,6 @@ export default function WorkRequestCreation({onClose, setWorkRequests} : WorkReq
         try {
 
         if(step === 0) {
-
-           /*  if(!workRequestInformation.asset.assetUUID) {
-                Alert.alert("Asset missing")
-                return
-            }  */
             
 
             const saveWorkRequestResponse = await saveWorkRequest(userUUID, organizationUUID, workRequestInformation)

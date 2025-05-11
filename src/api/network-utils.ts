@@ -1164,10 +1164,10 @@ export const getEventTypes = async(organizationUUID: string) => {
 
 
 
-export const getEventDetails = async(userUUID: string, organizationUUID: string) => {
+export const getEventDetails = async(loggedInUserUUID: string, eventUUID: string) => {
 
   try {
-    const getEventDetailsResponse = await apiClient(ENDPOINTS.EVENT.GET_EVENT_DETAILS, {}, {}, "GET", {userUUID, organizationUUID})
+    const getEventDetailsResponse = await apiClient(ENDPOINTS.EVENT.GET_EVENT_DETAILS, {}, {}, "GET", {loggedInUserUUID, eventUUID})
     
     console.log(getEventDetailsResponse)
     return getEventDetailsResponse.data

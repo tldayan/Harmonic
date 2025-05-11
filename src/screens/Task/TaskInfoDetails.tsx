@@ -141,26 +141,37 @@ export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps
             </View>
   
             <View style={styles.filesContainer}>
-              {workRequestAttachments?.map((eachAttachment) => {
-                const IconComponent = getFileIconComponent(eachAttachment.Attachment);
-
-                return (
-                <TouchableOpacity onPress={() => openDocument(eachAttachment.Attachment)} key={eachAttachment.AttachmentUUID} style={styles.filePreview}>
-                    <View style={styles.fileInfoContainer}>
-                        <IconComponent style={styles.fileIcon} />
-                        <Text>
+              {workRequestAttachments.length === 0 ? (
+                <Text style={{ textAlign: "right", color: colors.LIGHT_TEXT }}>
+                  No files attached
+                </Text>
+              ) : (
+                <>
+                  {workRequestAttachments.map((eachAttachment) => {
+                    const IconComponent = getFileIconComponent(eachAttachment.Attachment);
+                    return (
+                      <TouchableOpacity
+                        onPress={() => openDocument(eachAttachment.Attachment)}
+                        key={eachAttachment.AttachmentUUID}
+                        style={styles.filePreview}
+                      >
+                        <View style={styles.fileInfoContainer}>
+                          <IconComponent style={styles.fileIcon} />
+                          <Text>
                             <Text style={styles.fileName}>
-                            {getCleanFileNameFromUrl(eachAttachment.Attachment)}
+                              {getCleanFileNameFromUrl(eachAttachment.Attachment)}
                             </Text>
                             {"\n"}
                             <Text style={styles.fileDetails}>12 Pages, 18 MB</Text>
-                        </Text>
-                    </View>
-              </TouchableOpacity>
-              )
-              })}
-              
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </>
+              )}
             </View>
+
           </View>
         </View>
         </>}

@@ -36,7 +36,7 @@ interface CreatePostProps {
 
   
 
-export default function CreatePost({onClose, creatingPost, post, attachmentData,fetchLatestMessages}: CreatePostProps) {
+export default function CreatePost({onClose, creatingPost, post, attachmentData}: CreatePostProps) {
 
     const {user} = useUser()
     const [postText, setPostText] = useState(post?.Message ? post.Message : "")
@@ -153,13 +153,10 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
 
             if(response.Status === STATUS_CODE.SUCCESS) {
                 onClose()
-                fetchLatestMessages?.(post?.MessageBoardUUID)
                 navigation.navigate("Tabs", {
                     screen: "Social",
                     params: {}
                   });
-                  
-                
             }
 
         } catch (err: any) {
