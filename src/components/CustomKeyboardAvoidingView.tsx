@@ -7,13 +7,22 @@ import {
     View,
   } from 'react-native';
   import React from 'react';
+
+
+  type Props = {
+    children: React.ReactNode;
+    keyboardVerticalOffset?: number; 
+  };
   
-  export default function CustomKeyboardAvoidingView({ children }: { children: React.ReactNode }) {
+  export default function CustomKeyboardAvoidingView({
+    children,
+    keyboardVerticalOffset = 0,
+  }: Props) {
     return (
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
-        keyboardVerticalOffset={150}
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.container}>

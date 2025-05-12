@@ -1,5 +1,5 @@
 import { FirebaseAuthTypes } from "@react-native-firebase/auth"
-import { userAuthType } from "../types/user-types";
+import { userAuthType, UserInfo } from "../types/user-types";
 import { apiClient } from "./api-client";
 import { ENDPOINTS } from "./endpoints";
 import { AttachmentData, CategoryProps, FirebaseAttachment } from "../types/post-types";
@@ -73,6 +73,33 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
     } catch (err) {
       console.log("Error fetching USER PROFILE")
+    }
+
+  }
+
+
+
+  export const updateUserProfile = async(userUUID: string, userInfo: UserInfo) => {
+
+    try {
+    const bodyData = {
+      "ProfilePicURL": userInfo.profilePic ? userInfo.profilePic : "",
+      "FirstName": userInfo.firstName,
+      "LastName": userInfo.lastName,
+      "EmailAddress": userInfo.email,
+      "Description": userInfo.description,
+      "PhoneCountryUUID": "231",
+      "PhoneNumber": userInfo.phoneNumber,
+      "UserUUID": userUUID,
+      "UserName": userInfo.userName
+    }
+
+      const response = await apiClient(ENDPOINTS.USER.UPDATE_USER_PROFILE, bodyData,{} ,"PUT")
+      console.log(response.data.Payload)
+      return response.data
+
+    } catch(err) {
+      console.error(err)
     }
 
   }
@@ -1281,6 +1308,21 @@ export const saveEventConfiguration = async(userUUID:string, eventInformation: E
     const saveEventConfigResponse = await apiClient(ENDPOINTS.EVENT.SAVE_EVENT_CONFIGURATION, bodyData, {}, "POST")
     console.log(saveEventConfigResponse)
     return saveEventConfigResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+export const joinEvent = async(userUUID:string, eventUUID: string) => {
+
+  try {
+    const joinEventResponse = await apiClient(ENDPOINTS.EVENT.JOIN_EVENT, {}, {}, "GET",{eventUUID, userUUID})
+    console.log(joinEventResponse)
+    return joinEventResponse.data
 
   } catch(err) {
     console.error(err)

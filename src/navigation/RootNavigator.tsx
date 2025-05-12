@@ -15,11 +15,21 @@ import ChatsScreen from "../screens/Chat/ChatsTabs"
 import AddModalScreen from "../modals/BottomTabActions"
 import { useAuthMode } from "../context/AuthModeContext"
 import { EventScreen } from "../screens/Others/EventScreen"
+import EditProfile from "../screens/Others/EditProfile"
+import { Text } from "react-native-gesture-handler"
+import { View } from "react-native"
+import CustomButton from "../components/CustomButton"
+import ChevronLeft from  "../assets/icons/chevron-left.svg"
+import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { RootStackParamList } from "../types/navigation-types"
+import EditProfileHeader from "./CustomHeaders/EditProfileHeader"
 
 export const RootNavigator: React.FC = () => {
 
     const {user} = useUser()    
     const { authMode } = useAuthMode();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
     console.log("Root Navigator",authMode) // if signUp, proceed to user profile form
 
     return (
@@ -30,6 +40,7 @@ export const RootNavigator: React.FC = () => {
                 <Stack.Screen name="Tabs" component={TabNavigator} />
                 <Stack.Screen name="Comments" component={CommentsScreen} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="Profile" component={ProfileScreen} options={{animation: "slide_from_right"}} />
+                <Stack.Screen name="EditProfile" component={EditProfile} options={{animation: "slide_from_right", headerShown: true, title: "Edit Profile", header: () => (<EditProfileHeader />)}} />
                 <Stack.Screen name="ChatScreen" component={ChatScreen} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="ChatInfo" component={UserInfo} options={{animation: "slide_from_right"}} />
                 <Stack.Screen name="TaskInfo" component={TaskInfo} options={{animation: "slide_from_right"}} />

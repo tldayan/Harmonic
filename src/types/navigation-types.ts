@@ -11,6 +11,7 @@ export type RootStackParamList = {
     ChatScreen: {userUUID: string, chatMasterUUID: string, chatProfilePictureURL: string | null, chatMasterName: string, chatType: string, chatMemberUserUUID: string, createdDateTime: string}
     ChatInfo: {chatMasterUUID: string,chatType: string}
     TaskInfo: {workRequestUUID: string}
+    EditProfile: undefined
     ChatsScreen: undefined
     AddModal: undefined;
 }

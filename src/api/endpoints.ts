@@ -14,6 +14,7 @@ export const ENDPOINTS = {
   },
   USER: {
     PROFILE: `${BASE_URL}/user/getUserProfile`,
+    UPDATE_USER_PROFILE: `${BASE_URL}/user/updateUserProfile`,
   },
   SOCIAL: {
     MBMESSAGES: `${BASE_URL}/social/getMBMessages`,
@@ -74,6 +75,7 @@ export const ENDPOINTS = {
     SAVE_EVENT_CONFIGURATION: `${BASE_URL}/event/saveEventConfiguration`,
     SAVE_EVENT_SCHEDULE: `${BASE_URL}/event/saveEventSchedule`,
     PUBLISH_EVENT: `${BASE_URL}/event/publishEvent`,
+    JOIN_EVENT: `${BASE_URL}/event/joinEvent`,
   },
   ALERT : {
     GET_CHAT_INVITE_DETAILS: `${BASE_URL}/alert/getChatInviteDetails`

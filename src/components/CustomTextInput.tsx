@@ -30,6 +30,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
       onPress,
       hasError,
       multiline,
+      noFlexGrow,
       scrollEnabled
     },
     ref 
@@ -65,7 +66,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
     const confirmedPasswordCheck = useMemo(() => password === confirmedPassword, [confirmedPassword]);
 
     return (
-      <View style={[styles.container]}>
+      <View style={[styles.container, noFlexGrow ? null : {flexGrow: 1}]}>
         {label && <Text style={[labelStyle, isFocused && { color: colors.BLACK_TEXT_COLOR }]}>{label}</Text>}
         <View style={[styles.inputWrapper, mainInputStyle]}>
           {inputMode === "tel" && (
@@ -118,7 +119,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
 const styles = StyleSheet.create({
   container: {
 /*     borderWidth: 2, */
-    flexGrow: 1
+/*     flexGrow: 1 */
   },
   inputWrapper: {
  /*    borderWidth:1, */

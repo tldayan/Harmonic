@@ -29,3 +29,19 @@ export interface UserSignInRequest {
     IsEmailVerified?: boolean;
     OrganizationURL?: string;
   }
+
+  export type UserInfo = {
+    profilePic: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
+    description: string;
+    email: string;
+    phoneNumber: string;
+    department: string;
+    designation: string;
+    address: string;
+    residingSince: string;
+    tenantOf: string;
+  };
+  

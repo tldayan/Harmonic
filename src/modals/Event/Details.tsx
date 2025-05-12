@@ -38,7 +38,7 @@ export const Details = ({eventInformation, setEventInformation, formErrors, setF
     }
 
   return (
-<CustomKeyboardAvoidingView>
+<CustomKeyboardAvoidingView keyboardVerticalOffset={150}>
   <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef} style={styles.container} contentContainerStyle={{paddingBottom: 30}}>
 
       {/* FILE UPLOAD SECTION */}

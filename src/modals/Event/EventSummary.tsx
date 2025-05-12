@@ -24,6 +24,7 @@ export const EventSummary = ({eventInformation}: EventInformationProps) => {
   const fetchUserProfile = async () => {
     try {
       const response = await getUserProfile(userUUID);
+      console.log(response?.data.Payload)
       if (response?.data?.Payload) {
         setUserProfile(response.data.Payload);
       }
