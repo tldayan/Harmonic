@@ -941,6 +941,7 @@ export const getWorkRequestList = async(userUUID: string,organizationUUID:string
     "LoggedInUserUUID": userUUID
 }
 
+
 console.log(bodyData)
   try {
     const getWorkRequestListResponse = await apiClient(ENDPOINTS.WORK_REQUEST.GET_WORK_REQUEST_LIST, bodyData, {}, "POST")
@@ -1323,6 +1324,21 @@ export const joinEvent = async(userUUID:string, eventUUID: string) => {
     const joinEventResponse = await apiClient(ENDPOINTS.EVENT.JOIN_EVENT, {}, {}, "GET",{eventUUID, userUUID})
     console.log(joinEventResponse)
     return joinEventResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+export const cancelEvent = async(loggedInUserUUID:string, eventUUID: string) => {
+
+  try {
+    const deleteEventResponse = await apiClient(ENDPOINTS.EVENT.CANCEL_EVENT, {}, {}, "GET",{eventUUID, loggedInUserUUID})
+    console.log(deleteEventResponse)
+    return deleteEventResponse.data
 
   } catch(err) {
     console.error(err)

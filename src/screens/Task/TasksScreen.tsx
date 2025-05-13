@@ -21,7 +21,12 @@ import WorkOrderCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
 import WorkRequestCreation from '../../modals/Task/WorkRequest/WorkRequestCreation'
 import WorkRequestItem from '../../components/FlatlistItems/WorkRequestItem'
 
-export default function TasksScreen() {
+interface TasksScreenProps {
+  filterUserTasks?: boolean
+}
+
+
+export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
 
   const [userRole, setUserRole] = useState("tenant")
   const [searchTask, setSearchTask] = useState("")
@@ -39,19 +44,21 @@ export default function TasksScreen() {
   const isAdmin = userRole === "admin";
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-  const fetchTasksList = async () => {
+  const fetchTasksList = async (initial?: boolean) => {
+
     if (!hasMore || loading) return;
-  
+
     setLoading(true);
   
     try {
-
-      const fetchFn = isAdmin ? getWorkOrderList : getWorkRequestList;
   
-      const TaskListResponse = await fetchFn(userUUID, organizationUUID, startIndex);
+      const fetchFn = isAdmin ? getWorkOrderList : getWorkRequestList;
+      
+      const TaskListResponse = await fetchFn(userUUID, organizationUUID, initial ? 0 : startIndex);
       const tasks = TaskListResponse?.Payload || [];
       console.log(tasks)
       if (tasks.length < 30) {
+        console.log("setting hasmore to false")
         setHasMore(false);
       }
 
@@ -129,7 +136,7 @@ export default function TasksScreen() {
   return (
     <View style={{flex: 1}}>
       
-      <View style={[styles.searchTaskContainer, shadowStyles]}>
+      {!filterUserTasks && <View style={[styles.searchTaskContainer, shadowStyles]}>
         <CustomTextInput placeholder='Search Task ID' placeholderTextColor={colors.LIGHT_TEXT} inputStyle={[defaultInputStyles, styles.searchField]} onChangeText={(e) => setSearchTask(e)} value={searchTask} leftIcon={<SearchIcon color={colors.LIGHT_TEXT} width={18} height={18} />} />
         
         <View style={styles.createTaskContainer}>
@@ -141,7 +148,7 @@ export default function TasksScreen() {
           <CustomButton buttonStyle={styles.taskStageButtons} textStyle={{color: colors.INDIGO}} onPress={() => {}} title={"Processed task"} />
           <CustomButton buttonStyle={styles.taskStageButtons} textStyle={{color: colors.INDIGO}} onPress={() => {}} title={"Completed tasks"} />
         </ScrollView>
-      </View>
+      </View>}
       {pendingWorkRequests ? <View style={[styles.pendingRequestsContainer, shadowStyles ]}>
           <Alert fill='red' color='white' width={22} height={22}/>
           <Text style={styles.pending}>You have {pendingWorkRequests} request pending to approve</Text>
@@ -150,6 +157,7 @@ export default function TasksScreen() {
       {(flatListData?.length === 0 && loading) && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={"black"} />}
       
       <FlatList
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.workOrderContainer} 
         style={{ marginTop: 15 }} 
         renderItem={renderFlatListItem}
@@ -162,9 +170,9 @@ export default function TasksScreen() {
           const key = isAdmin ? item.WorkOrderUUID : item.WorkRequestUUID;
           return key ?? index.toString();
         }}
-        onRefresh={fetchTasksList}
+        onRefresh={() => fetchTasksList(true)}
         refreshing={loading}        
-        onEndReached={fetchTasksList}
+        onEndReached={() => fetchTasksList(false)}
         onEndReachedThreshold={0.8}
         ListFooterComponent={(loading && flatListData?.length > 0) ? (
           <ActivityIndicator style={{ marginBottom: "5%" }} size="small" color="black" />

@@ -4,7 +4,7 @@ import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
-import { CardShadowStyles, profilePic } from '../../styles/global-styles'
+import { CardShadowStyles, profilePic, shadowStyles } from '../../styles/global-styles'
 import CustomKeyboardAvoidingView from '../../components/CustomKeyboardAvoidingView'
 import { getUserProfile, updateUserProfile } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
@@ -286,7 +286,7 @@ export default function EditProfile() {
       {!loading && <CustomButton 
         loading={updatingUserInfo}
         onPress={handleUpdateProfile}
-        buttonStyle={[PRIMARY_BUTTON_STYLES, CardShadowStyles, styles.save]}
+        buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles, styles.save]}
         textStyle={PRIMARY_BUTTON_TEXT_STYLES}
         title={"Save"}
       />}

@@ -4,9 +4,20 @@ import { Platform } from "react-native";
 import { colors } from "./colors"
 
 export const shadowStyles = {
-    shadowColor: "black",
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.1,
+  ...Platform.select({
+    ios: {
+      shadowColor: "black",
+      shadowOffset: {width: 0, height: 1},
+      shadowOpacity: 0.1,
+    },
+     android: {
+      borderRadius: 50,
+      shadowColor: colors.LIGHT_TEXT,
+      shadowRadius: 24,
+      elevation: 10,
+     }
+  })
+
   }
 
 

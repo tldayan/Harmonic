@@ -8,6 +8,7 @@ export interface Event {
   EventBanner: string;
   EventStartDateTime: string;
   EventEndDateTime: string;
+  CreatedBy: string
   PublishDateTime: string;
   EventStatus: string;
   StatusItemCode:  string;

@@ -1,5 +1,5 @@
 import { Animated, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 import Participants from "../../assets/icons/participants.svg"
 import Clock from "../../assets/icons/clock.svg"
 import { CardShadowStyles } from '../../styles/global-styles'
@@ -10,20 +10,33 @@ import { RootStackParamList } from '../../types/navigation-types'
 import { useNavigation } from '@react-navigation/native'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
-
+import { Event } from '../../types/event.types'
+import CustomButton from '../CustomButton'
+import ThreeDots from "../../assets/icons/three-dots-horizontal.svg"
+import { EventActionDropdownComponent } from '../../dropdowns/EventActionDropdown'
+import { CustomModal } from '../CustomModal'
+import ConfirmationModal from '../../modals/ConfirmationModal'
+import { cancelEvent } from '../../api/network-utils'
+import { STATUS_CODE } from '../../utils/constants'
+import Toast from 'react-native-toast-message'
 
 interface EventItemProps {
     event: Event;
     index: number;
     scrollX: Animated.Value;
+    setEvents: Dispatch<SetStateAction<Event[]>>;
   }
+
+
 const {width : SCREEN_WIDTH} = Dimensions.get("window")
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-export default function EventItem({ event, index, scrollX }: EventItemProps) {
+export default function EventItem({ event, index, scrollX,setEvents }: EventItemProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
+  const [action, setAction] = useState<string | null>(null);
+
 
     const inputRange = [
         (index - 1) * SCREEN_WIDTH,
@@ -43,6 +56,24 @@ export default function EventItem({ event, index, scrollX }: EventItemProps) {
         extrapolate: 'clamp'
       });
       
+
+      const handleCancelEvent = async () => {
+        const cancelEventResponse = await cancelEvent(userUUID, event.EventUUID);
+        const isSuccess = cancelEventResponse.Status === STATUS_CODE.SUCCESS;
+        const status = isSuccess ? "success" : "error";
+      
+        if (isSuccess) {
+          setEvents((prev) => prev.filter((eachEvent) => eachEvent.EventUUID !== event.EventUUID));
+        }
+      
+        Toast.show({
+          type: status,
+          text1: isSuccess ? "Cancelled Event" : "Something went wrong",
+          text2: cancelEventResponse.UserMessage,
+          position: "bottom",
+        });
+      };
+      
     
 
   return (
@@ -57,6 +88,7 @@ export default function EventItem({ event, index, scrollX }: EventItemProps) {
         <View style={styles.eventCategoryContainer}>
             <Text style={styles.eventCategory}>{event.StatusItemCode}</Text>
             <Text style={styles.eventCategory}>{event.EventType}</Text>
+            <EventActionDropdownComponent createdBy={event.CreatedBy} horizontalDots action={action} setAction={setAction} />
         </View>
 
         <Text style={styles.eventName}>{event.EventName}</Text>
@@ -73,6 +105,16 @@ export default function EventItem({ event, index, scrollX }: EventItemProps) {
             </View>
         </View>
         </AnimatedTouchableOpacity>
+
+
+        <CustomModal isOpen={action === "2"} onClose={() => setAction(null)}>
+            <ConfirmationModal declineText="No" confirmText='Yes' setConfirmation={handleCancelEvent} warningText='Are you sure you want to cancel this event?' onClose={() => setAction(null)} />
+        </CustomModal>
+        
+        {/* <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "2"}>
+            <CreateChat fetchChats={fetchChats} onClose={() => setAction(null)} />
+        </CustomModal> */}
+
     </ScrollView>
   )
 }
@@ -128,7 +170,9 @@ const styles = StyleSheet.create({
         textAlign: "left",
     },
     eventCategoryContainer: {
+        borderWidth: 1,
         flexDirection: "row",
+        alignItems: "center",
         gap: 10
     },
      eventCategory: {
@@ -139,6 +183,13 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         borderRadius: 24,
         paddingVertical: 2
-     }
+     },
+    threeDots: {
+        marginLeft: "auto",
+        flexDirection: "row", 
+        alignItems: 'center',
+        padding: 5,
+        opacity: 0.7
+    }
 
 })

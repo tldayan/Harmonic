@@ -130,14 +130,14 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
   }
 
   return (
-    <View style={[ route.name === "Comments" ?  styles.defaultMainContainer : styles.mainContainer, CardShadowStyles]}>
+    <View style={[ route.name === "Comments" ?  styles.defaultMainContainer : styles.mainContainer]}>
 
         {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
           <ProfileHeader fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} showPostActions post={post} />
         </TouchableOpacity>}
 
 
-      {post.Message && <Text style={styles.postText}>{post.Message}</Text>}
+      {post.Message && <Text style={[styles.postText, !attachmentData.length ? {paddingVertical: 8}: null]}>{post.Message}</Text>}
       
 
       {attachmentData.length >= 1 && <FlatList indicatorStyle='black' horizontal style={styles.mainImagesList} contentContainerStyle={styles.imagesList} data={attachmentData} renderItem={attachmentItem} keyExtractor={(item) => item.AttachmentUUID} />}
@@ -178,8 +178,8 @@ const styles = StyleSheet.create({
     width: "94%",
     marginHorizontal: "3%",
     borderRadius: 24,
-    marginTop: 20,
-    paddingTop: 15,
+    marginBottom: 20,
+    paddingVertical: 16,
     paddingHorizontal: 12
   },
   defaultMainContainer :{
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     borderColor: "red", */
     borderRadius: 10,
     overflow: "hidden",
-    marginTop: 10,
+    marginTop: 8,
     aspectRatio: 1,
     width: 150,
     height: 150,
@@ -260,7 +260,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     justifyContent: "space-around",
-    marginVertical: 15,
     paddingVertical: 4,
     gap: 4
   },

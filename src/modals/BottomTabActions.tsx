@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Image, Alert, TouchableWithoutFeedback } from "react-native";
 import { colors } from "../styles/colors";
-import { shadowStyles } from "../styles/global-styles";
+import { CardShadowStyles, shadowStyles } from "../styles/global-styles";
 import CustomButton from "../components/CustomButton";
 import ChevronDown from "../assets/icons/chevron-down.svg"
 import { useNavigation } from "@react-navigation/native";
@@ -69,7 +69,7 @@ export default function AddModalScreen() {
                 <CustomButton
                   key={idx}
                   onPress={item.action}
-                  buttonStyle={[styles.actionButton, shadowStyles]}
+                  buttonStyle={[styles.actionButton, CardShadowStyles]}
                   title={item.label}
                   iconPosition="right"
                   icon={item.icon}

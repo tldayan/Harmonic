@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { colors } from '../../styles/colors'
-import { defaultInputStyles, shadowStyles } from '../../styles/global-styles'
+import { CardShadowStyles, defaultInputStyles, shadowStyles } from '../../styles/global-styles'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import CustomButton from '../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
@@ -14,10 +14,14 @@ import EventItem from '../../components/FlatlistItems/EventItem'
 import { Animated } from 'react-native';
 import { CustomModal } from '../../components/CustomModal'
 import EventCreation from '../../modals/Event/EventCreation'
+import { Event } from '../../types/event.types'
+
+interface EventsScreenProps {
+  filterUserEvents?: boolean
+}
 
 
-
-export default function EventsScreen() {
+export default function EventsScreen({filterUserEvents}: EventsScreenProps) {
 
   const [creatingEvent, setCreatingEvent] = useState(false)
   const [searchEvent, setSearchEvent] = useState("")
@@ -66,21 +70,27 @@ const fetchEventsList = async (latest?: boolean) => {
 
   useEffect(() => {
 
+    if(filterUserEvents) {
+      const filteredEvents = events.filter((eachEvent) => eachEvent.CreatedBy === userUUID)
+      setFilteredEvents(filteredEvents)
+      return
+    }
+
     const event = searchEvent.trim().toLowerCase()
     const filteredEvents = events.filter((eachEvent) => eachEvent.EventName.toLowerCase().includes(event))
     setFilteredEvents(filteredEvents)
 
-  }, [searchEvent])
+  }, [searchEvent, filterUserEvents, events])
 
 
   return (
     <View>
-      <View style={[styles.searchEventContainer, shadowStyles]}>
+      {!filterUserEvents && <View style={[styles.searchEventContainer, CardShadowStyles]}>
         <CustomTextInput placeholder='Search for events' placeholderTextColor={colors.LIGHT_TEXT} inputStyle={[defaultInputStyles, styles.searchField]} onChangeText={(e) => setSearchEvent(e)} value={searchEvent} leftIcon={<SearchIcon color={colors.LIGHT_TEXT} width={18} height={18} />} />
         <View style={styles.createEventContainer}>
           <CustomButton onPress={() => setCreatingEvent(true)}  textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.createEvent, {marginTop: 0, marginBottom: 0}]} icon={<Plus color='white' width={20} height={20} />} iconPosition="left" title={"Add new event"} />
         </View>
-      </View>
+      </View>}
 
         {loading ? <ActivityIndicator style={{marginVertical: "50%"}} size={"small"} /> : null}
       {!loading && <Animated.FlatList
@@ -92,7 +102,7 @@ const fetchEventsList = async (latest?: boolean) => {
             { useNativeDriver: true }
         )}
         scrollEventThrottle={16}
-        data={searchEvent.trim() ? filteredEvents : events}
+        data={(searchEvent.trim() || filterUserEvents) ? filteredEvents : events}
         style={{height: "100%"}}
         onRefresh={fetchEventsList}
         refreshing={loading}        
@@ -100,7 +110,7 @@ const fetchEventsList = async (latest?: boolean) => {
         onEndReachedThreshold={0.5}
         keyExtractor={(item) => item.EventUUID}
         renderItem={({ item, index }) => (
-            <EventItem event={item} index={index} scrollX={scrollX} />
+            <EventItem setEvents={setEvents} event={item} index={index} scrollX={scrollX} />
         )}
         ListFooterComponent={(loading && events?.length > 0) ? (
                   <ActivityIndicator size="small" color="black" />
@@ -109,7 +119,7 @@ const fetchEventsList = async (latest?: boolean) => {
 
 
         <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingEvent} onClose={() => setCreatingEvent(false)}>
-          <EventCreation fetchEventsList={fetchEventsList} onClose={() => setCreatingEvent(false)} />
+          <EventCreation  onClose={() => setCreatingEvent(false)} />
         </CustomModal>
 
 

@@ -17,7 +17,11 @@ import { RootState } from '../../store/store'
 import Filters from '../../modals/Filters'
 import { updateLikes } from '../../store/slices/postLikesSlice'
  
-export default function SocialScreen() {
+interface SocialScreenProps {
+  filterUserPosts?:boolean
+}
+
+export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
 
   const route = useRoute<RouteProp<TabParamList, 'Social'>>(); 
 
@@ -58,7 +62,7 @@ export default function SocialScreen() {
 
         if(organizationUUID && userUUID) {
           const allMBMessages = await getMBMessages(userUUID, organizationUUID, startIndex)
-          console.log(allMBMessages.length)
+
           if(allMBMessages.length < 10) {
             setHasMoreMessages(false)
           }
@@ -90,17 +94,30 @@ export default function SocialScreen() {
   }, [userUUID, organizationUUID])
 
   useEffect(() => {
-    if (filtering.categories.length > 0) {
+
+    if(filtering.categories.length > 0 && filterUserPosts) {
+
+      setFilteredMessages(
+        socialMessages.filter((eachMessage) =>
+          (eachMessage.AllMBCategoryItems.some((categoryItem) =>
+            filtering.categories.includes(categoryItem.CategoryItemUUID) && eachMessage.CreatedBy === userUUID)
+      )));  
+
+    } else if (filtering.categories.length > 0) {
       setFilteredMessages(
         socialMessages.filter((eachMessage) =>
           eachMessage.AllMBCategoryItems.some((categoryItem) =>
             filtering.categories.includes(categoryItem.CategoryItemUUID)
       )));
 
+    } else if (filterUserPosts) {
+      setFilteredMessages(
+        socialMessages.filter((eachMessage) => eachMessage.CreatedBy === userUUID));
+
     } else {
       setFilteredMessages(socialMessages);
     }
-  }, [filtering.categories, socialMessages]);
+  }, [filtering.categories, socialMessages, filterUserPosts]);
 
   const fetchLatestMessages = async(messageBoardUUID?: string) => {
 
@@ -128,8 +145,8 @@ export default function SocialScreen() {
 
 
   return (
-    <View style={[styles.mainContainer, filteredMessages.length === 0 && {backgroundColor: "white"}]}>
-        <FlatList 
+    <View style={[styles.mainContainer]}>
+        {(filterUserPosts && !filteredMessages.length) ? <Text style={styles.noPosts}>No posts yet</Text> : <FlatList 
             ListHeaderComponent={
                 <View style={styles.container}>
                     {/* <View style={styles.createPostContainer}>
@@ -172,8 +189,8 @@ export default function SocialScreen() {
             refreshing={refreshing}
             scrollEnabled={filteredMessages.length > 0}
             showsVerticalScrollIndicator={false}
-            ListFooterComponent={loading ? <ActivityIndicator size={"small"} style={{marginVertical: 30}} /> : null}
-        />
+            ListFooterComponent={loading ? <ActivityIndicator size={"small"} style={{marginVertical: "50%"}} /> : null}
+        />}
 
         {(filteredMessages.length === 0 && filtering.categories.length !== 0) && <View style={styles.noResultsContainer}>
           <Text style={styles.noResults}>No posts found for selected filters</Text>
@@ -202,7 +219,6 @@ const styles = StyleSheet.create({
   },
   container: {
 		width: "100%",
-		backgroundColor: "white",
     alignItems:"center",
 		flexGrow: 1
 	},
@@ -293,6 +309,11 @@ placeholderText: {
   },
   noResults : {
     color: colors.LIGHT_TEXT,
+  },
+  noPosts: {
+    color: colors.LIGHT_TEXT,
+    textAlign: "center",
+    marginVertical: "50%"
   }
 
 })

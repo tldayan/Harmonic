@@ -212,7 +212,7 @@ const removeGroupMember = async() => {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => {}} style={styles.actionContainer}>
           <Trash fill='red' width={20} height={20}/>
-          <Text style={styles.action}>Delete chat</Text>
+          <Text style={styles.action}>Leave group</Text>
         </TouchableOpacity>
       </View> 
 

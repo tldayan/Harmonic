@@ -17,6 +17,7 @@ import { CardShadowStyles, shadowStyles } from '../../styles/global-styles';
 import ChevronLeft from "../../assets/icons/chevron-left.svg"
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ImageSkeleton from '../../skeletons/ImageSkeleton';
+import ThreeDots from "../../assets/icons/three-dots-horizontal.svg"
 
 export type EventScreenRouteProp = RouteProp<RootStackParamList, "Event">
 
@@ -62,7 +63,11 @@ export const EventScreen = () => {
           <ActivityIndicator style={{marginVertical: "75%"}} size="large" />
         ) : (
           <>
+          <View style={{flexDirection: "row", alignItems: "center"}}>
             <Text style={styles.eventName}>{eventDetails.EventName}</Text>
+{/*             <CustomButton buttonStyle={styles.threeDots} icon={<ThreeDots width={18} height={18} />} onPress={() => {}} /> */}
+          </View>
+
             <View style={styles.eventBannerContainer}>
               {!imageLoaded && <ImageSkeleton oneImage={true} />}
               
@@ -115,7 +120,7 @@ export const EventScreen = () => {
       {eventDetails && <View style={styles.bottomButtonContainer}>
         <CustomButton
           onPress={() => {}}
-          buttonStyle={[PRIMARY_BUTTON_STYLES, CardShadowStyles]}
+          buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]}
           textStyle={PRIMARY_BUTTON_TEXT_STYLES}
           title={"Join Event"}
         />
@@ -206,6 +211,13 @@ const styles = StyleSheet.create({
       width: "90%",
       marginVertical: 10,
       alignSelf: "center",
+    },
+    threeDots: {
+      marginLeft: "auto",
+      flexDirection: "row", 
+      alignItems: 'center',
+      padding: 5,
+      opacity: 0.7
     }
     
 })
