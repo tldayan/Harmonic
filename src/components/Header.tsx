@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Image, StyleSheet, Text, Button } from "react-native";
+import { View, Image, StyleSheet, Text, Button, TouchableOpacity } from "react-native";
 import BellIcon from "../assets/icons/bell.svg"
 import { useUser } from "../context/AuthContext";
 import CustomButton from "./CustomButton";
@@ -43,8 +43,12 @@ const Header = () => {
     }, [userUUID])
 
   return (
-    <View style={styles.container}> 
-        <CustomButton buttonStyle={styles.organization} onPress={() => setSwitchingOrganization(true)} icon={<Switch width={20} height={20} />} />
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.organization} onPress={() => setSwitchingOrganization(true)}>
+        <Image width={30} height={30} resizeMode="cover" source={{uri: organization?.OrganizationShortLogo || ""}} /> 
+      </TouchableOpacity>
+        
+        {/* <CustomButton buttonStyle={styles.organization} onPress={() => setSwitchingOrganization(true)} icon={<Switch width={20} height={20} />} /> */}
 
         <CustomButton buttonStyle={styles.signOut} title="Sign Out" onPress={handleSignOut} />
         
@@ -77,11 +81,11 @@ const styles = StyleSheet.create({
   organization:  {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
     borderWidth: 1,
     borderColor: colors.LIGHT_COLOR,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    padding: 5,
+/*     paddingHorizontal: 10,
+    paddingVertical: 5, */
     borderRadius: 5
   },
   bell: {

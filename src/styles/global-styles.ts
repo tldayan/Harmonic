@@ -56,3 +56,15 @@ export const defaultInputStyles = {
     paddingHorizontal: 16,
     color: "black",
   }
+
+export const defaultNumberInputStyles = {
+    ...defaultInputStyles,
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+  }
+
+export const defaultInputLabelStyles = {
+  marginVertical: 10,
+  color: "black",
+  fontWeight: 500
+}

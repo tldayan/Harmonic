@@ -6,9 +6,12 @@ import { colors } from "../styles/colors";
 interface SelectInputProps {
   placeholder: string;
   onSelect?: () => void;
-  leftIcon?: React.ReactNode;  
+  leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  hasError?: boolean; 
+  hasError?: boolean;
+  label?: string;
+  labelStyle?: object;
+  errorMessage?: string;
 }
 
 const CustomSelectInput: React.FC<SelectInputProps> = ({
@@ -16,73 +19,87 @@ const CustomSelectInput: React.FC<SelectInputProps> = ({
   onSelect,
   leftIcon,
   rightIcon,
-  hasError
+  hasError,
+  label,
+  labelStyle,
+  errorMessage,
 }) => {
+  const [isFocused, setIsFocused] = React.useState(false);
+
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
+
   return (
-    <TouchableOpacity
-  style={[
-    styles.selectInput,
-    hasError && {
-      borderColor: "red",
-      backgroundColor: colors.RED_SHADE,
-    },
-  ]}
-  onPress={onSelect}
-  activeOpacity={0.7}
->
-
-      <View style={styles.content}>
-        {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
-
-        <View style={styles.placeholderContainer}>
-          <Text style={styles.placeholderText}>{placeholder}</Text>
+    <View style={styles.container}>
+      {label && (
+        <Text
+          style={[
+            styles.label,
+            labelStyle,
+            isFocused && { color: colors.BLACK_TEXT_COLOR },
+          ]}
+        >
+          {label}
+        </Text>
+      )}
+      <TouchableOpacity
+        style={[
+          styles.selectInput,
+          hasError && {
+            borderColor: "red",
+            backgroundColor: colors.RED_SHADE,
+          },
+        ]}
+        onPress={() => {
+          handleFocus();
+          onSelect?.();
+        }}
+        activeOpacity={0.7}
+        onBlur={handleBlur}
+      >
+        <View style={styles.content}>
+          {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
+          <View style={styles.placeholderContainer}>
+            <Text style={styles.placeholderText}>{placeholder}</Text>
+          </View>
+          {rightIcon ? (
+            <View style={styles.iconContainer}>{rightIcon}</View>
+          ) : (
+            <ChevronDown width={12} height={12} />
+          )}
         </View>
-
-        {rightIcon ? (
-          <View style={styles.iconContainer}>{rightIcon}</View>
-        ) : (
-          <ChevronDown width={12} height={12} />
-        )}
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#6b7280",
+    marginBottom: 4,
+  },
   selectInput: {
-    alignItems: "stretch",
     borderRadius: 9999,
     backgroundColor: "#F9FAFB",
     borderWidth: 1,
     borderColor: colors.BORDER_COLOR,
-    display: "flex",
-    width: "100%",
-    flexDirection: "column",
-    justifyContent: "center",
     paddingHorizontal: 12,
-    flex: 1,
-    flexShrink: 1,
-    flexBasis: "0%",
-    marginTop: 10,
     minHeight: 42,
-    fontSize: 14,
-    color: "#6b7280",
-    fontWeight: "400",
-    lineHeight: 1,
+    justifyContent: "center",
   },
   content: {
-    display: "flex",
-    width: "100%",
-    alignItems: "center",
     flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
   },
   placeholderContainer: {
-    alignSelf: "stretch",
-    marginTop: "auto",
-    marginBottom: "auto",
     flex: 1,
-    flexShrink: 1,
-    flexBasis: "0%",
   },
   placeholderText: {
     fontSize: 14,
@@ -94,14 +111,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  dropdownIcon: {
-    aspectRatio: 1,
-    width: 10,
-    height: 10,
-    alignSelf: "stretch",
-    marginTop: "auto",
-    marginBottom: "auto",
-    flexShrink: 0,
+  errorText: {
+    color: "red",
+    marginTop: 5,
+    fontSize: 12,
   },
 });
 

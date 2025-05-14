@@ -21,8 +21,8 @@ interface TextAreaInputProps {
   rightIcon?: React.ReactNode;
   errorMessage?: string;
   hasError?: boolean;
+  value?: string;
 }
-
 
 const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
   placeholder,
@@ -35,12 +35,10 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
   leftIcon,
   rightIcon,
   hasError,
-  errorMessage
+  errorMessage,
+  value, // Add value here
 }) => {
-  const [value, setValue] = React.useState("");
-
   const handleChangeText = (text: string) => {
-    setValue(text);
     onChangeText?.(text);
   };
 
@@ -55,7 +53,7 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
         ]}
         placeholder={placeholder}
         multiline={multiline}
-        value={value}
+        value={value} // Set the value to the prop passed from the parent
         onChangeText={handleChangeText}
         onFocus={onFocus}
         editable={!noInput}
@@ -70,30 +68,29 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
 
   return (
     <View
-  style={[
-    styles.container,
-    multiline && { minHeight: flex ? 218 : 100 },
-    !multiline && { height: 42 },
-  ]}
->
-  <TouchableOpacity
-    style={[
-      styles.input,
-      !noInput ? { flexDirection: "column", alignItems: "flex-start" } : null,
-      multiline ? { paddingVertical: 5 } : null,
-      (errorMessage || hasError) ? { borderColor: 'red', backgroundColor : colors.RED_SHADE } : null, // red border if error
-    ]}
-    onPress={noInput ? onPressInput : undefined}
-    activeOpacity={noInput ? 0.7 : 1}
-  >
-    {inputContent}
-  </TouchableOpacity>
+      style={[
+        styles.container,
+        multiline && { minHeight: flex ? 218 : 100 },
+        !multiline && { height: 42 },
+      ]}
+    >
+      <TouchableOpacity
+        style={[
+          styles.input,
+          !noInput ? { flexDirection: "column", alignItems: "flex-start" } : null,
+          multiline ? { paddingVertical: 5 } : null,
+          (errorMessage || hasError) ? { borderColor: 'red', backgroundColor : colors.RED_SHADE } : null, // red border if error
+        ]}
+        onPress={noInput ? onPressInput : undefined}
+        activeOpacity={noInput ? 0.7 : 1}
+      >
+        {inputContent}
+      </TouchableOpacity>
 
-  {errorMessage && (
-    <Text style={styles.errorText}>{errorMessage}</Text>
-  )}
-</View>
-
+      {errorMessage && (
+        <Text style={styles.errorText}>{errorMessage}</Text>
+      )}
+    </View>
   );
 };
 
@@ -122,7 +119,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: "#111928",
-/*     paddingHorizontal: 8, */
+    /* paddingHorizontal: 8, */
   },
   textAreaInput: {
     minWidth: 240,
@@ -137,7 +134,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginLeft: 12,
   },
-  
 });
 
 export default CustomTextAreaInput;

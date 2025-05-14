@@ -34,14 +34,19 @@ export default function EventsScreen({filterUserEvents}: EventsScreenProps) {
   const scrollX = useRef(new Animated.Value(0)).current;
 
 
-const fetchEventsList = async (latest?: boolean) => {
-  if (!hasMoreEvents && !latest) return;
+const fetchEventsList = async (latest?: boolean, initial?: boolean) => {
 
+  if (!initial && !latest && !hasMoreEvents) return;
+  
+  console.log("here")
   try {
-    const eventsListResponse = await getEventList(userUUID, organizationUUID, latest ? 0 : startIndex);
+    const eventsListResponse = await getEventList(userUUID, organizationUUID, (latest || initial) ? 0 : startIndex);
 
-    if (latest) {
+    if(initial) {
+      setEvents(eventsListResponse.Payload);
+    } else if (latest) {
       const latestEvent = eventsListResponse.Payload[0];
+      console.log(latestEvent)
       if (latestEvent) {
         setEvents((prev) => [latestEvent, ...prev]);
       }
@@ -104,13 +109,13 @@ const fetchEventsList = async (latest?: boolean) => {
         scrollEventThrottle={16}
         data={(searchEvent.trim() || filterUserEvents) ? filteredEvents : events}
         style={{height: "100%"}}
-        onRefresh={fetchEventsList}
+        onRefresh={() => fetchEventsList(false, true)}
         refreshing={loading}        
         onEndReached={() => fetchEventsList(false)}
         onEndReachedThreshold={0.5}
         keyExtractor={(item) => item.EventUUID}
         renderItem={({ item, index }) => (
-            <EventItem setEvents={setEvents} event={item} index={index} scrollX={scrollX} />
+            <EventItem fetchEventsList={fetchEventsList} setEvents={setEvents} event={item} index={index} scrollX={scrollX} />
         )}
         ListFooterComponent={(loading && events?.length > 0) ? (
                   <ActivityIndicator size="small" color="black" />
@@ -119,7 +124,7 @@ const fetchEventsList = async (latest?: boolean) => {
 
 
         <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingEvent} onClose={() => setCreatingEvent(false)}>
-          <EventCreation  onClose={() => setCreatingEvent(false)} />
+          <EventCreation fetchEventsList={fetchEventsList}  onClose={() => setCreatingEvent(false)} />
         </CustomModal>
 
 

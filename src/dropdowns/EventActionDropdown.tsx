@@ -23,8 +23,9 @@ export const EventActionDropdownComponent = ({
     const userUUID = useSelector((state: RootState) => state.auth.userUUID)
 
     const actions: { label: string; value: string }[] = [
-        { label: "Leave Event", value: "1" },
-        ...(userUUID === createdBy? [{ label: "Cancel Event", value: "2" }]: [])
+      ...(userUUID === createdBy? [{ label: "Edit Event", value: "1" }]: []),
+      ...(userUUID === createdBy? [{ label: "Cancel Event", value: "2" }]: []),
+      ...(userUUID !== createdBy? [{ label: "Leave Event", value: "3" }]: [])
     ];
       
 

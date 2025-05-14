@@ -14,6 +14,7 @@ export type RootStackParamList = {
     EditProfile: undefined
     ChatsScreen: undefined
     AddModal: undefined;
+    ProfileForm: undefined
 }
 
 export type ProfileStackParamList = {

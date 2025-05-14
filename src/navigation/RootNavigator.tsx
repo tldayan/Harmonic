@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import AuthScreen from "../screens/Auth/AuthScreen"
 import { Stack } from "./navigationUtils"
 import TabNavigator from "./TabNavigator"
@@ -24,18 +24,51 @@ import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { RootStackParamList } from "../types/navigation-types"
 import EditProfileHeader from "./CustomHeaders/EditProfileHeader"
+import { getUserProfile } from "../api/network-utils"
+import { useSelector } from "react-redux"
+import { RootState } from "../store/store"
+import ProfileFormScreen from "../screens/Profile/ProfileFormScreen"
+import LoadingScreen from "../screens/Others/LoadingScreen"
 
 export const RootNavigator: React.FC = () => {
 
     const {user} = useUser()    
-    const { authMode } = useAuthMode();
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-    console.log("Root Navigator",authMode) // if signUp, proceed to user profile form
+    const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+    const [loading, setLoading] = useState(true);
+   /*  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>() */
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+
+
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const userProfileResponse = await getUserProfile(userUUID);
+                setUserProfile(userProfileResponse?.data.Payload);
+            } catch (error) {
+                console.error("Failed to fetch user profile:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user) {
+            fetchUserProfile();
+        } else {
+            setLoading(false); // skip loading if no user
+        }
+    }, [user]);
+
+
+    const userProfileComplete = !userProfile?.FirstName && !userProfile?.PhoneNumber && !userProfile?.EmailAddress
+
+    if (loading) {
+            return <LoadingScreen />;
+        }
 
     return (
         <Stack.Navigator screenOptions={globalScreenOptions}>
         {
-            user ? (
+            (user && userProfileComplete) ? (
             <>
                 <Stack.Screen name="Tabs" component={TabNavigator} />
                 <Stack.Screen name="Comments" component={CommentsScreen} options={{animation: "slide_from_right"}} />
@@ -55,7 +88,13 @@ export const RootNavigator: React.FC = () => {
                 />
             </>
 
-            ): (
+            ) : 
+            
+            (user && !userProfileComplete) ? (
+                <Stack.Screen name="ProfileForm" component={ProfileFormScreen} options={{ headerShown: false, gestureEnabled: false }} />
+            ) 
+            :
+            (
             <>
                 <Stack.Screen name="Hero" component={HeroScreen} />
                 <Stack.Screen name="Auth" component={AuthScreen} />

@@ -11,6 +11,12 @@ interface EventInformationProps {
   setEventInformation: React.Dispatch<React.SetStateAction<EventInformation>>;
   eventInformation: EventInformation;
 }
+
+const isValidDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return !isNaN(date.getTime());
+};
+
 export const Timings = ({ eventInformation, setEventInformation }: EventInformationProps) => {
   const [isEventStartDatePickerVisible, setEventStartDatePickerVisibility] = useState(false);
   const [isEventStartTimePickerVisible, setEventStartTimePickerVisibility] = useState(false);
@@ -26,18 +32,46 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
   const [isPublishDatePickerVisible, setPublishDatePickerVisibility] = useState(false);
   const [isPublishTimePickerVisible, setPublishTimePickerVisibility] = useState(false);
 
-  const [eventStartDate, setEventStartDate] = useState<Date | null>(null);
-  const [eventStartTime, setEventStartTime] = useState<Date | null>(null);
-  const [eventEndDate, setEventEndDate] = useState<Date | null>(null);
-  const [eventEndTime, setEventEndTime] = useState<Date | null>(null);
-
-  const [regStartDate, setRegStartDate] = useState<Date | null>(null);
-  const [regStartTime, setRegStartTime] = useState<Date | null>(null);
-  const [regEndDate, setRegEndDate] = useState<Date | null>(null);
-  const [regEndTime, setRegEndTime] = useState<Date | null>(null);
-
-  const [publishDate, setPublishDate] = useState<Date | null>(null);
-  const [publishTime, setPublishTime] = useState<Date | null>(null);
+  const [eventStartDate, setEventStartDate] = useState<Date | null>(
+    isValidDate(eventInformation.eventStartDateTime) ? new Date(eventInformation.eventStartDateTime) : null
+  );
+  
+  const [eventStartTime, setEventStartTime] = useState<Date | null>(
+    isValidDate(eventInformation.eventStartDateTime) ? new Date(eventInformation.eventStartDateTime) : null
+  );
+  
+  const [eventEndDate, setEventEndDate] = useState<Date | null>(
+    isValidDate(eventInformation.eventEndDateTime) ? new Date(eventInformation.eventEndDateTime) : null
+  );
+  
+  const [eventEndTime, setEventEndTime] = useState<Date | null>(
+    isValidDate(eventInformation.eventEndDateTime) ? new Date(eventInformation.eventEndDateTime) : null
+  );
+  
+  const [regStartDate, setRegStartDate] = useState<Date | null>(
+    isValidDate(eventInformation.registrationStartDateTime) ? new Date(eventInformation.registrationStartDateTime) : null
+  );
+  
+  const [regStartTime, setRegStartTime] = useState<Date | null>(
+    isValidDate(eventInformation.registrationStartDateTime) ? new Date(eventInformation.registrationStartDateTime) : null
+  );
+  
+  const [regEndDate, setRegEndDate] = useState<Date | null>(
+    isValidDate(eventInformation.registrationEndDateTime) ? new Date(eventInformation.registrationEndDateTime) : null
+  );
+  
+  const [regEndTime, setRegEndTime] = useState<Date | null>(
+    isValidDate(eventInformation.registrationEndDateTime) ? new Date(eventInformation.registrationEndDateTime) : null
+  );
+  
+  const [publishDate, setPublishDate] = useState<Date | null>(
+    isValidDate(eventInformation.scheduledPublishDateTime) ? new Date(eventInformation.scheduledPublishDateTime) : null
+  );
+  
+  const [publishTime, setPublishTime] = useState<Date | null>(
+    isValidDate(eventInformation.scheduledPublishDateTime) ? new Date(eventInformation.scheduledPublishDateTime) : null
+  );
+  
   const [isSchedulingPublish, setIsSchedulingPublish] = useState<boolean>(false);
 
   const createEventDateTimeString = (date: Date, time: Date) => {
@@ -50,40 +84,41 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
   };
 
   useEffect(() => {
-    if (eventStartDate && eventStartTime) {
+    if (eventStartDate && eventStartTime && !isNaN(eventStartDate.getTime()) && !isNaN(eventStartTime.getTime())) {
       setEventInformation((prev) => ({
         ...prev,
         eventStartDateTime: createEventDateTimeString(eventStartDate, eventStartTime),
       }));
     }
   }, [eventStartDate, eventStartTime]);
-
+  
   useEffect(() => {
-    if (eventEndDate && eventEndTime) {
+    if (eventEndDate && eventEndTime && !isNaN(eventEndDate.getTime()) && !isNaN(eventEndTime.getTime())) {
       setEventInformation((prev) => ({
         ...prev,
         eventEndDateTime: createEventDateTimeString(eventEndDate, eventEndTime),
       }));
     }
   }, [eventEndDate, eventEndTime]);
-
+  
   useEffect(() => {
-    if (regStartDate && regStartTime) {
+    if (regStartDate && regStartTime && !isNaN(regStartDate.getTime()) && !isNaN(regStartTime.getTime())) {
       setEventInformation((prev) => ({
         ...prev,
         registrationStartDateTime: createEventDateTimeString(regStartDate, regStartTime),
       }));
     }
   }, [regStartDate, regStartTime]);
-
+  
   useEffect(() => {
-    if (regEndDate && regEndTime) {
+    if (regEndDate && regEndTime && !isNaN(regEndDate.getTime()) && !isNaN(regEndTime.getTime())) {
       setEventInformation((prev) => ({
         ...prev,
         registrationEndDateTime: createEventDateTimeString(regEndDate, regEndTime),
       }));
     }
   }, [regEndDate, regEndTime]);
+  
 
   useEffect(() => {
     if (isSchedulingPublish && publishDate && publishTime) {

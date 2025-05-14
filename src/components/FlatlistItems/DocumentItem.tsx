@@ -5,6 +5,7 @@ import { colors } from "../../styles/colors";
 
 interface DocumentItemProps {
   item: ExtendedDocument;
+  prevItem?: string 
   index?: number;
   deleteDocument?: (uri: string) => void;
 }
@@ -14,12 +15,14 @@ interface ExtendedDocument extends DocumentPickerResponse {
 }
 
 
-export const DocumentItem = ({ item, index, deleteDocument }: DocumentItemProps) => {
-  const isImage = item.name?.match(/\.(jpeg|jpg|gif|png)$/i);
-  const uriToUse = item.localUri ?? item.uri;
+export const DocumentItem = ({ item, index, deleteDocument,prevItem }: DocumentItemProps) => {
+  const isImage = prevItem ? true : item.name?.match(/\.(jpeg|jpg|gif|png)$/i);
+  const uriToUse = prevItem ? prevItem : item.localUri ?? item.uri;
+
+
   return (
     <View style={[styles.documentContainer, {padding: isImage ? 0 : 10}]}>
-      {deleteDocument && <CustomButton onPress={() => deleteDocument?.(item.uri || "")} buttonStyle={styles.deleteDocument} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />}
+      {deleteDocument && <CustomButton onPress={() => deleteDocument?.(prevItem ?? item.uri ?? "")} buttonStyle={styles.deleteDocument} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />}
       
       {isImage ? (
 

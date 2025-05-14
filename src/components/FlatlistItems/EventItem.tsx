@@ -19,19 +19,21 @@ import ConfirmationModal from '../../modals/ConfirmationModal'
 import { cancelEvent } from '../../api/network-utils'
 import { STATUS_CODE } from '../../utils/constants'
 import Toast from 'react-native-toast-message'
+import EventCreation from '../../modals/Event/EventCreation'
 
 interface EventItemProps {
     event: Event;
     index: number;
     scrollX: Animated.Value;
     setEvents: Dispatch<SetStateAction<Event[]>>;
+    fetchEventsList?: (latest?: boolean, initial?: boolean) => Promise<void>;
   }
 
 
 const {width : SCREEN_WIDTH} = Dimensions.get("window")
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-export default function EventItem({ event, index, scrollX,setEvents }: EventItemProps) {
+export default function EventItem({ event, index, scrollX,setEvents,fetchEventsList }: EventItemProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
@@ -110,6 +112,10 @@ export default function EventItem({ event, index, scrollX,setEvents }: EventItem
         <CustomModal isOpen={action === "2"} onClose={() => setAction(null)}>
             <ConfirmationModal declineText="No" confirmText='Yes' setConfirmation={handleCancelEvent} warningText='Are you sure you want to cancel this event?' onClose={() => setAction(null)} />
         </CustomModal>
+
+         <CustomModal presentationStyle="formSheet" fullScreen isOpen={action === "1"} onClose={() => setAction(null)}>
+            <EventCreation fetchEventsList={fetchEventsList} event={event} /* fetchEventsList={fetchEventsList} */  onClose={() => setAction(null)} />
+         </CustomModal>
         
         {/* <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "2"}>
             <CreateChat fetchChats={fetchChats} onClose={() => setAction(null)} />
@@ -170,7 +176,7 @@ const styles = StyleSheet.create({
         textAlign: "left",
     },
     eventCategoryContainer: {
-        borderWidth: 1,
+/*         borderWidth: 1, */
         flexDirection: "row",
         alignItems: "center",
         gap: 10

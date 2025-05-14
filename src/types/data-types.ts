@@ -21,6 +21,30 @@ interface UserProfile {
   BannerURL: string | null
 }
 
+interface UserAddress {
+  UserAddressUUID: string;
+  AddressUUID: string;
+  IsDefault: boolean;
+  UseForCommunication: boolean;
+  UseForBilling: boolean;
+  FullName: string | null;
+  PhoneCountryId: string | null;
+  PhoneCountryName: string | null;
+  PhoneNumber: string | null;
+  CountryId: number;
+  CountryName: string;
+  StateId: number;
+  StateName: string;
+  CityId: number;
+  CityName: string;
+  StreetId: string | null;
+  StreetName: string | null;
+  PostCode: string;
+  AddressLine1: string;
+  AddressLine2: string;
+  NearestLandmark: string | null;
+}
+
 
 interface Category {
   CategoryUUID: string;
@@ -306,31 +330,6 @@ interface EventCategory {
   CategoryItemUUID: string | null;
   CategoryItemName: string | null;
   CategoryItemURL: string | null;
-}
-
-interface Event {
-  EventUUID: string;
-  EventName: string;
-  EventDescription: string;
-  EventIcon: string | null;
-  EventBanner: string;
-  EventStartDateTime: string;
-  EventEndDateTime: string;
-  PublishDateTime: string;
-  MaxParticipantLimit: number | null;
-  CanLeaveEvent: boolean;
-  EventRegistrationStartDateTime: string;
-  EventRegistrationEndDateTime: string;
-  StatusItemCode: string;
-  EventTypeUUID: string;
-  EventType: string;
-  EventTypeCode: string;
-  NoOfParticipants: number;
-  HostFullName: string;
-  LoggedInUserParticipationStatus: string | null;
-  EventCategories: EventCategory[];
-  EventUserRoles: any[];
-  EventDepartments: any[]; 
 }
 
 interface EventType {

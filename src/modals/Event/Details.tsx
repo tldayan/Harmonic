@@ -11,7 +11,7 @@ import { colors } from "../../styles/colors";
 import { DocumentItem } from "../../components/FlatlistItems/DocumentItem";
 import CustomKeyboardAvoidingView from "../../components/CustomKeyboardAvoidingView";
 import { CustomTextInput } from "../../components/CustomTextInput";
-import { defaultInputStyles } from "../../styles/global-styles";
+import { defaultInputLabelStyles, defaultInputStyles } from "../../styles/global-styles";
 
 interface EventInformationProps {
     setEventInformation: React.Dispatch<React.SetStateAction<EventInformation>>
@@ -43,7 +43,7 @@ export const Details = ({eventInformation, setEventInformation, formErrors, setF
 
       {/* FILE UPLOAD SECTION */}
       <TouchableOpacity onPress={addDocument} style={[styles.fileUploadContainer, eventInformation.eventBanner.length ? {borderColor: colors.GREEN} : null, formErrors.eventBanner?.hasError ? {borderColor: "red"} : null]}>
-      {eventInformation.eventBanner.length ? <DocumentItem item={eventInformation.eventBanner[0]} deleteDocument={() => setEventInformation((prev) => ({...prev, eventBanner: []}))} /> : <View style={styles.dropFilesContainer}>
+      {(eventInformation.eventBanner.length || eventInformation.prevEventBanner) ? <DocumentItem   prevItem={eventInformation.prevEventBanner ?? ""} item={eventInformation.eventBanner[0]} deleteDocument={() => setEventInformation((prev) => ({...prev, eventBanner: [], prevEventBanner: ""}))} /> : <View style={styles.dropFilesContainer}>
         <View style={styles.imagesContainer}>
             <Image
                 source={{ uri: "https://cdn.builder.io/api/v1/image/assets/TEMP/c4c8b2a09c4e12821e9083aeffc464914719af79?placeholderIfAbsent=true&apiKey=c91de5f0cb9b4186a3a7de3645b59a9d" }}
@@ -73,6 +73,7 @@ export const Details = ({eventInformation, setEventInformation, formErrors, setF
         hasError={formErrors.eventDescription?.hasError}
         multiline={true}
         flex={true}
+        value={eventInformation.eventDescription}
         onFocus={() => {
             scrollViewRef.current?.scrollToEnd({ animated: true });
         }}
@@ -85,7 +86,7 @@ export const Details = ({eventInformation, setEventInformation, formErrors, setF
     />
 
 
-    <CustomSelectInput hasError={formErrors.eventType?.hasError} onSelect={() => {setFormErrors((prev) => ({...prev, eventType: {...prev.eventType, hasError: false}}));setSelectingEventType(true);}} placeholder={eventInformation.eventType.eventTypeName ? eventInformation.eventType.eventTypeName : "Event Type"} />
+    <CustomSelectInput label="Event Type" labelStyle={defaultInputLabelStyles} hasError={formErrors.eventType?.hasError} onSelect={() => {setFormErrors((prev) => ({...prev, eventType: {...prev.eventType, hasError: false}}));setSelectingEventType(true);}} placeholder={eventInformation.eventType.eventTypeName ? eventInformation.eventType.eventTypeName : "Event Type"} />
     
 
     <CustomModal isOpen={selectingEventType} onClose={() => setSelectingEventType(false)}>

@@ -48,6 +48,7 @@ export interface EventInformation {
   registrationEndDateTime: string;
   eventStartDateTime: string;
   eventEndDateTime: string
+  prevEventBanner: string
   eventBanner: DocumentPickerResponse[]; 
   loading: boolean;
 }

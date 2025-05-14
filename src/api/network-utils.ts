@@ -1207,7 +1207,7 @@ export const getEventDetails = async(loggedInUserUUID: string, eventUUID: string
 }
 
 
-export const saveEventDetails = async(userUUID:string,organizationUUID: string, eventBannerUrl: string, eventInformation: EventInformation) => {
+export const saveEventDetails = async(userUUID:string,organizationUUID: string, eventBannerUrl: string, eventInformation: EventInformation, editing?: boolean) => {
 
   const bodyData = {
     "EventCategories": null,
@@ -1217,7 +1217,8 @@ export const saveEventDetails = async(userUUID:string,organizationUUID: string, 
     "EventName": eventInformation.eventName,
     "EventDescription": eventInformation.eventDescription,
     "OrganizationUUID": organizationUUID,
-    "LoggedInUserUUID": userUUID
+    "LoggedInUserUUID": userUUID,
+    ...(editing && {"EventUUID" : eventInformation.eventUUID})
 }
 
 

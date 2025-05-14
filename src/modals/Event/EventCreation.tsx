@@ -11,7 +11,7 @@ import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
 import { PRIMARY_BUTTON_STYLES } from '../../styles/button-styles'
 import { Details } from './Details'
-import { EventInformation, FormErrors } from '../../types/event.types'
+import { Event, EventInformation, FormErrors } from '../../types/event.types'
 import { Timings } from './Timings'
 import { Guests } from './Guests'
 import { publishEvent, saveEventConfiguration, saveEventDetails, saveEventSchedule } from '../../api/network-utils'
@@ -23,7 +23,8 @@ import Toast from 'react-native-toast-message'
 
 interface EventCreationProps {
     onClose: () => void
-    fetchEventsList?: (value: boolean) => void
+    fetchEventsList?: (latest?: boolean, initial?: boolean) => Promise<void>;
+    event?: Event
 }
 
 const width = Dimensions.get("window").width
@@ -37,29 +38,30 @@ const steps = [
 
 
 
-export default function EventCreation({onClose,fetchEventsList} : EventCreationProps) {
+export default function EventCreation({onClose,fetchEventsList, event} : EventCreationProps) {
       const route = useRoute()
+      console.log(event)
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [step, setStep] = useState(0)
     const [eventInformation, setEventInformation] = React.useState<EventInformation>({
-        eventUUID: "",
-        eventName: "",
-        createdBy: "",
-        eventType: { eventTypeName: '', eventTypeUUID: '' },
+        eventUUID: event?.EventUUID || "",
+        eventName: event?.EventName || "",
+        createdBy: event?.CreatedBy || "",
+        eventType: { eventTypeName: event?.EventTypeCode || "", eventTypeUUID: event?.EventTypeUUID || "" },
         participants: [],
-        eventDescription: '',
-        scheduledPublishDateTime: "",
-        registrationStartDateTime: "",
-        registrationEndDateTime: "",
-        eventStartDateTime: "",
-        eventEndDateTime: "",
+        eventDescription: event?.EventDescription || "",
+        scheduledPublishDateTime: event?.PublishDateTime || "",
+        registrationStartDateTime: event?.EventRegistrationStartDateTime || "",
+        registrationEndDateTime: event?.EventRegistrationEndDateTime || "",
+        eventStartDateTime: event?.EventStartDateTime || "",
+        eventEndDateTime: event?.EventEndDateTime || "",
+        prevEventBanner:event?.EventBanner || "",
         eventBanner: [],
         loading: false
       });
 
       const [formErrors, setFormErrors] = React.useState<FormErrors>({});
 
-      
       
 
     const {organizationUUID, userUUID} = useSelector((state: RootState) => state.auth)
@@ -125,7 +127,7 @@ export default function EventCreation({onClose,fetchEventsList} : EventCreationP
               hasError = true;
             }
 
-            if (!eventInformation.eventBanner.length) {
+            if (!eventInformation.eventBanner.length && !eventInformation.prevEventBanner) {
               newErrors.eventBanner = { hasError: true };
               hasError = true;
             }
@@ -163,10 +165,16 @@ export default function EventCreation({onClose,fetchEventsList} : EventCreationP
             setEventInformation((prev) => ({...prev, loading: true}))
             try {
                 
-                const uploadedBanner = await uploadDocuments(eventInformation.eventBanner, firebaseStoragelocations.event)
-                const eventBannerUrl = uploadedBanner[0].url
+                let eventBannerUrl = ""
+                if(eventInformation.eventBanner.length) {
+                    const uploadedBanner = await uploadDocuments(eventInformation.eventBanner, firebaseStoragelocations.event)
+                    eventBannerUrl = uploadedBanner[0].url
+                } else {
+                    eventBannerUrl = eventInformation.prevEventBanner
+                }
                 console.log(eventBannerUrl)
-                const saveEventDetailsResponse = await saveEventDetails(userUUID, organizationUUID,eventBannerUrl, eventInformation)
+                
+                const saveEventDetailsResponse = await saveEventDetails(userUUID, organizationUUID,eventBannerUrl, eventInformation, event && true)
                 const {EventUUID} = saveEventDetailsResponse.Payload
                 console.log("eventUUID", EventUUID)
                 const updatedEventInfo = {...eventInformation, eventUUID: EventUUID}
@@ -181,11 +189,20 @@ export default function EventCreation({onClose,fetchEventsList} : EventCreationP
               onClose()
 
               if(route.name !== "Events") {
+                console.log("not in events")
                 navigation.navigate("Tabs", {
                     screen: "Events",
                 });
               } else {
-                fetchEventsList?.(true)
+                if(event) {
+                    console.log("heeeee")
+                    console.log(fetchEventsList)
+                    fetchEventsList?.(false, true);
+                } else {
+                    console.log(fetchEventsList)
+                    fetchEventsList?.(true)
+                }
+
               }
               
               
