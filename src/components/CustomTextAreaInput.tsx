@@ -22,6 +22,8 @@ interface TextAreaInputProps {
   errorMessage?: string;
   hasError?: boolean;
   value?: string;
+  label?: string;
+  labelStyle?: object;
 }
 
 const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
@@ -36,7 +38,9 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
   rightIcon,
   hasError,
   errorMessage,
-  value, // Add value here
+  value,
+  label,
+  labelStyle,
 }) => {
   const handleChangeText = (text: string) => {
     onChangeText?.(text);
@@ -53,7 +57,7 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
         ]}
         placeholder={placeholder}
         multiline={multiline}
-        value={value} // Set the value to the prop passed from the parent
+        value={value}
         onChangeText={handleChangeText}
         onFocus={onFocus}
         editable={!noInput}
@@ -70,16 +74,21 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
     <View
       style={[
         styles.container,
+        !label && {marginTop: 10},
         multiline && { minHeight: flex ? 218 : 100 },
         !multiline && { height: 42 },
       ]}
     >
+      {label && (
+        <Text style={[styles.label, labelStyle]}>{label}</Text>
+      )}
+
       <TouchableOpacity
         style={[
           styles.input,
           !noInput ? { flexDirection: "column", alignItems: "flex-start" } : null,
           multiline ? { paddingVertical: 5 } : null,
-          (errorMessage || hasError) ? { borderColor: 'red', backgroundColor : colors.RED_SHADE } : null, // red border if error
+          (errorMessage || hasError) ? { borderColor: 'red', backgroundColor : colors.RED_SHADE } : null,
         ]}
         onPress={noInput ? onPressInput : undefined}
         activeOpacity={noInput ? 0.7 : 1}
@@ -96,19 +105,22 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 10,
+/*     marginTop: 10, */
     width: "100%",
-    fontSize: 14,
     flexShrink: 1,
     color: "#6b7280",
-    fontWeight: "400",
     gap: 8,
+  },
+  label: {
+    fontWeight: "500",
+    color: "#6b7280",
+    marginBottom: 4,
   },
   input: {
     borderRadius: 24,
     borderWidth: 1,
     borderColor: colors.BORDER_COLOR,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.BACKGROUND_COLOR,
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
@@ -119,7 +131,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: "#111928",
-    /* paddingHorizontal: 8, */
   },
   textAreaInput: {
     minWidth: 240,

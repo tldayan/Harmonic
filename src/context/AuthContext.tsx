@@ -62,7 +62,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         try {
           const {UserUUID, OrganizationUUID} = await getUuidBySignIn(authUser)
-          console.log(UserUUID)
 
           dispatch(setUUIDs({organizationUUID: OrganizationUUID, userUUID: UserUUID}))
           saveDataMMKV({"UserUUID": UserUUID, "OrganizationUUID" : OrganizationUUID})
@@ -72,8 +71,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           saveUserProfileToRealm(userProfileResposne?.data.Payload)
           saveOrganizationBasedModules(OrganizationBasedModulesResponse?.data.Payload)
 
-          const userProfile = realmInstance.objects('UserProfile')[0]; 
-/*           console.log("Saved UserProfile from Realm:", userProfile?.toJSON()); */
+          const userProfile = realmInstance.objects('UserProfile')[0];
+
+          console.log("Saved UserProfile from Realm:", userProfile?.toJSON());
+          
           
           const modules = realmInstance.objects('OrganizationBasedModules');
           console.log("Saved Modules from Realm:", modules.toJSON());

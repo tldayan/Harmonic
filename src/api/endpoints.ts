@@ -5,7 +5,11 @@ export const ENDPOINTS = {
     SIGN_IN: `${BASE_URL}/user/signInUser`,
   },
   ADDRESS: {
-    COUNTRY_CODES: `${BASE_URL}/address/getAllCountries`
+    COUNTRY_CODES: `${BASE_URL}/address/getAllCountries`,
+    GET_ALL_COUNTRIES: `${BASE_URL}/address/getAllCountries`,
+    GET_ALL_STATES_FOR_COUNTRY: `${BASE_URL}/address/getAllStatesForCountry`,
+    GET_ALL_CITIES_FOR_COUNTRY_AND_STATE: `${BASE_URL}/address/getAllCitiesForCountryAndState`,
+    SAVE_USER_ADDRESS: `${BASE_URL}/address/saveUserAddress`
   },
   ORGANIZATION: {
     FETCH_MODULES: `${BASE_URL}/organization/getOrganizationBasedModules`,
@@ -84,6 +88,7 @@ export const ENDPOINTS = {
   COMMON: {
     CATEGORIES: `${BASE_URL}/common/getAllCategories`,
     CATEGORY_ITEMS: `${BASE_URL}/common/getCategoryItemsForACategory`,
-    GET_WORK_PRIORITIES: `${BASE_URL}/common/getWorkPriorities`
+    GET_WORK_PRIORITIES: `${BASE_URL}/common/getWorkPriorities`,
+
   }
 };

@@ -73,7 +73,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 20,
     width: 343,
-    paddingBottom: 10
+    paddingBottom: 10,
+    
   },
   mainEventTypeList: {
     flexDirection: "column",

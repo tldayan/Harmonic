@@ -48,7 +48,7 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
     return 'Unknown';
   };
   
-
+//ADDRESS
   export const getCountryCodes = async() => {
 
     try {
@@ -64,11 +64,93 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   }
 
 
-  export const getUserProfile = async(UserUUID: string) => {
 
+  export const getAllCountries = async() => {
+
+    try {
+      const getAllCountriesResponse = await apiClient(ENDPOINTS.ADDRESS.GET_ALL_COUNTRIES, {}, {}, "GET")
+      console.log(getAllCountriesResponse)
+      return getAllCountriesResponse.data
+  
+    } catch(err) {
+      console.error(err)
+    }
+  
+  }
+  
+  
+  
+  export const getAllStatesForCountry = async(countryId: string) => {
+  
+    try {
+      const getAllStatesForCountryResponse = await apiClient(ENDPOINTS.ADDRESS.GET_ALL_STATES_FOR_COUNTRY, {}, {}, "GET", {countryId})
+      console.log(getAllStatesForCountryResponse)
+      return getAllStatesForCountryResponse.data
+  
+    } catch(err) {
+      console.error(err)
+    }
+  
+  }
+  
+  
+  
+  export const getAllCitiesForCountryAndState = async(countryId: string, stateId: string) => {
+  
+    try {
+      const getAllCitiesForCountryAndStateResponse = await apiClient(ENDPOINTS.ADDRESS.GET_ALL_CITIES_FOR_COUNTRY_AND_STATE, {}, {}, "GET", {countryId, stateId})
+      console.log(getAllCitiesForCountryAndStateResponse)
+      return getAllCitiesForCountryAndStateResponse.data
+  
+    } catch(err) {
+      console.error(err)
+    }
+  
+  }
+
+
+
+  export const saveUserAddress = async(userUUID: string, userAddress: UserAddress) => {
+
+    const bodyData = {
+      "AddressLine1": userAddress.AddressLine1,
+      "AddressLine2": userAddress.AddressLine2,
+      "CountryId": userAddress.CountryId,
+      "CountryName": userAddress.CountryName,
+      "StateId": userAddress.StateId,
+      "StateName": userAddress.StateName,
+      "CityId": userAddress.CityId,
+      "CityName": userAddress.CityName,
+      "PostCode": userAddress.PostCode,
+      "UserUUID": userUUID,
+      ...(userAddress.AddressUUID && {"AddressUUID": userAddress.AddressUUID})
+  }
+  
+    try {
+      const saveUserAddressResponse = await apiClient(ENDPOINTS.ADDRESS.SAVE_USER_ADDRESS, bodyData, {}, "POST")
+      console.log(saveUserAddressResponse)
+      return saveUserAddressResponse.data
+  
+    } catch(err) {
+      console.error(err)
+    }
+  
+  }
+
+
+
+
+
+
+
+
+
+  export const getUserProfile = async(UserUUID: string) => {
+    console.log(UserUUID)
     try {
 
       const response = await apiClient(ENDPOINTS.USER.PROFILE, {}, {}, "GET", {UserUUID: UserUUID ?? "", LoggedInUserUUID: UserUUID ?? ""})
+      console.log(response)
       return response
 
     } catch (err) {
@@ -79,23 +161,23 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
 
 
 
-  export const updateUserProfile = async(userUUID: string, userInfo: UserInfo) => {
+  export const updateUserProfile = async(userUUID: string, userInfo: UserProfile) => {
 
     try {
     const bodyData = {
-      "ProfilePicURL": userInfo.profilePic ? userInfo.profilePic : "",
-      "FirstName": userInfo.firstName,
-      "LastName": userInfo.lastName,
-      "EmailAddress": userInfo.email,
-      "Description": userInfo.description,
-      "PhoneCountryUUID": "231",
-      "PhoneNumber": userInfo.phoneNumber,
+      "ProfilePicURL": userInfo.ProfilePicURL ? userInfo.ProfilePicURL : "",
+      "FirstName": userInfo.FirstName,
+      "LastName": userInfo.LastName,
+      "EmailAddress": userInfo.EmailAddress,
+      "Description": userInfo.Description,
+      "PhoneCountryUUID": "",
+      "PhoneNumber": userInfo.PhoneNumber,
       "UserUUID": userUUID,
-      "UserName": userInfo.userName
+      "UserName": userInfo.UserName
     }
 
       const response = await apiClient(ENDPOINTS.USER.UPDATE_USER_PROFILE, bodyData,{} ,"PUT")
-      console.log(response.data.Payload)
+      console.log(response.data)
       return response.data
 
     } catch(err) {
@@ -1146,6 +1228,7 @@ export const getWorkPriorities = async(organizationUUID: string) => {
   }
 
 }
+
 
 
 

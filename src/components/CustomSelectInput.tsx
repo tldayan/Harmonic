@@ -76,17 +76,17 @@ const CustomSelectInput: React.FC<SelectInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    flex: 1,
+/*     borderWidth: 1, */
   },
   label: {
-    fontSize: 14,
     fontWeight: "500",
     color: "#6b7280",
-    marginBottom: 4,
+    marginBottom: 5,
   },
   selectInput: {
     borderRadius: 9999,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.BACKGROUND_COLOR,
     borderWidth: 1,
     borderColor: colors.BORDER_COLOR,
     paddingHorizontal: 12,

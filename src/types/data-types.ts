@@ -4,13 +4,13 @@ interface UserProfile {
   UserUUID: string
   UserName: string
   FirstName: string
-  LastName: string | null
-  Description: string | null
+  LastName: string 
+  Description: string 
   EmailAddress: string
-  GenderUUID: string | null
-  CountryUUID: string | null
-  NationalityUUID: string | null
-  PhoneCountryUUID: string | null
+  GenderUUID: string 
+  CountryUUID: string 
+  NationalityUUID: string 
+  PhoneCountryUUID: string 
   PhoneNumber: string
   DateOfBirth: string
   CreatedBy: string | null
@@ -44,6 +44,38 @@ interface UserAddress {
   AddressLine2: string;
   NearestLandmark: string | null;
 }
+
+interface Country {
+  CountryId: number;
+  CountryName: string;
+  CountryISO3Code: string;
+  CountryISO2Code: string;
+  PhoneCode: string;
+  Capital: string;
+  Currency: string;
+  Native: string;
+  Emoji: string;
+  Nationality: string;
+}
+
+interface State {
+  StateId: number;
+  StateName: string;
+  CountryId: number;
+  CountryCode: string;
+  FipsCode: string;
+  ISO2Code: string;
+}
+
+interface City {
+  CityId: number;
+  CityName: string;
+  StateId: number;
+  StateCode: string;
+  CountryId: number;
+  CountryCode: string;
+}
+
 
 
 interface Category {

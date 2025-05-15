@@ -67,9 +67,11 @@ export const Details = ({eventInformation, setEventInformation, formErrors, setF
       </View>}
     </TouchableOpacity>
 
-    <CustomTextInput hasError={formErrors.eventName?.hasError} onChangeText={(e) => {setFormErrors((prev) => ({...prev, eventName: {...prev.eventName, hasError: false}})); setEventInformation((prev) => ({...prev, eventName: e}))}} labelStyle={styles.eventNameLabel} value={eventInformation.eventName} placeholderTextColor={colors.LIGHT_TEXT} placeholder="Birthday Bash" inputStyle={defaultInputStyles} label="Event Name" />
-    <Text style={styles.description}>Description</Text>
+    <CustomTextInput hasError={formErrors.eventName?.hasError} onChangeText={(e) => {setFormErrors((prev) => ({...prev, eventName: {...prev.eventName, hasError: false}})); setEventInformation((prev) => ({...prev, eventName: e}))}} labelStyle={defaultInputLabelStyles} value={eventInformation.eventName} placeholderTextColor={colors.LIGHT_TEXT} placeholder="Birthday Bash" inputStyle={defaultInputStyles} label="Event Name" />
+{/*     <Text style={styles.description}>Description</Text> */}
     <CustomTextAreaInput
+    label="Description"
+    labelStyle={defaultInputLabelStyles}
         hasError={formErrors.eventDescription?.hasError}
         multiline={true}
         flex={true}
@@ -102,10 +104,6 @@ export const Details = ({eventInformation, setEventInformation, formErrors, setF
 const styles = StyleSheet.create({
   container: {
     gap: 0,
-  },
-  description: {
-    marginTop: 20,
-    fontWeight: 500
   },
   fileUploadContainer: {
     justifyContent: "space-between",
@@ -263,11 +261,6 @@ const styles = StyleSheet.create({
     fontFamily: "Inter, -apple-system, Roboto, Helvetica, sans-serif",
     fontSize: 14,
     fontWeight: "400",
-  },
-  eventNameLabel: {
-    fontWeight: 500,
-    paddingTop: 20,
-    paddingBottom: 10
   },
 /*   eventNameField: {
     backgroundColor: "#F9FAFB",

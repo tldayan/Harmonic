@@ -6,6 +6,7 @@ import { colors } from "../../styles/colors";
 import CustomKeyboardAvoidingView from "../../components/CustomKeyboardAvoidingView";
 import Calender from "../../assets/icons/calendar.svg";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { defaultInputLabelStyles } from "../../styles/global-styles";
 
 interface EventInformationProps {
   setEventInformation: React.Dispatch<React.SetStateAction<EventInformation>>;
@@ -133,21 +134,19 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
     <CustomKeyboardAvoidingView>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: 30 }} style={{ paddingBottom: 30}}>
 
-        <Text style={{ marginTop: 15, fontWeight: 500 }}>Event Start</Text>
         <View style={styles.checkboxContainer}>
-          <CustomSelectInput onSelect={() => setEventStartDatePickerVisibility(true)} placeholder={eventStartDate ? eventStartDate.toLocaleDateString() : "Select Date"} />
-        <CustomSelectInput onSelect={() => setEventStartTimePickerVisibility(true)} placeholder={eventStartTime ? eventStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+          <CustomSelectInput label="Event Start" labelStyle={defaultInputLabelStyles} onSelect={() => setEventStartDatePickerVisibility(true)} placeholder={eventStartDate ? eventStartDate.toLocaleDateString() : "Select Date"} />
+          <CustomSelectInput label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setEventStartTimePickerVisibility(true)} placeholder={eventStartTime ? eventStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
         </View>
         
 
-        <Text style={{ marginTop: 15, fontWeight: 500 }}>Event End</Text>
         <View style={styles.checkboxContainer}>
-          <CustomSelectInput onSelect={() => setEventEndDatePickerVisibility(true)} placeholder={eventEndDate ? eventEndDate.toLocaleDateString() : "Select Date"} />
-        <CustomSelectInput onSelect={() => setEventEndTimePickerVisibility(true)} placeholder={eventEndTime ? eventEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+          <CustomSelectInput label="Event End" labelStyle={defaultInputLabelStyles} onSelect={() => setEventEndDatePickerVisibility(true)} placeholder={eventEndDate ? eventEndDate.toLocaleDateString() : "Select Date"} />
+        <CustomSelectInput label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setEventEndTimePickerVisibility(true)} placeholder={eventEndTime ? eventEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
         </View>
         
 
-        <View style={{ flexDirection: "column", gap: 10, marginTop: 20 }}>
+        <View style={{ flexDirection: "column", gap: 10, marginTop: 20, marginBottom: 10 }}>
           <TouchableOpacity onPress={() => setShowRegistration((prev) => !prev)} style={styles.checkboxContainer}>
             <View style={styles.checkbox}>
               {showRegistration && <View style={styles.innerCheckbox} />}
@@ -157,17 +156,14 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
         </View>
 
         {showRegistration && <View >
-          <Text style={{ marginTop: 15 }}>Registration Start</Text>
           <View style={styles.checkboxContainer}>
-            <CustomSelectInput onSelect={() => setRegStartDatePickerVisibility(true)} placeholder={regStartDate ? regStartDate.toLocaleDateString() : "Select Date"} />
-          <CustomSelectInput onSelect={() => setRegStartTimePickerVisibility(true)} placeholder={regStartTime ? regStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+            <CustomSelectInput label="Registration Start" labelStyle={defaultInputLabelStyles} onSelect={() => setRegStartDatePickerVisibility(true)} placeholder={regStartDate ? regStartDate.toLocaleDateString() : "Select Date"} />
+            <CustomSelectInput label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setRegStartTimePickerVisibility(true)} placeholder={regStartTime ? regStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
           </View>
-          
 
-          <Text style={{ marginTop: 15 }}>Registration End</Text>
           <View style={styles.checkboxContainer}>
-            <CustomSelectInput onSelect={() => setRegEndDatePickerVisibility(true)} placeholder={regEndDate ? regEndDate.toLocaleDateString() : "Select Date"} />
-          <CustomSelectInput onSelect={() => setRegEndTimePickerVisibility(true)} placeholder={regEndTime ? regEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+            <CustomSelectInput label="Registration End" labelStyle={defaultInputLabelStyles} onSelect={() => setRegEndDatePickerVisibility(true)} placeholder={regEndDate ? regEndDate.toLocaleDateString() : "Select Date"} />
+            <CustomSelectInput label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setRegEndTimePickerVisibility(true)} placeholder={regEndTime ? regEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
           </View>
         </View>}
 
@@ -189,11 +185,10 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
         </View>
 
         {isSchedulingPublish && (
-          <>
-            <Text style={{ marginTop: 15, fontWeight: 500 }}>Scheduled Publish Time</Text>
+          <View style={{flexDirection: "row", gap: 10, marginTop: 10}}>
             <CustomSelectInput onSelect={() => setPublishDatePickerVisibility(true)} placeholder={publishDate ? publishDate.toLocaleDateString() : "Select Date"} />
             <CustomSelectInput onSelect={() => setPublishTimePickerVisibility(true)} placeholder={publishTime ? publishTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
-          </>
+          </View>
         )}
 
         {/* Pickers */}

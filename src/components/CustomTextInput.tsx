@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
  /*    borderWidth:1, */
+    backgroundColor: colors.BACKGROUND_COLOR,
     borderRadius : 50,
     flexDirection: 'row',
     alignItems: 'center',

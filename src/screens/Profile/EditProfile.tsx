@@ -24,19 +24,26 @@ export default function EditProfile() {
   const [loading, setLoading] = useState(false)
   const [updatingUserInfo, setUpdatingUserInfo] = useState(false)  
 
-  const [userInfo, setUserInfo] = useState<UserInfo>({
-    profilePic: "",
-    userName: "",
-    firstName: "",
-    lastName: "",
-    description: "",
-    email: "",
-    phoneNumber: "",
-    department: "",
-    designation: "",
-    address: "",
-    residingSince: "",
-    tenantOf: ""
+  const [userInfo, setUserInfo] = useState<UserProfile>({
+UserId: 0,
+  UserUUID: "",
+  UserName: "",
+  FirstName: "",
+  LastName: "",
+  Description: "",
+  EmailAddress: "",
+  GenderUUID: "",
+  CountryUUID: "",
+  NationalityUUID: "",
+  PhoneCountryUUID: "",
+  PhoneNumber: "",
+  DateOfBirth: "",
+  CreatedBy: "",
+  CreatedDateTime: "",
+  ModifiedBy: "",
+  ModifiedDateTime: "",
+  ProfilePicURL: "",
+  BannerURL: "",
   })
 
 
@@ -48,20 +55,28 @@ export default function EditProfile() {
         const userProfile = userProfileResponse?.data.Payload
         if(userProfileResponse?.data.Status === STATUS_CODE.SUCCESS) {
          /*    setSavedUserInfo(userProfile) */
-            setUserInfo({
-                profilePic: userProfile.ProfilePicURL || "",
-                userName: userProfile.UserName || "",
-                firstName: userProfile.FirstName || "",
-                lastName: userProfile.LastName || "",
-                description: userProfile.Description || "",
-                email: userProfile.EmailAddress || "",
-                phoneNumber: userProfile.PhoneNumber || "",
-                department: userProfile.department || "",
-                designation: userProfile.designation || "",
-                address: userProfile.address || "",
-                residingSince: userProfile.residingSince || "",
-                tenantOf: userProfile.tenantOf || ""
-              });
+         setUserInfo({
+          UserId: userProfile.UserId || 0,
+          UserUUID: userProfile.UserUUID || "",
+          UserName: userProfile.UserName || "",
+          FirstName: userProfile.FirstName || "",
+          LastName: userProfile.LastName || "",
+          Description: userProfile.Description || "",
+          EmailAddress: userProfile.EmailAddress || "",
+          GenderUUID: userProfile.GenderUUID || "",
+          CountryUUID: userProfile.CountryUUID || "",
+          NationalityUUID: userProfile.NationalityUUID || "",
+          PhoneCountryUUID: userProfile.PhoneCountryUUID || "",
+          PhoneNumber: userProfile.PhoneNumber || "",
+          DateOfBirth: userProfile.DateOfBirth || "",
+          CreatedBy: userProfile.CreatedBy || "",
+          CreatedDateTime: userProfile.CreatedDateTime || "",
+          ModifiedBy: userProfile.ModifiedBy || "",
+          ModifiedDateTime: userProfile.ModifiedDateTime || "",
+          ProfilePicURL: userProfile.ProfilePicURL || "",
+          BannerURL: userProfile.BannerURL || ""
+        });
+        
               
         }
 
@@ -82,7 +97,7 @@ export default function EditProfile() {
     setUpdatingUserInfo(true)
 
     if(changedProfilePic) {
-        const uploaded = await uploadMedia([userInfo.profilePic as Asset], firebaseStoragelocations.document);
+        const uploaded = await uploadMedia([userInfo.ProfilePicURL as Asset], firebaseStoragelocations.document);
         const userProfilePicFirebaseURL = uploaded[0]?.url || "";
         setUserInfo((prev) => ({...prev, profilePic: userProfilePicFirebaseURL}))
     }
@@ -144,7 +159,7 @@ export default function EditProfile() {
     <CustomKeyboardAvoidingView>
     {loading ? <ActivityIndicator size={"small"} style={{marginVertical: "50%"}} /> : <ScrollView >
       <View style={styles.editProfilePicContainer}>
-        <Image style={styles.profilePic} source={{ uri: userInfo.profilePic || "https://i.pravatar.cc/150" }} />
+        <Image style={styles.profilePic} source={{ uri: userInfo.ProfilePicURL || "https://i.pravatar.cc/150" }} />
         <CustomButton buttonStyle={styles.removeImageIcon} onPress={removeProfilePic} icon={<CloseIcon width={20} height={20} />} />
       </View>
       <CustomButton title={"Edit your picture"} onPress={uploadUserProfilePic} textStyle={styles.edit} />
@@ -158,7 +173,7 @@ export default function EditProfile() {
             placeholder='Kajal'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
-            value={userInfo.userName}
+            value={userInfo.UserName}
           />
         </View>
         <View style={styles.inputContainer}>
@@ -169,7 +184,7 @@ export default function EditProfile() {
             placeholder='Kajal'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
-            value={userInfo.firstName}
+            value={userInfo.FirstName}
           />
         </View>
         <View style={styles.inputContainer}>
@@ -180,7 +195,7 @@ export default function EditProfile() {
             placeholder='Kajal'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
-            value={userInfo.lastName}
+            value={userInfo.LastName}
           />
         </View>
 
@@ -192,7 +207,7 @@ export default function EditProfile() {
             placeholder='kajalgirish9@gmail.com'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
-            value={userInfo.email}
+            value={userInfo.EmailAddress}
           />
         </View>
 
@@ -204,7 +219,7 @@ export default function EditProfile() {
             placeholder='+971562205251'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
-            value={userInfo.phoneNumber}
+            value={userInfo.PhoneNumber}
           />
         </View>
         <View style={styles.inputContainer}>
@@ -215,11 +230,11 @@ export default function EditProfile() {
             placeholder='About me'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
-            value={userInfo.description}
+            value={userInfo.Description}
           />
         </View>
 
-        <View style={styles.inputContainer}>
+{/*         <View style={styles.inputContainer}>
           <Text style={styles.title}>Department</Text>
           <CustomTextInput
             noFlexGrow
@@ -279,7 +294,7 @@ export default function EditProfile() {
             inputStyle={styles.inputField}
             value={userInfo.tenantOf}
           />
-        </View>
+        </View> */}
       </View>
     </ScrollView>}
 

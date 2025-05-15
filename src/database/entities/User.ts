@@ -1,7 +1,6 @@
 import Realm from 'realm';
 
 class UserProfile extends Realm.Object<UserProfile> {
-  UserId!: number;
   UserUUID!: string;
   FirstName?: string;
   LastName?: string;
@@ -20,7 +19,6 @@ class UserProfile extends Realm.Object<UserProfile> {
     name: 'UserProfile',
     primaryKey: 'UserUUID',
     properties: {
-      UserId: 'int',
       UserUUID: 'string',
       FirstName: 'string?',
       LastName: 'string?',

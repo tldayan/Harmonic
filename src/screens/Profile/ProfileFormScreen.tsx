@@ -1,8 +1,11 @@
 import { Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { SetStateAction, useEffect, useRef, useState } from 'react'
 import SetupProfile from './SetupProfile'
 import CustomButton from '../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
+import { saveUserAddress, updateUserProfile } from '../../api/network-utils'
+import { RootState } from '../../store/store'
+import { useSelector } from 'react-redux'
 
 const steps = [
     {id: "1", title : "Setup Profile"},
@@ -12,10 +15,16 @@ const steps = [
 
 const width = Dimensions.get("window").width
 
-export default function ProfileFormScreen() {
+interface ProfileFormScreenProps {
+    setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
+  }
+  
+
+export default function ProfileFormScreen({setUserProfile} : ProfileFormScreenProps) {
 
     const [step, setStep] = useState(0)
     const flatListRef = useRef<FlatList<any>>(null)
+    const userUUID = useSelector((state: RootState) => state.auth.userUUID)
     const [userInformation, setUserInformation] = useState<UserProfile>({
         UserId: 0,
         UserUUID: "",
@@ -80,11 +89,19 @@ export default function ProfileFormScreen() {
     }
 
 
-    const next = () => {
+    const next = async() => {
 
-        if(step <= 1) {
-            setStep((prev) => prev + 1)
+        if(step === 0) {
+            console.log("saving proifle")
+            const updateUserProfileResponse = await updateUserProfile(userUUID, userInformation)
+            const updateUserAddressResponse = await saveUserAddress(userUUID, userAddress)
+
+            setUserProfile(updateUserProfileResponse.Payload)
         }
+
+        /* if(step <= 1) {
+            setStep((prev) => prev + 1)
+        } */
 
     }
 
@@ -112,7 +129,10 @@ export default function ProfileFormScreen() {
         pagingEnabled
       />
 
-        <CustomButton title={"Next"} onPress={next} buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />
+        <View style={styles.nextButtonContainer}>
+            <CustomButton title={"Next"} onPress={next} buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />
+        </View>
+        
     </View>
   )
 }
@@ -120,10 +140,21 @@ export default function ProfileFormScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: "white",
     },
     innerContainer : {
         paddingHorizontal: 16,
-/*         borderWidth: 2, */
+     /*    borderWidth: 2, */
+/*         marginHorizontal: 16, */
+        backgroundColor: "white",
         width: width
     },
+    nextButtonContainer: {
+        paddingHorizontal: 16
+    },
+    title: {
+        fontSize: 24,
+        marginVertical: 10,
+        fontWeight: 800
+    }
 })
