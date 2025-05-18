@@ -1,11 +1,13 @@
-import { Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
-import React, { SetStateAction, useEffect, useRef, useState } from 'react'
+import { Alert, Dimensions, FlatList, StyleSheet, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import SetupProfile from './SetupProfile'
 import CustomButton from '../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
 import { saveUserAddress, updateUserProfile } from '../../api/network-utils'
 import { RootState } from '../../store/store'
 import { useSelector } from 'react-redux'
+import { saveUserProfileToRealm } from '../../database/management/realmUtils/saveUserProfileToRealm'
+import Toast from 'react-native-toast-message'
 
 const steps = [
     {id: "1", title : "Setup Profile"},
@@ -16,28 +18,47 @@ const steps = [
 const width = Dimensions.get("window").width
 
 interface ProfileFormScreenProps {
+    userProfile: UserProfile | null
+    userAddress: UserAddress | null
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
   }
+
+export interface FieldErrors {
+    UserName: boolean;
+    FirstName: boolean;
+    LastName: boolean;
+    EmailAddress: boolean;
+    PhoneNumber: boolean;
+    Description: boolean;
+    AddressLine1: boolean;
+    AddressLine2: boolean;
+    CountryName: boolean;
+    StateName: boolean;
+    CityName: boolean;
+    PostCode: boolean;
+  }
+  
   
 
-export default function ProfileFormScreen({setUserProfile} : ProfileFormScreenProps) {
+export default function ProfileFormScreen({setUserProfile, userProfile, userAddress} : ProfileFormScreenProps) {
 
     const [step, setStep] = useState(0)
     const flatListRef = useRef<FlatList<any>>(null)
     const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+    const [termsAccepted, setTermsAccepted] = useState(false)
     const [userInformation, setUserInformation] = useState<UserProfile>({
-        UserId: 0,
+/*         UserId: 0, */
         UserUUID: "",
-        UserName: "",
-        FirstName: "",
-        LastName: "",
-        Description: "",
-        EmailAddress: "",
+        UserName: userProfile?.UserName || "",
+        FirstName: userProfile?.FirstName || "",
+        LastName: userProfile?.LastName || "",
+        Description: userProfile?.Description || "",
+        EmailAddress: userProfile?.EmailAddress || "",
         GenderUUID: "",
         CountryUUID: "",
         NationalityUUID: "",
-        PhoneCountryUUID: "",
-        PhoneNumber: "",
+        PhoneCountryUUID: userProfile?.PhoneCountryUUID || "",
+        PhoneNumber: userProfile?.PhoneNumber || "",
         DateOfBirth: "",
         CreatedBy: "",
         CreatedDateTime: "",
@@ -46,33 +67,69 @@ export default function ProfileFormScreen({setUserProfile} : ProfileFormScreenPr
         ProfilePicURL: "",
         BannerURL: ""
     })
-    const [userAddress, setUserAddress] = useState<UserAddress>({
-        UserAddressUUID: "",
-        AddressUUID: "",
+    const [userAddressInformation, setUserAddressInformation] = useState<UserAddress>({
+        UserAddressUUID: userAddress?.UserAddressUUID || "",
+        AddressUUID: userAddress?.AddressUUID || "",
         IsDefault: false,
         UseForCommunication: false,
         UseForBilling: false,
         FullName: null,
-        PhoneCountryId: null,
+        PhoneCountryId: userAddress?.PhoneCountryId || null,
         PhoneCountryName: null,
-        PhoneNumber: null,
-        CountryId: 0,
-        CountryName: "",
-        StateId: 0,
-        StateName: "",
-        CityId: 0,
-        CityName: "",
-        StreetId: null,
-        StreetName: null,
-        PostCode: "",
-        AddressLine1: "",
-        AddressLine2: "",
+        PhoneNumber: userAddress?.PhoneNumber || null,
+        CountryId: userAddress?.CountryId || null,
+        CountryName: userAddress?.CountryName || "",
+        StateId: userAddress?.StateId || null,
+        StateName: userAddress?.StateName || "",
+        CityId: userAddress?.CityId || null,
+        CityName: userAddress?.CityName || "",
+        StreetId: userAddress?.StreetId || null,
+        StreetName: userAddress?.StreetName || null,
+        PostCode: userAddress?.PostCode || "",
+        AddressLine1: userAddress?.AddressLine1 || "",
+        AddressLine2: userAddress?.AddressLine2 || "",
         NearestLandmark: null
     })
+    const [errors, setErrors] = useState<FieldErrors>({
+        UserName: false,
+        FirstName: false,
+        LastName: false,
+        EmailAddress: false,
+        PhoneNumber: false,
+        Description: false,
+        AddressLine1: false,
+        AddressLine2: false,
+        CountryName: false,
+        StateName: false,
+        CityName: false,
+        PostCode: false,
+      });
+      
+
+      const validateFields = () => {
+        const newErrors = {
+          UserName: userInformation.UserName.trim() === "",
+          FirstName: userInformation.FirstName.trim() === "",
+          LastName: userInformation.LastName.trim() === "",
+          EmailAddress: !userInformation.EmailAddress.includes("@"),
+          PhoneNumber: userInformation.PhoneNumber.trim() === "",
+          Description: userInformation.Description.trim() === "",
+          AddressLine1: userAddressInformation.AddressLine1.trim() === "",
+          AddressLine2: userAddressInformation.AddressLine2.trim() === "",
+          CountryName: userAddressInformation.CountryName.trim() === "",
+          StateName: userAddressInformation.StateName.trim() === "",
+          CityName: userAddressInformation.CityName.trim() === "",
+          PostCode: userAddressInformation.PostCode.trim() === "",
+        };
+      
+        setErrors(newErrors);
+    
+        return !Object.values(newErrors).some(Boolean);
+      };
 
     const stepOne = () => {
         return <View style={styles.innerContainer}>
-            <SetupProfile setUserInformation={setUserInformation} userInformation={userInformation} setUserAddress={setUserAddress} userAddress={userAddress} />
+            <SetupProfile errors={errors} setUserInformation={setUserInformation} userInformation={userInformation} setUserAddressInformation={setUserAddressInformation} userAddressInformation={userAddressInformation} termsAccepted={termsAccepted} setTermsAccepted={setTermsAccepted} />
         </View>
     }
 
@@ -91,12 +148,25 @@ export default function ProfileFormScreen({setUserProfile} : ProfileFormScreenPr
 
     const next = async() => {
 
+        const isFormComplete = validateFields()
+        if(!isFormComplete || !termsAccepted) {
+            Toast.show({
+                type: "error",
+                text1: "Empty Fields!",
+                text2: !isFormComplete ? "Please ensure all fields are filled" : "Please accept the Terms of Use and Privacy Policy to proceed.",
+                position: "bottom",
+            });
+            return
+        }
+
         if(step === 0) {
             console.log("saving proifle")
             const updateUserProfileResponse = await updateUserProfile(userUUID, userInformation)
-            const updateUserAddressResponse = await saveUserAddress(userUUID, userAddress)
-
-            setUserProfile(updateUserProfileResponse.Payload)
+            const updateUserAddressResponse = await saveUserAddress(userUUID, userAddressInformation)
+            console.log(updateUserProfileResponse)
+            console.log(updateUserAddressResponse)
+            
+            saveUserProfileToRealm(updateUserProfileResponse.Payload)
         }
 
         /* if(step <= 1) {

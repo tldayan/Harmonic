@@ -1,7 +1,7 @@
 import { UpdateMode } from 'realm';
 import realmInstance from "../../../services/realm";
 
-export const saveUserProfileToRealm = (userProfileData: any) => {
+export const saveUserProfileToRealm = (userProfileData: UserProfile) => {
   try {
     realmInstance.write(() => {
       realmInstance.create('UserProfile', userProfileData, UpdateMode.Modified);

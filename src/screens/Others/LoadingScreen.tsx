@@ -1,10 +1,11 @@
 
 import React from "react";
-import { View, ActivityIndicator, StyleSheet, Platform } from "react-native";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { colors } from "../../styles/colors";
 
 const LoadingScreen = () => (
   <View style={styles.container}>
-    <ActivityIndicator size="small" color="#000" />
+    <ActivityIndicator size="small" color={colors.ACTIVE_ORANGE} />
   </View>
 );
 

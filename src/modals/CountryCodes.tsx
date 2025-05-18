@@ -12,13 +12,18 @@ interface CountryCodesProps {
   }
   
 type Country = {
-    PhoneCountryId: number,
-    PhoneCountryName: string,
-    PhoneCountryISO2: string,
-    PhoneCountryISO3: string,
-    PhoneCode: string,
-    PhoneCountryEmoji: string
-};
+    CountryId: number;
+    CountryName: string;
+    CountryISO3Code: string;
+    CountryISO2Code: string;
+    PhoneCode: string;
+    Capital: string;
+    Currency: string;
+    Native: string;
+    Emoji: string;
+    Nationality: string;
+  }
+  
 
 export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setIsDropdownVisible }) => {
 
@@ -32,7 +37,7 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
 
     useEffect(() => {
         if(countryCodes.length !== 0) return
-/*         fetchCoutryCodes() */ //API REQUIRES AUTH TOKEN
+        fetchCoutryCodes() //API REQUIRES AUTH TOKEN
     }, [])
 
     const filteredCountries = useMemo(() => {
@@ -40,7 +45,7 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
         if(countryCodes.length === 0 || !countryCodes) return
 
         return countryCodes.filter((eachCountry) => {
-            return eachCountry.PhoneCountryName.toLowerCase().includes(search.toLowerCase()) || eachCountry.PhoneCode.includes(search)
+            return eachCountry.CountryName.toLowerCase().includes(search.toLowerCase()) || eachCountry.PhoneCode.includes(search)
         })
     }, [search])
 
@@ -53,9 +58,9 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
     const renderItem = useCallback(({item} : {item: Country}) => (
         <TouchableOpacity style={styles.countryOption} onPress={() => handleCountryCodeSelect(item.PhoneCode)}>
             <View style={styles.countryContent} >
-            <View>
-                <Text style={styles.countryText}>{item.PhoneCountryName} ({item.PhoneCode})</Text>
-            </View>
+                <View>
+                    <Text style={styles.countryText}>{item.Emoji} {item.CountryName} ({item.PhoneCode})</Text>
+                </View>
             </View>
         </TouchableOpacity>
     ), [])
@@ -70,7 +75,7 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
             <FlatList
                 keyboardShouldPersistTaps="handled"
                 style={styles.list}
-                keyExtractor={(item) => item.PhoneCountryId.toString()}
+                keyExtractor={(item) => item.CountryId?.toString()}
                 renderItem={renderItem}
                 data={(filteredCountries && filteredCountries?.length > 0) ? filteredCountries : countryCodes}
             />}

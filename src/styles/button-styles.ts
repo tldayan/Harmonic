@@ -8,7 +8,7 @@ export const PRIMARY_BUTTON_STYLES: ViewStyle = {
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center", 
-    backgroundColor: colors.PRIMARY_COLOR,
+    backgroundColor: colors.BRIGHT_ORANGE,
     flexDirection: "row",
     gap: 8
 }

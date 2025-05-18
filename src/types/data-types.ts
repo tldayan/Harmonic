@@ -1,6 +1,6 @@
 
 interface UserProfile {
-  UserId: number
+/*   UserId: number */
   UserUUID: string
   UserName: string
   FirstName: string
@@ -10,7 +10,7 @@ interface UserProfile {
   GenderUUID: string 
   CountryUUID: string 
   NationalityUUID: string 
-  PhoneCountryUUID: string 
+  PhoneCountryUUID: string | null
   PhoneNumber: string
   DateOfBirth: string
   CreatedBy: string | null
@@ -31,11 +31,11 @@ interface UserAddress {
   PhoneCountryId: string | null;
   PhoneCountryName: string | null;
   PhoneNumber: string | null;
-  CountryId: number;
+  CountryId: number | null;
   CountryName: string;
-  StateId: number;
+  StateId: number | null;
   StateName: string;
-  CityId: number;
+  CityId: number | null;
   CityName: string;
   StreetId: string | null;
   StreetName: string | null;

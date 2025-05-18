@@ -4,7 +4,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { ANDROID_GOOGLE_CLIENT_ID, IOS_GOOGLE_CLIENT_ID} from '../utils/constants';
 import { Platform } from 'react-native';
 import { storeUserToken } from '../services/auth-service';
-import { getOrganizationBasedModules, getUserProfile, getUuidBySignIn } from '../api/network-utils';
+import { getOrganizationBasedModules, getUserAddress, getUserProfile, getUuidBySignIn } from '../api/network-utils';
 import { saveDataMMKV } from '../services/storage-service';
 import { saveUserProfileToRealm } from '../database/management/realmUtils/saveUserProfileToRealm';
 import realmInstance from '../services/realm';
@@ -12,6 +12,7 @@ import { saveOrganizationBasedModules } from '../database/management/realmUtils/
 import { useDispatch } from 'react-redux';
 import { setUUIDs } from '../store/slices/authSlice';
 import { getApp } from '@react-native-firebase/app';
+import { saveUserAddressToRealm } from '../database/management/realmUtils/saveUserAddressToRealm';
 
 type UserContextType = {
   user: FirebaseAuthTypes.User | null;
@@ -46,7 +47,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       
 
       setUser(authUser);
-      console.log("checking") 
       console.log(authUser)
 
 
@@ -66,18 +66,21 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           dispatch(setUUIDs({organizationUUID: OrganizationUUID, userUUID: UserUUID}))
           saveDataMMKV({"UserUUID": UserUUID, "OrganizationUUID" : OrganizationUUID})
 
-          const [userProfileResposne, OrganizationBasedModulesResponse] =  await Promise.all([getUserProfile(UserUUID), getOrganizationBasedModules(UserUUID, OrganizationUUID)])
+          const [userProfileResponse, userAddressResponse , OrganizationBasedModulesResponse] =  await Promise.all([getUserProfile(UserUUID), getUserAddress(UserUUID),getOrganizationBasedModules(UserUUID, OrganizationUUID)])
           
-          saveUserProfileToRealm(userProfileResposne?.data.Payload)
+          saveUserProfileToRealm(userProfileResponse?.data.Payload)
+          console.log("userinfor from backend",userProfileResponse?.data.Payload)
+          saveUserAddressToRealm(userAddressResponse?.data.Payload)
           saveOrganizationBasedModules(OrganizationBasedModulesResponse?.data.Payload)
+
 
           const userProfile = realmInstance.objects('UserProfile')[0];
 
           console.log("Saved UserProfile from Realm:", userProfile?.toJSON());
           
           
-          const modules = realmInstance.objects('OrganizationBasedModules');
-          console.log("Saved Modules from Realm:", modules.toJSON());
+/*           const modules = realmInstance.objects('OrganizationBasedModules');
+          console.log("Saved Modules from Realm:", modules.toJSON()); */
 
 
         } catch (error) {

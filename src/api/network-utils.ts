@@ -1,10 +1,9 @@
 import { FirebaseAuthTypes } from "@react-native-firebase/auth"
-import { userAuthType, UserInfo } from "../types/user-types";
+import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
 import { ENDPOINTS } from "./endpoints";
 import { AttachmentData, CategoryProps, FirebaseAttachment } from "../types/post-types";
 import { TaskInformationState } from "../types/work-order.types";
-import { Alert } from "react-native";
 import { WorkRequestInformationState } from "../types/work-request.types";
 import { EventInformation } from "../types/event.types";
 
@@ -49,12 +48,32 @@ export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
   };
   
 //ADDRESS
+
+
+export const getUserAddress = async(userUUID: string) => {
+
+  try {
+
+    const userAddressResponse = await apiClient(ENDPOINTS.ADDRESS.GET_USER_ADDRESS, {},{}, "GET", {userUUID})
+
+    return userAddressResponse
+
+  } catch (err) {
+    console.error(err)
+  }
+  
+}
+
+
+
+
+
   export const getCountryCodes = async() => {
 
     try {
 
       const countryCodes = await apiClient(ENDPOINTS.ADDRESS.COUNTRY_CODES, {},{}, "GET")
-
+      console.log(countryCodes)
       return countryCodes.data.Payload
 
     } catch (err) {

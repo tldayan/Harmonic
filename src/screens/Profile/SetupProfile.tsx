@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import { defaultInputLabelStyles, defaultInputStyles, defaultNumberInputStyles } from '../../styles/global-styles'
@@ -9,16 +9,22 @@ import SelectCountry from '../../modals/Profile/SelectCountry';
 import { getAllCitiesForCountryAndState, getAllCountries, getAllStatesForCountry } from '../../api/network-utils';
 import SelectState from '../../modals/Profile/SelectState';
 import SelectCity from '../../modals/Profile/SelectCity';
+import { colors } from '../../styles/colors';
+import Check from "../../assets/icons/check.svg"
+import { FieldErrors } from './ProfileFormScreen';
 
 interface SetupProfileProps {
     setUserInformation: React.Dispatch<React.SetStateAction<UserProfile>>;
     userInformation: UserProfile;
-    setUserAddress: React.Dispatch<React.SetStateAction<UserAddress>>;
-    userAddress: UserAddress;
+    setUserAddressInformation: React.Dispatch<React.SetStateAction<UserAddress>>;
+    userAddressInformation: UserAddress;
+    termsAccepted: boolean
+    setTermsAccepted: React.Dispatch<React.SetStateAction<boolean>>
+    errors: FieldErrors
 }
 
 
-export default function SetupProfile({ setUserInformation, userInformation, setUserAddress, userAddress }: SetupProfileProps) {  
+export default function SetupProfile({ setUserInformation, userInformation, setUserAddressInformation, userAddressInformation, termsAccepted, setTermsAccepted, errors }: SetupProfileProps) {  
     
     
     const [selectingCountry, setSelectingCountry] = useState(false)
@@ -44,10 +50,10 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
       
       useEffect(() => {
         const fetchStates = async () => {
-          if (!userAddress.CountryId) return;
+          if (!userAddressInformation.CountryId) return;
       
           try {
-            const statesResponse = await getAllStatesForCountry(userAddress.CountryId.toString());
+            const statesResponse = await getAllStatesForCountry(userAddressInformation.CountryId.toString());
             setStates(statesResponse.Payload);
           } catch (err) {
             console.log(err);
@@ -55,16 +61,16 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         };
       
         fetchStates();
-      }, [userAddress.CountryId]);
+      }, [userAddressInformation.CountryId]);
       
       useEffect(() => {
         const fetchCities = async () => {
-          if (!userAddress.CountryId || !userAddress.StateId) return;
+          if (!userAddressInformation.CountryId || !userAddressInformation.StateId) return;
       
           try {
             const citiesResponse = await getAllCitiesForCountryAndState(
-              userAddress.CountryId.toString(),
-              userAddress.StateId.toString()
+              userAddressInformation.CountryId.toString(),
+              userAddressInformation.StateId.toString()
             );
             setCities(citiesResponse.Payload);
           } catch (err) {
@@ -73,40 +79,57 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         };
       
         fetchCities();
-      }, [userAddress.CountryId, userAddress.StateId]);
+      }, [userAddressInformation.CountryId, userAddressInformation.StateId]);
       
-
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
 
         <Text style={styles.title}>Setup Profile</Text>
 
-        <CustomTextInput value={userInformation.FirstName} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, FirstName: e}))} label='FirstName' inputStyle={defaultInputStyles} placeholder='Jitesh' />
-        <CustomTextInput value={userInformation.LastName ?? ""} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, LastName: e}))} label='LastName' inputStyle={defaultInputStyles} placeholder='Adnani' />
-        <CustomTextInput value={userInformation.EmailAddress} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, EmailAddress: e}))} label='Email' inputStyle={defaultInputStyles} placeholder='jitesh@gmail.com' />
-        <CustomTextInput value={userInformation.PhoneNumber} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, PhoneNumber: e}))} label='Phone' inputStyle={defaultNumberInputStyles} placeholder='567136828' /* mainInputStyle={styles.numberInput} */ inputMode='tel' />
+        <CustomTextInput value={userInformation.UserName} hasError={errors.UserName} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, UserName: e}))} label='User Name' inputStyle={defaultInputStyles} placeholder='Jitesh_Adnani' />
+        <CustomTextInput value={userInformation.FirstName} hasError={errors.FirstName} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, FirstName: e}))} label='First Name' inputStyle={defaultInputStyles} placeholder='Jitesh' />
+        <CustomTextInput value={userInformation.LastName ?? ""} hasError={errors.LastName} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, LastName: e}))} label='Last Name' inputStyle={defaultInputStyles} placeholder='Adnani' />
+        <CustomTextInput value={userInformation.EmailAddress} hasError={errors.EmailAddress} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, EmailAddress: e}))} label='Email' inputStyle={defaultInputStyles} placeholder='jitesh@gmail.com' />
+        <CustomTextInput setCountryCode={(phoneCode) => setUserInformation((prev) => ({...prev, PhoneCountryUUID: phoneCode }))} hasError={errors.PhoneNumber} countryCode={userInformation.PhoneCountryUUID} value={userInformation.PhoneNumber} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, PhoneNumber: e}))} label='Phone' inputStyle={defaultNumberInputStyles} placeholder='567136828' /* mainInputStyle={styles.numberInput} */ inputMode='tel' />
         
-        <CustomTextAreaInput value={userInformation.Description ?? ""} multiline label='Description' labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, Description: e}))} placeholder='About me'  />
-        <CustomTextInput value={userAddress.AddressLine1} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddress((prev) => ({...prev, AddressLine1: e}))} label='Address Line 1' inputStyle={defaultInputStyles} placeholder='JVC' />
-        <CustomTextInput value={userAddress.AddressLine2} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddress((prev) => ({...prev, AddressLine2: e}))} label='Address Line 2' inputStyle={defaultInputStyles} placeholder='Street 10' />
+        <CustomTextAreaInput value={userInformation.Description ?? ""} hasError={errors.Description} multiline label='Description' labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, Description: e}))} placeholder='About me'  />
+        <CustomTextInput value={userAddressInformation.AddressLine1} hasError={errors.AddressLine1} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, AddressLine1: e}))} label='Address Line 1' inputStyle={defaultInputStyles} placeholder='JVC' />
+        <CustomTextInput value={userAddressInformation.AddressLine2} hasError={errors.AddressLine2} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, AddressLine2: e}))} label='Address Line 2' inputStyle={defaultInputStyles} placeholder='Street 10' />
 
-        <CustomSelectInput placeholder={userAddress.CountryName ? userAddress.CountryName : 'Select Country'} label='Country' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingCountry(true)} />
-        <CustomSelectInput placeholder={userAddress.StateName ? userAddress.StateName : "Select State"} label='State' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingState(true)} />
-        <CustomSelectInput placeholder={userAddress.CityName ? userAddress.CityName : "Select City"} label='City' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingCity(true)} />
+        <CustomSelectInput placeholder={userAddressInformation.CountryName ? userAddressInformation.CountryName : 'Select Country'} hasError={errors.CountryName} label='Country' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingCountry(true)} />
+        <CustomSelectInput placeholder={userAddressInformation.StateName ? userAddressInformation.StateName : "Select State"} hasError={errors.StateName} label='State' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingState(true)} />
+        <CustomSelectInput placeholder={userAddressInformation.CityName ? userAddressInformation.CityName : "Select City"} hasError={errors.CityName} label='City' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingCity(true)} />
 
-        <CustomTextInput inputMode="numeric" value={userAddress.PostCode} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddress((prev) => ({...prev, PostCode: e}))} label='Zip Code' inputStyle={defaultInputStyles} placeholder='00000' />
-   
+        <CustomTextInput inputMode="numeric" value={userAddressInformation.PostCode} hasError={errors.PostCode} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, PostCode: e}))} label='Zip Code' inputStyle={defaultInputStyles} placeholder='00000' />
+    
+        <TouchableOpacity onPress={() => setTermsAccepted((prev) => !prev)} style={styles.termsContainer}>
+          <View  style={[styles.checkbox, termsAccepted ? {backgroundColor: "blue", borderColor: "none"} : null]}>
+              {termsAccepted && <Check width={10} height={10} />}
+          </View>
+
+          <View style={styles.textWrapper}>
+            <Text style={styles.termsText}>
+              By signing up, you are creating a Harmonic account, and you agree to Harmonic’s{' '}
+              <Text style={styles.link} onPress={() => {}}>Terms of Use</Text> and
+              <Text style={styles.link} onPress={() => {}}> Privacy Policy</Text>.
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+
+
+
         <CustomModal isOpen={selectingCountry} onClose={() => setSelectingCountry(false)}>
-            <SelectCountry countries={countries} setUserAddress={setUserAddress} onClose={() => setSelectingCountry(false)} />
+            <SelectCountry countries={countries} setUserAddressInformation={setUserAddressInformation} onClose={() => setSelectingCountry(false)} />
         </CustomModal>
 
         <CustomModal isOpen={selectingState} onClose={() => setSelectingState(false)}>
-            <SelectState states={states} setUserAddress={setUserAddress} onClose={() => setSelectingState(false)} />
+            <SelectState states={states} setUserAddressInformation={setUserAddressInformation} onClose={() => setSelectingState(false)} />
         </CustomModal>
 
         <CustomModal isOpen={selectingCity} onClose={() => setSelectingCity(false)}>
-            <SelectCity cities={cities} setUserAddress={setUserAddress} onClose={() => setSelectingCity(false)} />
+            <SelectCity cities={cities} setUserAddressInformation={setUserAddressInformation} onClose={() => setSelectingCity(false)} />
         </CustomModal>
    
 
@@ -131,5 +154,30 @@ const styles = StyleSheet.create({
         fontSize: 24,
         marginVertical: 10,
         fontWeight: 800
-    }
+    },
+    checkbox: {
+      borderWidth: 1,
+      borderColor: colors.BORDER_COLOR,
+      width: 16,
+      height: 16,
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 4
+    },
+    termsText: {
+      color: colors.TEXT_COLOR, 
+      textAlign: "left",
+    },
+    termsContainer : {
+/*       borderWidth: 1, */
+      marginVertical: 10,
+      flexDirection: 'row',
+      gap: 5,
+    },
+    textWrapper: {
+      flex: 1,
+    },
+    link: {
+      color: colors.ACTIVE_ACCENT_COLOR,
+    },
 })

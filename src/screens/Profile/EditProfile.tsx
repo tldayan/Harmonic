@@ -25,7 +25,7 @@ export default function EditProfile() {
   const [updatingUserInfo, setUpdatingUserInfo] = useState(false)  
 
   const [userInfo, setUserInfo] = useState<UserProfile>({
-UserId: 0,
+/* UserId: 0, */
   UserUUID: "",
   UserName: "",
   FirstName: "",
@@ -56,7 +56,7 @@ UserId: 0,
         if(userProfileResponse?.data.Status === STATUS_CODE.SUCCESS) {
          /*    setSavedUserInfo(userProfile) */
          setUserInfo({
-          UserId: userProfile.UserId || 0,
+/*           UserId: userProfile.UserId || 0, */
           UserUUID: userProfile.UserUUID || "",
           UserName: userProfile.UserName || "",
           FirstName: userProfile.FirstName || "",
@@ -169,7 +169,7 @@ UserId: 0,
           <Text style={styles.title}>User Name</Text>
           <CustomTextInput
             noFlexGrow
-            onChangeText={(text) => handleChange("userName", text)}
+            onChangeText={(text) => handleChange("UserName", text)}
             placeholder='Kajal'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
@@ -180,7 +180,7 @@ UserId: 0,
           <Text style={styles.title}>First Name</Text>
           <CustomTextInput
             noFlexGrow
-            onChangeText={(text) => handleChange("firstName", text)}
+            onChangeText={(text) => handleChange("FirstName", text)}
             placeholder='Kajal'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
@@ -191,7 +191,7 @@ UserId: 0,
           <Text style={styles.title}>Last Name</Text>
           <CustomTextInput
             noFlexGrow
-            onChangeText={(text) => handleChange("lastName", text)}
+            onChangeText={(text) => handleChange("LastName", text)}
             placeholder='Kajal'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
@@ -203,7 +203,7 @@ UserId: 0,
           <Text style={styles.title}>Email ID</Text>
           <CustomTextInput
             noFlexGrow
-            onChangeText={(text) => handleChange("email", text)}
+            onChangeText={(text) => handleChange("EmailAddress", text)}
             placeholder='kajalgirish9@gmail.com'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
@@ -215,7 +215,7 @@ UserId: 0,
           <Text style={styles.title}>Phone number</Text>
           <CustomTextInput
             noFlexGrow
-            onChangeText={(text) => handleChange("phoneNumber", text)}
+            onChangeText={(text) => handleChange("PhoneNumber", text)}
             placeholder='+971562205251'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
@@ -226,7 +226,7 @@ UserId: 0,
           <Text style={styles.title}>Description</Text>
           <CustomTextInput
             noFlexGrow
-            onChangeText={(text) => handleChange("description", text)}
+            onChangeText={(text) => handleChange("Description", text)}
             placeholder='About me'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
@@ -332,6 +332,7 @@ const styles = StyleSheet.create({
     marginHorizontal: "5%",
     width: "90%",
     borderRadius: 24,
+    gap: 10,
     marginTop: 30,
   },
   removeImageIcon: {

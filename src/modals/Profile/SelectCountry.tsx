@@ -7,18 +7,18 @@ import { ScrollView } from 'react-native-gesture-handler'
 
 interface SelectCountryProps {
   onClose: () => void;
-  setUserAddress: React.Dispatch<React.SetStateAction<UserAddress>>;
+  setUserAddressInformation: React.Dispatch<React.SetStateAction<UserAddress>>;
   countries: Country[]
 }
 
-export default function SelectCountry({ onClose, setUserAddress,countries }: SelectCountryProps) {
+export default function SelectCountry({ onClose, setUserAddressInformation,countries }: SelectCountryProps) {
 
 
   const renderCountryTypeItem = ({ item }: { item: Country }) => (
     <CustomButton
       buttonStyle={styles.eventType}
       onPress={() => {
-        setUserAddress((prev) => ({...prev, CountryId: item.CountryId, CountryName: item.CountryName, StateId:0, StateName:"", CityId: 0, CityName: ""}))
+        setUserAddressInformation((prev) => ({...prev, CountryId: item.CountryId, CountryName: item.CountryName, StateId:0, StateName:"", CityId: 0, CityName: ""}))
         onClose();
       }}
       title={item.CountryName}

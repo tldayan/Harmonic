@@ -21,34 +21,55 @@ import realmInstance from "../services/realm";
 
 export const RootNavigator: React.FC = () => {
   const { user } = useUser();
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userAddress, setUserAddress] = useState<UserAddress | null>(null);
 
   useEffect(() => {
-    const userProfiles = realmInstance.objects('UserProfile');
-
+    const userProfiles = realmInstance.objects<UserProfile>('UserProfile');
+    const userAddresses = realmInstance.objects<UserAddress>('UserAddress');
+  
+    // Initial load
     if (userProfiles.length > 0) {
-      setUserProfile(userProfiles[0]);
+      setUserProfile({ ...userProfiles[0] }); 
     }
-
-    const listener = () => {
+    if (userAddresses.length > 0) {
+      setUserAddress({ ...userAddresses[0] });
+    }
+  
+    // Listeners
+    const profileListener = () => {
+      console.log("Profile change detected.");
       if (userProfiles.length > 0) {
-        setUserProfile(userProfiles[0]);
+        setUserProfile({ ...userProfiles[0] });
       } else {
         setUserProfile(null);
       }
     };
-
-    userProfiles.addListener(listener);
-
+  
+    const addressListener = () => {
+      console.log("Address change detected.");
+      if (userAddresses.length > 0) {
+        setUserAddress({ ...userAddresses[0] });
+      } else {
+        setUserAddress(null);
+      }
+    };
+  
+    userProfiles.addListener(profileListener);
+    userAddresses.addListener(addressListener);
+  
     return () => {
-      userProfiles.removeListener(listener);
+      userProfiles.removeListener(profileListener);
+      userAddresses.removeListener(addressListener);
     };
   }, []);
 
+
+  
   const loading = !!user && !userProfile;
 
   const userProfileComplete =
-    !!userProfile?.FirstName && !!userProfile?.EmailAddress;
+    !!userProfile?.FirstName && !!userProfile?.EmailAddress && !!userProfile.PhoneNumber && !!userProfile?.Description;
 
   if (loading) {
     return <LoadingScreen />;
@@ -58,15 +79,15 @@ export const RootNavigator: React.FC = () => {
     <Stack.Navigator screenOptions={globalScreenOptions}>
       {user && userProfileComplete ? (
         <>
-          <Stack.Screen name="Tabs" component={TabNavigator} />
-          <Stack.Screen name="Comments" component={CommentsScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
-          <Stack.Screen name="EditProfile" component={EditProfile} />
-          <Stack.Screen name="ChatScreen" component={ChatScreen} />
-          <Stack.Screen name="ChatInfo" component={UserInfo} />
-          <Stack.Screen name="TaskInfo" component={TaskInfo} />
-          <Stack.Screen name="ChatsScreen" component={ChatsScreen} />
-          <Stack.Screen name="Event" component={EventScreen} />
+          <Stack.Screen name="Tabs" component={TabNavigator} options={{animation: "slide_from_right"}} />
+          <Stack.Screen name="Comments" component={CommentsScreen} options={{animation: "slide_from_right"}} />
+          <Stack.Screen name="Profile" component={ProfileScreen} options={{animation: "slide_from_right"}} />
+          <Stack.Screen name="EditProfile" component={EditProfile} options={{animation: "slide_from_right"}} />
+          <Stack.Screen name="ChatScreen" component={ChatScreen} options={{animation: "slide_from_right"}} />
+          <Stack.Screen name="ChatInfo" component={UserInfo} options={{animation: "slide_from_right"}} />
+          <Stack.Screen name="TaskInfo" component={TaskInfo} options={{animation: "slide_from_right"}} />
+          <Stack.Screen name="ChatsScreen" component={ChatsScreen} options={{animation: "slide_from_right"}} />
+          <Stack.Screen name="Event" component={EventScreen} options={{animation: "slide_from_right"}} />
           <Stack.Screen
             name="AddModal"
             component={AddModalScreen}
@@ -79,7 +100,7 @@ export const RootNavigator: React.FC = () => {
         </>
       ) : user && !userProfileComplete ? (
         <Stack.Screen name="ProfileForm" options={{ headerShown: false }}>
-          {(props) => <ProfileFormScreen {...props} setUserProfile={setUserProfile} />}
+          {(props) => <ProfileFormScreen {...props} userProfile={userProfile} userAddress={userAddress} setUserProfile={setUserProfile} />}
         </Stack.Screen>
       ) : (
         <>
