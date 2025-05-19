@@ -12,6 +12,12 @@ import SelectCity from '../../modals/Profile/SelectCity';
 import { colors } from '../../styles/colors';
 import Check from "../../assets/icons/check.svg"
 import { FieldErrors } from './ProfileFormScreen';
+import OTPInput from '../../components/OPTInput';
+import CustomButton from '../../components/CustomButton';
+import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles';
+import { confirmCode, handlePhoneNumberVerification } from '../../services/auth-service';
+import { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import Toast from 'react-native-toast-message';
 
 interface SetupProfileProps {
     setUserInformation: React.Dispatch<React.SetStateAction<UserProfile>>;
@@ -33,6 +39,11 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
     const [countries, setCountries] = useState<Country[]>([])
     const [states, setStates] = useState<State[]>([])
     const [cities, setCities] = useState<City[]>([])
+    const [code, setCode] = useState<string>(''); 
+    const [otpError, setOtpError] = useState("")
+    const [confirmation, setConfirmation] = useState<FirebaseAuthTypes.PhoneAuthSnapshot | null>(null);
+
+
 
     useEffect(() => {
 
@@ -82,6 +93,51 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
       }, [userAddressInformation.CountryId, userAddressInformation.StateId]);
       
 
+      const verifyOTP = async () => {
+        if (confirmation) {
+          const result = await confirmCode(confirmation, code);
+          
+          if (result.success) {
+            Toast.show({
+              type: "success",
+              text1: "Phone Number Verified",
+              text2: "Your phone number has been successfully linked to your account.",
+              position: "bottom",
+            });
+            
+            setConfirmation(null)
+          } else {
+            setOtpError(result.error ?? "");
+          }
+        }
+      };
+      
+
+      const handleOTP = async () => {
+        if (!userInformation.PhoneNumber || !userInformation.PhoneCountryUUID) {
+          return;
+        }
+
+        setOtpError("")
+        setConfirmation(null)
+        const joinedNumber = `+${userInformation.PhoneCountryUUID}${userInformation.PhoneNumber}`;
+        console.log(joinedNumber)
+        try {
+          const phoneConfirmation = await handlePhoneNumberVerification(joinedNumber);
+          console.log(phoneConfirmation)
+          setConfirmation(phoneConfirmation);
+        } catch (error) {
+          console.error('Phone verification failed:', error);
+        }
+      };
+
+
+      useEffect(() => {
+        if(confirmation) {
+          setConfirmation(null)
+        }
+      }, [userInformation.PhoneCountryUUID, userInformation.PhoneNumber])
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
 
@@ -91,7 +147,15 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         <CustomTextInput value={userInformation.FirstName} hasError={errors.FirstName} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, FirstName: e}))} label='First Name' inputStyle={defaultInputStyles} placeholder='Jitesh' />
         <CustomTextInput value={userInformation.LastName ?? ""} hasError={errors.LastName} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, LastName: e}))} label='Last Name' inputStyle={defaultInputStyles} placeholder='Adnani' />
         <CustomTextInput value={userInformation.EmailAddress} hasError={errors.EmailAddress} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, EmailAddress: e}))} label='Email' inputStyle={defaultInputStyles} placeholder='jitesh@gmail.com' />
-        <CustomTextInput setCountryCode={(phoneCode) => setUserInformation((prev) => ({...prev, PhoneCountryUUID: phoneCode }))} hasError={errors.PhoneNumber} countryCode={userInformation.PhoneCountryUUID} value={userInformation.PhoneNumber} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, PhoneNumber: e}))} label='Phone' inputStyle={defaultNumberInputStyles} placeholder='567136828' /* mainInputStyle={styles.numberInput} */ inputMode='tel' />
+        
+        <View style={{flexDirection: "row", gap: 10}}>
+          <CustomTextInput setCountryCode={(phoneCode) => setUserInformation((prev) => ({...prev, PhoneCountryUUID: phoneCode }))} hasError={errors.PhoneNumber} countryCode={userInformation.PhoneCountryUUID} value={userInformation.PhoneNumber} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, PhoneNumber: e}))} label='Phone' inputStyle={defaultNumberInputStyles} placeholder='567136828' /* mainInputStyle={styles.numberInput} */ inputMode='tel' />
+          {(userInformation.PhoneCountryUUID && userInformation.PhoneNumber) && <CustomButton onPress={handleOTP} title={confirmation ? "Resend OTP" : "Send OTP"} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: "auto", marginBottom: 0, paddingHorizontal: 20}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />}
+        </View>
+        
+        
+        {confirmation && <OTPInput errorMessage={otpError} setCode={setCode} />}
+        {confirmation && <CustomButton onPress={verifyOTP} title={"Verify OTP"} buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />}
         
         <CustomTextAreaInput value={userInformation.Description ?? ""} hasError={errors.Description} multiline label='Description' labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, Description: e}))} placeholder='About me'  />
         <CustomTextInput value={userAddressInformation.AddressLine1} hasError={errors.AddressLine1} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, AddressLine1: e}))} label='Address Line 1' inputStyle={defaultInputStyles} placeholder='JVC' />
@@ -102,7 +166,9 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         <CustomSelectInput placeholder={userAddressInformation.CityName ? userAddressInformation.CityName : "Select City"} hasError={errors.CityName} label='City' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingCity(true)} />
 
         <CustomTextInput inputMode="numeric" value={userAddressInformation.PostCode} hasError={errors.PostCode} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, PostCode: e}))} label='Zip Code' inputStyle={defaultInputStyles} placeholder='00000' />
-    
+
+
+
         <TouchableOpacity onPress={() => setTermsAccepted((prev) => !prev)} style={styles.termsContainer}>
           <View  style={[styles.checkbox, termsAccepted ? {backgroundColor: "blue", borderColor: "none"} : null]}>
               {termsAccepted && <Check width={10} height={10} />}

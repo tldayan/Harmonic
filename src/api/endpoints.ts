@@ -68,6 +68,7 @@ export const ENDPOINTS = {
     SAVE_WORK_REQUEST_NOTE: `${BASE_URL}/work-request/saveWorkRequestNote`,
     SAVE_WORK_REQUEST: `${BASE_URL}/work-request/saveWorkRequest`,
     SAVE_WORK_REQUEST_ATTACHMENTS: `${BASE_URL}/work-request/saveWorkRequestAttachments`,
+    APPROVE_WORK_REQUEST: `${BASE_URL}/work-request/approveWorkRequest`,
   },
   ASSET: {
     GET_ASSET_LIST: `${BASE_URL}/asset/getAssetList`,

@@ -61,7 +61,7 @@ export default function WorkRequestTypes({ onClose, setWorkRequestInformation }:
                 <ScrollView
                     style={styles.mainWorkRequestTypesList}
                     horizontal={true}
-                    scrollEnabled={false}
+/*                     scrollEnabled={false} */
                     showsHorizontalScrollIndicator={false}
                 >
                     <FlatList

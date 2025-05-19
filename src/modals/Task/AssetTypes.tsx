@@ -88,7 +88,7 @@ interface AssetTypesProps {
     <View style={styles.container}>
         <ModalsHeader onClose={onClose} title='Asset' />
         {loading ? <ActivityIndicator size="small" /> : (
-            <ScrollView style={styles.mainAssetList} horizontal={true} scrollEnabled={false} showsHorizontalScrollIndicator={false}>
+            <ScrollView style={styles.mainAssetList} horizontal={true} scrollEnabled={true}>
                 <FlatList
                     style={styles.assetList}
                     data={assets}

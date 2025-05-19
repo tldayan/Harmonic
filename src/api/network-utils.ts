@@ -1219,6 +1219,7 @@ export const getAssetList = async(organizationUUID:string, startIndex: number) =
     "ParentAssetUUID": "",
     "PageSize": 20,
     "SortQuery": "",
+    "DepartmentUUID": "",
     "CategoryItemUUIDs": [],
     "OrganizationUUID": organizationUUID
 }

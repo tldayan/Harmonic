@@ -15,6 +15,8 @@ import CloseIcon from "../../assets/icons/close-light.svg"
 import { Asset } from 'react-native-image-picker'
 import { UserInfo } from '../../types/user-types'
 import Toast from 'react-native-toast-message'
+import EditProfileHeader from '../../navigation/CustomHeaders/EditProfileHeader'
+
 
 export default function EditProfile() {
 
@@ -93,7 +95,33 @@ export default function EditProfile() {
   }, [])
 
 
+  const validateFields = () => {
+    const newErrors = {
+      UserName: userInfo.UserName.trim() === "",
+      FirstName: userInfo.FirstName.trim() === "",
+      LastName: userInfo.LastName.trim() === "",
+      EmailAddress: !userInfo.EmailAddress.includes("@") || userInfo.EmailAddress.trim() === "",
+      PhoneNumber: userInfo.PhoneNumber.trim() === "",
+      Description: userInfo.Description.trim() === "",
+    };
+
+    return !Object.values(newErrors).some(Boolean);
+  };
+
   const handleUpdateProfile = async() => {
+
+    let isFormComplete = validateFields()
+    
+ /*    if(!isFormComplete) {
+      Toast.show({
+        type: "error",
+        text1: "Empty Fields!",
+        text2: "Please ensure all fields are filled",
+        position: "bottom",
+     });
+      return
+    } */
+    
     setUpdatingUserInfo(true)
 
     if(changedProfilePic) {
@@ -157,6 +185,7 @@ export default function EditProfile() {
 
   return (
     <CustomKeyboardAvoidingView>
+      <EditProfileHeader />
     {loading ? <ActivityIndicator size={"small"} style={{marginVertical: "50%"}} /> : <ScrollView >
       <View style={styles.editProfilePicContainer}>
         <Image style={styles.profilePic} source={{ uri: userInfo.ProfilePicURL || "https://i.pravatar.cc/150" }} />

@@ -1,9 +1,9 @@
-import { firebase, getAuth } from "@react-native-firebase/auth"
+import { firebase, getAuth, verifyPhoneNumber, FirebaseAuthTypes, PhoneAuthProvider } from "@react-native-firebase/auth"
 import { GoogleSignin } from "@react-native-google-signin/google-signin"
-import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import * as Keychain from 'react-native-keychain';
 import { deleteDataMMKV } from "./storage-service";
 import { getApp } from "@react-native-firebase/app";
+import { clearRealmData } from "./realm";
 
 
 
@@ -85,6 +85,8 @@ export const handleLogin = async(email:string, password:string) => {
       
       deleteDataMMKV("UserUUID")
       deleteDataMMKV("OrganizationUUID")
+
+      await clearRealmData();
       
       console.log("user signed out")
     } catch(error) {
@@ -153,6 +155,56 @@ export const handleLogin = async(email:string, password:string) => {
     }
   };
   
+
+
+  export const handlePhoneNumberVerification = async (phoneNumber: string) => {
+    try {
+      const confirmation = await verifyPhoneNumber(getAuth(), phoneNumber, 60);
+      console.log("Confirmation:", confirmation);
+      return confirmation;
+    } catch (error) {
+      console.error("Phone verification failed.", error);
+      throw error; // re-throw if needed
+    }
+  };
+  
+
+
+  export const confirmCode = async (
+    confirm: { verificationId: string },
+    code: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const auth = getAuth();
+      const credential = PhoneAuthProvider.credential(confirm.verificationId, code);
+  
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        return { success: false, error: 'No user is currently signed in' };
+      }
+  
+      const result = await currentUser.linkWithCredential(credential);
+  
+      console.log('Phone number successfully linked.');
+      console.log('User phone number:', result.user.phoneNumber);
+  
+      return { success: true };
+    } catch (error: any) {
+      let message = 'Account linking error';
+      if (error.code === 'auth/invalid-verification-code') {
+        message = 'Invalid verification code';
+      } else if (error.code === 'auth/credential-already-in-use') {
+        message = 'Phone number already linked to another account';
+      } else if (error.message) {
+        message = error.message;
+      }
+  
+      return { success: false, error: message };
+    }
+  };
+  
+
+
 
 
 

@@ -45,29 +45,29 @@ export default function TaskHeading({workRequestUUID} : TaskHeadingProps) {
           <Text style={[
             styles.workRequestPriorityName,
             {
-                backgroundColor: WORK_PRIORITY_COLOR_CODES[workRequestDetails.WorkPriorityName ?? ""] || "#ccc",
-                color: WORK_PRIORITY_TEXT_COLOR_CODES[workRequestDetails.WorkPriorityName ?? ""] || "#000"                
+                backgroundColor: WORK_PRIORITY_COLOR_CODES[workRequestDetails?.WorkPriorityName ?? ""] || "#ccc",
+                color: WORK_PRIORITY_TEXT_COLOR_CODES[workRequestDetails?.WorkPriorityName ?? ""] || "#000"                
             }
           ]}>
-            {workRequestDetails.WorkPriorityName || "N/A"}
+            {workRequestDetails?.WorkPriorityName || "N/A"}
           </Text>
           <View style={[
             styles.workRequestStatusItemNameContainer,
-            { backgroundColor: WORK_STATUS_COLOR_CODES[workRequestDetails.StatusItemName ?? ""] || "#eee" }
+            { backgroundColor: WORK_STATUS_COLOR_CODES[workRequestDetails?.StatusItemName ?? ""] || "#eee" }
           ]}>
             <View style={[
               styles.workRequestNotificationDot,
-              { backgroundColor: WORK_STATUS__NOTIFICATION_COLOR_CODES[workRequestDetails.StatusItemName ?? ""] || "#999" }
+              { backgroundColor: WORK_STATUS__NOTIFICATION_COLOR_CODES[workRequestDetails?.StatusItemName ?? ""] || "#999" }
             ]} />
             <Text style={styles.workRequestStatusItemName}>
-              {workRequestDetails.StatusItemName || "N/A"}
+              {workRequestDetails?.StatusItemName || "N/A"}
             </Text>
           </View>
           <CustomButton onPress={() => {}} buttonStyle={styles.actionsIcon} icon={<ThreeDots width={20} height={20} />}  />
         </View>
 
-        <Text style={styles.workRequestNumber}>{workRequestDetails.WorkRequestNumber}</Text>
-        <Text style={styles.workRequestDescription}>{workRequestDetails.ProblemDescription}</Text>
+        <Text style={styles.workRequestNumber}>{workRequestDetails?.WorkRequestNumber}</Text>
+        <Text style={styles.workRequestDescription}>{workRequestDetails?.ProblemDescription}</Text>
         </>}
 
     </View>

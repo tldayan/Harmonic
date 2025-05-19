@@ -46,6 +46,7 @@ export default function ProfileFormScreen({setUserProfile, userProfile, userAddr
     const flatListRef = useRef<FlatList<any>>(null)
     const userUUID = useSelector((state: RootState) => state.auth.userUUID)
     const [termsAccepted, setTermsAccepted] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [userInformation, setUserInformation] = useState<UserProfile>({
 /*         UserId: 0, */
         UserUUID: "",
@@ -147,7 +148,7 @@ export default function ProfileFormScreen({setUserProfile, userProfile, userAddr
 
 
     const next = async() => {
-
+        setLoading(true)
         const isFormComplete = validateFields()
         if(!isFormComplete || !termsAccepted) {
             Toast.show({
@@ -161,12 +162,19 @@ export default function ProfileFormScreen({setUserProfile, userProfile, userAddr
 
         if(step === 0) {
             console.log("saving proifle")
-            const updateUserProfileResponse = await updateUserProfile(userUUID, userInformation)
-            const updateUserAddressResponse = await saveUserAddress(userUUID, userAddressInformation)
-            console.log(updateUserProfileResponse)
-            console.log(updateUserAddressResponse)
-            
-            saveUserProfileToRealm(updateUserProfileResponse.Payload)
+            try {
+                const updateUserProfileResponse = await updateUserProfile(userUUID, userInformation)
+                const updateUserAddressResponse = await saveUserAddress(userUUID, userAddressInformation)
+                console.log(updateUserProfileResponse)
+                console.log(updateUserAddressResponse)
+                
+                saveUserProfileToRealm(updateUserProfileResponse.Payload)
+            } catch (err) {
+                console.log(err)
+            } finally {
+                setLoading(false)
+            }
+
         }
 
         /* if(step <= 1) {
@@ -200,7 +208,7 @@ export default function ProfileFormScreen({setUserProfile, userProfile, userAddr
       />
 
         <View style={styles.nextButtonContainer}>
-            <CustomButton title={"Next"} onPress={next} buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />
+            <CustomButton loading={loading} title={"Done"} onPress={next} buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />
         </View>
         
     </View>
