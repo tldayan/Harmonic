@@ -57,7 +57,7 @@ const Header = () => {
         
         <CustomButton onPress={() => navigation.navigate("Profile")} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
 
-        <CustomModal fullScreen={true} isOpen={notificationsOpen}>
+        <CustomModal presentationStyle="fullScreen" fullScreen={true} isOpen={notificationsOpen}>
             <Notifications onClose={() => setNotificationsOpen(false)} />
         </CustomModal>
 

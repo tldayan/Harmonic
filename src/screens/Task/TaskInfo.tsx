@@ -9,6 +9,8 @@ import TaskHeading from './TaskHeading'
 import CustomButton from '../../components/CustomButton'
 import Back from "../../assets/icons/chevron-left.svg"
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { CustomModal } from '../../components/CustomModal'
+import ApproveWorkRequest from '../../modals/Task/WorkRequest/ApproveWorkRequest'
 
 
 export type TaskInfoScreenRouteProp = RouteProp<RootStackParamList, "TaskInfo">
@@ -16,16 +18,16 @@ export type TaskInfoScreenRouteProp = RouteProp<RootStackParamList, "TaskInfo">
 export default function TaskInfo() {
 
     const route = useRoute<TaskInfoScreenRouteProp>()
-    const {workRequestUUID} = route.params || {}
+    const {workRequestUUID, workRequestNumber} = route.params || {}
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
 
     return (
       <ScrollView contentContainerStyle={{gap: 15, paddingBottom: 50}} style={styles.container}>
         <CustomButton buttonStyle={{marginTop: 15}} onPress={() => navigation.goBack()} icon={<Back width={20} height={20}  />} />
-        <TaskHeading workRequestUUID={workRequestUUID} />
+        <TaskHeading workRequestNumber={workRequestNumber ?? ""} workRequestUUID={workRequestUUID} />
         <TaskInfoDetails workRequestUUID={workRequestUUID} />
         <TaskHistory workRequestUUID={workRequestUUID} />
+
       </ScrollView>
     );
   }

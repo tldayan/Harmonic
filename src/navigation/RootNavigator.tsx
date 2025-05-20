@@ -20,7 +20,7 @@ import LoadingScreen from "../screens/Others/LoadingScreen";
 import realmInstance from "../services/realm";
 
 export const RootNavigator: React.FC = () => {
-  console.log("Root Nav")
+
   const { user } = useUser();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userAddress, setUserAddress] = useState<UserAddress | null>(null);
@@ -70,10 +70,10 @@ export const RootNavigator: React.FC = () => {
   const loading = !!user && !userProfile;
   console.log(userProfile)
   const userProfileComplete =
-  !!userProfile?.FirstName &&
+  !!userProfile?.FirstName /* &&
   !!userProfile?.EmailAddress &&
   !!userProfile?.PhoneNumber &&
-  !!userProfile?.Description;
+  !!userProfile?.Description; */
 
 
     console.log(userProfileComplete)

@@ -2,7 +2,7 @@ import { ActivityIndicator, FlatList, ScrollView, StyleSheet, Text, View } from 
 import React, { useEffect, useState } from 'react'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import SearchIcon from "../../assets/icons/search.svg"
-import { defaultInputStyles, shadowStyles } from '../../styles/global-styles'
+import { CardShadowStyles, defaultInputStyles, shadowStyles } from '../../styles/global-styles'
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import CirclePlus from "../../assets/icons/circle-plus.svg"
@@ -136,7 +136,7 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
   return (
     <View style={{flex: 1}}>
       
-      {!filterUserTasks && <View style={[styles.searchTaskContainer, shadowStyles]}>
+      {!filterUserTasks && <View style={[styles.searchTaskContainer, CardShadowStyles]}>
         <CustomTextInput placeholder='Search Task ID' placeholderTextColor={colors.LIGHT_TEXT} inputStyle={[defaultInputStyles, styles.searchField]} onChangeText={(e) => setSearchTask(e)} value={searchTask} leftIcon={<SearchIcon color={colors.LIGHT_TEXT} width={18} height={18} />} />
         
         <View style={styles.createTaskContainer}>
@@ -149,7 +149,7 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
           <CustomButton buttonStyle={styles.taskStageButtons} textStyle={{color: colors.INDIGO}} onPress={() => {}} title={"Completed tasks"} />
         </ScrollView>
       </View>}
-      {pendingWorkRequests ? <View style={[styles.pendingRequestsContainer, shadowStyles ]}>
+      {pendingWorkRequests ? <View style={[styles.pendingRequestsContainer, CardShadowStyles ]}>
           <Alert fill='red' color='white' width={22} height={22}/>
           <Text style={styles.pending}>You have {pendingWorkRequests} request pending to approve</Text>
           <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, styles.seeAll]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} onPress={() => {}} title={"See all"} />
@@ -188,6 +188,8 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
       <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest} onClose={() => setCreatingRequest(false)}>
         <WorkRequestCreation setWorkRequests={setWorkRequests} onClose={() => setCreatingRequest(false)} />
       </CustomModal>
+
+      
 
 
     </View>

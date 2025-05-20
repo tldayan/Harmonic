@@ -42,7 +42,7 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
     const [code, setCode] = useState<string>(''); 
     const [otpError, setOtpError] = useState("")
     const [confirmation, setConfirmation] = useState<FirebaseAuthTypes.PhoneAuthSnapshot | null>(null);
-
+    const [showSendOtp, setShowSendOtp] = useState(false)
 
 
     useEffect(() => {
@@ -101,7 +101,7 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
             Toast.show({
               type: "success",
               text1: "Phone Number Verified",
-              text2: "Your phone number has been successfully linked to your account.",
+              text2: "Phone number linked successfully to your account.",
               position: "bottom",
             });
             
@@ -118,6 +118,7 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
           return;
         }
 
+        setShowSendOtp(false)
         setOtpError("")
         setConfirmation(null)
         const joinedNumber = `+${userInformation.PhoneCountryUUID}${userInformation.PhoneNumber}`;
@@ -133,6 +134,12 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
 
 
       useEffect(() => {
+        if(userInformation.PhoneCountryUUID && userInformation.PhoneNumber) {
+          setShowSendOtp(true)
+        } else {
+          setShowSendOtp(false)
+        }
+        
         if(confirmation) {
           setConfirmation(null)
         }
@@ -150,13 +157,14 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         
         <View style={{flexDirection: "row", gap: 10}}>
           <CustomTextInput setCountryCode={(phoneCode) => setUserInformation((prev) => ({...prev, PhoneCountryUUID: phoneCode }))} hasError={errors.PhoneNumber} countryCode={userInformation.PhoneCountryUUID} value={userInformation.PhoneNumber} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, PhoneNumber: e}))} label='Phone' inputStyle={defaultNumberInputStyles} placeholder='567136828' /* mainInputStyle={styles.numberInput} */ inputMode='tel' />
-          {(userInformation.PhoneCountryUUID && userInformation.PhoneNumber) && <CustomButton onPress={handleOTP} title={confirmation ? "Resend OTP" : "Send OTP"} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: "auto", marginBottom: 0, paddingHorizontal: 20}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />}
+          {(userInformation.PhoneCountryUUID && userInformation.PhoneNumber && showSendOtp) && <CustomButton onPress={handleOTP} title={confirmation ? "Resend OTP" : "Send OTP"} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: "auto", marginBottom: 0, paddingHorizontal: 20}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />}
         </View>
         
-        
-        {confirmation && <OTPInput errorMessage={otpError} setCode={setCode} />}
-        {confirmation && <CustomButton onPress={verifyOTP} title={"Verify OTP"} buttonStyle={PRIMARY_BUTTON_STYLES} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />}
-        
+        {confirmation && <View style={styles.otpContainer}>
+          <OTPInput errorMessage={otpError} setCode={setCode} />
+          <CustomButton onPress={verifyOTP} title={"Verify OTP"} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginBottom: 0}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />
+        </View>}
+
         <CustomTextAreaInput value={userInformation.Description ?? ""} hasError={errors.Description} multiline label='Description' labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, Description: e}))} placeholder='About me'  />
         <CustomTextInput value={userAddressInformation.AddressLine1} hasError={errors.AddressLine1} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, AddressLine1: e}))} label='Address Line 1' inputStyle={defaultInputStyles} placeholder='JVC' />
         <CustomTextInput value={userAddressInformation.AddressLine2} hasError={errors.AddressLine2} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, AddressLine2: e}))} label='Address Line 2' inputStyle={defaultInputStyles} placeholder='Street 10' />
@@ -246,4 +254,11 @@ const styles = StyleSheet.create({
     link: {
       color: colors.ACTIVE_ACCENT_COLOR,
     },
+    otpContainer: {
+      borderWidth: 1, 
+      borderColor: colors.BORDER_COLOR, 
+      borderRadius: 24, 
+      paddingHorizontal: 20, 
+      paddingBottom: 20, 
+      marginTop: 10}
 })

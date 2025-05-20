@@ -7,7 +7,7 @@ import {
   WORK_STATUS__NOTIFICATION_COLOR_CODES,
   WORK_STATUS_COLOR_CODES
 } from '../../utils/constants';
-import { shadowStyles } from '../../styles/global-styles';
+import { CardShadowStyles, shadowStyles } from '../../styles/global-styles';
 import { formatProperDate } from '../../utils/helpers';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -32,19 +32,20 @@ export default function WorkRequestItem({ workRequestItem }: WorkRequestItemProp
     
   const goToDetails = () => {
     if (workRequestItem.WorkRequestUUID) {
-      navigation.navigate("TaskInfo", { workRequestUUID: workRequestItem?.WorkRequestUUID });
+      navigation.navigate("TaskInfo", { workRequestUUID: workRequestItem?.WorkRequestUUID, workRequestNumber: workRequestItem.WorkRequestNumber });
     }
   };
 
   return (
     <TouchableOpacity
+      activeOpacity={0.8}
       onPress={goToDetails}
       style={[
         styles.mainWorkRequestContainer,
         { backgroundColor: WORK_STATUS_COLOR_CODES[workRequestItem.StatusItemName] || 'white' }
       ]}
     >
-      <View style={[styles.workRequestContainer, shadowStyles]}>
+      <View style={[styles.workRequestContainer, CardShadowStyles]}>
         <View style={styles.workRequestStatsContainer}>
           <Text style={{color: "#111827", fontWeight: "500" }}>
             {workRequestItem.WorkRequestNumber || "N/A"}

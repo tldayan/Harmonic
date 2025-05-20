@@ -19,6 +19,7 @@ import TaskDocumentUpload from '../TaskDocumentUpload'
 
 interface WorkOrderCreationProps {
     onClose: () => void
+    workOrder?: WorkOrderDetails | null
 }
 
 const width = Dimensions.get("window").width
@@ -32,18 +33,18 @@ const steps = [
 
 
 
-export default function WorkOrderCreation({onClose} : WorkOrderCreationProps) {
+export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreationProps) {
 
     const [step, setStep] = useState(0)
     const [workPriorities, setWorkPriorities] = useState<WorkPriority[]>()
     const [taskInformation, setTaskInformation] = React.useState<TaskInformationState>({
-        workOrderUUID: "",
-        asset: { assetName: '', assetUUID: '' },
+        workOrderUUID: workOrder?.WorkOrderUUID || "",
+        asset: { assetName: workOrder?.AssetName || '', assetUUID: workOrder?.AssetUUID || '' },
         workOrderType: { workOrderTypeName: '', workOrderTypeUUID: '' },
-        problemDescription: '',
+        problemDescription: workOrder?.ProblemDescription || '',
         taskDescription: '',
-        workPriority: {workPriorityUUID: "", workPriorityName: ""},
-        images: [],
+        workPriority: {workPriorityUUID: workOrder?.WorkPriorityUUID || "", workPriorityName: workOrder?.WorkPriorityName || ""},
+        images: [], 
         attachments: [],
         attachmentCount: 0,
         attachmentDescription: '',

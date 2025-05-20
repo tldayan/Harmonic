@@ -53,6 +53,7 @@ export const ENDPOINTS = {
     RESPOND_TO_CHAT_INVITE: `${BASE_URL}/social/respondToChatInvite`,
   },
   WORK_ORDER: {
+    GET_WORK_ORDER_DETAILS: `${BASE_URL}/work-order/getWorkOrderDetails`,
     GET_WORK_ORDER_LIST: `${BASE_URL}/work-order/getWorkOrderList`,
     GET_WORK_ORDER_TYPES: `${BASE_URL}/work-order/getWorkOrderTypes`,
     SAVE_WORK_ORDER: `${BASE_URL}/work-order/saveWorkOrder`,
@@ -69,6 +70,7 @@ export const ENDPOINTS = {
     SAVE_WORK_REQUEST: `${BASE_URL}/work-request/saveWorkRequest`,
     SAVE_WORK_REQUEST_ATTACHMENTS: `${BASE_URL}/work-request/saveWorkRequestAttachments`,
     APPROVE_WORK_REQUEST: `${BASE_URL}/work-request/approveWorkRequest`,
+    CANCEL_WORK_REQUEST: `${BASE_URL}/work-request/cancelWorkRequest`
   },
   ASSET: {
     GET_ASSET_LIST: `${BASE_URL}/asset/getAssetList`,

@@ -12,7 +12,7 @@ interface DropdownComponentProps {
   horizontalDots?: boolean;
 }
 
-export const EventActionDropdownComponent = ({
+export const WorkRequestActionDropdownComponent = ({
   action,
   setAction,
   horizontalDots,
@@ -22,8 +22,7 @@ export const EventActionDropdownComponent = ({
 
     const actions: { label: string; value: string }[] = [
       { label: "Approve Task", value: "1" },
-      { label: "Decline Task", value: "2" },
-      { label: "Leave Event", value: "3" }
+      { label: "Decline Task", value: "2" }
     ];
       
 
@@ -73,8 +72,9 @@ export const EventActionDropdownComponent = ({
 const styles = StyleSheet.create({
   dropdown: {
  /*    backgroundColor: "red", */
+/*  borderWidth: 1, */
     position: "relative",
-    width: "16%",
+    width: "10%",
     marginLeft: "auto",
     height: "auto",
   },

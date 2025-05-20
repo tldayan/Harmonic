@@ -157,6 +157,7 @@ export default function ProfileFormScreen({setUserProfile, userProfile, userAddr
                 text2: !isFormComplete ? "Please ensure all fields are filled" : "Please accept the Terms of Use and Privacy Policy to proceed.",
                 position: "bottom",
             });
+            setLoading(false)
             return
         }
 

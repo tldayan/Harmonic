@@ -232,6 +232,28 @@ interface WorkOrder {
   WorkRequestNumber: string | null;
 }
 
+
+interface WorkOrderDetails {
+  WorkOrderUUID: string;
+  WorkOrderTypeUUID: string | null;
+  WorkOrderTypeName: string | null;
+  WorkPriorityUUID: string;
+  WorkPriorityName: string;
+  WorkOrderTitle: string | null;
+  WorkOrderNumber: string;
+  ProblemDescription: string;
+  WorkDescription: string;
+  AssetName: string;
+  AssetUUID: string;
+  WorkRequestUUID: string;
+  WorkRequestNumber: string;
+  StatusItemCode: string;
+  StatusItemName: string;
+}
+
+
+
+
 interface WorkRequest {
   WorkRequestUUID: string;
   WorkRequestNumber: string;

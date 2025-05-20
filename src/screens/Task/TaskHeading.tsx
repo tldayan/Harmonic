@@ -2,20 +2,22 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { WORK_PRIORITY_COLOR_CODES, WORK_PRIORITY_TEXT_COLOR_CODES, WORK_STATUS__NOTIFICATION_COLOR_CODES, WORK_STATUS_COLOR_CODES } from '../../utils/constants'
 import WorkRequestCreation from '../../modals/Task/WorkRequest/WorkRequestCreation'
-import CustomButton from '../../components/CustomButton'
-import ThreeDots from "../../assets/icons/three-dots-horizontal.svg"
 import { CardShadowStyles } from '../../styles/global-styles'
 import { getWorkRequestDetails } from '../../api/network-utils'
+import { WorkRequestActionDropdownComponent } from '../../dropdowns/WorkRequestActions'
+import { CustomModal } from '../../components/CustomModal'
+import ApproveWorkRequest from '../../modals/Task/WorkRequest/ApproveWorkRequest'
 
 interface TaskHeadingProps {
     workRequestUUID: string
+    workRequestNumber: string
 }
 
-export default function TaskHeading({workRequestUUID} : TaskHeadingProps) {
+export default function TaskHeading({workRequestUUID, workRequestNumber} : TaskHeadingProps) {
 
     const [loading, setLoading] = useState(true);
     const [workRequestDetails, setWorkRequestsDetails] = useState<WorkRequestDetails>({})
-
+    const [action, setAction] = useState<string | null>(null);
 
     const fetchWorkRequestDetails = async() => {
         
@@ -32,8 +34,9 @@ export default function TaskHeading({workRequestUUID} : TaskHeadingProps) {
 
 
     useEffect(() => {
+      if(action) return
       fetchWorkRequestDetails()
-    }, [])
+    }, [action])
 
 
 
@@ -63,12 +66,18 @@ export default function TaskHeading({workRequestUUID} : TaskHeadingProps) {
               {workRequestDetails?.StatusItemName || "N/A"}
             </Text>
           </View>
-          <CustomButton onPress={() => {}} buttonStyle={styles.actionsIcon} icon={<ThreeDots width={20} height={20} />}  />
+            <WorkRequestActionDropdownComponent horizontalDots action={action} setAction={setAction} />
         </View>
 
         <Text style={styles.workRequestNumber}>{workRequestDetails?.WorkRequestNumber}</Text>
         <Text style={styles.workRequestDescription}>{workRequestDetails?.ProblemDescription}</Text>
         </>}
+
+
+
+        <CustomModal onClose={() => setAction(null)} isOpen={action === "1"} >
+          <ApproveWorkRequest workRequestNumber={workRequestNumber} workRequestUUID={workRequestUUID} onClose={() => setAction(null)} />
+        </CustomModal>
 
     </View>
   )
@@ -131,9 +140,5 @@ const styles = StyleSheet.create({
       workRequestDescription: {
         marginTop: 10
       },
-      actionsIcon: {
-        marginLeft: "auto",
-        opacity: 0.7
-      }
 
 })

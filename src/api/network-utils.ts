@@ -227,8 +227,9 @@ export const getUserAddress = async(userUUID: string) => {
 
       const bodyData = {...transformFirebaseUser(authUser)}
      
-
+      console.log(bodyData)
       const response = await apiClient(ENDPOINTS.AUTH.SIGN_IN, bodyData, {}, "POST");
+      console.log(response)
 /*        Alert.alert("bodydata", JSON.stringify(response, null, 2)); */
       return {UserUUID: response?.data?.Payload?.UserUUID, OrganizationUUID: response?.data?.Payload?.OrganizationUUID}
 
@@ -918,6 +919,22 @@ export const getChatInviteDetails = async(LoggedInUserUUID: string, ChatMasterUU
 
 //WORK ORDERS
 
+
+export const getWorkOrderDetails = async(workOrderUUID:string) => {
+
+  try {
+    const getWorkOrderDetailsResponse = await apiClient(ENDPOINTS.WORK_ORDER.GET_WORK_ORDER_DETAILS, {}, {}, "GET", {workOrderUUID})
+    console.log(getWorkOrderDetailsResponse)
+    return getWorkOrderDetailsResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
 export const getWorkOrderList = async(userUUID: string,organizationUUID:string, startIndex: number) => {
 
   const bodyData = {
@@ -1206,6 +1223,55 @@ console.log(bodyData)
   }
 
 }
+
+
+export const approveWorkRequest = async(userUUID:string, Note: string, workRequestUUID: string) => {
+
+  const bodyData = {
+    "WorkRequestUUID": workRequestUUID,
+    "LoggedInUserUUID": userUUID,
+    "Note": Note ? Note : ""
+  }
+
+
+console.log(bodyData)
+  try {
+    const approveWorkRequestResponse = await apiClient(ENDPOINTS.WORK_REQUEST.APPROVE_WORK_REQUEST, bodyData, {}, "POST")
+    console.log(approveWorkRequestResponse)
+    return approveWorkRequestResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+
+export const cancelWorkRequest = async(userUUID:string, Note: string, workRequestUUID: string) => {
+
+  const bodyData = {
+    "WorkRequestUUID": workRequestUUID,
+    "LoggedInUserUUID": userUUID,
+    "Note": Note ? Note : ""
+  }
+
+
+console.log(bodyData)
+  try {
+    const cancelWorkRequestResponse = await apiClient(ENDPOINTS.WORK_REQUEST.CANCEL_WORK_REQUEST, bodyData, {}, "POST")
+    console.log(cancelWorkRequestResponse)
+    return cancelWorkRequestResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
 
 
 //ASSET 
