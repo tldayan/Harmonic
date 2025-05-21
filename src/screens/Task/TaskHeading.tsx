@@ -1,49 +1,15 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
+import React from 'react'
 import { WORK_PRIORITY_COLOR_CODES, WORK_PRIORITY_TEXT_COLOR_CODES, WORK_STATUS__NOTIFICATION_COLOR_CODES, WORK_STATUS_COLOR_CODES } from '../../utils/constants'
-import WorkRequestCreation from '../../modals/Task/WorkRequest/WorkRequestCreation'
-import { CardShadowStyles } from '../../styles/global-styles'
-import { getWorkRequestDetails } from '../../api/network-utils'
-import { WorkRequestActionDropdownComponent } from '../../dropdowns/WorkRequestActions'
-import { CustomModal } from '../../components/CustomModal'
-import ApproveWorkRequest from '../../modals/Task/WorkRequest/ApproveWorkRequest'
 
 interface TaskHeadingProps {
-    workRequestUUID: string
-    workRequestNumber: string
+    workRequestDetails: WorkRequestDetails
 }
 
-export default function TaskHeading({workRequestUUID, workRequestNumber} : TaskHeadingProps) {
-
-    const [loading, setLoading] = useState(true);
-    const [workRequestDetails, setWorkRequestsDetails] = useState<WorkRequestDetails>({})
-    const [action, setAction] = useState<string | null>(null);
-
-    const fetchWorkRequestDetails = async() => {
-        
-        try {
-            const workRequestDetailsResponse = await getWorkRequestDetails(workRequestUUID)
-            setWorkRequestsDetails(workRequestDetailsResponse.Payload)
-        } catch (err) {
-            console.log(err)
-        } finally {
-            setLoading(false)
-        }
-
-    }
-
-
-    useEffect(() => {
-      if(action) return
-      fetchWorkRequestDetails()
-    }, [action])
-
-
+export default function TaskHeading({workRequestDetails} : TaskHeadingProps) {
 
   return (
-    <View style={[styles.workRequestHeadingContainer, CardShadowStyles]}>
-        {loading ? <ActivityIndicator style={{marginVertical: "10%"}} size={"small"} /> : 
-        <>
+    <View>
         <View style={styles.workRequestStatusContainer}>
           <Text style={[
             styles.workRequestPriorityName,
@@ -66,18 +32,10 @@ export default function TaskHeading({workRequestUUID, workRequestNumber} : TaskH
               {workRequestDetails?.StatusItemName || "N/A"}
             </Text>
           </View>
-            <WorkRequestActionDropdownComponent horizontalDots action={action} setAction={setAction} />
         </View>
 
         <Text style={styles.workRequestNumber}>{workRequestDetails?.WorkRequestNumber}</Text>
         <Text style={styles.workRequestDescription}>{workRequestDetails?.ProblemDescription}</Text>
-        </>}
-
-
-
-        <CustomModal onClose={() => setAction(null)} isOpen={action === "1"} >
-          <ApproveWorkRequest workRequestNumber={workRequestNumber} workRequestUUID={workRequestUUID} onClose={() => setAction(null)} />
-        </CustomModal>
 
     </View>
   )
@@ -94,7 +52,7 @@ const styles = StyleSheet.create({
     workRequestStatusContainer :{
         flexDirection: "row",
         alignSelf: "flex-start",
-        justifyContent: "space-between",
+        justifyContent: "flex-start",
         width: "100%",
         alignItems: "center"
     },

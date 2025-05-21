@@ -29,7 +29,7 @@ export default function TaskInformation({priorityOptions, setTaskInformation, ta
         <View style={styles.modalBody}>
             <View style={styles.inputRow}>
                 <View style={styles.row}>
-                <CustomSelectInput onSelect={() => setSelectingWorkType(true)} placeholder={taskInformation.workOrderType.workOrderTypeName ? taskInformation.workOrderType.workOrderTypeName : "Washing Machine" }/>
+                <CustomSelectInput onSelect={() => setSelectingWorkType(true)} placeholder={taskInformation.workOrderType.workOrderTypeName ? taskInformation.workOrderType.workOrderTypeName : "Inspection" }/>
                 </View>
             </View>
             
@@ -47,7 +47,8 @@ export default function TaskInformation({priorityOptions, setTaskInformation, ta
             </View>
 
             <RadioGroup 
-                label="Priority" 
+                label="Priority"
+                taskInformation={taskInformation} 
                 options={priorityOptions} 
                 onSelect={(selectedPriority: WorkPriority) => {
                   setTaskInformation(prev => ({

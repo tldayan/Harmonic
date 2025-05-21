@@ -27,7 +27,7 @@ export type TabParamList = {
         options?: { optionId: number; value: string; errorMessage: string }[] | null 
     };
     Assets: undefined;
-    Tasks: undefined;
+    Tasks: { refetch?: boolean };
     Stores: undefined;
     Events: undefined
     Chat: undefined;

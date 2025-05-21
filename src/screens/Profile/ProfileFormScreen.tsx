@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import SetupProfile from './SetupProfile'
 import CustomButton from '../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
-import { saveUserAddress, updateUserProfile } from '../../api/network-utils'
+import { checkIfUserNameAlreadyExists, saveUserAddress, updateUserProfile } from '../../api/network-utils'
 import { RootState } from '../../store/store'
 import { useSelector } from 'react-redux'
 import { saveUserProfileToRealm } from '../../database/management/realmUtils/saveUserProfileToRealm'
@@ -164,6 +164,16 @@ export default function ProfileFormScreen({setUserProfile, userProfile, userAddr
         if(step === 0) {
             console.log("saving proifle")
             try {
+                const checkUserNameExistsResponse = await checkIfUserNameAlreadyExists(userUUID, userInformation.UserName) 
+                if(checkUserNameExistsResponse.Payload) {
+                    Toast.show({
+                        type: "error",
+                        text1: "Username taken!",
+                        text2: "That username is taken. Try something else!",
+                        position: "bottom",
+                    });
+                    return
+                }
                 const updateUserProfileResponse = await updateUserProfile(userUUID, userInformation)
                 const updateUserAddressResponse = await saveUserAddress(userUUID, userAddressInformation)
                 console.log(updateUserProfileResponse)

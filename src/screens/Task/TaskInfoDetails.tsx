@@ -2,7 +2,7 @@ import { ActivityIndicator, Alert, Image, Linking, StyleSheet, Text, TouchableOp
 import React, { useEffect, useState } from 'react'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
-import { getWorkRequestAttachments, getWorkRequestDetails } from '../../api/network-utils'
+import { getWorkRequestAttachments } from '../../api/network-utils'
 import PDFIcon from "../../assets/icons/pdf.svg"
 import PhotoIcon from "../../assets/icons/photo.svg"
 import DefaultIcon from "../../assets/icons/document.svg"
@@ -14,23 +14,21 @@ export type TaskInfoScreenRouteProp = RouteProp<RootStackParamList, "TaskInfo">
 
 interface TaskInfoDetailsProps {
     workRequestUUID: string; 
+    workRequestDetails: WorkRequestDetails
   }
   
 
-export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps) {
+export default function TaskInfoDetails({workRequestUUID, workRequestDetails} : TaskInfoDetailsProps) {
 
     const route = useRoute<TaskInfoScreenRouteProp>()
-    const [workRequestDetails, setWorkRequestDetails] = useState<WorkRequestDetails>({})
     const [workRequestAttachments, setWorkRequestAttachments] = useState<WorkRequestAttachment[]>([])
     const [loading, setLoading] = useState(true)
 
 
-    const fetchWorkRequestDetails = async() => {
+    const fetchWorkRequestAttachments = async() => {
         
         try {
-            const workRequestDetailsResponse = await getWorkRequestDetails(workRequestUUID)
             const workRequestAttachmentsRespose = await getWorkRequestAttachments(workRequestUUID)
-            setWorkRequestDetails(workRequestDetailsResponse.Payload)
             setWorkRequestAttachments(workRequestAttachmentsRespose.Payload)
         } catch(err) {
             console.log(err)
@@ -40,7 +38,7 @@ export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps
     }
 
     useEffect(() => {
-        fetchWorkRequestDetails()
+        fetchWorkRequestAttachments()
     }, [])
 
     const getFileIconComponent = (fileUrl: string) => {
@@ -87,7 +85,7 @@ export default function TaskInfoDetails({workRequestUUID} : TaskInfoDetailsProps
 
     return (
       <View style={[styles.container, CardShadowStyles]}>
-        {loading ? <ActivityIndicator size={"small"} style={{marginVertical: "35%"}} /> : <>
+        {loading ? <ActivityIndicator size={"small"} /> : <>
         <View style={styles.header}>
           <View style={styles.taskInfoContainer}>
             <Text style={styles.taskInfoText}>Task Info</Text>

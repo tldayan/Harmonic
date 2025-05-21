@@ -6,6 +6,7 @@ import { AttachmentData, CategoryProps, FirebaseAttachment } from "../types/post
 import { TaskInformationState } from "../types/work-order.types";
 import { WorkRequestInformationState } from "../types/work-request.types";
 import { EventInformation } from "../types/event.types";
+import { Alert } from "react-native";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -159,6 +160,23 @@ export const getUserAddress = async(userUUID: string) => {
 
 
 
+  export const checkIfUserNameAlreadyExists = async(userUUID: string, userName: string) => {
+
+    const bodyData = {
+      "UserUUID": userUUID,
+      "AddedUserName": userName
+      }
+  
+    try {
+      const saveUserAddressResponse = await apiClient(ENDPOINTS.USER.CHECK_USERNAME, bodyData, {}, "POST")
+      return saveUserAddressResponse.data
+  
+    } catch(err) {
+      console.error(err)
+    }
+  
+  }
+
 
 
 
@@ -226,11 +244,11 @@ export const getUserAddress = async(userUUID: string) => {
     try {
 
       const bodyData = {...transformFirebaseUser(authUser)}
-     
+   /*    Alert.alert("bodydata", JSON.stringify(bodyData)); */
       console.log(bodyData)
       const response = await apiClient(ENDPOINTS.AUTH.SIGN_IN, bodyData, {}, "POST");
       console.log(response)
-/*        Alert.alert("bodydata", JSON.stringify(response, null, 2)); */
+       /* Alert.alert("bodydata", JSON.stringify(response, null, 2)); */
       return {UserUUID: response?.data?.Payload?.UserUUID, OrganizationUUID: response?.data?.Payload?.OrganizationUUID}
 
     } catch (error) {

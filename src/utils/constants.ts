@@ -29,6 +29,12 @@ export const CHAT_INVITE_STATUS_CODES = {
     PENDING: "PENDING"
 }
 
+export const TASK_STATUS_CODES = {
+    APPROVED: "APPROVED",
+    CANCELLED: "CANCELLED",
+    PENDING: "PENDING"
+}
+
 export const MEMBER_ROLES = {
     ADMIN: "ADMIN",
     MEMBER: "MEMBER"

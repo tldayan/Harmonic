@@ -20,6 +20,7 @@ export const ENDPOINTS = {
   USER: {
     PROFILE: `${BASE_URL}/user/getUserProfile`,
     UPDATE_USER_PROFILE: `${BASE_URL}/user/updateUserProfile`,
+    CHECK_USERNAME: `${BASE_URL}/user/checkIfUserNameAlreadyExists`,
   },
   SOCIAL: {
     MBMESSAGES: `${BASE_URL}/social/getMBMessages`,

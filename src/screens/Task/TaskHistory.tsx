@@ -5,7 +5,6 @@ import Check from "../../assets/icons/mini-check.svg"
 import { formatLongDate, getTimeFromISO } from "../../utils/helpers";
 import { getWorkRequestHistory } from "../../api/network-utils";
 import ChevronDown from "../../assets/icons/chevron-down.svg"
-import CustomButton from "../../components/CustomButton";
 
 interface TimelineItemProps {
   heading: string;
@@ -18,6 +17,7 @@ interface TimelineItemProps {
 
 interface TaskInfoHistoryProps {
   workRequestUUID: string;
+  workRequestDetails: WorkRequestDetails
 }
 
 const TimelineItem: React.FC<TimelineItemProps> = ({
@@ -51,7 +51,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
 );
 
 
-function TaskHistory({ workRequestUUID }: TaskInfoHistoryProps) {
+function TaskHistory({ workRequestUUID, workRequestDetails}: TaskInfoHistoryProps) {
   const [loading, setLoading] = useState(true);
   const [workRequestHistory, setWorkRequestHistory] = useState<WorkRequestHistory[]>([]);
   const [expanded, setExpanded] = useState(false);
@@ -68,12 +68,12 @@ function TaskHistory({ workRequestUUID }: TaskInfoHistoryProps) {
       }
     };
     fetchWorkHistory();
-  }, []);
+  }, [workRequestDetails]);
 
   return (
     <TouchableOpacity activeOpacity={0.7} onPress={() => setExpanded((prev) => !prev)}  style={[styles.container, CardShadowStyles]}>
       {loading ? (
-        <ActivityIndicator style={{ marginVertical: "10%" }} size={"small"} />
+        <ActivityIndicator size={"small"} />
       ) : (
         <>
           <View style={{ flexDirection: "row", justifyContent: "space-between"}}>

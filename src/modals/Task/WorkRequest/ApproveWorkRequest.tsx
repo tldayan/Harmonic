@@ -21,9 +21,10 @@ interface ApproveWorkRequestProps {
     onClose: () => void
     workRequestUUID: string
     workRequestNumber: string
+    fetchWorkRequestDetails: () => Promise<void>
 }
 
-export default function ApproveWorkRequest({onClose, workRequestUUID, workRequestNumber} : ApproveWorkRequestProps) {
+export default function ApproveWorkRequest({onClose, workRequestUUID, workRequestNumber, fetchWorkRequestDetails} : ApproveWorkRequestProps) {
 
     
 
@@ -35,11 +36,11 @@ export default function ApproveWorkRequest({onClose, workRequestUUID, workReques
     const userUUID = useSelector((state: RootState) => state.auth.userUUID)
 
     const handleApproveWorkRequest = async() => {
-
+        
         try {
             const approveWorkRequestResponse = await approveWorkRequest(userUUID, note, workRequestUUID)
             if(approveWorkRequestResponse.Status === STATUS_CODE.SUCCESS) {
-                const workOrderDetailsResponse = await getWorkOrderDetails(approveWorkRequestResponse.WorkOrderUUID)
+                const workOrderDetailsResponse = await getWorkOrderDetails(approveWorkRequestResponse.Payload.WorkOrderUUID)
                 if(workOrderDetailsResponse.Status === STATUS_CODE.SUCCESS) {
                     setWorkOrder(workOrderDetailsResponse.Payload) 
                     setCreatingWorkOrder(true)
@@ -69,7 +70,7 @@ export default function ApproveWorkRequest({onClose, workRequestUUID, workReques
             <CustomTextAreaInput onChangeText={(e) => setNote(e)} multiline placeholder='Note' />
 
             <View style={{flexDirection: "row",gap: 20, justifyContent:"center", width: "100%"}}>
-                <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, {flex: 1, backgroundColor: "white", borderWidth: 1, borderColor: colors.BORDER_COLOR}]} textStyle={[PRIMARY_BUTTON_TEXT_STYLES, {color: colors.TEXT_COLOR}]} onPress={() => navigation.goBack()} title={"No, Cancel"} />
+                <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, {flex: 1, backgroundColor: "white", borderWidth: 1, borderColor: colors.BORDER_COLOR}]} textStyle={[PRIMARY_BUTTON_TEXT_STYLES, {color: colors.TEXT_COLOR}]} onPress={onClose} title={"No, Cancel"} />
                 <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, {flex: 1}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} onPress={handleApproveWorkRequest} title={"Yes, I'm sure"} />
             </View>
         </View>

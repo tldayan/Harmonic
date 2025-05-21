@@ -2,6 +2,7 @@ import * as React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import CheckIcon from "../../assets/icons/check.svg";
 import { colors } from "../../styles/colors";
+import { TaskInformationState } from "../../types/work-order.types";
 
 interface WorkPriority {
   WorkPriorityId: number;
@@ -15,15 +16,23 @@ interface WorkPriority {
 interface RadioGroupProps {
   label: string;
   options?: WorkPriority[];
+  taskInformation: TaskInformationState
   onSelect?: (selectedOption: WorkPriority) => void;
 }
 
 const RadioGroup: React.FC<RadioGroupProps> = ({
   label,
   options,
+  taskInformation,
   onSelect,
 }) => {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+
+
+
+  React.useEffect(() => {
+    setSelectedId(taskInformation.workPriority.workPriorityUUID)
+  }, [taskInformation])
 
   const handleSelect = (selectedOption: WorkPriority) => {
     setSelectedId(selectedOption.WorkPriorityUUID);

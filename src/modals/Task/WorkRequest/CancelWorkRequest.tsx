@@ -13,14 +13,18 @@ import { RootState } from '../../../store/store'
 import { STATUS_CODE } from '../../../utils/constants'
 import { CustomModal } from '../../../components/CustomModal'
 import WorkOrderCreation from '../WorkOrder/WorkOrderCreation'
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RootStackParamList } from '../../../types/navigation-types'
 
 interface CancelWorkRequestProps {
     onClose: () => void
     workRequestUUID: string
     workRequestNumber: string
+    fetchWorkRequestDetails: () => Promise<void>
 }
 
-export default function CancelWorkRequest({onClose, workRequestUUID, workRequestNumber} : CancelWorkRequestProps) {
+export default function CancelWorkRequest({onClose, workRequestUUID, workRequestNumber, fetchWorkRequestDetails} : CancelWorkRequestProps) {
 
 
     const [note, setNote] = useState('')
@@ -32,6 +36,7 @@ export default function CancelWorkRequest({onClose, workRequestUUID, workRequest
         try {
             const cancelWorkRequestResponse = await cancelWorkRequest(userUUID, note, workRequestUUID)
             if(cancelWorkRequestResponse.Status === STATUS_CODE.SUCCESS) {
+                fetchWorkRequestDetails()
                 onClose()
             }
 
@@ -61,7 +66,7 @@ export default function CancelWorkRequest({onClose, workRequestUUID, workRequest
             <CustomTextAreaInput onChangeText={(e) => setNote(e)} multiline placeholder='Note' />
 
             <View style={{flexDirection: "row",gap: 20, justifyContent:"center", width: "100%"}}>
-                <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, {flex: 1, backgroundColor: "white", borderWidth: 1, borderColor: colors.BORDER_COLOR}]} textStyle={[PRIMARY_BUTTON_TEXT_STYLES, {color: colors.TEXT_COLOR}]} onPress={() => {}} title={"No, Cancel"} />
+                <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, {flex: 1, backgroundColor: "white", borderWidth: 1, borderColor: colors.BORDER_COLOR}]} textStyle={[PRIMARY_BUTTON_TEXT_STYLES, {color: colors.TEXT_COLOR}]} onPress={onClose} title={"No, Cancel"} />
                 <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, {flex: 1}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} onPress={handleCancelWorkRequest} title={"Yes, I'm sure"} />
             </View>
         </View>

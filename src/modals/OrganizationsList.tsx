@@ -18,7 +18,7 @@ export default function OrganizationsList({organizationsList, onClose, setOrgani
         <ModalsHeader onClose={onClose} title='Switch Organization' />
         <View style={styles.organizationList}>
             {organizationsList?.map((oraganization) => (
-                <CustomButton buttonStyle={styles.organization} key={oraganization.OrganizationUUID}  onPress={() => setOrganization?.(oraganization)} title={oraganization.OrganizationName}/>
+                <CustomButton buttonStyle={styles.organization} key={oraganization.OrganizationUUID}  onPress={() => {setOrganization?.(oraganization); onClose()}} title={oraganization.OrganizationName}/>
             ))}
         </View>
     </View>
@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
         marginBottom : 10
     },
     organizationList: {
+        gap: 10
      /*    borderWidth: 2, */
     },
     organization: {

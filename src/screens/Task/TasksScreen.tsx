@@ -1,5 +1,5 @@
 import { ActivityIndicator, FlatList, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import SearchIcon from "../../assets/icons/search.svg"
 import { CardShadowStyles, defaultInputStyles, shadowStyles } from '../../styles/global-styles'
@@ -11,9 +11,9 @@ import WorkOrderItem from '../../components/FlatlistItems/WorkOrderItem'
 import { getPendingWorkRequestCount, getWorkOrderList, getWorkRequestList } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
-import { useNavigation } from '@react-navigation/native'
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootStackParamList } from '../../types/navigation-types'
+import { RootStackParamList, TabParamList } from '../../types/navigation-types'
 import Alert from "../../assets/icons/circle-alert.svg"
 import { CustomModal } from '../../components/CustomModal'
 import TaskCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
@@ -24,7 +24,6 @@ import WorkRequestItem from '../../components/FlatlistItems/WorkRequestItem'
 interface TasksScreenProps {
   filterUserTasks?: boolean
 }
-
 
 export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
 
@@ -42,40 +41,51 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
   const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
   const isAdmin = userRole === "admin";
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   const fetchTasksList = async (initial?: boolean) => {
-
-    if (!hasMore || loading) return;
-
+  
+    if (!initial && (!hasMore || loading)) return;
+  
+    console.log("Fetching tasks...");
     setLoading(true);
   
     try {
-  
       const fetchFn = isAdmin ? getWorkOrderList : getWorkRequestList;
-      
-      const TaskListResponse = await fetchFn(userUUID, organizationUUID, initial ? 0 : startIndex);
+      const start = initial ? 0 : startIndex;
+      const TaskListResponse = await fetchFn(userUUID, organizationUUID, start);
       const tasks = TaskListResponse?.Payload || [];
-      console.log(tasks)
-      if (tasks.length < 30) {
-        console.log("setting hasmore to false")
-        setHasMore(false);
-      }
-
-      if (isAdmin) {
-        setWorkOrders((prev) => [...prev, ...tasks]);
+  
+      if (initial) {
+        if (isAdmin) setWorkOrders(tasks);
+        else setWorkRequests(tasks);
+  
+        setStartIndex(tasks.length);
+        setHasMore(tasks.length === 30); 
       } else {
-        setWorkRequests((prev) => [...prev, ...tasks]);
+        if (tasks.length < 30) {
+          setHasMore(false);
+        }
+  
+        if (isAdmin) {
+          setWorkOrders((prev) => [...prev, ...tasks]);
+        } else {
+          setWorkRequests((prev) => [...prev, ...tasks]);
+        }
+  
+        setStartIndex((prev) => prev + tasks.length);
       }
-  
-      setStartIndex((prev) => prev + tasks.length);
-  
     } catch (err) {
       console.error("Failed to fetch task list:", err);
     } finally {
       setLoading(false);
-    }
+    } 
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTasksList(true);
+    }, [])
+  );
 
 
   useEffect(() => {

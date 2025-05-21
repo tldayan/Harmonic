@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { FirebaseAuthTypes, getAuth } from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { ANDROID_GOOGLE_CLIENT_ID, IOS_GOOGLE_CLIENT_ID} from '../utils/constants';
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { storeUserToken } from '../services/auth-service';
 import { getOrganizationBasedModules, getUserAddress, getUserProfile, getUuidBySignIn } from '../api/network-utils';
 import { saveDataMMKV } from '../services/storage-service';
@@ -67,7 +67,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           saveDataMMKV({"UserUUID": UserUUID, "OrganizationUUID" : OrganizationUUID})
 
           const [userProfileResponse, userAddressResponse , OrganizationBasedModulesResponse] =  await Promise.all([getUserProfile(UserUUID), getUserAddress(UserUUID),getOrganizationBasedModules(UserUUID, OrganizationUUID)])
-          
+/*           Alert.alert("userProfile", userProfileResponse?.data.Payload)
+          Alert.alert("userAddress", userAddressResponse?.data.Payload)
+          Alert.alert("orgMofdules", OrganizationBasedModulesResponse?.data.Payload) */
           saveUserProfileToRealm(userProfileResponse?.data.Payload)
           console.log("userinfor from backend",userProfileResponse?.data.Payload)
           saveUserAddressToRealm(userAddressResponse?.data.Payload)

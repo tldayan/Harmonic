@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     position: "relative",
     width: "10%",
     marginLeft: "auto",
+    alignSelf: "flex-start",
     height: "auto",
   },
   dropdownContainer: {
