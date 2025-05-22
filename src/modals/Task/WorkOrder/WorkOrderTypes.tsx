@@ -7,7 +7,7 @@ import { getWorkOrderTypes } from '../../../api/network-utils'
 import CustomButton from '../../../components/CustomButton'
 import { colors } from '../../../styles/colors'
 import { ScrollView } from 'react-native-gesture-handler'
-import { TaskInformationState } from '../../../types/work-order.types'
+import { WorkOrderInformationState } from '../../../types/work-order.types'
 
 interface WorkOrderType {
     WorkOrderTypeUUID: string;    
@@ -17,10 +17,10 @@ interface WorkOrderType {
 
 interface WorkOrderTypesProps {
     onClose: () => void
-    setTaskInformation: React.Dispatch<React.SetStateAction<TaskInformationState>>
+    setWorkOrderInformation: React.Dispatch<React.SetStateAction<WorkOrderInformationState>>
 }
 
-export default function WorkOrderTypes({onClose, setTaskInformation} : WorkOrderTypesProps) {
+export default function WorkOrderTypes({onClose, setWorkOrderInformation} : WorkOrderTypesProps) {
     
     const [workTypes, setWorkTypes] = useState<WorkOrderType[]>([])
     const [loading, setLoading] = useState(false)
@@ -46,7 +46,7 @@ export default function WorkOrderTypes({onClose, setTaskInformation} : WorkOrder
     const workOrderTypeItem = ({ item }: { item: WorkOrderType }) => (
         <CustomButton
             buttonStyle={styles.workOrderType}
-            onPress={() => {setTaskInformation((prev) => ({
+            onPress={() => {setWorkOrderInformation((prev) => ({
                 ...prev,
                 workOrderType: {
                   workOrderTypeUUID: item.WorkOrderTypeUUID,

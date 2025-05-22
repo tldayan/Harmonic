@@ -1,4 +1,5 @@
 export function createOptimisticWorkRequest(info: {
+    WorkRequestUUID:string
     WorkRequestNumber?: string;
     ProblemDescription?: string;
     WorkRequestTypeName?: string;
@@ -7,7 +8,7 @@ export function createOptimisticWorkRequest(info: {
     WorkPriorityName?: string
   }): WorkRequest {
     return {
-      WorkRequestUUID: `temp-${Date.now()}`,
+      WorkRequestUUID: info.WorkRequestUUID,
       WorkRequestNumber: info.WorkRequestNumber ?? "N/A",
       WorkRequestTitle: "",
       ProblemDescription: info.ProblemDescription ?? "N/A",

@@ -70,10 +70,10 @@ export const RootNavigator: React.FC = () => {
   const loading = !!user && !userProfile;
   console.log(userProfile)
   const userProfileComplete =
-  !!userProfile?.FirstName /* &&
+  !!userProfile?.FirstName &&
   !!userProfile?.EmailAddress &&
   !!userProfile?.PhoneNumber &&
-  !!userProfile?.Description; */
+  !!userProfile?.Description;
 
 
     console.log(userProfileComplete)

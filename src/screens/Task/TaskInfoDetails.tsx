@@ -99,7 +99,7 @@ export default function TaskInfoDetails({workRequestUUID, workRequestDetails} : 
               <Text style={styles.labelText}>Asset</Text>
             </View>
             <View style={styles.valueContainer}>
-              <Text style={styles.valueText}>{workRequestDetails.AssetName}</Text>
+              <Text style={styles.valueText}>{workRequestDetails?.AssetName}</Text>
             </View>
           </View>
   
@@ -108,7 +108,7 @@ export default function TaskInfoDetails({workRequestUUID, workRequestDetails} : 
               <Text style={styles.labelText}>Issue</Text>
             </View>
             <View style={styles.valueContainer}>
-              <Text style={styles.valueText}>{workRequestDetails.ProblemDescription}</Text>
+              <Text style={styles.valueText}>{workRequestDetails?.ProblemDescription}</Text>
             </View>
           </View> */}
   
@@ -118,7 +118,7 @@ export default function TaskInfoDetails({workRequestUUID, workRequestDetails} : 
             </View>
             <View style={styles.valueContainer}>
               <Text style={styles.valueText}>
-                {workRequestDetails.ProblemDescription}
+                {workRequestDetails?.ProblemDescription}
               </Text>
             </View>
           </View>

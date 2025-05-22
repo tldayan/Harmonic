@@ -93,7 +93,7 @@ export default function CreateChat({onClose, fetchChats}: CreateChatProps) {
         <View style={styles.innerContainer}>
             <Text style={styles.memberTitle}>Members</Text>
             <View style={styles.selectedMembersContainer}>
-                <CustomTextInput inputStyle={styles.memberSearchField} placeholderTextColor={colors.LIGHT_TEXT} value={memberSearch} placeholder='Search members to add' onChangeText={(e) => setMemberSearch(e)} />
+                <CustomTextInput noBackground inputStyle={styles.memberSearchField} placeholderTextColor={colors.LIGHT_TEXT} value={memberSearch} placeholder='Search members to add' onChangeText={(e) => setMemberSearch(e)} />
             </View>
             {loading ? <ActivityIndicator style={{marginTop: "50%"}} size={"small"} /> :
             <FlatList

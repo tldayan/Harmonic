@@ -1,7 +1,7 @@
 import { DocumentPickerResponse } from "@react-native-documents/picker";
 import { Asset } from "react-native-image-picker";
 
-export interface TaskInformationState {
+export interface WorkOrderInformationState {
     workOrderUUID: string;
     asset: { assetName: string; assetUUID: string };
     workOrderType: { workOrderTypeName: string; workOrderTypeUUID: string };

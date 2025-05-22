@@ -6,38 +6,38 @@ import { colors } from '../../styles/colors';
 import CustomButton from '../../components/CustomButton';
 import CustomTextAreaInput from '../../components/CustomTextAreaInput';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
-import { TaskInformationState } from '../../types/work-order.types';
+import { WorkOrderInformationState } from '../../types/work-order.types';
 import { keepLocalCopy, pick } from '@react-native-documents/picker';
 import { DocumentItem } from '../../components/FlatlistItems/DocumentItem';
 import { WorkRequestInformationState } from '../../types/work-request.types';
 import { uploadLocalDocuments } from '../../utils/helpers';
 
 interface TaskDocumentUploadProps {
-  setTaskInformation?: React.Dispatch<React.SetStateAction<TaskInformationState>>;
-  taskInformation?: TaskInformationState;
+  setWorkOrderInformation?: React.Dispatch<React.SetStateAction<WorkOrderInformationState>>;
+  workOrderInformation?: WorkOrderInformationState;
   setWorkRequestInformation?: React.Dispatch<React.SetStateAction<WorkRequestInformationState>>;
   workRequestInformation?: WorkRequestInformationState;
 }
 
 const TaskDocumentUpload = ({
-  setTaskInformation,
-  taskInformation,
+  setWorkOrderInformation,
+  workOrderInformation,
   setWorkRequestInformation,
   workRequestInformation,
 }: TaskDocumentUploadProps) => {
   const [loading, setLoading] = useState(false);
 
-  const data = taskInformation ?? workRequestInformation;
-  const setData = setTaskInformation ?? setWorkRequestInformation;
+  const data = workOrderInformation ?? workRequestInformation;
+  const setData = setWorkOrderInformation ?? setWorkRequestInformation;
 
   const addDocument = async () => {
     setLoading(true);
     
     try {
-      const documentsWithLocalUri = await uploadLocalDocuments(data)
+      const documentsWithLocalUri = await uploadLocalDocuments(data);
 
-      if (setTaskInformation && taskInformation) {
-        setTaskInformation((prev) => ({
+      if (setWorkOrderInformation && workOrderInformation) {
+        setWorkOrderInformation((prev) => ({
           ...prev,
           attachments: [...prev.attachments, ...documentsWithLocalUri],
         }));
@@ -53,17 +53,21 @@ const TaskDocumentUpload = ({
       setLoading(false);
     }
   };
-  
 
   const deleteDocument = (attachmentUri: string) => {
-    if (setTaskInformation && taskInformation) {
-      const updatedAttachments = taskInformation.attachments.filter((eachImage) => eachImage.uri !== attachmentUri);
-      setTaskInformation((prev) => ({ ...prev, attachments: updatedAttachments }));
+    if (setWorkOrderInformation && workOrderInformation) {
+      const updatedAttachments = workOrderInformation.attachments.filter(
+        (eachImage) => eachImage.uri !== attachmentUri
+      );
+      setWorkOrderInformation((prev) => ({ ...prev, attachments: updatedAttachments }));
     } else if (setWorkRequestInformation && workRequestInformation) {
-      const updatedAttachments = workRequestInformation.attachments.filter((eachImage) => eachImage.uri !== attachmentUri);
+      const updatedAttachments = workRequestInformation.attachments.filter(
+        (eachImage) => eachImage.uri !== attachmentUri
+      );
       setWorkRequestInformation((prev) => ({ ...prev, attachments: updatedAttachments }));
     }
   };
+
   
   return (
     <KeyboardAvoidingView
@@ -129,10 +133,10 @@ const TaskDocumentUpload = ({
             flex
             multiline
             onChangeText={(e) => {
-              if (setTaskInformation && taskInformation) {
-                setTaskInformation((prev) => ({ ...prev, imageDescription: e }));
+              if (setWorkOrderInformation && workOrderInformation) {
+                setWorkOrderInformation((prev) => ({ ...prev, attachmentDescription: e }));
               } else if (setWorkRequestInformation && workRequestInformation) {
-                setWorkRequestInformation((prev) => ({ ...prev, imageDescription: e }));
+                setWorkRequestInformation((prev) => ({ ...prev, attachmentDescription: e }));
               }
             }}            
             placeholder="Attachment Description"

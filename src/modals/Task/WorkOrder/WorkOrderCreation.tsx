@@ -5,17 +5,17 @@ import ModalsHeader from '../../ModalsHeader'
 import CustomButton from '../../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES } from '../../../styles/button-styles'
 import { colors } from '../../../styles/colors'
-import TaskInformation from './TaskInformation'
-import { getWorkPriorities, saveWorkOrder, saveWorkOrderAttachments, saveWorkRequestNote } from '../../../api/network-utils'
+import { getWorkPriorities, saveWorkOrder, saveWorkOrderAttachments, saveWorkOrderNote, saveWorkRequestNote } from '../../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/store'
 import ProgressBar from '../../../components/ProgressBar'
-import { TaskInformationState } from '../../../types/work-order.types'
+import { WorkOrderInformationState } from '../../../types/work-order.types'
 import TaskUserInfo from '../TaskUserInfo'
 import ReviewTask from '../ReviewTask'
 import { firebaseStoragelocations, STATUS_CODE } from '../../../utils/constants'
 import { uploadDocuments } from '../../../utils/helpers'
 import TaskDocumentUpload from '../TaskDocumentUpload'
+import WorkOrderInformation from './WorkOrderInformation'
 
 interface WorkOrderCreationProps {
     onClose: () => void
@@ -28,7 +28,8 @@ const steps = [
    {id: "1", title : "Task Information"},
    {id: "2", title : "Additional Information"},
    {id: "3", title : "Task requested by"},
-   {id: "4", title : "Review and submit"},
+   {id: "4", title : "Assign Crew"},
+   {id: "5", title : "Review and submit"},
 ]
 
 
@@ -37,7 +38,7 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
 
     const [step, setStep] = useState(0)
     const [workPriorities, setWorkPriorities] = useState<WorkPriority[]>()
-    const [taskInformation, setTaskInformation] = React.useState<TaskInformationState>({
+    const [workOrderInformation, setWorkOrderInformation] = React.useState<WorkOrderInformationState>({
         workOrderUUID: workOrder?.WorkOrderUUID || "",
         asset: { assetName: workOrder?.AssetName || '', assetUUID: workOrder?.AssetUUID || '' },
         workOrderType: { workOrderTypeName: '', workOrderTypeUUID: '' },
@@ -54,15 +55,12 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
         creatorLocation: '',
         loading: false
       });
-      
 
     const {organizationUUID, userUUID} = useSelector((state: RootState) => state.auth)
 
     const flatListRef = useRef<FlatList<any>>(null)
 
-
     useEffect(() => {
-
         const fetchWorkPriorities = async() =>  {
             const workPriorities = await getWorkPriorities(organizationUUID)
             console.log(workPriorities)
@@ -70,100 +68,91 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
         }
 
         fetchWorkPriorities()
-
     }, [])
 
     useEffect(() => {
-
-        console.log(taskInformation)
-    }, [taskInformation])
-
+        console.log("here")
+        console.log(workOrderInformation)
+    }, [workOrderInformation])
 
     function stepOne(index: number) {
-
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <TaskInformation taskInformation={taskInformation} setTaskInformation={setTaskInformation} priorityOptions={workPriorities}/>            
+                <WorkOrderInformation workOrderInformation={workOrderInformation} setWorkOrderInformation={setWorkOrderInformation} priorityOptions={workPriorities}/>            
             </View>
         )
-
     }
     
     function stepTwo(index: number) {
-
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <TaskDocumentUpload setTaskInformation={setTaskInformation} taskInformation={taskInformation} />
+                <TaskDocumentUpload setWorkOrderInformation={setWorkOrderInformation} workOrderInformation={workOrderInformation} />
             </View>
         )
-
     }
 
     function stepThree(index: number) {
-
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <TaskUserInfo setTaskInformation={setTaskInformation} taskInformation={taskInformation} />
+                <TaskUserInfo setWorkOrderInformation={setWorkOrderInformation} workOrderInformation={workOrderInformation} />
             </View>
         )
-
     }
 
     function stepFour(index: number) {
-
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <ReviewTask setStep={setStep} taskInformation={taskInformation} />
+                <Text>CREW</Text>
             </View>
         )
+    }
 
+    function stepFive(index: number) {
+        return (
+            <View style={styles.innerContainer}>
+                <Text>{steps[index].id}. {steps[index].title}</Text>
+                <ReviewTask setStep={setStep} workOrderInformation={workOrderInformation} />
+            </View>
+        )
     }
     
     const next = async() => {
-            setTaskInformation((prev) => ({...prev, loading : true}))
+        setWorkOrderInformation((prev) => ({...prev, loading : true}))
 
         try {
+            if(step === 0) {
+                const saveWorkOrderRequest = await saveWorkOrder(userUUID, organizationUUID, workOrderInformation)
+                if(saveWorkOrderRequest.Status === STATUS_CODE.SUCCESS) {
+                    const workOrderUUID = saveWorkOrderRequest.Payload.WorkOrderUUID
+                    setWorkOrderInformation((prev) => ({...prev, workOrderUUID: workOrderUUID, loading: false}))
+                }
+            } else if(step === 1) {
+                const prevAttachmentCount = workOrderInformation.attachmentCount
+                
+                if(workOrderInformation.attachments.length !== prevAttachmentCount) {
+                    const firebaseAttachmentUrls = await uploadDocuments(workOrderInformation.attachments, firebaseStoragelocations.workOrder)
+                    console.log(firebaseAttachmentUrls)
+                    await saveWorkOrderAttachments(userUUID, workOrderInformation.workOrderUUID, firebaseAttachmentUrls)
+                }
 
-        if(step === 0) {
-            const saveWorkOrderRequest = await saveWorkOrder(userUUID, organizationUUID, taskInformation)
-            if(saveWorkOrderRequest.Status === STATUS_CODE.SUCCESS) {
-                const workOrderUUID = saveWorkOrderRequest.Payload.WorkOrderUUID
-                setTaskInformation((prev) => ({...prev, workOrderUUID: workOrderUUID, loading: false}))
-            } /* else {
-                return
-            } */
-        } else if(step === 1) {
-            const prevAttachmentCount = taskInformation.attachmentCount
-            
-            if(taskInformation.attachments.length !== prevAttachmentCount) {
+                await saveWorkOrderNote(userUUID, workOrderInformation?.workOrderUUID, workOrderInformation.attachmentDescription)
 
-                const firebaseAttachmentUrls = await uploadDocuments(taskInformation.attachments,firebaseStoragelocations.workOrder)
-                /* await saveWorkRequestNote(userUUID, taskInformation.workOrderUUID , taskInformation.attachmentDescription) */
-                console.log(firebaseAttachmentUrls)
-                const saveWorkOrderRequest = await saveWorkOrderAttachments(userUUID, taskInformation.workOrderUUID, firebaseAttachmentUrls)
+                setWorkOrderInformation((prev) => ({...prev, attachmentCount: prev.attachments.length}))
+            } else if(step === 2) {
+                if(!workOrderInformation.creatorEmail || !workOrderInformation.creatorName || !workOrderInformation.creatorNumber) {
+                    return
+                }
             }
-
-            setTaskInformation((prev) => ({...prev, attachmentCount: prev.attachments.length}))
-
-        } else if(step === 2) {
-
-            if(!taskInformation.creatorEmail || !taskInformation.creatorName || !taskInformation.creatorNumber) {
-                return
-            }
-
-        }
 
         } catch(err) {
             console.log(err)
         } finally {
-            setTaskInformation((prev) => ({...prev, loading : false}))
+            setWorkOrderInformation((prev) => ({...prev, loading : false}))
         }
-
-        
 
         setStep((prev) => prev + 1)
     }
@@ -176,34 +165,38 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
         setStep((prev) => prev - 1)
     }
 
+    return (
+        <SafeAreaView style={styles.container}>
+            <ModalsHeader onClose={onClose} title={"Create Task"} />
 
+            <ProgressBar width={"90%"} max={steps.length} value={step + 1} />    
+        
+            <FlatList
+                ref={flatListRef}
+                style={styles.mainCreateTaskForm} 
+                keyExtractor={(item) => item.id}
+                scrollEnabled={false}
+                data={steps}
+                horizontal
+                pagingEnabled
+                renderItem={({ item, index }) =>
+                    index === 0 ? stepOne(index) :
+                    index === 1 ? stepTwo(index) :
+                    index === 2 ? stepThree(index) :
+                    index === 3 ? stepFour(index) :
+                    index === 4 ? stepFive(index) :
+                    null
+                }
+            />
 
-  return (
-    <SafeAreaView style={styles.container}>
-        <ModalsHeader onClose={onClose} title={"Create Task"} />
-
-        <ProgressBar width={"90%"} max={steps.length} value={step + 1} />    
-    
-        <FlatList
-            ref={flatListRef}
-            style={styles.mainCreateTaskForm} 
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            data={steps}
-            horizontal
-            pagingEnabled
-            renderItem={({item, index}) => index === 0 ? stepOne(index) : index === 1 ? stepTwo(index) : index === 2 ? stepThree(index) : stepFour(index) }
-        />
-
-        <View style={styles.formButtonsContainer}>
-            {step >= 1 && <CustomButton onPress={back} textStyle={{color: "black"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.backButton]} title={"Back"} />}
-            {taskInformation.loading ? <ActivityIndicator style={{marginLeft: "auto"}} size={"large"} /> : <CustomButton onPress={next} textStyle={{color: "white"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.nextButton]} title={step <= 2 ? "Next" : "Request Task"} />}
-        </View>
-
-
-    </SafeAreaView>
-  )
+            <View style={styles.formButtonsContainer}>
+                {step >= 1 && <CustomButton onPress={back} textStyle={{color: "black"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.backButton]} title={"Back"} />}
+                {workOrderInformation.loading ? <ActivityIndicator style={{marginLeft: "auto"}} size={"large"} /> : <CustomButton onPress={next} textStyle={{color: "white"}} buttonStyle={[PRIMARY_BUTTON_STYLES, styles.nextButton]} title={step <= 3 ? "Next" : "Request Task"} />}
+            </View>
+        </SafeAreaView>
+    )
 }
+
 
 const styles = StyleSheet.create({
     container : {

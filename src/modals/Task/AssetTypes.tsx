@@ -7,19 +7,19 @@ import { getAssetList } from '../../api/network-utils'
 import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
 import { ScrollView } from 'react-native-gesture-handler'
-import { TaskInformationState } from '../../types/work-order.types'
+import { WorkOrderInformationState } from '../../types/work-order.types'
 import { WorkRequestInformationState } from '../../types/work-request.types'
 import { STATUS_CODE } from '../../utils/constants'
 
 interface AssetTypesProps {
     onClose: () => void;
-    setTaskInformation?: React.Dispatch<React.SetStateAction<TaskInformationState>>;
+    setWorkOrderInformation?: React.Dispatch<React.SetStateAction<WorkOrderInformationState>>;
     setWorkRequestInformation?: React.Dispatch<React.SetStateAction<WorkRequestInformationState>>;
   }
 
   export default function AssetTypes({
     onClose,
-    setTaskInformation,
+    setWorkOrderInformation,
     setWorkRequestInformation
   }: AssetTypesProps) {
   
@@ -70,8 +70,8 @@ interface AssetTypesProps {
                   },
                 };
               
-                if (setTaskInformation) {
-                  setTaskInformation(prev => ({ ...prev, ...update }));
+                if (setWorkOrderInformation) {
+                  setWorkOrderInformation(prev => ({ ...prev, ...update }));
                 } else if (setWorkRequestInformation) {
                   setWorkRequestInformation(prev => ({ ...prev, ...update }));
                 }

@@ -34,5 +34,7 @@ export type CustomTextInputFieldProps = {
     hasError?: boolean
     noFlexGrow?: boolean
     scrollEnabled?: boolean
+    disabled?: boolean
+    noBackground?: boolean
     onContentSizeChange?: (event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) => void;
 }

@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect } from 'react';
 import { CustomTextInput } from '../../components/CustomTextInput';
 import { defaultInputStyles } from '../../styles/global-styles';
-import { TaskInformationState } from '../../types/work-order.types';
+import { WorkOrderInformationState } from '../../types/work-order.types';
 import CustomSelectInput from '../../components/CustomSelectInput';
 import { colors } from '../../styles/colors';
 import { getUserProfile } from '../../api/network-utils';
@@ -11,22 +11,22 @@ import { RootState } from '../../store/store';
 import { WorkRequestInformationState } from '../../types/work-request.types';
 
 interface TaskUserInfoProps {
-  setTaskInformation?: React.Dispatch<React.SetStateAction<TaskInformationState>>;
-  taskInformation?: TaskInformationState;
+  setWorkOrderInformation?: React.Dispatch<React.SetStateAction<WorkOrderInformationState>>;
+  workOrderInformation?: WorkOrderInformationState;
   setWorkRequestInformation?: React.Dispatch<React.SetStateAction<WorkRequestInformationState>>;
   workRequestInformation?: WorkRequestInformationState;
 }
 
 export default function TaskUserInfo({
-  setTaskInformation,
-  taskInformation,
+  setWorkOrderInformation,
+  workOrderInformation,
   setWorkRequestInformation,
   workRequestInformation,
 }: TaskUserInfoProps) {
   const { userUUID } = useSelector((state: RootState) => state.auth);
 
-  const state = taskInformation ?? workRequestInformation;
-  const setState = setTaskInformation ?? setWorkRequestInformation;
+  const state = workOrderInformation ?? workRequestInformation;
+  const setState = setWorkOrderInformation ?? setWorkRequestInformation;
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -53,6 +53,7 @@ export default function TaskUserInfo({
   return (
     <View style={styles.userInfoContainer}>
       <CustomTextInput
+        disabled
         value={state?.creatorName ?? ''}
         placeholderTextColor={colors.LIGHT_TEXT_COLOR}
         inputStyle={defaultInputStyles}
@@ -66,6 +67,7 @@ export default function TaskUserInfo({
         placeholder="Tarun"
       />
       <CustomTextInput
+        disabled
         value={state?.creatorEmail ?? ''}
         placeholderTextColor={colors.LIGHT_TEXT_COLOR}
         inputStyle={defaultInputStyles}
@@ -79,6 +81,7 @@ export default function TaskUserInfo({
         placeholder="tarun@gmail.com"
       />
       <CustomTextInput
+        disabled
         inputStyle={[styles.inputField, styles.numberField]}
         placeholderTextColor={colors.LIGHT_TEXT_COLOR}
         placeholder="123 456 7890"
@@ -97,6 +100,7 @@ export default function TaskUserInfo({
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   userInfoContainer: {

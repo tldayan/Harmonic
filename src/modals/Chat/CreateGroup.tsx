@@ -255,7 +255,7 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
                 {addedMembers?.map((eachMember) => {
                     return <CustomButton key={eachMember.memberUUID} buttonStyle={styles.selectedMembers} onPress={() => handleRemoveMember(eachMember.memberUUID)} title={eachMember.memberName} icon={<X width={10} height={10} />} />
                 })}
-                <CustomTextInput inputStyle={styles.memberSearchField} placeholderTextColor={colors.LIGHT_TEXT} value={memberSearch} placeholder='Search members to add' onChangeText={(e) => setMemberSearch(e)} />
+                <CustomTextInput noBackground inputStyle={styles.memberSearchField} placeholderTextColor={colors.LIGHT_TEXT} value={memberSearch} placeholder='Search members to add' onChangeText={(e) => setMemberSearch(e)} />
             </View>
             {loading ? <ActivityIndicator style={{marginTop: "50%"}} size={"small"} /> : 
             <FlatList

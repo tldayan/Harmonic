@@ -58,7 +58,8 @@ export const ENDPOINTS = {
     GET_WORK_ORDER_LIST: `${BASE_URL}/work-order/getWorkOrderList`,
     GET_WORK_ORDER_TYPES: `${BASE_URL}/work-order/getWorkOrderTypes`,
     SAVE_WORK_ORDER: `${BASE_URL}/work-order/saveWorkOrder`,
-    SAVE_WORK_ORDER_ATTACHMENTS: `${BASE_URL}/work-order/saveWorkOrderAttachments`
+    SAVE_WORK_ORDER_ATTACHMENTS: `${BASE_URL}/work-order/saveWorkOrderAttachments`,
+    SAVE_WORK_ORDER_NOTE: `${BASE_URL}/work-order/saveWorkOrderNote`
   },
   WORK_REQUEST: {
     GET_WORK_REQUEST_DETAILS: `${BASE_URL}/work-request/getWorkRequestDetails`,
@@ -71,7 +72,8 @@ export const ENDPOINTS = {
     SAVE_WORK_REQUEST: `${BASE_URL}/work-request/saveWorkRequest`,
     SAVE_WORK_REQUEST_ATTACHMENTS: `${BASE_URL}/work-request/saveWorkRequestAttachments`,
     APPROVE_WORK_REQUEST: `${BASE_URL}/work-request/approveWorkRequest`,
-    CANCEL_WORK_REQUEST: `${BASE_URL}/work-request/cancelWorkRequest`
+    CANCEL_WORK_REQUEST: `${BASE_URL}/work-request/cancelWorkRequest`,
+    SUBMIT_WORK_REQUEST_FORM: `${BASE_URL}/work-request/submitWorkRequestForm`
   },
   ASSET: {
     GET_ASSET_LIST: `${BASE_URL}/asset/getAssetList`,

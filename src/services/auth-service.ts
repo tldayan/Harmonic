@@ -159,6 +159,7 @@ export const handleLogin = async(email:string, password:string) => {
 
   export const handlePhoneNumberVerification = async (phoneNumber: string) => {
     try {
+      console.log("calling veriftpHONENUMBER")
       const confirmation = await verifyPhoneNumber(getAuth(), phoneNumber, 60);
       console.log("Confirmation:", confirmation);
       return confirmation;

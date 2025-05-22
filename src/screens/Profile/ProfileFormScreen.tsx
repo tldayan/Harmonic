@@ -66,8 +66,11 @@ export default function ProfileFormScreen({setUserProfile, userProfile, userAddr
         ModifiedBy: "",
         ModifiedDateTime: "",
         ProfilePicURL: "",
-        BannerURL: ""
+        BannerURL: "",
+        PhoneNumberWithCode: ""
     })
+
+    
     const [userAddressInformation, setUserAddressInformation] = useState<UserAddress>({
         UserAddressUUID: userAddress?.UserAddressUUID || "",
         AddressUUID: userAddress?.AddressUUID || "",

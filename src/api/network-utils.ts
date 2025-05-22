@@ -3,7 +3,7 @@ import { userAuthType } from "../types/user-types";
 import { apiClient } from "./api-client";
 import { ENDPOINTS } from "./endpoints";
 import { AttachmentData, CategoryProps, FirebaseAttachment } from "../types/post-types";
-import { TaskInformationState } from "../types/work-order.types";
+import { WorkOrderInformationState } from "../types/work-order.types";
 import { WorkRequestInformationState } from "../types/work-request.types";
 import { EventInformation } from "../types/event.types";
 import { Alert } from "react-native";
@@ -979,7 +979,7 @@ console.log(bodyData)
 
 
 
-export const saveWorkOrder = async(userUUID: string,organizationUUID:string, taskInformation: TaskInformationState) => {
+export const saveWorkOrder = async(userUUID: string,organizationUUID:string, taskInformation: WorkOrderInformationState) => {
 
   
   const bodyData = {
@@ -1001,6 +1001,29 @@ console.log(bodyData)
     const saveWorkOrderResponse = await apiClient(ENDPOINTS.WORK_ORDER.SAVE_WORK_ORDER, bodyData, {}, "POST")
     console.log(saveWorkOrderResponse)
     return saveWorkOrderResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+export const saveWorkOrderNote = async(userUUID: string,workOrderUUID: string, note: string) => {
+
+  
+  const bodyData = {
+    "WorkOrderUUID": workOrderUUID,
+    "LoggedInUserUUID": userUUID,
+    "Note": note ? note : "",
+}
+
+console.log(bodyData)
+  try {
+    const saveWorkOrderNoteResponse = await apiClient(ENDPOINTS.WORK_ORDER.SAVE_WORK_ORDER_NOTE, bodyData, {}, "POST")
+    console.log(saveWorkOrderNoteResponse)
+    return saveWorkOrderNoteResponse.data
 
   } catch(err) {
     console.error(err)
@@ -1164,7 +1187,7 @@ export const saveWorkRequestNote = async(userUUID:string, workRequestUUID: strin
   const bodyData = {
     "WorkRequestUUID": workRequestUUID,
     "LoggedInUserUUID": userUUID,
-    "Note": note,
+    "Note": note ? note : "",
     "WorkRequestNoteUUID": null
 }
 
@@ -1241,6 +1264,37 @@ console.log(bodyData)
   }
 
 }
+
+
+
+
+
+
+
+export const submitWorkRequestForm = async(userUUID:string,workRequestUUID: string, Note: string) => {
+
+  const bodyData = {
+    "LoggedInUserUUID": userUUID,
+    "Note": Note ? Note : "",
+    "WorkRequestUUID": workRequestUUID
+}
+
+
+console.log(bodyData)
+  try {
+    const submitWorkRequestFormResponse = await apiClient(ENDPOINTS.WORK_REQUEST.SUBMIT_WORK_REQUEST_FORM, bodyData, {}, "POST")
+    console.log(submitWorkRequestFormResponse)
+    return submitWorkRequestFormResponse.data 
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+
 
 
 export const approveWorkRequest = async(userUUID:string, Note: string, workRequestUUID: string) => {

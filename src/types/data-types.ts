@@ -19,6 +19,7 @@ interface UserProfile {
   ModifiedDateTime: string | null
   ProfilePicURL: string
   BannerURL: string | null
+  PhoneNumberWithCode: string | null
 }
 
 interface UserAddress {

@@ -54,14 +54,14 @@ export default function TaskInfo() {
            {loading ? <ActivityIndicator style={{marginVertical: "10%", marginHorizontal: "50%"}} size={"small"} /> : 
            <>
             <TaskHeading workRequestDetails={workRequestDetails} />
-           {(workRequestDetails.StatusItemCode === TASK_STATUS_CODES.PENDING) && <WorkRequestActionDropdownComponent horizontalDots action={action} setAction={setAction} />}
+           {(workRequestDetails?.StatusItemCode === TASK_STATUS_CODES.PENDING) && <WorkRequestActionDropdownComponent horizontalDots action={action} setAction={setAction} />}
           </>}
           </View>
 
         <TaskInfoDetails workRequestDetails={workRequestDetails} workRequestUUID={workRequestUUID} />
         <TaskHistory workRequestDetails={workRequestDetails} workRequestUUID={workRequestUUID} />
-        {workRequestDetails.PrimaryRequestorUserUUID && (
-          <TaskRequestorInfo workRequestorUUID={workRequestDetails.PrimaryRequestorUserUUID} />
+        {workRequestDetails?.PrimaryRequestorUserUUID && (
+          <TaskRequestorInfo workRequestorUUID={workRequestDetails?.PrimaryRequestorUserUUID} />
         )}
 
          

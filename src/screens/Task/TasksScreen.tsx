@@ -20,6 +20,7 @@ import TaskCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
 import WorkOrderCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
 import WorkRequestCreation from '../../modals/Task/WorkRequest/WorkRequestCreation'
 import WorkRequestItem from '../../components/FlatlistItems/WorkRequestItem'
+import { TASK_STATUS_CODES } from '../../utils/constants'
 
 interface TasksScreenProps {
   filterUserTasks?: boolean
@@ -130,6 +131,14 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
   }, [searchTask, workOrders, workRequests]);
   
 
+  const sortPendingTasks = () => {
+
+/*     if(isAdmin) {
+      const filtered = workRequests.filter((eachTask) => eachTask.StatusItemCode === TASK_STATUS_CODES.PENDING)
+      setFilteredWorkRequests(filtered)
+    } */
+
+  }
 
 
   const flatListData = userRole === "admin" ? workOrders : workRequests;
@@ -162,7 +171,7 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
       {pendingWorkRequests ? <View style={[styles.pendingRequestsContainer, CardShadowStyles ]}>
           <Alert fill='red' color='white' width={22} height={22}/>
           <Text style={styles.pending}>You have {pendingWorkRequests} request pending to approve</Text>
-          <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, styles.seeAll]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} onPress={() => {}} title={"See all"} />
+          <CustomButton buttonStyle={[PRIMARY_BUTTON_STYLES, styles.seeAll]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} onPress={sortPendingTasks} title={"See all"} />
         </View>: null}
       {(flatListData?.length === 0 && loading) && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={"black"} />}
       

@@ -31,7 +31,9 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
       hasError,
       multiline,
       noFlexGrow,
-      scrollEnabled
+      scrollEnabled,
+      disabled,
+      noBackground
     },
     ref 
   ) => {
@@ -68,17 +70,18 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
     return (
       <View style={[styles.container, noFlexGrow ? null : {flexGrow: 1}]}>
         {label && <Text style={[labelStyle, isFocused && { color: colors.BLACK_TEXT_COLOR }]}>{label}</Text>}
-        <View style={[styles.inputWrapper, mainInputStyle]}>
-          {inputMode === "tel" && (
-            <TouchableOpacity 
-            style={styles.numberInput} 
-            onPress={toggleDropdown}
+        <View style={[styles.inputWrapper, mainInputStyle, noBackground ? { backgroundColor: "transparent" } : null]}>
+        {inputMode === "tel" && (
+          <TouchableOpacity 
+            style={[styles.numberInput, disabled ? {opacity: 0.5} : null]} 
+            onPress={!disabled ? toggleDropdown : undefined} 
+            activeOpacity={disabled ? 1 : 0.7}
           >
             <Text style={styles.countryCode}>+{countryCode}</Text>
             <ChevronDown width={10} height={10} />
           </TouchableOpacity>
-          
-          )}
+        )}
+
           {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
           <TextInput
             onPress={onPress}
@@ -87,6 +90,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
             multiline={multiline}
             inputMode={inputMode}
             value={value}
+            editable={!disabled}
             onChangeText={handleTextChange}
             placeholder={placeholder}
             placeholderTextColor={placeholderTextColor}
@@ -100,6 +104,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
                 backgroundColor: "#f3faf7",
                 borderColor: "#0e9f6e",
               },
+              disabled && { opacity: 0.5 }
             ]}
             onFocus={handleFocus}
             onBlur={handleBlur}

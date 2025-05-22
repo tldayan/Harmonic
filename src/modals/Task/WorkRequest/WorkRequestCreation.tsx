@@ -5,7 +5,7 @@ import ModalsHeader from '../../ModalsHeader'
 import CustomButton from '../../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES } from '../../../styles/button-styles'
 import { colors } from '../../../styles/colors'
-import { getWorkRequestDetails, saveWorkRequest, saveWorkRequestAttachments, saveWorkRequestNote } from '../../../api/network-utils'
+import { getWorkRequestDetails, saveWorkRequest, saveWorkRequestAttachments, saveWorkRequestNote, submitWorkRequestForm } from '../../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/store'
 import ProgressBar from '../../../components/ProgressBar'
@@ -128,11 +128,13 @@ export default function WorkRequestCreation({onClose, setWorkRequests} : WorkReq
 
                 const optimisticWorkRequest = createOptimisticWorkRequest({
                     WorkRequestNumber,
+                    WorkRequestUUID,
                     ProblemDescription,
                     WorkPriorityName: workRequestInformation.workPriority.workPriorityName,
                     WorkRequestTypeName: workRequestInformation.workRequestType.workRequestTypeName,
                     AssetName: workRequestInformation.asset.assetName,
-                    PrimaryRequestor: workRequestInformation.creatorName
+                    PrimaryRequestor: workRequestInformation.creatorName,
+                    
                   });
                   setWorkRequests?.(prev => [optimisticWorkRequest, ...prev])
 
@@ -172,8 +174,12 @@ export default function WorkRequestCreation({onClose, setWorkRequests} : WorkReq
 
         } else if (step === 3) {
 
-            onClose()
-            navigation.navigate("Tabs", {screen: "Tasks"});
+            const submitWorkRequestFormResponse = await submitWorkRequestForm(userUUID, workRequestInformation.workRequestUUID, "")
+            if(submitWorkRequestFormResponse.Status) {
+                onClose()   
+                navigation.navigate("Tabs", {screen: "Tasks"});
+            } 
+
 
         }
 
