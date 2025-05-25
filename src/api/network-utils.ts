@@ -207,7 +207,7 @@ export const getUserAddress = async(userUUID: string) => {
       "LastName": userInfo.LastName,
       "EmailAddress": userInfo.EmailAddress,
       "Description": userInfo.Description,
-      "PhoneCountryUUID": "",
+      "PhoneCountryUUID": userInfo.PhoneCountryUUID,
       "PhoneNumber": userInfo.PhoneNumber,
       "UserUUID": userUUID,
       "UserName": userInfo.UserName
@@ -259,6 +259,7 @@ export const getUserAddress = async(userUUID: string) => {
 
 
   export const getMBMessages = async(userUUID: string, organizationUUID: string, startIndex: number) => {
+    
     try {
       const bodyData = {
         "organizationUUID": organizationUUID,
@@ -278,6 +279,25 @@ export const getUserAddress = async(userUUID: string) => {
     }
 
   }
+
+
+
+  export const getMBMessagesForUserProfile = async(loggedInUserUUID: string, organizationUUID: string, startIndex: number) => {
+    
+    try {
+
+      const response = await apiClient(ENDPOINTS.SOCIAL.MBMESSAGES_FOR_USER_PROFILE, {},{} ,"GET", {loggedInUserUUID, organizationUUID, startIndex: startIndex.toString() ,pageSize : "10"})
+      console.log(response.data.Payload)
+      return response.data.Payload
+
+    } catch(err) {
+      console.error(err)
+    }
+
+  }
+
+
+  
 
   export const getMBMessageAttacment = async(messageBoardUUID: string) => {
 
@@ -349,7 +369,7 @@ export const getUserAddress = async(userUUID: string) => {
     try {
 
       const categories = await apiClient(ENDPOINTS.COMMON.CATEGORIES, bodyData, {}, "POST")
-      /* console.log(categories.data.Payload) */
+      console.log(categories.data.Payload)
       return categories.data.Payload
 
     } catch(err) {
@@ -373,7 +393,7 @@ export const getUserAddress = async(userUUID: string) => {
     try {
 
       const categoryItems = await apiClient(ENDPOINTS.COMMON.CATEGORY_ITEMS,  bodyData, {}, "POST")
-
+      console.log(categoryItems)
       return categoryItems.data.Payload
 
     } catch (err) {

@@ -2,7 +2,7 @@ import { ActivityIndicator, Alert, Dimensions, FlatList, StyleSheet, Text, View 
 import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
-import { useNavigation, useRoute } from '@react-navigation/native'
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
 import { RootState } from '../../store/store'
@@ -189,10 +189,23 @@ export default function EventCreation({onClose,fetchEventsList, event} : EventCr
               onClose()
 
               if(route.name !== "Events") {
-                console.log("not in events")
-                navigation.navigate("Tabs", {
+                    navigation.dispatch(
+                        CommonActions.reset({
+                        index: 0,
+                        routes: [
+                            {
+                            name: "Tabs",
+                            state: {
+                                index: 0,
+                                routes: [{ name: "Events" }],
+                            },
+                            },
+                        ],
+                        })
+                    );
+           /*      navigation.navigate("Tabs", {
                     screen: "Events",
-                });
+                }); */
               } else {
                 if(event) {
                     console.log("heeeee")

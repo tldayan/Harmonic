@@ -46,6 +46,7 @@ export default function EditProfile() {
   ModifiedDateTime: "",
   ProfilePicURL: "",
   BannerURL: "",
+  PhoneNumberWithCode: ""
   })
 
 
@@ -76,7 +77,8 @@ export default function EditProfile() {
           ModifiedBy: userProfile.ModifiedBy || "",
           ModifiedDateTime: userProfile.ModifiedDateTime || "",
           ProfilePicURL: userProfile.ProfilePicURL || "",
-          BannerURL: userProfile.BannerURL || ""
+          BannerURL: userProfile.BannerURL || "",
+          PhoneNumberWithCode: userProfile.PhoneNumberWithCode || ""
         });
         
               
@@ -197,6 +199,7 @@ export default function EditProfile() {
         <View style={styles.inputContainer}>
           <Text style={styles.title}>User Name</Text>
           <CustomTextInput
+            noBackground
             noFlexGrow
             onChangeText={(text) => handleChange("UserName", text)}
             placeholder='Kajal'
@@ -208,6 +211,7 @@ export default function EditProfile() {
         <View style={styles.inputContainer}>
           <Text style={styles.title}>First Name</Text>
           <CustomTextInput
+            noBackground
             noFlexGrow
             onChangeText={(text) => handleChange("FirstName", text)}
             placeholder='Kajal'
@@ -219,6 +223,7 @@ export default function EditProfile() {
         <View style={styles.inputContainer}>
           <Text style={styles.title}>Last Name</Text>
           <CustomTextInput
+            noBackground
             noFlexGrow
             onChangeText={(text) => handleChange("LastName", text)}
             placeholder='Kajal'
@@ -231,6 +236,7 @@ export default function EditProfile() {
         <View style={styles.inputContainer}>
           <Text style={styles.title}>Email ID</Text>
           <CustomTextInput
+            noBackground
             noFlexGrow
             onChangeText={(text) => handleChange("EmailAddress", text)}
             placeholder='kajalgirish9@gmail.com'
@@ -243,17 +249,20 @@ export default function EditProfile() {
         <View style={styles.inputContainer}>
           <Text style={styles.title}>Phone number</Text>
           <CustomTextInput
+            noBackground
+            disabled
             noFlexGrow
             onChangeText={(text) => handleChange("PhoneNumber", text)}
             placeholder='+971562205251'
             placeholderTextColor={colors.LIGHT_TEXT_COLOR}
             inputStyle={styles.inputField}
-            value={userInfo.PhoneNumber}
+            value={userInfo.PhoneNumberWithCode ?? ""}
           />
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.title}>Description</Text>
           <CustomTextInput
+            noBackground
             noFlexGrow
             onChangeText={(text) => handleChange("Description", text)}
             placeholder='About me'

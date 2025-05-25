@@ -104,7 +104,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
                 backgroundColor: "#f3faf7",
                 borderColor: "#0e9f6e",
               },
-              disabled && { opacity: 0.5 }
+              disabled && { opacity: 0.7 }
             ]}
             onFocus={handleFocus}
             onBlur={handleBlur}

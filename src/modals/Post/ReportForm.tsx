@@ -60,7 +60,7 @@ export default function ReportForm({onClose, MessageBoardUUID, MessageBoardComme
         <View style={styles.innerContainer}>
             <Text style={styles.title}>We're sorry that you've had this experience!</Text>
             <Text style={styles.reportNotice}>Everyone Plays a Part in Keeping a Community Safe. You can help our review team identify potentially harmful messages as quickly as possible by reporting any message. We will take appropriate action to make sure healthy standards are maintained in our community</Text>
-            <CustomTextInput errorMessage={errorMessage} label='Write to us, help us understand the problem' labelStyle={styles.reportLabel} inputStyle={styles.reportField} multiline placeholder='Write your report...' placeholderTextColor={colors.LIGHT_TEXT_COLOR} value={report} onChangeText={handleReportText} />
+            <CustomTextInput noBackground errorMessage={errorMessage} label='Write to us, help us understand the problem' labelStyle={styles.reportLabel} inputStyle={styles.reportField} multiline placeholder='Write your report...' placeholderTextColor={colors.LIGHT_TEXT_COLOR} value={report} onChangeText={handleReportText} />
             <CustomButton textStyle={styles.cancelText} buttonStyle={styles.cancel} onPress={onClose} title={"Cancel"} />
             <CustomButton textStyle={styles.sendText} buttonStyle={styles.send} onPress={handleSend} title={"Send"} />
         </View>

@@ -70,8 +70,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 /*           Alert.alert("userProfile", userProfileResponse?.data.Payload)
           Alert.alert("userAddress", userAddressResponse?.data.Payload)
           Alert.alert("orgMofdules", OrganizationBasedModulesResponse?.data.Payload) */
-          saveUserProfileToRealm(userProfileResponse?.data.Payload)
           console.log("userinfor from backend",userProfileResponse?.data.Payload)
+          saveUserProfileToRealm(userProfileResponse?.data.Payload)
+
           saveUserAddressToRealm(userAddressResponse?.data.Payload)
           saveOrganizationBasedModules(OrganizationBasedModulesResponse?.data.Payload)
 

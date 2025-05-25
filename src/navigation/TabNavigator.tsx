@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { RootStackParamList, TabParamList } from "../types/navigation-types";
 import { globalScreenOptions } from "./navigationConfig/globalScreenOptions";
 import StoresScreen from "../screens/Tabs/StoresScreen";
@@ -51,6 +51,11 @@ export default function TabNavigator(): JSX.Element {
           ...globalScreenOptions,
           headerShown: true,
           header: () => <Header />,
+          tabBarButton: (props) => (
+            <TouchableWithoutFeedback onPress={props.onPress}>
+              <View style={props.style}>{props.children}</View>
+            </TouchableWithoutFeedback>
+          ),
           tabBarIcon: ({ color, focused }) => (
             <View style={{ position: "absolute"}}>
               {IconComponent ? (

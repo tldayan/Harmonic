@@ -4,7 +4,8 @@ import CustomButton from "../../components/CustomButton";
 import { colors } from "../../styles/colors";
 import { CustomTextInput } from "../../components/CustomTextInput";
 import { CustomIconButton } from "../../components/CustomIconButton";
-import EyeSlash from "../../assets/icons/eye-slash.svg"
+import EyeSlashClose from "../../assets/icons/eye-slash-close.svg"
+import EyeSlashOpen from "../../assets/icons/eye-slash-open.svg"
 import GoogleIcon from "../../assets/icons/google.svg"
 import MicrosoftIcon from "../../assets/icons/microsoft.svg"
 import OTPInput from "../../components/OPTInput";;
@@ -86,7 +87,7 @@ const AuthScreen = () => {
 			{signinByEmail ? 
 				<View>
 					<CustomTextInput errorMessage={errorMessage.email} inputMode="email" labelStyle={styles.inputLabel} inputStyle={styles.inputField} label="Email" onChangeText={(e) => {setEmail(e)}} placeholder="kajal@sgeme.com" placeholderTextColor={colors.LIGHT_TEXT_COLOR} secureTextEntry={false} setErrorMessage={setErrorMessage} value={email} />
-					<CustomTextInput errorMessage={errorMessage.password} rightIcon={<CustomIconButton onPress={togglePasswordVisibility} icon={<EyeSlash width={16} height={16} />} />} labelStyle={styles.inputLabel} inputStyle={styles.inputField} label={authMode === "signup" ? "Create Password" : "Password"} onChangeText={(e) => {setPassword(e); setConfirmedPassword("")}} setErrorMessage={setErrorMessage} secureTextEntry={hidePassword} value={password} />
+					<CustomTextInput errorMessage={errorMessage.password} rightIcon={<CustomIconButton onPress={togglePasswordVisibility} icon={hidePassword ? <EyeSlashClose width={18} height={18} /> : <EyeSlashOpen width={18} height={18} />} />} labelStyle={styles.inputLabel} inputStyle={styles.inputField} label={authMode === "signup" ? "Create Password" : "Password"} onChangeText={(e) => {setPassword(e); setConfirmedPassword("")}} setErrorMessage={setErrorMessage} secureTextEntry={hidePassword} value={password} />
 				
 
 					{(authMode === "signup" && !confirmedPassword && password) && <View style={[styles.content, styles.contentFlexBox]}>

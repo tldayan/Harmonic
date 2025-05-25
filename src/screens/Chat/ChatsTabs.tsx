@@ -5,13 +5,19 @@ import StoreIcon from "../../assets/icons/store.svg"
 import { colors } from "../../styles/colors";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ChatScreen from "./ChatScreen";
-
+import { Text, View } from "react-native";
+import CustomButton from "../../components/CustomButton";
+import ChevronLeft from "../../assets/icons/chevron-left.svg"
+import { useNavigation } from "@react-navigation/native";
 
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator()
 
 function ChatsTabs() {
+
+
+
     return (
       
       <Tab.Navigator screenOptions={{
@@ -34,11 +40,19 @@ function ChatsTabs() {
 
   export default function ChatsScreen() {
 
-    return (
-      <Stack.Navigator screenOptions={{headerShown: false, headerBackButtonDisplayMode: "default"}}>
-        <Stack.Screen name="ChatsTabs" component={ChatsTabs}  />
-{/*         <Stack.Screen name="ChatScreen" component={ChatScreen} /> */}
-      </Stack.Navigator>
-    )
+    const navigation = useNavigation()
 
+
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="ChatsTabs">
+          {() => (
+            <View style={{ flex: 1, backgroundColor: "white"}}>
+              <CustomButton buttonStyle={{marginHorizontal: "4%"}} onPress={() => navigation.goBack()} icon={<ChevronLeft width={23} height={23} />} />
+              <ChatsTabs />
+            </View>
+          )}
+        </Stack.Screen>
+      </Stack.Navigator>
+    );
   }

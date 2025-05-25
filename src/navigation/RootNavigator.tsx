@@ -31,17 +31,17 @@ export const RootNavigator: React.FC = () => {
   
     // Initial load
     if (userProfiles.length > 0) {
-      setUserProfile({ ...userProfiles[0] }); 
+      setUserProfile(JSON.parse(JSON.stringify(userProfiles[0])));
     }
     if (userAddresses.length > 0) {
-      setUserAddress({ ...userAddresses[0] });
+      setUserAddress(JSON.parse(JSON.stringify(userAddresses[0])));
     }
   
     // Listeners
     const profileListener = () => {
       console.log("Profile change detected.");
       if (userProfiles.length > 0) {
-        setUserProfile({ ...userProfiles[0] });
+        setUserProfile(JSON.parse(JSON.stringify(userProfiles[0])));
       } else {
         setUserProfile(null);
       }
@@ -50,7 +50,7 @@ export const RootNavigator: React.FC = () => {
     const addressListener = () => {
       console.log("Address change detected.");
       if (userAddresses.length > 0) {
-        setUserAddress({ ...userAddresses[0] });
+        setUserAddress(JSON.parse(JSON.stringify(userAddresses[0])));
       } else {
         setUserAddress(null);
       }
@@ -64,11 +64,16 @@ export const RootNavigator: React.FC = () => {
       userAddresses.removeListener(addressListener);
     };
   }, []);
+  
 
 
   
   const loading = !!user && !userProfile;
   console.log(userProfile)
+  console.log(userProfile?.FirstName)
+  console.log(userProfile?.EmailAddress)
+  console.log(userProfile?.PhoneNumber)
+  console.log(userProfile?.Description)
   const userProfileComplete =
   !!userProfile?.FirstName &&
   !!userProfile?.EmailAddress &&
@@ -86,7 +91,7 @@ export const RootNavigator: React.FC = () => {
     <Stack.Navigator screenOptions={globalScreenOptions}>
       {user && userProfileComplete ? (
         <>
-          <Stack.Screen name="Tabs" component={TabNavigator} options={{animation: "slide_from_right"}} />
+          <Stack.Screen name="Tabs" component={TabNavigator} />
           <Stack.Screen name="Comments" component={CommentsScreen} options={{animation: "slide_from_right"}} />
           <Stack.Screen name="Profile" component={ProfileScreen} options={{animation: "slide_from_right"}} />
           <Stack.Screen name="EditProfile" component={EditProfile} options={{animation: "slide_from_right"}} />

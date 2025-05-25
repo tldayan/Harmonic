@@ -165,11 +165,15 @@ export default function Filters({onClose, setFiltering, filtering, setPostCatego
       }
 
       const categoryitem = ({item} : {item: Category}) => {
+
+        if(!item.nestedCategories.length) return
+
         return (
           <View key={item.CategoryUUID}>
               <Text style={styles.mainCategory}>{item.CategoryName}</Text>
               <View style={styles.mainChildCategoryContainer}>
                   {item.nestedCategories.map((eachChildCategory: NestedCategory) => {
+                    
                   const isSelected = filtering?.categories.includes(eachChildCategory.CategoryItemUUID) 
                   || postCategories?.some(category => category.CategoryItemUUID === eachChildCategory.CategoryItemUUID) || editingCategories?.some(category => category.existing === true && category.CategoryItemUUID === eachChildCategory.CategoryItemUUID)
         

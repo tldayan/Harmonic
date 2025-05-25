@@ -17,7 +17,7 @@ import ReviewTask from '../ReviewTask'
 import TaskUserInfo from '../TaskUserInfo'
 import TaskDocumentUpload from '../TaskDocumentUpload'
 import { createOptimisticWorkRequest } from './createOptimisticWorkRequest'
-import { useNavigation } from '@react-navigation/native'
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../../types/navigation-types'
 
@@ -38,6 +38,7 @@ const steps = [
 
 
 export default function WorkRequestCreation({onClose, setWorkRequests} : WorkRequestCreationProps) {
+    const route = useRoute()
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [step, setStep] = useState(0)
     const [workRequestInformation, setWorkRequestInformation] = React.useState<WorkRequestInformationState>({
@@ -177,10 +178,17 @@ export default function WorkRequestCreation({onClose, setWorkRequests} : WorkReq
             const submitWorkRequestFormResponse = await submitWorkRequestForm(userUUID, workRequestInformation.workRequestUUID, "")
             if(submitWorkRequestFormResponse.Status) {
                 onClose()   
-                navigation.navigate("Tabs", {screen: "Tasks"});
-            } 
-
-
+                if (route.name !== "Tasks") {
+                    navigation.dispatch(
+                        CommonActions.reset({
+                        index: 0,
+                        routes: [
+                            {
+                            name: "Tabs",
+                            state: {
+                                index: 0,
+                                routes: [{ name: "Tasks" }],
+                            },},],}));}} 
         }
 
         } catch(err) {

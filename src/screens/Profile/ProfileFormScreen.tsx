@@ -8,6 +8,7 @@ import { RootState } from '../../store/store'
 import { useSelector } from 'react-redux'
 import { saveUserProfileToRealm } from '../../database/management/realmUtils/saveUserProfileToRealm'
 import Toast from 'react-native-toast-message'
+import { saveUserAddressToRealm } from '../../database/management/realmUtils/saveUserAddressToRealm'
 
 const steps = [
     {id: "1", title : "Setup Profile"},
@@ -178,11 +179,14 @@ export default function ProfileFormScreen({setUserProfile, userProfile, userAddr
                     return
                 }
                 const updateUserProfileResponse = await updateUserProfile(userUUID, userInformation)
+                saveUserProfileToRealm(updateUserProfileResponse.Payload)
+         
                 const updateUserAddressResponse = await saveUserAddress(userUUID, userAddressInformation)
+                saveUserAddressToRealm(userAddressInformation)
+
                 console.log(updateUserProfileResponse)
                 console.log(updateUserAddressResponse)
-                
-                saveUserProfileToRealm(updateUserProfileResponse.Payload)
+            
             } catch (err) {
                 console.log(err)
             } finally {

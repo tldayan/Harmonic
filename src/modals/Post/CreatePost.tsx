@@ -21,7 +21,7 @@ import AttachmentCarousel from '../AttachmentCarousel'
 import { pickMedia, uploadMedia } from '../../utils/helpers'
 import { Attachmentitem } from '../../components/FlatlistItems/AttachmentItem'
 import { firebaseStoragelocations } from '../../utils/constants'
-import { useNavigation } from '@react-navigation/native'
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
 
@@ -36,7 +36,7 @@ interface CreatePostProps {
 
   
 
-export default function CreatePost({onClose, creatingPost, post, attachmentData}: CreatePostProps) {
+export default function CreatePost({onClose, creatingPost, post, attachmentData,fetchLatestMessages}: CreatePostProps) {
 
     const {user} = useUser()
     const [postText, setPostText] = useState(post?.Message ? post.Message : "")
@@ -51,6 +51,8 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData}
     const [loading, setLoading] = useState(false)
     const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth);
         const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const route = useRoute()
+
 
     const handlePostClose = () => {
         setTimeout(() => {
@@ -148,15 +150,29 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData}
               attachmentUrls = (await uploadMedia(selectedAttachments, firebaseStoragelocations.attachmentMB)) || [];
             }
         
-
         const response = await saveMBMessage(postText,(editingAttachments.length ? editingAttachments : attachmentUrls), organizationUUID, userUUID, (editingCategories.length > 0 ? editingCategories : postCategories.categories), post?.MessageBoardUUID, editingAttachments.length ? "edit" : "post")
 
             if(response.Status === STATUS_CODE.SUCCESS) {
+                if(post) {
+                    fetchLatestMessages?.(post.MessageBoardUUID)
+                }
                 onClose()
-                navigation.navigate("Tabs", {
-                    screen: "Social",
-                    params: {}
-                  });
+                if (route.name !== "Social") {
+                    navigation.dispatch(
+                      CommonActions.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: "Tabs",
+                            state: {
+                              index: 0,
+                              routes: [{ name: "Social" }],
+                            },
+                          },
+                        ],
+                      })
+                    );
+                  }
             }
 
         } catch (err: any) {
@@ -179,7 +195,7 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData}
                 </View>
             </View>
 
-            <CustomTextInput scrollEnabled={true} ref={inputRef} multiline placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={[styles.postField, shadowStyles]} value={postText} onChangeText={(e) => {setPostText(e)}} placeholder={`What's on your mind, ${user?.displayName}?`}/>
+            <CustomTextInput noBackground scrollEnabled={true} ref={inputRef} multiline placeholderTextColor={colors.LIGHT_TEXT_COLOR} inputStyle={[styles.postField, shadowStyles]} value={postText} onChangeText={(e) => {setPostText(e)}} placeholder={`What's on your mind, ${user?.displayName}?`}/>
             
 
             {selectedAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedImagesList} contentContainerStyle={styles.selectedImagesList} data={selectedAttachments} renderItem={({ item, index }) => (

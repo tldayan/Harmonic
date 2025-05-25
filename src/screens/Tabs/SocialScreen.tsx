@@ -1,6 +1,5 @@
-import { ActivityIndicator, Alert, Button, FlatList, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { useUser } from '../../context/AuthContext'
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useMemo, useState } from 'react'
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import PostItem from '../../components/PostItem'
@@ -11,7 +10,7 @@ import { CreatingPostState, PostItemProps } from '../../types/post-types'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { TabParamList } from '../../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { getMBMessageDetails, getMBMessages } from '../../api/network-utils'
+import { getMBMessageDetails, getMBMessages, getMBMessagesForUserProfile } from '../../api/network-utils'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import Filters from '../../modals/Filters'
@@ -24,19 +23,16 @@ interface SocialScreenProps {
 export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
 
   const route = useRoute<RouteProp<TabParamList, 'Social'>>(); 
-
-  const {user} = useUser()
+  const navigation = useNavigation<NativeStackNavigationProp<TabParamList>>();
   const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})
   const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [socialMessages, setSocialMessages] = useState<PostItemProps[]>([]);
   const [hasMoreMessages, setHasMoreMessages] = useState(true)
-  const [filteredMessages, setFilteredMessages] = useState<PostItemProps[]>(socialMessages)
   const [filtering, setFiltering] = useState<{state: boolean; categories: string[]}>({state: false, categories: []})
   const [refreshing, setRefreshing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [startIndex, setStartIndex] = useState(0)
   const {question, options} = route?.params ?? {}
-  const navigation = useNavigation<NativeStackNavigationProp<TabParamList>>();
   const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch()
   
@@ -53,7 +49,7 @@ export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
 
 
   const fetchMBMessages = async() => {
-    
+    console.log(hasMoreMessages)
       if(loading || !hasMoreMessages) return
 
       setLoading(true)
@@ -61,9 +57,12 @@ export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
       try {
 
         if(organizationUUID && userUUID) {
-          const allMBMessages = await getMBMessages(userUUID, organizationUUID, startIndex)
-
+          const allMBMessages = route.name === "Social" ? 
+          await getMBMessages(userUUID, organizationUUID, startIndex) : 
+          await getMBMessagesForUserProfile(userUUID, organizationUUID, startIndex)
+          
           if(allMBMessages.length < 10) {
+            console.log("setting")
             setHasMoreMessages(false)
           }
 
@@ -93,51 +92,44 @@ export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
     fetchMBMessages()
   }, [userUUID, organizationUUID])
 
-  useEffect(() => {
-
-    if(filtering.categories.length > 0 && filterUserPosts) {
-
-      setFilteredMessages(
-        socialMessages.filter((eachMessage) =>
-          (eachMessage.AllMBCategoryItems.some((categoryItem) =>
-            filtering.categories.includes(categoryItem.CategoryItemUUID) && eachMessage.CreatedBy === userUUID)
-      )));  
-
-    } else if (filtering.categories.length > 0) {
-      setFilteredMessages(
-        socialMessages.filter((eachMessage) =>
-          eachMessage.AllMBCategoryItems.some((categoryItem) =>
-            filtering.categories.includes(categoryItem.CategoryItemUUID)
-      )));
-
-    } else if (filterUserPosts) {
-      setFilteredMessages(
-        socialMessages.filter((eachMessage) => eachMessage.CreatedBy === userUUID));
-
-    } else {
-      setFilteredMessages(socialMessages);
-    }
-  }, [filtering.categories, socialMessages, filterUserPosts]);
+  const filteredMessages = useMemo(() => {
+    return socialMessages.filter((eachMessage) => {
+      const matchesCategory =
+        filtering.categories.length === 0 ||
+        eachMessage.AllMBCategoryItems.some((categoryItem) =>
+          filtering.categories.includes(categoryItem.CategoryItemUUID)
+        );
+  
+      return matchesCategory
+    });
+  }, [socialMessages, filtering.categories, filterUserPosts, userUUID]);
+  
 
   const fetchLatestMessages = async(messageBoardUUID?: string) => {
 
     if(messageBoardUUID) {
+
       const latestMessage = await getMBMessageDetails(messageBoardUUID, userUUID)
-      console.log(latestMessage)
+
       setSocialMessages((prev) =>
         prev.map((eachMessage) => {
           return eachMessage.MessageBoardUUID === messageBoardUUID ? latestMessage : eachMessage
         })
       );
       return
-    }
+    } 
 
-    const allMBMessages = await getMBMessages(userUUID, organizationUUID, 0)
-    // After editing a post that is further down, try to make it so that you update only the edited post (try getMBMessageDetails and update inplace)
+    setHasMoreMessages(true)
+    setStartIndex(0)
+    const allMBMessages = route.name === "Social" ? 
+    await getMBMessages(userUUID, organizationUUID, 0) : 
+    await getMBMessagesForUserProfile(userUUID, organizationUUID, 0)
+
     setSocialMessages(allMBMessages)
   }
 
   const handleRefresh = async() => {
+    console.log("refresing")
     setRefreshing(true)
     await fetchLatestMessages()
     setRefreshing(false)
@@ -146,7 +138,7 @@ export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
 
   return (
     <View style={[styles.mainContainer]}>
-        {(filterUserPosts && !filteredMessages.length) ? <Text style={styles.noPosts}>No posts yet</Text> : <FlatList 
+        {(filterUserPosts && !filteredMessages.length && !loading) ? <Text style={styles.noPosts}>Looks like you haven't made any posts.</Text> : <FlatList 
             ListHeaderComponent={
                 <View style={styles.container}>
                     {/* <View style={styles.createPostContainer}>

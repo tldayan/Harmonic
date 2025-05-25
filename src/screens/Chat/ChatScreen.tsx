@@ -72,6 +72,7 @@ export default function ChatScreen() {
   const socket = useContext(SocketContext);
   const { user } = useUser();
   const socketChatType = isGroupChat ? "group" : "private"
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
   console.log(chatProfilePictureURL)
 
@@ -91,6 +92,13 @@ useEffect(() => {
     console.log(`Left room: ${chatMasterUUID}`);
   };
 }, [chatMasterUUID]);
+
+
+useEffect(() => {
+  return () => {
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+  };
+}, []);
 
 
 const fetchChats = async(initialMessages: boolean) => {
@@ -136,7 +144,7 @@ useEffect(() => {
       }
     });
   }
-}, [])
+}, [chatMasterUUID])
 
 
 
@@ -339,29 +347,27 @@ useEffect(() => {
   }
 
 
-  let typingTimeout: NodeJS.Timeout | null = null
-
   const handleTyping = (text: string) => {
     setMessage(text);
-    if(isGroupChat) return
-
+    if (isGroupChat) return;
+  
     socket.emit("typing", {
       senderUUID: userUUID,
       isTyping: true,
-      chatMasterUUID: chatMasterUUID
+      chatMasterUUID: chatMasterUUID,
     });
-
-    if(typingTimeout) clearTimeout(typingTimeout)
-
-    typingTimeout = setTimeout(() => {
+  
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+  
+    typingTimeout.current = setTimeout(() => {
       socket.emit("typing", {
         senderUUID: userUUID,
         isTyping: false,
-        chatMasterUUID: chatMasterUUID
+        chatMasterUUID: chatMasterUUID,
       });
-    }, 3000)
-
+    }, 3000);
   };
+  
 
 
 useFocusEffect(
@@ -401,6 +407,7 @@ useFocusEffect(
       setFirebaseUploading(true)
       setShowActions(false)
       setChatAttachments((prev) => [...prev, ...assets ?? []])
+      if (!assets?.length) return;
       const uploadedFirebaseAttachments = await uploadMedia(assets, firebaseStoragelocations.chat)
       setFirebaseUploading(false)
       console.log(uploadedFirebaseAttachments)

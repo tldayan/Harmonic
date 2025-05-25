@@ -145,6 +145,11 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         }
       }, [userInformation.PhoneCountryUUID, userInformation.PhoneNumber])
 
+      useEffect(() => {
+        console.log(userInformation)
+      },[userInformation])
+
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
 
