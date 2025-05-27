@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { colors } from '../../styles/colors'
 import { WORK_PRIORITY_COLOR_CODES, WORK_PRIORITY_TEXT_COLOR_CODES, WORK_STATUS__NOTIFICATION_COLOR_CODES, WORK_STATUS_COLOR_CODES } from '../../utils/constants'
-import { shadowStyles } from '../../styles/global-styles'
+import { CardShadowStyles, shadowStyles } from '../../styles/global-styles'
 import { formatProperDate } from '../../utils/helpers'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -18,7 +18,7 @@ export default function WorkOrderItem({workOrderItem}: WorkOrderItemProps) {
 
   return (
     <TouchableOpacity onPress={() => {workOrderItem.WorkRequestUUID && navigation.navigate("TaskInfo", {workRequestUUID: workOrderItem.WorkRequestUUID})}} style={[styles.mainWorkOrderContainer, {backgroundColor:WORK_STATUS_COLOR_CODES[workOrderItem.StatusItemName]}]}>
-      <View style={[styles.workOrderContainer, shadowStyles]}>
+      <View style={[styles.workOrderContainer, CardShadowStyles]}>
         <View style={styles.workOrderStatsContainer}>
           <Text style={{fontSize: 15, color: "#111827", fontWeight: "500"}}>{workOrderItem.WorkOrderNumber}</Text>
           <Text style={[styles.workPriorityName, {backgroundColor:WORK_PRIORITY_COLOR_CODES[workOrderItem.WorkPriorityName], color: WORK_PRIORITY_TEXT_COLOR_CODES[workOrderItem.WorkPriorityName] }]}>{workOrderItem.WorkPriorityName}</Text>

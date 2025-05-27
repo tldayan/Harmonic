@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: 20,
+    marginVertical: 10,
     justifyContent: 'space-between',
     height: 303,
     borderWidth: 2,

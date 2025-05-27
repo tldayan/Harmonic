@@ -13,6 +13,6 @@ export const saveUserProfileToRealm = (userProfileData: UserProfile) => {
 
     console.log("✅ Saved UserProfile:", JSON.stringify(savedProfile, null, 2));
   } catch (error) {
-    console.error("❌ Error saving user to Realm:", error);
+    console.log("❌ Error saving user to Realm:", error);
   }
 };

@@ -811,6 +811,33 @@ export const getOrganizationUsers = async(organizationUUID: string, searchExpres
 }
 
 
+
+
+export const getOrganizationPersonnel = async(organizationUUID: string, searchExpression?: string) => {
+
+  const bodyData = {
+    "OrganizationUUID": organizationUUID,
+    "SearchExpression": searchExpression ? searchExpression : ""
+}
+
+console.log(bodyData)
+  try {
+    const getOrganizationPersonnelResponse = await apiClient(ENDPOINTS.ORGANIZATION.GET_ORGANIZATION_PERSONNEL, bodyData, {}, "POST")
+    console.log(getOrganizationPersonnelResponse)
+    return getOrganizationPersonnelResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+
+
+
+
 export const addAdminToGroup = async(chatMasterUUID: string, userUUID: string, chatMemberUserUUIDs: string[]) => {
 
   const bodyData = {
@@ -996,6 +1023,23 @@ console.log(bodyData)
   }
 
 }
+
+
+
+export const getWorkOrderHistory = async(WorkOrderUUID:string) => {
+
+  try {
+    const getWorkOrderHistoryResponse = await apiClient(ENDPOINTS.WORK_ORDER.GET_WORK_ORDER_HISTORY, {}, {}, "GET", {WorkOrderUUID})
+    console.log(getWorkOrderHistoryResponse)
+    return getWorkOrderHistoryResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
 
 
 

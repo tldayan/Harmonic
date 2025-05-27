@@ -44,7 +44,9 @@ export const WorkRequestActionDropdownComponent = ({
       value={action}
       onFocus={() => setAction(null)}
       onChange={(item) => {
-        setAction(item.value);
+        setTimeout(() => {
+          setAction(item.value);
+        }, 0)
       }}
       renderRightIcon={() => (
         <View style={styles.iconStyle}>

@@ -10,6 +10,6 @@ export const saveOrganizationBasedModules = (modulesData: any) => {
     });
     console.log("✅ Done saving OrganizationBasedModules to Realm");
   } catch (error) {
-    console.error("❌ Error saving OrganizationBasedModules to Realm:", error);
+    console.log("❌ Error saving OrganizationBasedModules to Realm:", error);
   }
 };

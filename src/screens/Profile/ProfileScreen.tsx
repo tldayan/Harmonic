@@ -2,7 +2,7 @@ import { Image, StyleSheet, Text, View, Dimensions, ActivityIndicator } from 're
 import React, { useEffect, useState } from 'react'
 import Edit from "../../assets/icons/editPage.svg"
 import CustomButton from '../../components/CustomButton'
-import { useNavigation } from '@react-navigation/native'
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
 import { getUserProfile } from '../../api/network-utils'
@@ -21,12 +21,16 @@ import EditIcon from "../../assets/icons/pencil-edit.svg"
 import ChevronLeft from "../../assets/icons/chevron-left.svg"
 
 const Tab = createMaterialTopTabNavigator()
+type ProfileRouteProp = RouteProp<RootStackParamList, 'Profile'>;
 
 export default function ProfileScreen() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const [loading, setLoading] = useState(true)
-  const { userUUID } = useSelector((state: RootState) => state.auth)
+  const route = useRoute<ProfileRouteProp>();
+  const { userUUID } = route.params;
+  const authUserUUID = useSelector((state: RootState) => state.auth.userUUID)
+  
 
   const fetchUserProfile = async () => {
     try {
@@ -57,7 +61,7 @@ export default function ProfileScreen() {
                 <Text style={styles.name}>{userProfile?.FirstName} {userProfile?.LastName}</Text>
                 <Text>Tenant at 103</Text>
               </View>
-              <CustomButton buttonStyle={styles.edit} onPress={() => navigation.navigate("EditProfile")} icon={<EditIcon width={20} height={20} />} />
+              {userProfile?.UserUUID === authUserUUID && <CustomButton buttonStyle={styles.edit} onPress={() => navigation.navigate("EditProfile")} icon={<EditIcon width={20} height={20} />} />}
             </View>
             <View style={styles.userStatsContainer}>
               <View>
@@ -97,7 +101,7 @@ export default function ProfileScreen() {
               tabBarLabel: () => null,
             }}
           >
-            {() => <SocialScreen filterUserPosts />}
+            {() => <SocialScreen authUserUUID={userUUID} />}
           </Tab.Screen>
 
           <Tab.Screen

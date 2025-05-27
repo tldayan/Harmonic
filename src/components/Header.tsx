@@ -44,9 +44,19 @@ const Header = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.organization} onPress={() => setSwitchingOrganization(true)}>
-        <Image width={30} height={30} resizeMode="cover" source={{uri: organization?.OrganizationShortLogo || ""}} /> 
-      </TouchableOpacity>
+    <TouchableOpacity style={styles.organization} onPress={() => setSwitchingOrganization(true)}>
+      {organization?.OrganizationShortLogo ? (
+        <Image
+          width={30}
+          height={30}
+          resizeMode="cover"
+          source={{ uri: organization.OrganizationShortLogo }}
+        />
+      ) : (
+        <View style={[styles.profileIcon, { backgroundColor: "#ccc" }]} />
+      )}
+    </TouchableOpacity>
+
         
         {/* <CustomButton buttonStyle={styles.organization} onPress={() => setSwitchingOrganization(true)} icon={<Switch width={20} height={20} />} /> */}
 
@@ -55,7 +65,7 @@ const Header = () => {
         <CustomButton buttonStyle={styles.bell} onPress={() => setNotificationsOpen(true)} icon={<BellIcon width={20} height={20} />} />
         <CustomButton buttonStyle={styles.chat} onPress={() => navigation.navigate("ChatsScreen")} icon={<Chat width={20} height={20} />} />
         
-        <CustomButton onPress={() => navigation.navigate("Profile")} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
+        <CustomButton onPress={() => navigation.navigate("Profile", {userUUID : userUUID})} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
 
         <CustomModal presentationStyle="fullScreen" fullScreen={true} isOpen={notificationsOpen}>
             <Notifications onClose={() => setNotificationsOpen(false)} />

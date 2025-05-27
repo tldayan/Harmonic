@@ -72,18 +72,16 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           Alert.alert("orgMofdules", OrganizationBasedModulesResponse?.data.Payload) */
           console.log("userinfor from backend",userProfileResponse?.data.Payload)
           saveUserProfileToRealm(userProfileResponse?.data.Payload)
-
-          saveUserAddressToRealm(userAddressResponse?.data.Payload)
+          if(userAddressResponse?.data.Payload) {
+            saveUserAddressToRealm(userAddressResponse?.data.Payload)
+          }
           saveOrganizationBasedModules(OrganizationBasedModulesResponse?.data.Payload)
 
 
           const userProfile = realmInstance.objects('UserProfile')[0];
 
           console.log("Saved UserProfile from Realm:", userProfile?.toJSON());
-          
-          
-/*           const modules = realmInstance.objects('OrganizationBasedModules');
-          console.log("Saved Modules from Realm:", modules.toJSON()); */
+        
 
 
         } catch (error) {

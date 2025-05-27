@@ -18,6 +18,8 @@ import EditProfile from "../screens/Profile/EditProfile";
 import ProfileFormScreen from "../screens/Profile/ProfileFormScreen";
 import LoadingScreen from "../screens/Others/LoadingScreen";
 import realmInstance from "../services/realm";
+import MainLayout from "./MainTabs";
+import MainTabs from "./MainTabs";
 
 export const RootNavigator: React.FC = () => {
 
@@ -91,7 +93,7 @@ export const RootNavigator: React.FC = () => {
     <Stack.Navigator screenOptions={globalScreenOptions}>
       {user && userProfileComplete ? (
         <>
-          <Stack.Screen name="Tabs" component={TabNavigator} />
+          <Stack.Screen name="Tabs" component={MainTabs} options={{ headerShown: false }} />
           <Stack.Screen name="Comments" component={CommentsScreen} options={{animation: "slide_from_right"}} />
           <Stack.Screen name="Profile" component={ProfileScreen} options={{animation: "slide_from_right"}} />
           <Stack.Screen name="EditProfile" component={EditProfile} options={{animation: "slide_from_right"}} />

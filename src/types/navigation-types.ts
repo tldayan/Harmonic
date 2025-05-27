@@ -7,7 +7,7 @@ export type RootStackParamList = {
     Hero: undefined
     Event: {eventUUID: string}
     Comments: {postUUID?: string, attachmentData?: AttachmentData[], createdBy: string}
-    Profile: undefined
+    Profile: {userUUID: string}
     ChatScreen: {userUUID: string, chatMasterUUID: string, chatProfilePictureURL: string | null, chatMasterName: string, chatType: string, chatMemberUserUUID: string, createdDateTime: string}
     ChatInfo: {chatMasterUUID: string,chatType: string}
     TaskInfo: {workRequestUUID: string, workRequestNumber?:string}
@@ -15,10 +15,6 @@ export type RootStackParamList = {
     ChatsScreen: undefined
     AddModal: undefined;
     ProfileForm: undefined
-}
-
-export type ProfileStackParamList = {
-    Profile: undefined,
 }
 
 export type TabParamList = {

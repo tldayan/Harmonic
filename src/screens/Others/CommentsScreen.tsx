@@ -14,7 +14,6 @@ import SendIcon from "../../assets/icons/send-horizontal.svg"
 import { fetchWithErrorHandling, timeAgo, useKeyboardVisibility } from '../../utils/helpers'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
-import { useUser } from '../../context/AuthContext'
 import PostActions from '../../modals/Post/PostActions'
 import { CustomModal } from '../../components/CustomModal'
 import { STATUS_CODE } from '../../utils/constants'
@@ -29,7 +28,7 @@ export default function CommentsScreen() {
   const [editPost, setEditPost] = useState<EditPostState>({state: false, updatedEdit: "", postUUID: ""})
   const [focusedComment, setFocusedComment] = useState({state: false, comment: "", MessageBoardCommentUUID: "", CreatedBy: ""})
   const [commentsstartIndex, setCommentsStartIndex] = useState(0)
-  const [repliesstartIndex, setRepliesStartIndex] = useState<{[key: string]: number}>({})
+  const [repliesStartIndex, setRepliesStartIndex] = useState<{[key: string]: number}>({})
   const [hasMoreComments, setHasMoreComments] = useState(true)
   const [hasMoreReplies, setHasMoreReplies] = useState<{[key: string]: boolean}>({})
   const [replyingTo, setReplyingTo] = useState({name: "", MessageBoardCommentUUID: ""})
@@ -38,7 +37,6 @@ export default function CommentsScreen() {
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({})
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
-  const {user} = useUser()
   const commentInput = useRef<any>(null)
   const isFetching = useRef(false)
 
@@ -52,8 +50,6 @@ export default function CommentsScreen() {
   const fetchComments = async() => {
     if(isFetching.current || !hasMoreComments) return
     isFetching.current = true
-
-/*     await new Promise(resolve => setTimeout(resolve, 2000)); */
 
     if(!postUUID) return
 
@@ -113,7 +109,7 @@ export default function CommentsScreen() {
     setLoading((prev) => ({...prev, [MessageBoardCommentUUID]: true}))
 
     try {
-      const repliesIndex = firstToggle ? 0 : repliesstartIndex[MessageBoardCommentUUID] || 0;
+      const repliesIndex = firstToggle ? 0 : repliesStartIndex[MessageBoardCommentUUID] || 0;
 
       const commentReplies = await fetchWithErrorHandling(getCommentReplies,MessageBoardCommentUUID, repliesIndex)
       if(commentReplies.length === 0) return
@@ -252,7 +248,7 @@ export default function CommentsScreen() {
       <View style={styles.headerProfileContainer}>
         {messageDetails && (
           <View style={{ flex: 1}}>
-            <ProfileHeader goBack attachmentData={attachmentData} showPostActions post={messageDetails}/>
+            <ProfileHeader onPress={() => navigation.navigate("Profile", {userUUID : messageDetails.CreatedBy})} goBack attachmentData={attachmentData} showPostActions post={messageDetails}/>
           </View>
         )}
       </View>
@@ -268,7 +264,7 @@ export default function CommentsScreen() {
           data={comments}
           onEndReached={fetchComments}  
           onEndReachedThreshold={0.5}
-          ListFooterComponent={hasMoreComments ? <ActivityIndicator size="small" color="black" /> : null }
+          ListFooterComponent={hasMoreComments ? <ActivityIndicator size="small" color="black" style={{marginVertical: "10%"}} /> : null }
         />
 
 

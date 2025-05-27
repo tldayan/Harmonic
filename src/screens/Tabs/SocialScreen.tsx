@@ -17,11 +17,11 @@ import Filters from '../../modals/Filters'
 import { updateLikes } from '../../store/slices/postLikesSlice'
  
 interface SocialScreenProps {
-  filterUserPosts?:boolean
+  authUserUUID?: string
 }
 
-export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
-
+export default function SocialScreen({authUserUUID}: SocialScreenProps) {
+  
   const route = useRoute<RouteProp<TabParamList, 'Social'>>(); 
   const navigation = useNavigation<NativeStackNavigationProp<TabParamList>>();
   const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})
@@ -33,7 +33,9 @@ export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
   const [loading, setLoading] = useState(false)
   const [startIndex, setStartIndex] = useState(0)
   const {question, options} = route?.params ?? {}
-  const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
+
+  const { userUUID: stateUserUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
+  const userUUID = authUserUUID ?? stateUserUUID;
   const dispatch = useDispatch()
   
   useEffect(() => {
@@ -102,7 +104,7 @@ export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
   
       return matchesCategory
     });
-  }, [socialMessages, filtering.categories, filterUserPosts, userUUID]);
+  }, [socialMessages, filtering.categories, userUUID]);
   
 
   const fetchLatestMessages = async(messageBoardUUID?: string) => {
@@ -138,7 +140,7 @@ export default function SocialScreen({filterUserPosts}: SocialScreenProps) {
 
   return (
     <View style={[styles.mainContainer]}>
-        {(filterUserPosts && !filteredMessages.length && !loading) ? <Text style={styles.noPosts}>Looks like you haven't made any posts.</Text> : <FlatList 
+        {(!filteredMessages.length && !loading) ? <Text style={styles.noPosts}>No posts yet.</Text> : <FlatList 
             ListHeaderComponent={
                 <View style={styles.container}>
                     {/* <View style={styles.createPostContainer}>
@@ -305,6 +307,8 @@ placeholderText: {
   noPosts: {
     color: colors.LIGHT_TEXT,
     textAlign: "center",
+    fontSize: 16,
+    fontWeight: 500,
     marginVertical: "50%"
   }
 

@@ -59,7 +59,7 @@ export default function TaskInfo() {
           </View>
 
         <TaskInfoDetails workRequestDetails={workRequestDetails} workRequestUUID={workRequestUUID} />
-        <TaskHistory workRequestDetails={workRequestDetails} workRequestUUID={workRequestUUID} />
+        <TaskHistory workRequestDetails={workRequestDetails} taskUUID={workRequestUUID} />
         {workRequestDetails?.PrimaryRequestorUserUUID && (
           <TaskRequestorInfo workRequestorUUID={workRequestDetails?.PrimaryRequestorUserUUID} />
         )}

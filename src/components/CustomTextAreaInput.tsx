@@ -74,7 +74,7 @@ const CustomTextAreaInput: React.FC<TextAreaInputProps> = ({
     <View
       style={[
         styles.container,
-        !label && {marginTop: 10},
+/*         !label && {marginTop: 10}, */
         multiline && { minHeight: flex ? 218 : 100 },
         !multiline && { height: 42 },
       ]}

@@ -308,19 +308,29 @@ interface WorkRequestAttachment {
   AllowDownload: boolean;
 }
 
-interface WorkRequestHistory {
-  WorkRequestStatusUUID: string;
-  WorkRequestUUID: string;
+interface BaseTaskHistory {
+  StatusUUID: string;
+  EntityUUID: string;
   StatusItemUUID: string;
-  WorkRequestNoteUUID: string | null;
-  CreatedDateTime: string; 
+  Note: string
+  NoteUUID: string | null;
+  CreatedDateTime: string;
   ModifiedDateTime: string | null;
   StatusItemName: string;
   StatusItemCode: string;
-  Note: string | null;
   CreatedByFullName: string;
   ModifiedByFullName: string | null;
 }
+
+type WorkRequestHistory = BaseTaskHistory & {
+  WorkRequestStatusUUID: string;
+  WorkRequestUUID: string;
+};
+
+type WorkOrderHistory = BaseTaskHistory & {
+  WorkOrderStatusUUID: string;
+  WorkOrderUUID: string;
+};
 
 
 

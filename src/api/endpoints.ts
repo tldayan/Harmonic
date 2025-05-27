@@ -15,7 +15,8 @@ export const ENDPOINTS = {
   ORGANIZATION: {
     FETCH_MODULES: `${BASE_URL}/organization/getOrganizationBasedModules`,
     ORGANIZATIONS_LIST: `${BASE_URL}/organization/getOrganizationsList`,
-    GET_ORGANIZATION_USERS: `${BASE_URL}/organization/getOrganizationUsers`
+    GET_ORGANIZATION_USERS: `${BASE_URL}/organization/getOrganizationUsers`,
+    GET_ORGANIZATION_PERSONNEL: `${BASE_URL}/organization/getOrganizationPersonnel`
   },
   USER: {
     PROFILE: `${BASE_URL}/user/getUserProfile`,
@@ -60,7 +61,8 @@ export const ENDPOINTS = {
     GET_WORK_ORDER_TYPES: `${BASE_URL}/work-order/getWorkOrderTypes`,
     SAVE_WORK_ORDER: `${BASE_URL}/work-order/saveWorkOrder`,
     SAVE_WORK_ORDER_ATTACHMENTS: `${BASE_URL}/work-order/saveWorkOrderAttachments`,
-    SAVE_WORK_ORDER_NOTE: `${BASE_URL}/work-order/saveWorkOrderNote`
+    SAVE_WORK_ORDER_NOTE: `${BASE_URL}/work-order/saveWorkOrderNote`,
+    GET_WORK_ORDER_HISTORY: `${BASE_URL}/work-order/getWorkOrderHistory`,
   },
   WORK_REQUEST: {
     GET_WORK_REQUEST_DETAILS: `${BASE_URL}/work-request/getWorkRequestDetails`,

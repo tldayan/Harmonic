@@ -59,7 +59,7 @@ export default function ProfileFormScreen({setUserProfile, userProfile, userAddr
         GenderUUID: "",
         CountryUUID: "",
         NationalityUUID: "",
-        PhoneCountryUUID: userProfile?.PhoneCountryUUID || "",
+        PhoneCountryUUID: userProfile?.PhoneCountryUUID || "971",
         PhoneNumber: userProfile?.PhoneNumber || "",
         DateOfBirth: "",
         CreatedBy: "",

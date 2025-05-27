@@ -132,9 +132,9 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
   return (
     <View style={[ route.name === "Comments" ?  styles.defaultMainContainer : styles.mainContainer]}>
 
-        {showProfileHeader && <TouchableOpacity onPress={() => {}}> 
-          <ProfileHeader fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} showPostActions post={post} />
-        </TouchableOpacity>}
+        {showProfileHeader && 
+          <ProfileHeader onPress={() => navigation.navigate("Profile", {userUUID : post.CreatedBy})} fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} showPostActions post={post} />
+        }
 
 
       {post.Message && <Text style={[styles.postText, !attachmentData.length ? {paddingVertical: 8}: null]}>{post.Message}</Text>}

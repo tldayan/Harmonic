@@ -16,6 +16,7 @@ import { firebaseStoragelocations, STATUS_CODE } from '../../../utils/constants'
 import { uploadDocuments } from '../../../utils/helpers'
 import TaskDocumentUpload from '../TaskDocumentUpload'
 import WorkOrderInformation from './WorkOrderInformation'
+import AssignCrew from './AssignCrew'
 
 interface WorkOrderCreationProps {
     onClose: () => void
@@ -53,6 +54,7 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
         creatorEmail: '',
         creatorNumber: '',
         creatorLocation: '',
+        crew: [],
         loading: false
       });
 
@@ -106,7 +108,7 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
         return (
             <View style={styles.innerContainer}>
                 <Text>{steps[index].id}. {steps[index].title}</Text>
-                <Text>CREW</Text>
+                <AssignCrew setWorkOrderInformation={setWorkOrderInformation} workOrderInformation={workOrderInformation}/>
             </View>
         )
     }

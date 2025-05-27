@@ -3,21 +3,22 @@ import { View, StyleSheet, Text, Image, ViewStyle, ActivityIndicator, TouchableO
 import { CardShadowStyles } from "../../styles/global-styles";
 import Check from "../../assets/icons/mini-check.svg"
 import { formatLongDate, getTimeFromISO } from "../../utils/helpers";
-import { getWorkRequestHistory } from "../../api/network-utils";
+import { getWorkOrderHistory, getWorkRequestHistory } from "../../api/network-utils";
 import ChevronDown from "../../assets/icons/chevron-down.svg"
 
 interface TimelineItemProps {
   heading: string;
   time: string;
-  date: string;
+  date: string; 
   description: string;
   status: string;
   style?: ViewStyle;
 }
 
 interface TaskInfoHistoryProps {
-  workRequestUUID: string;
-  workRequestDetails: WorkRequestDetails
+  taskUUID: string;
+  workOrderDetails?: WorkOrderDetails
+  workRequestDetails?: WorkRequestDetails
 }
 
 const TimelineItem: React.FC<TimelineItemProps> = ({
@@ -51,23 +52,26 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
 );
 
 
-function TaskHistory({ workRequestUUID, workRequestDetails}: TaskInfoHistoryProps) {
+function TaskHistory({ taskUUID, workRequestDetails}: TaskInfoHistoryProps) {
   const [loading, setLoading] = useState(true);
-  const [workRequestHistory, setWorkRequestHistory] = useState<WorkRequestHistory[]>([]);
+  const [taskHistory, setTaskHistory] = useState<(WorkRequestHistory | WorkOrderHistory)[]>([]);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    const fetchWorkHistory = async () => {
+    const fetchTaskHistory = async () => {
       try {
-        const workRequestHistoryResponse = await getWorkRequestHistory(workRequestUUID);
-        setWorkRequestHistory(workRequestHistoryResponse.Payload);
+        const workRequestHistoryResponse = await getWorkRequestHistory(taskUUID); 
+        const workOrderHistoryResponse = await getWorkOrderHistory(taskUUID); //FETCH WORK ORDER IF USER ROLE IS COMMUNITY ADMIN ??
+
+
+        setTaskHistory(workRequestHistoryResponse.Payload);
       } catch (err) {
         console.log(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchWorkHistory();
+    fetchTaskHistory();
   }, [workRequestDetails]);
 
   return (
@@ -85,12 +89,12 @@ function TaskHistory({ workRequestUUID, workRequestDetails}: TaskInfoHistoryProp
 
           {expanded && (
             <View style={styles.timeline}>
-              {workRequestHistory.map((item, index) => {
+              {taskHistory.map((item, index) => {
                 const date = formatLongDate(item.CreatedDateTime);
                 const time = getTimeFromISO(item.CreatedDateTime);
                 return (
                   <TimelineItem
-                    key={item.WorkRequestStatusUUID}
+                    key={item.EntityUUID}
                     heading={item.StatusItemName}
                     time={time}
                     date={date}

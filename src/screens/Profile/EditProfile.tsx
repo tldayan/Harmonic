@@ -368,6 +368,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     marginHorizontal: "5%",
+    overflow: "hidden",
     width: "90%",
     borderRadius: 24,
     gap: 10,

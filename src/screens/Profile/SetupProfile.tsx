@@ -117,7 +117,7 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         if (!userInformation.PhoneNumber || !userInformation.PhoneCountryUUID) {
           return;
         }
-
+ 
         setShowSendOtp(false)
         setOtpError("")
         setConfirmation(null)
@@ -134,7 +134,8 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
 
 
       useEffect(() => {
-        if(userInformation.PhoneCountryUUID && userInformation.PhoneNumber) {
+  
+        if(userInformation.PhoneNumber) {
           setShowSendOtp(true)
         } else {
           setShowSendOtp(false)
@@ -143,7 +144,7 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         if(confirmation) {
           setConfirmation(null)
         }
-      }, [userInformation.PhoneCountryUUID, userInformation.PhoneNumber])
+      }, [userInformation.PhoneNumber])
 
       useEffect(() => {
         console.log(userInformation)
@@ -161,8 +162,8 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         <CustomTextInput value={userInformation.EmailAddress} hasError={errors.EmailAddress} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, EmailAddress: e}))} label='Email' inputStyle={defaultInputStyles} placeholder='jitesh@gmail.com' />
         
         <View style={{flexDirection: "row", gap: 10}}>
-          <CustomTextInput setCountryCode={(phoneCode) => setUserInformation((prev) => ({...prev, PhoneCountryUUID: phoneCode }))} hasError={errors.PhoneNumber} countryCode={userInformation.PhoneCountryUUID} value={userInformation.PhoneNumber} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, PhoneNumber: e}))} label='Phone' inputStyle={defaultNumberInputStyles} placeholder='567136828' /* mainInputStyle={styles.numberInput} */ inputMode='tel' />
-          {(userInformation.PhoneCountryUUID && userInformation.PhoneNumber && showSendOtp) && <CustomButton onPress={handleOTP} title={confirmation ? "Resend OTP" : "Send OTP"} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: "auto", marginBottom: 0, paddingHorizontal: 20}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />}
+          <CustomTextInput setCountryCode={(phoneCode) => setUserInformation((prev) => ({...prev, PhoneCountryUUID: phoneCode }))} hasError={errors.PhoneNumber} countryCode={userInformation.PhoneCountryUUID ? userInformation.PhoneCountryUUID : "971"} value={userInformation.PhoneNumber} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, PhoneNumber: e}))} label='Phone' inputStyle={defaultNumberInputStyles} placeholder='567136828' /* mainInputStyle={styles.numberInput} */ inputMode='tel' />
+          {(userInformation.PhoneNumber && showSendOtp) && <CustomButton onPress={handleOTP} title={confirmation ? "Resend OTP" : "Send OTP"} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: "auto", marginBottom: 0, paddingHorizontal: 20}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />}
         </View>
         
         {confirmation && <View style={styles.otpContainer}>

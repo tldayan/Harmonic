@@ -16,5 +16,18 @@ export interface WorkOrderInformationState {
     creatorEmail: string;
     creatorNumber: string;
     creatorLocation: string;
+    crew: {fullName: string, userUUID: string}[]
     loading: boolean
   }
+
+
+export interface Crew {
+    UserUUID: string;
+    OrganizationPersonnelUUID: string;
+    FullName: string;
+    EmailAddress: string;
+    PhoneNumber: string;
+    ProfilePicURL: string;
+  }
+  
+  

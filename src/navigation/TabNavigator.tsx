@@ -49,8 +49,6 @@ export default function TabNavigator(): JSX.Element {
 
         return {
           ...globalScreenOptions,
-          headerShown: true,
-          header: () => <Header />,
           tabBarButton: (props) => (
             <TouchableWithoutFeedback onPress={props.onPress}>
               <View style={props.style}>{props.children}</View>

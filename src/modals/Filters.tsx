@@ -166,7 +166,8 @@ export default function Filters({onClose, setFiltering, filtering, setPostCatego
 
       const categoryitem = ({item} : {item: Category}) => {
 
-        if(!item.nestedCategories.length) return
+        if (!item.nestedCategories.length) return null;
+
 
         return (
           <View key={item.CategoryUUID}>
