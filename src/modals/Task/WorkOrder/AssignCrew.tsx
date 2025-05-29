@@ -4,6 +4,7 @@ import CustomSelectInput from '../../../components/CustomSelectInput'
 import { WorkOrderInformationState } from '../../../types/work-order.types'
 import { CustomModal } from '../../../components/CustomModal'
 import CrewSelection from './CrewSelection'
+import CrewScheduler from './CrewScheduler'
 
 
 interface AssignCrewProps {
@@ -24,6 +25,8 @@ export default function AssignCrew({setWorkOrderInformation, workOrderInformatio
         <CustomModal isOpen={selectingCrew} onClose={() => setSelectingCrew(false)} >
             <CrewSelection setWorkOrderInformation={setWorkOrderInformation} workOrderInformation={workOrderInformation} onClose={() => setSelectingCrew(false)}  />
         </CustomModal>
+
+        <CrewScheduler setWorkOrderInformation={setWorkOrderInformation} workOrderInformation={workOrderInformation} />
 
 
     </View>

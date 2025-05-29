@@ -7,6 +7,8 @@ import { WorkOrderInformationState } from "../types/work-order.types";
 import { WorkRequestInformationState } from "../types/work-request.types";
 import { EventInformation } from "../types/event.types";
 import { Alert } from "react-native";
+import { convertTo24HourWithSeconds } from "../utils/TaskScreen/convertTimings";
+import { addMinutesToTime } from "../utils/TaskScreen/addMinutesToTime";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -1128,6 +1130,71 @@ console.log(bodyData)
   }
 
 }
+
+
+
+
+export const saveWorkOrderPersonnelSchedule = async(userUUID: string,workOrderUUID:string, workOrderInformation: WorkOrderInformationState) => {
+
+  let personnels = [];
+
+  for (let crew of workOrderInformation.crew) {
+    if (!crew.timings.length) continue;
+  
+    const sortedTimings = crew.timings.slice().sort((a, b) => {
+      return convertTo24HourWithSeconds(a).localeCompare(convertTo24HourWithSeconds(b));
+    });
+  
+
+    let groupStart = sortedTimings[0];
+    for (let i = 0; i < sortedTimings.length; i++) {
+      const current = convertTo24HourWithSeconds(sortedTimings[i]);
+      const next = convertTo24HourWithSeconds(sortedTimings[i + 1]);
+  
+      const currentDateTime = new Date(`${workOrderInformation.workOrderStartDate} ${current}`);
+      const nextDateTime = next ? new Date(`${workOrderInformation.workOrderStartDate} ${next}`) : null;
+  
+
+      if (!nextDateTime || (nextDateTime.getTime() - currentDateTime.getTime()) !== 15 * 60 * 1000) {
+        const groupStartTime = convertTo24HourWithSeconds(groupStart);
+        const from = `${workOrderInformation.workOrderStartDate} ${groupStartTime}`;
+        const to = addMinutesToTime(`${workOrderInformation.workOrderStartDate} ${current}`, 15);
+  
+        const personnelData = {
+          PersonnelUUID: crew.userUUID,
+          ScheduleDateTimeFrom: from,
+          ScheduleDateTimeTo: to,
+          ScheduledBy: userUUID
+        };
+  
+        personnels.push(personnelData);
+  
+
+        groupStart = sortedTimings[i + 1];
+      }
+    }
+  }
+  
+
+  const bodyData = {
+    "WorkOrderUUID": workOrderUUID,
+    "LoggedInUserUUID": userUUID,
+    "PersonnelSchedule": personnels
+}
+
+console.log(bodyData)
+  try {
+    const saveWorkOrderAttachmentsResponse = await apiClient(ENDPOINTS.WORK_ORDER.SAVE_WORK_ORDER_ATTACHMENTS, bodyData, {}, "POST")
+    console.log(saveWorkOrderAttachmentsResponse)
+    return saveWorkOrderAttachmentsResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
 
 
 

@@ -56,6 +56,7 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
           const newCrewMember = {
             fullName: selectedUser.FullName,
             userUUID: selectedUser.UserUUID,
+            timings: []
           };
           setWorkOrderInformation((prev) => ({
             ...prev,

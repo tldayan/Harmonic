@@ -54,7 +54,9 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
         creatorEmail: '',
         creatorNumber: '',
         creatorLocation: '',
+        workOrderStartDate: '',
         crew: [],
+        crewTimings: {},
         loading: false
       });
 

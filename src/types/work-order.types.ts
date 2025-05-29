@@ -16,7 +16,14 @@ export interface WorkOrderInformationState {
     creatorEmail: string;
     creatorNumber: string;
     creatorLocation: string;
-    crew: {fullName: string, userUUID: string}[]
+    workOrderStartDate: string;
+    crew: {fullName: string, userUUID: string, timings: string[]}[]
+    crewTimings: {
+      [userUUID: string]: {
+        ScheduleDateTimeFrom: string;
+        ScheduleDateTimeTo: string;
+      }
+    }    
     loading: boolean
   }
 

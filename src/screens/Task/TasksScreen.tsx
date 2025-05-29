@@ -28,7 +28,7 @@ interface TasksScreenProps {
 
 export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
 
-  const [userRole, setUserRole] = useState("tenant")
+  const [userRole, setUserRole] = useState("admin")
   const [searchTask, setSearchTask] = useState("")
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
   const [workRequests, setWorkRequests] = useState<WorkRequest[]>([])
@@ -200,9 +200,9 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
 
 
 
-      {/* <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest} onClose={() => setCreatingRequest(false)}>
+      <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest} onClose={() => setCreatingRequest(false)}>
         <WorkOrderCreation onClose={() => setCreatingRequest(false)} />
-      </CustomModal> */}
+      </CustomModal>
 
       <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest} onClose={() => setCreatingRequest(false)}>
         <WorkRequestCreation setWorkRequests={setWorkRequests} onClose={() => setCreatingRequest(false)} />
