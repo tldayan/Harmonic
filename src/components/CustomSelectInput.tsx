@@ -12,6 +12,7 @@ interface SelectInputProps {
   label?: string;
   labelStyle?: object;
   errorMessage?: string;
+  flex?: boolean
 }
 
 const CustomSelectInput: React.FC<SelectInputProps> = ({
@@ -22,6 +23,7 @@ const CustomSelectInput: React.FC<SelectInputProps> = ({
   hasError,
   label,
   labelStyle,
+  flex,
   errorMessage,
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
@@ -30,7 +32,7 @@ const CustomSelectInput: React.FC<SelectInputProps> = ({
   const handleBlur = () => setIsFocused(false);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, flex ? {flex: 1} : null]}>
       {label && (
         <Text
           style={[

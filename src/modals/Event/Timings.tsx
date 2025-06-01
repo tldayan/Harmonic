@@ -135,14 +135,14 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: 30 }} style={{ paddingBottom: 30}}>
 
         <View style={styles.checkboxContainer}>
-          <CustomSelectInput label="Event Start" labelStyle={defaultInputLabelStyles} onSelect={() => setEventStartDatePickerVisibility(true)} placeholder={eventStartDate ? eventStartDate.toLocaleDateString() : "Select Date"} />
-          <CustomSelectInput label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setEventStartTimePickerVisibility(true)} placeholder={eventStartTime ? eventStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+          <CustomSelectInput flex label="Event Start" labelStyle={defaultInputLabelStyles} onSelect={() => setEventStartDatePickerVisibility(true)} placeholder={eventStartDate ? eventStartDate.toLocaleDateString() : "Select Date"} />
+          <CustomSelectInput flex label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setEventStartTimePickerVisibility(true)} placeholder={eventStartTime ? eventStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
         </View>
         
 
         <View style={styles.checkboxContainer}>
-          <CustomSelectInput label="Event End" labelStyle={defaultInputLabelStyles} onSelect={() => setEventEndDatePickerVisibility(true)} placeholder={eventEndDate ? eventEndDate.toLocaleDateString() : "Select Date"} />
-        <CustomSelectInput label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setEventEndTimePickerVisibility(true)} placeholder={eventEndTime ? eventEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+          <CustomSelectInput flex label="Event End" labelStyle={defaultInputLabelStyles} onSelect={() => setEventEndDatePickerVisibility(true)} placeholder={eventEndDate ? eventEndDate.toLocaleDateString() : "Select Date"} />
+        <CustomSelectInput flex label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setEventEndTimePickerVisibility(true)} placeholder={eventEndTime ? eventEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
         </View>
         
 
@@ -157,13 +157,13 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
 
         {showRegistration && <View >
           <View style={styles.checkboxContainer}>
-            <CustomSelectInput label="Registration Start" labelStyle={defaultInputLabelStyles} onSelect={() => setRegStartDatePickerVisibility(true)} placeholder={regStartDate ? regStartDate.toLocaleDateString() : "Select Date"} />
-            <CustomSelectInput label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setRegStartTimePickerVisibility(true)} placeholder={regStartTime ? regStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+            <CustomSelectInput flex label="Registration Start" labelStyle={defaultInputLabelStyles} onSelect={() => setRegStartDatePickerVisibility(true)} placeholder={regStartDate ? regStartDate.toLocaleDateString() : "Select Date"} />
+            <CustomSelectInput flex label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setRegStartTimePickerVisibility(true)} placeholder={regStartTime ? regStartTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
           </View>
 
           <View style={styles.checkboxContainer}>
-            <CustomSelectInput label="Registration End" labelStyle={defaultInputLabelStyles} onSelect={() => setRegEndDatePickerVisibility(true)} placeholder={regEndDate ? regEndDate.toLocaleDateString() : "Select Date"} />
-            <CustomSelectInput label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setRegEndTimePickerVisibility(true)} placeholder={regEndTime ? regEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+            <CustomSelectInput flex label="Registration End" labelStyle={defaultInputLabelStyles} onSelect={() => setRegEndDatePickerVisibility(true)} placeholder={regEndDate ? regEndDate.toLocaleDateString() : "Select Date"} />
+            <CustomSelectInput flex label="." labelStyle={{  marginVertical: 10,fontWeight: 500, opacity: 0}} onSelect={() => setRegEndTimePickerVisibility(true)} placeholder={regEndTime ? regEndTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
           </View>
         </View>}
 
@@ -186,8 +186,8 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
 
         {isSchedulingPublish && (
           <View style={{flexDirection: "row", gap: 10, marginTop: 10}}>
-            <CustomSelectInput onSelect={() => setPublishDatePickerVisibility(true)} placeholder={publishDate ? publishDate.toLocaleDateString() : "Select Date"} />
-            <CustomSelectInput onSelect={() => setPublishTimePickerVisibility(true)} placeholder={publishTime ? publishTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
+            <CustomSelectInput flex onSelect={() => setPublishDatePickerVisibility(true)} placeholder={publishDate ? publishDate.toLocaleDateString() : "Select Date"} />
+            <CustomSelectInput flex onSelect={() => setPublishTimePickerVisibility(true)} placeholder={publishTime ? publishTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"} />
           </View>
         )}
 

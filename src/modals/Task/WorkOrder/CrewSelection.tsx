@@ -44,18 +44,18 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
 
     const handleFilter = (selectedUser: Crew) => {
         const isAlreadySelected = workOrderInformation.crew.some(
-          (person) => person.userUUID === selectedUser.UserUUID
+          (person) => person.OrganizationPersonnelUUID === selectedUser.OrganizationPersonnelUUID
         );
       
         if (isAlreadySelected) {
           const filtered = workOrderInformation.crew.filter(
-            (person) => person.userUUID !== selectedUser.UserUUID
+            (person) => person.OrganizationPersonnelUUID !== selectedUser.OrganizationPersonnelUUID
           );
           setWorkOrderInformation((prev) => ({ ...prev, crew: filtered }));
         } else {
           const newCrewMember = {
             fullName: selectedUser.FullName,
-            userUUID: selectedUser.UserUUID,
+            OrganizationPersonnelUUID: selectedUser.OrganizationPersonnelUUID,
             timings: []
           };
           setWorkOrderInformation((prev) => ({
@@ -71,12 +71,12 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
       }, [workOrderInformation])
 
     const crewItem = ({ item }: { item: Crew }) => {
-
-        const isSelected = workOrderInformation.crew.some((eachPersonnel) => eachPersonnel.userUUID === item.UserUUID);
+      
+        const isSelected = workOrderInformation.crew.some((eachPersonnel) => eachPersonnel.OrganizationPersonnelUUID === item.OrganizationPersonnelUUID);
       
         return (
           <TouchableOpacity
-            key={item.UserUUID}
+            key={item.OrganizationPersonnelUUID}
             onPress={() => handleFilter(item)}
             style={[styles.childPersonnelContainer]}
           >
@@ -100,7 +100,7 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
                     style={styles.workOrderTypesList}
                     data={crew}
                     contentContainerStyle= {{gap: 15}}
-                    keyExtractor={(item) => item.UserUUID}
+                    keyExtractor={(item) => item.OrganizationPersonnelUUID}
                     renderItem={crewItem}
                     ListEmptyComponent={<Text>No Personnels Available</Text>}
                     ListFooterComponent={loading ? <ActivityIndicator size={"small"} /> : null}

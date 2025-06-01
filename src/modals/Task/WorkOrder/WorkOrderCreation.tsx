@@ -5,7 +5,7 @@ import ModalsHeader from '../../ModalsHeader'
 import CustomButton from '../../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES } from '../../../styles/button-styles'
 import { colors } from '../../../styles/colors'
-import { getWorkPriorities, saveWorkOrder, saveWorkOrderAttachments, saveWorkOrderNote, saveWorkRequestNote } from '../../../api/network-utils'
+import { getWorkPriorities, saveWorkOrder, saveWorkOrderAttachments, saveWorkOrderNote, saveWorkOrderPersonnelSchedule, saveWorkRequestNote } from '../../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/store'
 import ProgressBar from '../../../components/ProgressBar'
@@ -42,9 +42,9 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
     const [workOrderInformation, setWorkOrderInformation] = React.useState<WorkOrderInformationState>({
         workOrderUUID: workOrder?.WorkOrderUUID || "",
         asset: { assetName: workOrder?.AssetName || '', assetUUID: workOrder?.AssetUUID || '' },
-        workOrderType: { workOrderTypeName: '', workOrderTypeUUID: '' },
+        workOrderType: { workOrderTypeName: workOrder?.WorkOrderTypeName || '', workOrderTypeUUID: workOrder?.WorkOrderTypeUUID || '' },
         problemDescription: workOrder?.ProblemDescription || '',
-        taskDescription: '',
+        taskDescription: workOrder?.WorkDescription || '',
         workPriority: {workPriorityUUID: workOrder?.WorkPriorityUUID || "", workPriorityName: workOrder?.WorkPriorityName || ""},
         images: [], 
         attachments: [],
@@ -57,6 +57,7 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
         workOrderStartDate: '',
         crew: [],
         crewTimings: {},
+        blockedCrewTimings:[],
         loading: false
       });
 
@@ -150,6 +151,8 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
                 if(!workOrderInformation.creatorEmail || !workOrderInformation.creatorName || !workOrderInformation.creatorNumber) {
                     return
                 }
+            } else if(step === 3) {
+                await saveWorkOrderPersonnelSchedule(userUUID,workOrderInformation.workOrderUUID, workOrderInformation)
             }
 
         } catch(err) {

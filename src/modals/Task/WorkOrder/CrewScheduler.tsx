@@ -6,10 +6,17 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+  Alert,
 } from 'react-native';
 import { getNextMonthDates } from '../../../utils/TaskScreen/getDates';
 import { colors } from '../../../styles/colors';
 import { Crew, WorkOrderInformationState } from '../../../types/work-order.types';
+import { getOrganizationPersonnelSchedule } from '../../../api/network-utils';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store/store';
+import { groupByDate } from '../../../utils/TaskScreen/groupDate';
 
 const HOUR_WIDTH = 60;
 const HOURS = Array.from({ length: 8 }, (_, i) => {
@@ -36,10 +43,11 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
 
     
   const [crew, setCrew] = useState(workOrderInformation.crew || []);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedRanges, setSelectedRanges] = useState({});
+  const [selectedDate, setSelectedDate] = useState("")
   const scrollViewRef = useRef(null);
-  const timelineScrollRef = useRef(null);
+  const timelineScrollRef = useRef<ScrollView>(null);
+  const {organizationUUID} = useSelector((state: RootState) => state.auth)
+
 
   const DATES = getNextMonthDates();
 
@@ -49,41 +57,63 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
   
 
   const handleSlotPress = (personId: string, slot: string) => {
+
+    if(!selectedDate) return
+
     setWorkOrderInformation(prev => {
-
       const updatedCrew = prev.crew.map(eachCrew => {
-        if (eachCrew.userUUID === personId) {
-
-          const timings = eachCrew.timings || [];
+        if (eachCrew.OrganizationPersonnelUUID !== personId) return eachCrew;
   
-          if (timings.includes(slot)) {
-            return {
-              ...eachCrew,
-              timings: timings.filter(s => s !== slot),
-            };
+        const timings = [...eachCrew.timings];
+        const dateIndex = timings.findIndex(entry => entry.date === selectedDate);
+  
+        if (dateIndex !== -1) {
+        
+          const entry = timings[dateIndex];
+          const slotExists = entry.selectedTimings.includes(slot);
+  
+          const updatedTimes = slotExists
+            ? entry.selectedTimings.filter(t => t !== slot)
+            : [...entry.selectedTimings, slot];
+  
+          if (updatedTimes.length === 0) {
+
+            timings.splice(dateIndex, 1);
           } else {
-            return {
-              ...eachCrew,
-              timings: [...timings, slot],
+
+            timings[dateIndex] = {
+              ...entry,
+              selectedTimings: updatedTimes
             };
           }
+        } else {
+
+          timings.push({
+            date: selectedDate,
+            selectedTimings: [slot]
+          });
         }
-        return eachCrew;
+  
+        return {
+          ...eachCrew,
+          timings
+        };
       });
   
       return {
         ...prev,
-        crew: updatedCrew,
+        crew: updatedCrew
       };
     });
   };
   
+  
 
   useEffect(() => {
-    console.log(selectedDate)
+    console.log(workOrderInformation.workOrderStartDate)
     console.log(workOrderInformation)
     console.log(workOrderInformation.crew)
-  }, [workOrderInformation])
+  }, [workOrderInformation, workOrderInformation.workOrderStartDate])
 
   const generateSlots = (hourStart = 9, hourEnd = 17) => {
     const slots = [];
@@ -100,12 +130,40 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
 
   const timeSlots = generateSlots();
 
-  const syncScroll = (event) => {
+  const syncScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const x = event.nativeEvent.contentOffset.x;
     if (timelineScrollRef.current) {
       timelineScrollRef.current.scrollTo({ x, animated: false });
     }
   };
+
+  const handleDateSelect = async (item: {
+    key: number;
+    date: Date;
+    label: string;
+    fullDate: string;
+  }) => {
+    const day = item.date.getDay();
+  
+    if (day === 0 || day === 6) {
+        Alert.alert(
+            "Unavailable Date",
+            "Crew members are unavailable on Saturdays and Sundays due to holidays. Please select a weekday instead."
+          );
+      return;
+    }
+  
+    setSelectedDate(item.fullDate)
+    const organizationPersonnelSchedule = await getOrganizationPersonnelSchedule(organizationUUID, workOrderInformation, item.fullDate)
+    const blockedCrewTimings = groupByDate(organizationPersonnelSchedule.BlockedSchedule);
+    console.log(blockedCrewTimings)
+    setWorkOrderInformation((prev) => ({
+      ...prev,
+      workOrderStartDate: item.fullDate,
+      blockedCrewTimings,
+    }));
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -113,13 +171,13 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 10, paddingVertical: 20, gap: 10 }}
+        contentContainerStyle={{ paddingHorizontal: 10, paddingVertical: 20, gap: 10, backgroundColor : "white" }}
       >
         {DATES.map((item) => (
           <TouchableOpacity
             key={item.fullDate}
-            style={[styles.dateBox, selectedDate === item.fullDate && styles.selectedDateBox]}
-            onPress={() => setSelectedDate(item.fullDate)}
+            style={[styles.dateBox, workOrderInformation.workOrderStartDate === item.fullDate && styles.selectedDateBox]}
+            onPress={() => handleDateSelect(item)}
           >
             <Text style={styles.label}>{item.label}</Text>
             <Text style={styles.date}>{item.date.getDate()}</Text>
@@ -157,7 +215,7 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
         <FlatList
           scrollEnabled={false}
           data={crew}
-          keyExtractor={(item) => item.userUUID}
+          keyExtractor={(item) => item.OrganizationPersonnelUUID}
           renderItem={({ item }) => (
             <View style={styles.personnelRow}>
               <View style={styles.nameColumn}>
@@ -168,11 +226,16 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
                 {timeSlots.map((slot, idx) => (
                   <TouchableOpacity
                     key={idx}
-                    onPress={() => handleSlotPress(item.userUUID, slot)}
+                    onPress={() => handleSlotPress(item.OrganizationPersonnelUUID, slot)}
                     style={[
                       styles.timeSlot,
                   /*     item.isOff && styles.offOverlay, */
-                      item.timings.includes(slot) && styles.selectedSlot,
+                      item.timings.some((eachObj) => eachObj.date === selectedDate && eachObj.selectedTimings.includes(slot)) && styles.selectedSlot,
+                      workOrderInformation.blockedCrewTimings.some(
+                        (blocked) =>
+                          blocked.date === selectedDate &&
+                          blocked.blockedTimings.includes(slot)
+                      ) && styles.blockedSlot,
                     ]}
                   />
                 ))}
@@ -198,7 +261,7 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: '#f8f9fa' },
+  container: { backgroundColor: '#f8f9fa', marginTop: 10},
   timelineHeader: { flexDirection: 'row' },
   hourText: { fontSize: 10, color: '#555' },
   nameColumn: {
@@ -256,6 +319,11 @@ const styles = StyleSheet.create({
   },
   selectedSlot: {
     backgroundColor: '#93c5fd',
+    borderWidth: 1,
+    borderColor: '#2563eb',
+  },
+  blockedSlot: {
+    backgroundColor: 'red',
     borderWidth: 1,
     borderColor: '#2563eb',
   },

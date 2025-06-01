@@ -17,13 +17,24 @@ export interface WorkOrderInformationState {
     creatorNumber: string;
     creatorLocation: string;
     workOrderStartDate: string;
-    crew: {fullName: string, userUUID: string, timings: string[]}[]
+    crew: {
+      fullName: string;
+      OrganizationPersonnelUUID: string;
+      timings: {
+        date: string;         
+        selectedTimings: string[];    
+      }[];
+    }[];     
     crewTimings: {
-      [userUUID: string]: {
+      [OrganizationPersonnelUUID: string]: {
         ScheduleDateTimeFrom: string;
         ScheduleDateTimeTo: string;
       }
-    }    
+    }
+    blockedCrewTimings: {
+      date: string;
+      blockedTimings: string[];  
+    }[]; 
     loading: boolean
   }
 

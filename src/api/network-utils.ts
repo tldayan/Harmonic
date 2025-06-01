@@ -9,6 +9,8 @@ import { EventInformation } from "../types/event.types";
 import { Alert } from "react-native";
 import { convertTo24HourWithSeconds } from "../utils/TaskScreen/convertTimings";
 import { addMinutesToTime } from "../utils/TaskScreen/addMinutesToTime";
+import { getTimeDiffInMinutes } from "../utils/TaskScreen/minutesDiff";
+import { localToUTC } from "../utils/TaskScreen/localToUTC";
 
 
 export const transformFirebaseUser =(authUser: FirebaseAuthTypes.User) => {
@@ -1133,60 +1135,100 @@ console.log(bodyData)
 
 
 
+export const getOrganizationPersonnelSchedule = async(organizationUUID: string, workOrderInformation: WorkOrderInformationState, fullDate: string) => {
+console.log(workOrderInformation)
+  
+  const workOrderDate = new Date(`${fullDate}T00:00:00`);
+
+  // Subtract 1 day
+  const oneDayBefore = new Date(workOrderDate);
+  oneDayBefore.setDate(oneDayBefore.getDate() - 1);
+
+  // Format to "YYYY-MM-DD"
+  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+  const bodyData = {
+    OrganizationUUID: organizationUUID,
+    ScheduleFromDateTime: `${formatDate(oneDayBefore)} 20:00:00`,
+    ScheduleToDateTime: `${formatDate(workOrderDate)} 20:00:00`,
+    PersonnelUUIDs: workOrderInformation.crew.map(person => person.OrganizationPersonnelUUID)
+  };
+
+console.log(bodyData)
+
+  try {
+    const getOrganizationPersonnelScheduleResponse = await apiClient(ENDPOINTS.WORK_ORDER.GET_ORGANIZATION_PERSONNEL_SCHEDULE, bodyData, {}, "POST")
+    console.log(getOrganizationPersonnelScheduleResponse)
+    return getOrganizationPersonnelScheduleResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
+
+
+
+
 
 export const saveWorkOrderPersonnelSchedule = async(userUUID: string,workOrderUUID:string, workOrderInformation: WorkOrderInformationState) => {
 
   let personnels = [];
 
-  for (let crew of workOrderInformation.crew) {
-    if (!crew.timings.length) continue;
-  
-    const sortedTimings = crew.timings.slice().sort((a, b) => {
-      return convertTo24HourWithSeconds(a).localeCompare(convertTo24HourWithSeconds(b));
-    });
-  
+for (let crew of workOrderInformation.crew) {
+  if (!crew.timings.length) continue;
 
-    let groupStart = sortedTimings[0];
+  for (let timingEntry of crew.timings) {
+    const { date, selectedTimings } = timingEntry;
+    if (!selectedTimings.length) continue;
+
+    const sortedTimings = selectedTimings
+      .slice()
+      .map(convertTo24HourWithSeconds)
+      .sort((a, b) => a.localeCompare(b));
+
+    let startTime = sortedTimings[0];
+
     for (let i = 0; i < sortedTimings.length; i++) {
-      const current = convertTo24HourWithSeconds(sortedTimings[i]);
-      const next = convertTo24HourWithSeconds(sortedTimings[i + 1]);
-  
-      const currentDateTime = new Date(`${workOrderInformation.workOrderStartDate} ${current}`);
-      const nextDateTime = next ? new Date(`${workOrderInformation.workOrderStartDate} ${next}`) : null;
-  
+      const current = sortedTimings[i];
+      const next = sortedTimings[i + 1];
 
-      if (!nextDateTime || (nextDateTime.getTime() - currentDateTime.getTime()) !== 15 * 60 * 1000) {
-        const groupStartTime = convertTo24HourWithSeconds(groupStart);
-        const from = `${workOrderInformation.workOrderStartDate} ${groupStartTime}`;
-        const to = addMinutesToTime(`${workOrderInformation.workOrderStartDate} ${current}`, 15);
-  
-        const personnelData = {
-          PersonnelUUID: crew.userUUID,
-          ScheduleDateTimeFrom: from,
-          ScheduleDateTimeTo: to,
-          ScheduledBy: userUUID
-        };
-  
-        personnels.push(personnelData);
-  
+      const isConsecutive =
+        next && getTimeDiffInMinutes(current, next) === 15;
 
-        groupStart = sortedTimings[i + 1];
+      if (!isConsecutive) {
+        const fromLocal = `${date} ${startTime}`;
+        const toLocal = `${date} ${addMinutesToTime(`${date} ${current}`, 15)}`;
+
+        const fromUTC = localToUTC(fromLocal);
+        const toUTC = localToUTC(toLocal);
+
+        personnels.push({
+          PersonnelUUID: crew.OrganizationPersonnelUUID,
+          ScheduleDateTimeFrom: fromUTC,
+          ScheduleDateTimeTo: toUTC,
+          ScheduledBy: userUUID,
+        });
+
+        startTime = next;
       }
     }
   }
-  
-
-  const bodyData = {
-    "WorkOrderUUID": workOrderUUID,
-    "LoggedInUserUUID": userUUID,
-    "PersonnelSchedule": personnels
 }
 
-console.log(bodyData)
+  
+  const bodyData = {
+    WorkOrderUUID: workOrderUUID,
+    LoggedInUserUUID: userUUID,
+    PersonnelSchedule: personnels
+  };
+  
+console.log(bodyData) 
   try {
-    const saveWorkOrderAttachmentsResponse = await apiClient(ENDPOINTS.WORK_ORDER.SAVE_WORK_ORDER_ATTACHMENTS, bodyData, {}, "POST")
-    console.log(saveWorkOrderAttachmentsResponse)
-    return saveWorkOrderAttachmentsResponse.data
+    const saveWorkOrderScheduleResponse = await apiClient(ENDPOINTS.WORK_ORDER.SAVE_WORK_ORDER_PERSONNEL_SCHEDULE, bodyData, {}, "POST")
+    console.log(saveWorkOrderScheduleResponse)
+    return saveWorkOrderScheduleResponse.data
 
   } catch(err) {
     console.error(err)

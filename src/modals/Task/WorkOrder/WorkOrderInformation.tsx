@@ -18,6 +18,7 @@ interface WorkOrderInformationProps {
 }
 
 export default function WorkOrderInformation({ priorityOptions, setWorkOrderInformation, workOrderInformation }: WorkOrderInformationProps) {
+
   const [selectingWorkType, setSelectingWorkType] = useState(false);
   const [selectingAsset, setSelectingAsset] = useState(false);
 
@@ -43,20 +44,20 @@ export default function WorkOrderInformation({ priorityOptions, setWorkOrderInfo
 
       <CustomTextAreaInput
         onChangeText={(e) => setWorkOrderInformation((prev) => ({ ...prev, problemDescription: e }))}
-        placeholder="Write Problem"
+        placeholder={workOrderInformation.problemDescription ? workOrderInformation.problemDescription : "Write Problem"}
       />
       <CustomTextAreaInput
         multiline={true}
         flex={true}
         onChangeText={(e) => setWorkOrderInformation((prev) => ({ ...prev, taskDescription: e }))}
-        placeholder="Write issue description here"
+        placeholder={workOrderInformation.taskDescription ? workOrderInformation.taskDescription : "Write issue description here"}
       />
 
-      <View style={styles.inputRow}>
+{/*       <View style={styles.inputRow}>
         <View style={styles.row}>
           <CustomSelectInput placeholder="Repair" />
         </View>
-      </View>
+      </View> */}
 
       <RadioGroup
         label="Priority"
