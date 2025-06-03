@@ -1058,10 +1058,11 @@ export const saveWorkOrder = async(userUUID: string,organizationUUID:string, tas
     "ProblemDescription": taskInformation.problemDescription,
     "WorkDescription": taskInformation.taskDescription,
     "WorkPriorityUUID": taskInformation.workPriority.workPriorityUUID,
-    "WorkPriorityName": taskInformation.workPriority.workPriorityUUID,
+    "WorkPriorityName": taskInformation.workPriority.workPriorityName,
     "OrganizationUUID": organizationUUID,
     "LoggedInUserUUID": userUUID,
-    "CreatorUserUUID": userUUID
+    "CreatorUserUUID": userUUID,
+    ...(taskInformation.workOrderUUID && {"WorkOrderUUID": taskInformation.workOrderUUID})
 }
 
 console.log(bodyData)
@@ -1136,14 +1137,15 @@ console.log(bodyData)
 
 
 export const getOrganizationPersonnelSchedule = async(organizationUUID: string, workOrderInformation: WorkOrderInformationState, fullDate: string) => {
-console.log(workOrderInformation)
-  
-  const workOrderDate = new Date(`${fullDate}T00:00:00`);
-
-  // Subtract 1 day
+  const [year, month, day] = fullDate.split('-').map(Number);
+  const workOrderDate = new Date(Date.UTC(year, month - 1, day));  // month is 0-indexed
   const oneDayBefore = new Date(workOrderDate);
-  oneDayBefore.setDate(oneDayBefore.getDate() - 1);
-
+  oneDayBefore.setUTCDate(oneDayBefore.getUTCDate() - 1);
+  
+  console.log(oneDayBefore.toISOString());
+  console.log(workOrderDate.toISOString());
+  
+  
   // Format to "YYYY-MM-DD"
   const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
@@ -1208,7 +1210,7 @@ for (let crew of workOrderInformation.crew) {
           PersonnelUUID: crew.OrganizationPersonnelUUID,
           ScheduleDateTimeFrom: fromUTC,
           ScheduleDateTimeTo: toUTC,
-          ScheduledBy: userUUID,
+          ScheduledBy: userUUID, //If deleting then you must send "IsDeleted: true" & WorkOrderSchedulePersonnelUUID (NOT personnelUUID)
         });
 
         startTime = next;
@@ -1237,7 +1239,18 @@ console.log(bodyData)
 }
 
 
+export const getWorkOrderPersonnelSchedule = async(workOrderUUID:string) => {
 
+  try {
+    const getWorkOrderPersonnelScheduleResponse = await apiClient(ENDPOINTS.WORK_ORDER.GET_WORK_ORDER_PERSONNEL_SCHEDULE, {}, {}, "GET", {workOrderUUID})
+    console.log(getWorkOrderPersonnelScheduleResponse)
+    return getWorkOrderPersonnelScheduleResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
 
 
 

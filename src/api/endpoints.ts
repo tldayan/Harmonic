@@ -64,7 +64,8 @@ export const ENDPOINTS = {
     SAVE_WORK_ORDER_NOTE: `${BASE_URL}/work-order/saveWorkOrderNote`,
     GET_WORK_ORDER_HISTORY: `${BASE_URL}/work-order/getWorkOrderHistory`,
     SAVE_WORK_ORDER_PERSONNEL_SCHEDULE: `${BASE_URL}/work-order/saveWorkOrderPersonnelSchedule`,
-    GET_ORGANIZATION_PERSONNEL_SCHEDULE: `${BASE_URL}/work-order/getOrganizationPersonnelSchedule`
+    GET_ORGANIZATION_PERSONNEL_SCHEDULE: `${BASE_URL}/work-order/getOrganizationPersonnelSchedule`,
+    GET_WORK_ORDER_PERSONNEL_SCHEDULE: `${BASE_URL}/work-order/getWorkOrderPersonnelSchedule`
   },
   WORK_REQUEST: {
     GET_WORK_REQUEST_DETAILS: `${BASE_URL}/work-request/getWorkRequestDetails`,

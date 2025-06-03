@@ -6,7 +6,7 @@ import { RootState } from '../../../store/store'
 import { getOrganizationPersonnel, getWorkOrderTypes } from '../../../api/network-utils'
 import { colors } from '../../../styles/colors'
 import { ScrollView } from 'react-native-gesture-handler'
-import { Crew, WorkOrderInformationState } from '../../../types/work-order.types'
+import { Crew, CrewMember, WorkOrderInformationState } from '../../../types/work-order.types'
 import CheckIcon from "../../../assets/icons/check.svg"
 import CustomButton from '../../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../../styles/button-styles'
@@ -21,6 +21,8 @@ interface CrewSelectionProps {
 export default function CrewSelection({setWorkOrderInformation, workOrderInformation, onClose}: CrewSelectionProps) {
     
     const [crew, setCrew] = useState<Crew[]>([])
+    const [selectedCrew, setSelectedCrew] = useState<CrewMember[]>([]);
+
     const [loading, setLoading] = useState(false)
     const {organizationUUID} = useSelector((state: RootState) => state.auth)
 
@@ -29,6 +31,7 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
             setLoading(true)
             try {
                 const crew = await getOrganizationPersonnel(organizationUUID)
+                
                 setCrew(crew.Payload)
             } catch (err) {
                 console.log(err)
@@ -40,30 +43,31 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
         fetchCrews()
     }, [organizationUUID])
 
-
+    useEffect(() => {
+      setSelectedCrew(workOrderInformation.crew);
+    }, []);
+    
 
     const handleFilter = (selectedUser: Crew) => {
-        const isAlreadySelected = workOrderInformation.crew.some(
-          (person) => person.OrganizationPersonnelUUID === selectedUser.OrganizationPersonnelUUID
+      const isAlreadySelected = selectedCrew.some(
+        (person) => person.OrganizationPersonnelUUID === selectedUser.OrganizationPersonnelUUID
+      );
+    
+      if (isAlreadySelected) {
+        const filtered = selectedCrew.filter(
+          (person) => person.OrganizationPersonnelUUID !== selectedUser.OrganizationPersonnelUUID
         );
-      
-        if (isAlreadySelected) {
-          const filtered = workOrderInformation.crew.filter(
-            (person) => person.OrganizationPersonnelUUID !== selectedUser.OrganizationPersonnelUUID
-          );
-          setWorkOrderInformation((prev) => ({ ...prev, crew: filtered }));
-        } else {
-          const newCrewMember = {
-            fullName: selectedUser.FullName,
-            OrganizationPersonnelUUID: selectedUser.OrganizationPersonnelUUID,
-            timings: []
-          };
-          setWorkOrderInformation((prev) => ({
-            ...prev,
-            crew: [...prev.crew, newCrewMember],
-          }));
-        }
-      };
+        setSelectedCrew(filtered);
+      } else {
+        const newCrewMember = {
+          FullName: selectedUser.FullName,
+          OrganizationPersonnelUUID: selectedUser.OrganizationPersonnelUUID,
+          timings: [],
+        };
+        setSelectedCrew((prev) => [...prev, newCrewMember]);
+      }
+    };
+    
       
       
       useEffect(() => {
@@ -72,7 +76,9 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
 
     const crewItem = ({ item }: { item: Crew }) => {
       
-        const isSelected = workOrderInformation.crew.some((eachPersonnel) => eachPersonnel.OrganizationPersonnelUUID === item.OrganizationPersonnelUUID);
+      const isSelected = selectedCrew.some(
+        (eachPersonnel) => eachPersonnel.OrganizationPersonnelUUID === item.OrganizationPersonnelUUID
+      );
       
         return (
           <TouchableOpacity
@@ -88,6 +94,13 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
         );
       };
       
+      const handleDone = () => {
+        setWorkOrderInformation((prev) => ({
+          ...prev,
+          crew: selectedCrew,
+        }));
+        onClose();
+      };
 
 /* onPress={() => setWorkOrderInformation((prev) => ({...prev, crew: [...workOrderInformation.crew, {fullName: item.FullName, userUUID: item.UserUUID}]}))} */
   return (
@@ -100,14 +113,14 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
                     style={styles.workOrderTypesList}
                     data={crew}
                     contentContainerStyle= {{gap: 15}}
-                    keyExtractor={(item) => item.OrganizationPersonnelUUID}
+                    keyExtractor={(item) => item.UserUUID}
                     renderItem={crewItem}
                     ListEmptyComponent={<Text>No Personnels Available</Text>}
                     ListFooterComponent={loading ? <ActivityIndicator size={"small"} /> : null}
                 />
             </ScrollView>
             
-            <CustomButton onPress={onClose} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginHorizontal: "10%", marginBottom: 10, marginTop: 10}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} title={"Done"} />
+            <CustomButton onPress={handleDone} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginHorizontal: "10%", marginBottom: 10, marginTop: 10}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} title={"Done"} />
 
             </>
         )}

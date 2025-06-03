@@ -4,8 +4,9 @@ export const formatTo12Hour = (dateTimeStr: string) => {
     const minutes = date.getMinutes();
     const ampm = hours >= 12 ? 'PM' : 'AM';
   
-    hours = hours % 12 || 12; // Convert to 12-hour format
+    hours = hours % 12 || 12; 
     const paddedMinutes = minutes.toString().padStart(2, '0');
   
-    return `${hours.toString().padStart(2, '0')}:${paddedMinutes} ${ampm}`;
+    return `${hours}:${paddedMinutes}${ampm}`;
   };
+  

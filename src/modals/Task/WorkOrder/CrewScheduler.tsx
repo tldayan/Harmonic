@@ -9,6 +9,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { getNextMonthDates } from '../../../utils/TaskScreen/getDates';
 import { colors } from '../../../styles/colors';
@@ -41,9 +42,10 @@ interface CrewSchedulerProps {
 
 export default function CrewScheduler({setWorkOrderInformation, workOrderInformation}: CrewSchedulerProps) {
 
-    
-  const [crew, setCrew] = useState(workOrderInformation.crew || []);
-  const [selectedDate, setSelectedDate] = useState("")
+
+  const [selectedDate, setSelectedDate] = useState(workOrderInformation.workOrderStartDate || "")
+  const [initialDate, setInitialDate] = useState(workOrderInformation.workOrderStartDate || "")
+  const [loading, setLoading] = useState(false)
   const scrollViewRef = useRef(null);
   const timelineScrollRef = useRef<ScrollView>(null);
   const {organizationUUID} = useSelector((state: RootState) => state.auth)
@@ -52,11 +54,29 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
   const DATES = getNextMonthDates();
 
   useEffect(() => {
-    setCrew(workOrderInformation.crew || []);
-  }, [workOrderInformation.crew]);
+    setSelectedDate(workOrderInformation.workOrderStartDate || "");
+  }, [workOrderInformation.workOrderStartDate]);
+
+  useEffect(() => {
+    if(initialDate) return
+    setInitialDate(workOrderInformation.workOrderStartDate);
+  }, [workOrderInformation.workOrderStartDate]);
+  
+  useEffect(() => {
+    fetchOrganizationPersonnelSchedule()
+  }, [selectedDate,workOrderInformation.crew]);
   
 
   const handleSlotPress = (personId: string, slot: string) => {
+
+    const slotBlocked = workOrderInformation.blockedCrewTimings.some((blocked) => blocked.blockedTimings.includes(slot))
+    if(slotBlocked) {
+        Alert.alert(
+            "Timing Blocked",
+            "The selected time slot for that personnel is blocked"
+          );
+          return
+    }
 
     if(!selectedDate) return
 
@@ -137,6 +157,9 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
     }
   };
 
+
+
+
   const handleDateSelect = async (item: {
     key: number;
     date: Date;
@@ -144,25 +167,57 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
     fullDate: string;
   }) => {
     const day = item.date.getDay();
+    console.log(item);
   
     if (day === 0 || day === 6) {
-        Alert.alert(
-            "Unavailable Date",
-            "Crew members are unavailable on Saturdays and Sundays due to holidays. Please select a weekday instead."
-          );
+      Alert.alert(
+        "Unavailable Date",
+        "Crew members are unavailable on Saturdays and Sundays due to holidays. Please select a weekday instead."
+      );
       return;
     }
   
-    setSelectedDate(item.fullDate)
-    const organizationPersonnelSchedule = await getOrganizationPersonnelSchedule(organizationUUID, workOrderInformation, item.fullDate)
-    const blockedCrewTimings = groupByDate(organizationPersonnelSchedule.BlockedSchedule);
-    console.log(blockedCrewTimings)
-    setWorkOrderInformation((prev) => ({
-      ...prev,
-      workOrderStartDate: item.fullDate,
-      blockedCrewTimings,
-    }));
+    if (!workOrderInformation.crew.length) {
+      Alert.alert(
+        "Crew Not Selected",
+        "Please select a crew member before proceeding."
+      );
+      return;
+    }   
+  setSelectedDate(item.fullDate)
+    fetchOrganizationPersonnelSchedule()
   };
+
+  const fetchOrganizationPersonnelSchedule = async() => {
+    setLoading(true)
+    try {
+        const organizationPersonnelSchedule = await getOrganizationPersonnelSchedule(
+            organizationUUID,
+            workOrderInformation,
+            selectedDate
+        );
+        
+        console.log("organizationPersonnelSchedule:", organizationPersonnelSchedule);
+        console.log("BlockedSchedule:", organizationPersonnelSchedule.Payload.BlockedSchedule);
+    
+        const { blocked } = groupByDate(organizationPersonnelSchedule?.Payload?.BlockedSchedule);
+        console.log(blocked);
+
+        setWorkOrderInformation((prev) => ({
+        ...prev,
+        workOrderStartDate: selectedDate,
+        blockedCrewTimings: blocked,
+        }));
+
+    } catch (err) {
+        console.log(err)
+    } finally {
+        setLoading(false)
+    }
+
+  }
+  console.log(selectedDate)
+  console.log(initialDate)
   
 
   return (
@@ -176,7 +231,7 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
         {DATES.map((item) => (
           <TouchableOpacity
             key={item.fullDate}
-            style={[styles.dateBox, workOrderInformation.workOrderStartDate === item.fullDate && styles.selectedDateBox]}
+            style={[styles.dateBox, selectedDate === item.fullDate && styles.selectedDateBox]}
             onPress={() => handleDateSelect(item)}
           >
             <Text style={styles.label}>{item.label}</Text>
@@ -211,49 +266,64 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
       </ScrollView>
 
       {/* Main Timeline Body */}
-      <ScrollView bounces={false} horizontal onScroll={syncScroll} scrollEventThrottle={16} ref={scrollViewRef}>
+      {loading ? <ActivityIndicator size={"small"} style={{marginVertical: "10%"}} /> : <ScrollView bounces={false} horizontal onScroll={syncScroll} scrollEventThrottle={16} ref={scrollViewRef}>
         <FlatList
           scrollEnabled={false}
-          data={crew}
+          data={workOrderInformation.crew}
           keyExtractor={(item) => item.OrganizationPersonnelUUID}
           renderItem={({ item }) => (
             <View style={styles.personnelRow}>
               <View style={styles.nameColumn}>
-                <Text style={styles.nameText}>{item.fullName}</Text>
+                <Text style={styles.nameText}>{item.FullName}</Text>
      {/*            {item.isOff && <Text style={styles.offBadge}>OFF</Text>} */}
               </View>
               <View style={styles.timeSlotRow}>
                 {timeSlots.map((slot, idx) => (
-                  <TouchableOpacity
+                <TouchableOpacity
                     key={idx}
                     onPress={() => handleSlotPress(item.OrganizationPersonnelUUID, slot)}
                     style={[
-                      styles.timeSlot,
-                  /*     item.isOff && styles.offOverlay, */
-                      item.timings.some((eachObj) => eachObj.date === selectedDate && eachObj.selectedTimings.includes(slot)) && styles.selectedSlot,
-                      workOrderInformation.blockedCrewTimings.some(
+                    styles.timeSlot,
+                    workOrderInformation.blockedCrewTimings.some(
                         (blocked) =>
-                          blocked.date === selectedDate &&
-                          blocked.blockedTimings.includes(slot)
-                      ) && styles.blockedSlot,
+                        item.OrganizationPersonnelUUID === blocked.OrganizationPersonnelUUID &&
+                        blocked.blockedTimings.includes(slot)
+                    ) && styles.blockedSlot,
+
+                    workOrderInformation.bookedCrewTimings.some(
+                        (blocked) =>
+                /*         item.OrganizationPersonnelUUID === blocked.OrganizationPersonnelUUID && */
+                        blocked.bookedTimings.includes(slot) &&
+                        selectedDate === initialDate
+                    ) && styles.bookedSlot,
+
+                    item.timings.some(
+                        (eachObj) =>
+                        eachObj.date === selectedDate &&
+                        eachObj.selectedTimings.includes(slot)
+                    ) && styles.selectedSlot,
                     ]}
-                  />
+                />
                 ))}
               </View>
             </View>
           )}
         />
-      </ScrollView>
+      </ScrollView>}
 
       {/* Legend */}
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: 'blue' }]} />
-          <Text style={styles.legendText}>Current Selection</Text>
+          <View style={[styles.legendDot, { backgroundColor: 'white',borderWidth: 1, borderColor: '#ccc', }]} />
+          <Text style={styles.legendText}>Available Slots</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: 'red' }]} />
-          <Text style={styles.legendText}>Off Day</Text>
+          <View style={[styles.legendDot, styles.blockedSlot, {borderWidth: 1, borderColor: "red"}]} />
+          <Text style={styles.legendText}>Blocked Slots</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, styles.selectedSlot]} />
+          <Text style={styles.legendText}>Selected Slots</Text>
         </View>
       </View>
     </View>
@@ -286,8 +356,10 @@ const styles = StyleSheet.create({
   timeSlot: {
     width: HOUR_WIDTH / 4,
     height: 36,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: 'white',
     borderLeftWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: '#ccc',
   },
   offOverlay: { backgroundColor: '#fecaca' },
@@ -323,9 +395,14 @@ const styles = StyleSheet.create({
     borderColor: '#2563eb',
   },
   blockedSlot: {
-    backgroundColor: 'red',
-    borderWidth: 1,
-    borderColor: '#2563eb',
+    backgroundColor: colors.RED_SHADE,
+    borderWidth: 0.1,
+    borderColor: '#ccc',
+  },
+  bookedSlot: {
+    backgroundColor: "green",
+    borderWidth: 0.1,
+    borderColor: '#ccc',
   },
   dateBox: {
     padding: 10,

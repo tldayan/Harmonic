@@ -18,22 +18,22 @@ export interface WorkOrderInformationState {
     creatorLocation: string;
     workOrderStartDate: string;
     crew: {
-      fullName: string;
+      FullName: string;
       OrganizationPersonnelUUID: string;
       timings: {
         date: string;         
         selectedTimings: string[];    
       }[];
     }[];     
-    crewTimings: {
-      [OrganizationPersonnelUUID: string]: {
-        ScheduleDateTimeFrom: string;
-        ScheduleDateTimeTo: string;
-      }
-    }
     blockedCrewTimings: {
+      OrganizationPersonnelUUID: string
       date: string;
       blockedTimings: string[];  
+    }[]; 
+    bookedCrewTimings: {
+      OrganizationPersonnelUUID: string
+      date: string;
+      bookedTimings: string[];  
     }[]; 
     loading: boolean
   }
@@ -43,9 +43,17 @@ export interface Crew {
     UserUUID: string;
     OrganizationPersonnelUUID: string;
     FullName: string;
-    EmailAddress: string;
+/*     EmailAddress: string;
     PhoneNumber: string;
-    ProfilePicURL: string;
+    ProfilePicURL: string; */
   }
   
+  export type CrewMember = {
+    FullName: string;
+    OrganizationPersonnelUUID: string;
+    timings: {
+      date: string;
+      selectedTimings: string[];
+    }[];
+  };
   

@@ -1,46 +1,75 @@
 import { formatTo12Hour } from "./formatTo12Hr";
 
 type ScheduleEntry = {
-    PersonnelUUID: string;
-    ScheduledDateTimeFrom: string;
-    ScheduledDateTimeTo: string;
-  };
+  PersonnelUUID: string;
+  ScheduledDateTimeFrom: string;
+  ScheduledDateTimeTo: string;
+};
 
-  type BlockedCrewTiming = {
-    date: string;
-    blockedTimings: string[];
-  };
+type BlockedCrewTiming = {
+  OrganizationPersonnelUUID: string;
+  date: string;
+  blockedTimings: string[];
+};
 
-  export const groupByDate = (schedule: ScheduleEntry[]): BlockedCrewTiming[] => {
-    console.log(schedule)
-    const map: Record<string, Set<string>> = {};
+type BookedCrewTiming = {
+  OrganizationPersonnelUUID: string;
+  date: string;
+  bookedTimings: string[];
+};
 
-  
-    for (const entry of schedule) {
-      const localDateTime = new Date(entry.ScheduledDateTimeFrom);
-      const dateStr = localDateTime.toISOString().split('T')[0]; 
-  
-      const localTime = formatTo12Hour(localDateTime.toISOString());
+export const groupByDate = (
+  schedule: ScheduleEntry[]
+): { blocked: BlockedCrewTiming[]; booked: BookedCrewTiming[] } => {
+  const map: Record<string, Set<string>> = {};
 
-  
-      if (!map[dateStr]) {
-        map[dateStr] = new Set();
-      }
-  
-      map[dateStr].add(localTime);
+  for (const entry of schedule) {
+    const start = new Date(entry.ScheduledDateTimeFrom);
+    const end = new Date(entry.ScheduledDateTimeTo);
+
+    const dateStr = start.toISOString().split("T")[0];
+    const key = `${entry.PersonnelUUID}_${dateStr}`;
+
+    if (!map[key]) {
+      map[key] = new Set();
     }
-  
-    return Object.entries(map).map(([date, timeSet]) => ({
+
+    const slot = new Date(start);
+    while (slot < end) {
+      const formattedTime = formatTo12Hour(slot.toISOString());
+      map[key].add(formattedTime);
+      slot.setMinutes(slot.getMinutes() + 15);
+    }
+  }
+
+  const blocked: BlockedCrewTiming[] = [];
+  const booked: BookedCrewTiming[] = [];
+
+  for (const [combinedKey, timeSet] of Object.entries(map)) {
+    const [OrganizationPersonnelUUID, date] = combinedKey.split("_");
+    const sortedTimes = Array.from(timeSet).sort((a: string, b: string) => {
+      const parse = (str: string): number => {
+        const [time, modifier] = str.split(" ");
+        let [hours, minutes] = time.split(":").map(Number);
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
+        return hours * 60 + minutes;
+      };
+      return parse(a) - parse(b);
+    });
+
+    blocked.push({
+      OrganizationPersonnelUUID,
       date,
-      blockedTimings: Array.from(timeSet).sort((a: string, b: string) => {
-        const parse = (str: string): number => {
-          const [time, modifier] = str.split(' ');
-          let [hours, minutes] = time.split(':').map(Number);
-          if (modifier === 'PM' && hours !== 12) hours += 12;
-          if (modifier === 'AM' && hours === 12) hours = 0;
-          return hours * 60 + minutes;
-        };
-        return parse(a) - parse(b);
-      }),      
-    }));
-  };
+      blockedTimings: sortedTimes,
+    });
+
+    booked.push({
+      OrganizationPersonnelUUID,
+      date,
+      bookedTimings: sortedTimes,
+    });
+  }
+
+  return { blocked, booked };
+};

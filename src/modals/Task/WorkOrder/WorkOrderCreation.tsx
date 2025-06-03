@@ -56,8 +56,8 @@ export default function WorkOrderCreation({onClose, workOrder} : WorkOrderCreati
         creatorLocation: '',
         workOrderStartDate: '',
         crew: [],
-        crewTimings: {},
         blockedCrewTimings:[],
+        bookedCrewTimings:[],
         loading: false
       });
 
