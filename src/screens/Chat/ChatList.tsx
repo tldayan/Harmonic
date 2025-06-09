@@ -18,6 +18,7 @@ import CreateChat from '../../modals/Chat/CreateChat';
 import { CHAT_INVITE_STATUS_CODES, chatTypes, STATUS_CODE } from '../../utils/constants';
 import { getTimeFromISO } from '../../utils/helpers';
 import { SocketContext } from '../../context/SocketContext';
+import { FlashList } from '@shopify/flash-list';
 
 const ChatsList = () => {
   const [chats, setChats] = useState<ChatEntity[]>([])
@@ -129,6 +130,7 @@ const ChatsList = () => {
   };
   
   const handleChatInvite = async (item: ChatEntity, inviteStatus: string) => {
+    
     setChatActionLoadingUUID(item.ChatMasterUUID)
     try {
       const chatInviteDetails = await getChatInviteDetails(userUUID, item.ChatMasterUUID)
@@ -220,7 +222,7 @@ const ChatsList = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
-      <FlatList
+      <FlashList
         ListHeaderComponent={
           <>
             <View style={styles.mainSearchFieldContainer}>
@@ -249,6 +251,7 @@ const ChatsList = () => {
         contentContainerStyle={styles.chatList}
         data={filteredChats.length ? filteredChats : chats}
         renderItem={renderChatItem}
+        estimatedItemSize={75}
         onRefresh={handleRefresh}
         refreshing={refreshing}
         keyExtractor={(item) => item.ChatMasterUUID}

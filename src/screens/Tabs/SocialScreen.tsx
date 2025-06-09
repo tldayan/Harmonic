@@ -1,5 +1,7 @@
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useMemo, useState } from 'react'
+import { FlashList } from '@shopify/flash-list';
+
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import PostItem from '../../components/PostItem'
@@ -140,7 +142,7 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
 
   return (
     <View style={[styles.mainContainer]}>
-        {(!filteredMessages.length && !loading) ? <Text style={styles.noPosts}>No posts yet.</Text> : <FlatList 
+        {(!filteredMessages.length && !loading) ? <Text style={styles.noPosts}>No posts yet.</Text> : <FlashList 
             ListHeaderComponent={
                 <View style={styles.container}>
                     {/* <View style={styles.createPostContainer}>
@@ -170,8 +172,9 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
                     </View>
                 </View> 
             }
-            style={styles.mainPostsContainerList}
+      /*       style={styles.mainPostsContainerList} */
             contentContainerStyle={styles.postsContainerList}
+            estimatedItemSize={170}
             data={filteredMessages}
             renderItem={({ item } : {item: PostItemProps}) => (
               <PostItem fetchLatestMessages={fetchLatestMessages} showProfileHeader={true} post={item} />
@@ -228,7 +231,7 @@ const styles = StyleSheet.create({
   },
 
   postsContainerList: {
-    flexGrow: 1,
+/*     flexGrow: 1, */
     paddingBottom: 100
 /*     gap: 10 */
   },

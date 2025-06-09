@@ -47,23 +47,28 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
   const route = useRoute()
 
   useEffect(() => {
+    let isMounted = true;
+  
     const fetchPostAttachments = async () => {
       try {
-        const attachemntDataResponse = await fetchWithErrorHandling(getMBMessageAttacment,post.MessageBoardUUID);
-        if(attachemntDataResponse !== undefined) {
-          setAttachmentData(attachemntDataResponse);
+        const response = await fetchWithErrorHandling(getMBMessageAttacment, post.MessageBoardUUID);
+        if (isMounted && response) {
+          setAttachmentData(response);
         }
-        
       } catch (error) {
         console.error("Error fetching attachments:", error);
       }
     };
-
-    if(!childAttachmentData && post.HasAttachment) {
+  
+    if (!childAttachmentData && post.HasAttachment) {
       fetchPostAttachments();
     }
-
+  
+    return () => {
+      isMounted = false;
+    };
   }, [post]);
+  
 
 
   
@@ -83,6 +88,14 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
   const handleGetLikes = async() => {
     setViewingLikes(true)
   }
+
+
+  const handleAttachmentPress = (index: number) => {
+    setViewingAttachments(true);
+    setInitialAttachmentIndex(index);
+    setVideoPlaying(true);
+  };
+  
   
   const attachmentItem = ({item,index}: {item : AttachmentData, index: number}) => {
 
@@ -92,10 +105,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
 
     return (
       <CustomButton 
-        onPress={() => { 
-            setViewingAttachments(true);
-            setInitialAttachmentIndex(index)
-        ;setVideoPlaying(true)}}
+      onPress={() => handleAttachmentPress(index)}
         buttonStyle={[styles.postContentContainer, attachmentData.length === 1 && { width: "100%", height: 200 }]} 
         icon={
           item.AttachmentType.includes("image") ? (
@@ -180,7 +190,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     marginBottom: 20,
     paddingVertical: 16,
-    paddingHorizontal: 12
+    paddingHorizontal: 12,
   },
   defaultMainContainer :{
     borderBottomColor: "#ECECEC",

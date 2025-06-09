@@ -64,7 +64,7 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
   
   useEffect(() => {
     fetchOrganizationPersonnelSchedule()
-  }, [selectedDate,workOrderInformation.crew]);
+  }, [selectedDate/* ,workOrderInformation.crew */]);
   
 
   const handleSlotPress = (personId: string, slot: string) => {
@@ -185,7 +185,7 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
       return;
     }   
   setSelectedDate(item.fullDate)
-    fetchOrganizationPersonnelSchedule()
+/*     fetchOrganizationPersonnelSchedule() */
   };
 
   const fetchOrganizationPersonnelSchedule = async() => {
@@ -202,7 +202,7 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
     
         const { blocked } = groupByDate(organizationPersonnelSchedule?.Payload?.BlockedSchedule);
         console.log(blocked);
-
+        // OVER HERE, I THINK YOU NEED TO SAY THAT IF BOOKED CREW TIMINGS HAS A PERSONNEL WITH SOME BOOKED TIMINGS, THEN DONT POPULATE BLOCKED CREW TIMINGS FOR THE USER
         setWorkOrderInformation((prev) => ({
         ...prev,
         workOrderStartDate: selectedDate,
@@ -216,8 +216,38 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
     }
 
   }
-  console.log(selectedDate)
-  console.log(initialDate)
+
+  const handleClearSchedule = (OrganizationPersonnelUUID: string, personnelName: string) => {
+    Alert.alert(
+      'Confirm Schedule Deletion',
+      `Are you sure you want to clear the schedule for ${personnelName} for this work order`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Clear Schedule',
+          style: 'destructive',
+          onPress: () => {
+            const updatedCrew = workOrderInformation.crew.map((eachCrew) => {
+              if (eachCrew.OrganizationPersonnelUUID === OrganizationPersonnelUUID) {
+                return { ...eachCrew, isDeleting: true,  timings: [] };
+              }
+              return eachCrew;
+            });
+  
+            setWorkOrderInformation((prev) => ({
+              ...prev,
+              crew: updatedCrew,
+            }));
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+  
   
 
   return (
@@ -275,6 +305,7 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
             <View style={styles.personnelRow}>
               <View style={styles.nameColumn}>
                 <Text style={styles.nameText}>{item.FullName}</Text>
+                <TouchableOpacity onPress={() => handleClearSchedule(item.OrganizationPersonnelUUID, item.FullName)} style={styles.clearSchedule}><Text style={styles.clearScheduleText}>Clear Schedule</Text></TouchableOpacity>
      {/*            {item.isOff && <Text style={styles.offBadge}>OFF</Text>} */}
               </View>
               <View style={styles.timeSlotRow}>
@@ -291,17 +322,19 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
                     ) && styles.blockedSlot,
 
                     workOrderInformation.bookedCrewTimings.some(
-                        (blocked) =>
-                /*         item.OrganizationPersonnelUUID === blocked.OrganizationPersonnelUUID && */
-                        blocked.bookedTimings.includes(slot) &&
+                      (booked) =>
+                        item.OrganizationPersonnelUUID === booked.OrganizationPersonnelUUID &&
+                        booked.bookedTimings.includes(slot) &&
                         selectedDate === initialDate
-                    ) && styles.bookedSlot,
-
+                    ) && (item.isDeleting ? styles.toDeleteSlot : styles.bookedSlot),
                     item.timings.some(
                         (eachObj) =>
                         eachObj.date === selectedDate &&
                         eachObj.selectedTimings.includes(slot)
                     ) && styles.selectedSlot,
+
+                    
+
                     ]}
                 />
                 ))}
@@ -314,6 +347,10 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
       {/* Legend */}
       <View style={styles.legend}>
         <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: colors.GREEN,borderWidth: 1, borderColor: 'green', }]} />
+          <Text style={styles.legendText}>Scheduled</Text>
+        </View>
+        <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: 'white',borderWidth: 1, borderColor: '#ccc', }]} />
           <Text style={styles.legendText}>Available Slots</Text>
         </View>
@@ -324,6 +361,10 @@ export default function CrewScheduler({setWorkOrderInformation, workOrderInforma
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, styles.selectedSlot]} />
           <Text style={styles.legendText}>Selected Slots</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, styles.toDeleteSlot]} />
+          <Text style={styles.legendText}>To Delete Slots</Text>
         </View>
       </View>
     </View>
@@ -366,6 +407,8 @@ const styles = StyleSheet.create({
   legend: {
     flexDirection: 'row',
     justifyContent: 'center',
+    flexWrap: "wrap",
+    gap: 5,
     paddingVertical: 10,
     backgroundColor: '#e5e7eb',
   },
@@ -400,7 +443,12 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   bookedSlot: {
-    backgroundColor: "green",
+    backgroundColor: colors.GREEN,
+    borderWidth: 0.1,
+    borderColor: '#ccc',
+  },
+  toDeleteSlot: {
+    backgroundColor: colors.ACTIVE_ORANGE,
     borderWidth: 0.1,
     borderColor: '#ccc',
   },
@@ -426,4 +474,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#555',
   },
+  clearSchedule: {
+    padding: 2,
+    borderRadius: 5,
+    justifyContent: "center"
+  },
+  clearScheduleText: {
+    fontSize: 12,
+    color: colors.RED_TEXT,
+  }
 });

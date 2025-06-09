@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import CustomSelectInput from '../../../components/CustomSelectInput'
 import { CrewMember, WorkOrderInformationState } from '../../../types/work-order.types'
@@ -22,35 +22,47 @@ export default function AssignCrew({setWorkOrderInformation, workOrderInformatio
 
     useEffect(() => {
 
-      const fetchWorkOrderPersonnelSchedule = async() => {
-        const WorkOrderPersonnelScheduleResponse = await getWorkOrderPersonnelSchedule(workOrderInformation.workOrderUUID)
-           console.log("WRFDS", WorkOrderPersonnelScheduleResponse)
-           
-           const filteredCrew: CrewMember[] = WorkOrderPersonnelScheduleResponse.Payload.map((person: any) => ({
-            FullName: person.FullName,
-            OrganizationPersonnelUUID: person.OrganizationPersonnelUUID,
-            timings: [],
-          }));
-          const workOrderDate = localToUTCDateOnly(WorkOrderPersonnelScheduleResponse.Payload[0].ScheduleDateTimeFrom)
-          
-          const filterWorkOrderPersonnelSchedule = WorkOrderPersonnelScheduleResponse.Payload.map((person: any) => ({
-            PersonnelUUID: person.UserUUID,
-            ScheduledDateTimeFrom: person.ScheduleDateTimeFrom,
-            ScheduledDateTimeTo: person.ScheduleDateTimeTo
-          }));
+      const fetchWorkOrderPersonnelSchedule = async () => {
+        const WorkOrderPersonnelScheduleResponse = await getWorkOrderPersonnelSchedule(workOrderInformation.workOrderUUID);
+        console.log("WRFDS", WorkOrderPersonnelScheduleResponse);
+      
 
-          const {booked } = groupByDate(filterWorkOrderPersonnelSchedule);
-
+        const seenUUIDs = new Set<string>();
+        const filteredCrew: CrewMember[] = [];
+      
+        for (const person of WorkOrderPersonnelScheduleResponse.Payload) {
+          if (!seenUUIDs.has(person.OrganizationPersonnelUUID)) {
+            seenUUIDs.add(person.OrganizationPersonnelUUID);
+            filteredCrew.push({
+              FullName: person.FullName,
+              OrganizationPersonnelUUID: person.OrganizationPersonnelUUID,
+              WorkOrderSchedulePersonnelUUID: person?.WorkOrderSchedulePersonnelUUID,
+              timings: [],
+              isDeleting: false,
+            });
+          }
+        }
+      
+        const workOrderDate = localToUTCDateOnly(WorkOrderPersonnelScheduleResponse.Payload[0].ScheduleDateTimeFrom);
+      
+        const filterWorkOrderPersonnelSchedule = WorkOrderPersonnelScheduleResponse.Payload.map((person: any) => ({
+          PersonnelUUID: person.OrganizationPersonnelUUID,
+          ScheduledDateTimeFrom: person.ScheduleDateTimeFrom,
+          ScheduledDateTimeTo: person.ScheduleDateTimeTo,
+        }));
+      
+        const { booked } = groupByDate(filterWorkOrderPersonnelSchedule);
+      
         setWorkOrderInformation((prev) => ({
           ...prev,
           crew: filteredCrew,
           bookedCrewTimings: booked,
-          workOrderStartDate: workOrderDate
-      }));
-      }
+          workOrderStartDate: workOrderDate,
+        }));
+      };
+      
       console.log("WORK ORDER UUID",workOrderInformation.workOrderUUID)
       if(workOrderInformation.workOrderUUID) {
-        console.log("dsadasdada")
         fetchWorkOrderPersonnelSchedule()
       }
 

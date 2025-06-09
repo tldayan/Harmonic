@@ -70,6 +70,6 @@ export const groupByDate = (
       bookedTimings: sortedTimes,
     });
   }
-
+  console.log(blocked, booked)
   return { blocked, booked };
 };

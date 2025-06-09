@@ -172,8 +172,9 @@ export const getUserAddress = async(userUUID: string) => {
       }
   
     try {
-      const saveUserAddressResponse = await apiClient(ENDPOINTS.USER.CHECK_USERNAME, bodyData, {}, "POST")
-      return saveUserAddressResponse.data
+      const checkUserNameExistsResponse = await apiClient(ENDPOINTS.USER.CHECK_USERNAME, bodyData, {}, "POST")
+      console.log(checkUserNameExistsResponse)
+      return checkUserNameExistsResponse.data
   
     } catch(err) {
       console.error(err)
@@ -1210,7 +1211,8 @@ for (let crew of workOrderInformation.crew) {
           PersonnelUUID: crew.OrganizationPersonnelUUID,
           ScheduleDateTimeFrom: fromUTC,
           ScheduleDateTimeTo: toUTC,
-          ScheduledBy: userUUID, //If deleting then you must send "IsDeleted: true" & WorkOrderSchedulePersonnelUUID (NOT personnelUUID)
+          ScheduledBy: userUUID, 
+          ...(crew.isDeleting ? {IsDeleted: true, WorkOrderSchedulePersonnelUUID: crew?.WorkOrderSchedulePersonnelUUID}: {})
         });
 
         startTime = next;

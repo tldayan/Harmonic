@@ -23,6 +23,7 @@ import { Asset } from 'react-native-image-picker'
 import CloseIcon from "../../assets/icons/close-light.svg"
 import { firebaseStoragelocations } from '../../utils/constants'
 import { OrganizationUserItem } from '../../components/FlatlistItems/OrganizationUserItem'
+import { FlashList } from '@shopify/flash-list'
 
 interface CreateGroupProps {
     onClose: () => void
@@ -258,12 +259,21 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
                 <CustomTextInput noBackground inputStyle={styles.memberSearchField} placeholderTextColor={colors.LIGHT_TEXT} value={memberSearch} placeholder='Search members to add' onChangeText={(e) => setMemberSearch(e)} />
             </View>
             {loading ? <ActivityIndicator style={{marginTop: "50%"}} size={"small"} /> : 
-            <FlatList
-                contentContainerStyle={styles.friendList}
-                renderItem={({item}) => <OrganizationUserItem item={item} addedMembers={addedMembers} handleAddMember={handleAddMember} />} 
-                keyExtractor={(item) => item.UserUUID}
-                data={organizationUsers}
-            />}
+            <FlashList
+           /*  contentContainerStyle={{ marginTop: 16 }} */
+            data={organizationUsers}
+            renderItem={({ item }) => (
+              <OrganizationUserItem
+                item={item}
+                addedMembers={addedMembers}
+                handleAddMember={handleAddMember}
+              />
+            )}
+            keyExtractor={(item) => item.UserUUID}
+            estimatedItemSize={80}
+            ItemSeparatorComponent={() => <View style={{ height: 12 }} />} // acts like a vertical gap
+          />
+          }
         </View>
     )
   }
@@ -347,6 +357,7 @@ const styles = StyleSheet.create({
     },
     selectedMembersContainer: {
 /*         borderWidth: 1, */
+      marginBottom: 16,
         flexDirection: "row",
         flexWrap: "wrap",
         gap: 10,

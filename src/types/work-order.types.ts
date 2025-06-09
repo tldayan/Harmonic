@@ -20,10 +20,16 @@ export interface WorkOrderInformationState {
     crew: {
       FullName: string;
       OrganizationPersonnelUUID: string;
+      WorkOrderSchedulePersonnelUUID? :string
+      clearScheduleTimings?: {
+        date: string;         
+        selectedTimings: string[];  // to delete  
+      }[];
       timings: {
         date: string;         
         selectedTimings: string[];    
       }[];
+      isDeleting: boolean;
     }[];     
     blockedCrewTimings: {
       OrganizationPersonnelUUID: string
@@ -51,9 +57,11 @@ export interface Crew {
   export type CrewMember = {
     FullName: string;
     OrganizationPersonnelUUID: string;
+    WorkOrderSchedulePersonnelUUID?: string,
     timings: {
       date: string;
       selectedTimings: string[];
     }[];
+    isDeleting: boolean;
   };
   

@@ -38,6 +38,7 @@ import { useUser } from '../../context/AuthContext'
 import uuid from 'react-native-uuid';
 import { FirebaseAttachment } from '../../types/post-types'
 import { MemoedMessageItem } from '../../components/FlatlistItems/ChatMessageItem'
+import { FlashList } from '@shopify/flash-list'
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 
@@ -514,18 +515,32 @@ useFocusEffect(
         <ChatActionDropdownComponent chatAction={chatAction} setChatAction={setChatAction} />
       </View>
 
-      <FlatList
-        style={{marginBottom: 80}}
-        contentContainerStyle={styles.chatHistoryList}
-        data={chats}
-        keyExtractor={(item) => item.id}
-        renderItem={renderMessage}
-        inverted
-        onEndReached={() => fetchChats(false)}
-        onEndReachedThreshold={0.5}
-        showsVerticalScrollIndicator={false}
-        ListFooterComponent={chatLoading ? <ActivityIndicator size={"small"} /> : <Text style={styles.systemGeneratedMessage}>{formatLongDate(createdDateTime)}</Text>}
-      />
+      <FlashList
+  contentContainerStyle={{
+    ...styles.chatHistoryList,
+    paddingTop: 80,
+  }}
+  data={chats}
+  keyExtractor={(item) => item.id}
+  renderItem={renderMessage}
+  inverted
+  onEndReached={() => fetchChats(false)}
+  onEndReachedThreshold={0.5}
+  showsVerticalScrollIndicator={false}
+  estimatedItemSize={100}
+  ListFooterComponent={
+    chatLoading ? (
+      <ActivityIndicator size="small" />
+    ) : (
+      <Text style={styles.systemGeneratedMessage}>
+        {formatLongDate(createdDateTime)}
+      </Text>
+    )
+  }
+/>
+
+
+
       
 
     <View style={[styles.mainMessageFieldContainer, { padding: isKeyboardVisible ? 0 : Platform.OS === "ios" ? 20 : 0 }]}>

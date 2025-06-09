@@ -94,7 +94,7 @@ export default function EventItem({ event, index, scrollX,setEvents,fetchEventsL
         </View>
 
         <Text style={styles.eventName}>{event.EventName}</Text>
-        <Text numberOfLines={5} style={styles.eventDescription}>{event.EventDescription}</Text>
+        <Text numberOfLines={3} style={styles.eventDescription}>{event.EventDescription}</Text>
 
         <View style={styles.eventInfoContainer}>
             <View style={styles.participantInfo}>

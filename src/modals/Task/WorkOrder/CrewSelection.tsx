@@ -44,8 +44,13 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
     }, [organizationUUID])
 
     useEffect(() => {
-      setSelectedCrew(workOrderInformation.crew);
+      const crewWithIsDeleting: CrewMember[] = workOrderInformation.crew.map((member) => ({
+        ...member,
+        isDeleting: false, 
+      }));
+      setSelectedCrew(crewWithIsDeleting);
     }, []);
+    
     
 
     const handleFilter = (selectedUser: Crew) => {
@@ -59,10 +64,11 @@ export default function CrewSelection({setWorkOrderInformation, workOrderInforma
         );
         setSelectedCrew(filtered);
       } else {
-        const newCrewMember = {
+        const newCrewMember: CrewMember = {
           FullName: selectedUser.FullName,
           OrganizationPersonnelUUID: selectedUser.OrganizationPersonnelUUID,
           timings: [],
+          isDeleting: false,
         };
         setSelectedCrew((prev) => [...prev, newCrewMember]);
       }
