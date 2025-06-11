@@ -7,7 +7,7 @@ export const ENDPOINTS = {
   ADDRESS: {
     COUNTRY_CODES: `${BASE_URL}/address/getAllCountries`,
     GET_USER_ADDRESS: `${BASE_URL}/address/getUserAddress`,
-    GET_ALL_COUNTRIES: `${BASE_URL}/address/getAllCountries`,
+/*     GET_ALL_COUNTRIES: `${BASE_URL}/address/getAllCountries`, */
     GET_ALL_STATES_FOR_COUNTRY: `${BASE_URL}/address/getAllStatesForCountry`,
     GET_ALL_CITIES_FOR_COUNTRY_AND_STATE: `${BASE_URL}/address/getAllCitiesForCountryAndState`,
     SAVE_USER_ADDRESS: `${BASE_URL}/address/saveUserAddress`
@@ -59,6 +59,7 @@ export const ENDPOINTS = {
     GET_WORK_ORDER_DETAILS: `${BASE_URL}/work-order/getWorkOrderDetails`,
     GET_WORK_ORDER_LIST: `${BASE_URL}/work-order/getWorkOrderList`,
     GET_WORK_ORDER_TYPES: `${BASE_URL}/work-order/getWorkOrderTypes`,
+    GET_WORK_ORDER_ATTACHMENTS: `${BASE_URL}/work-order/getWorkOrderAttachments`,
     SAVE_WORK_ORDER: `${BASE_URL}/work-order/saveWorkOrder`,
     SAVE_WORK_ORDER_ATTACHMENTS: `${BASE_URL}/work-order/saveWorkOrderAttachments`,
     SAVE_WORK_ORDER_NOTE: `${BASE_URL}/work-order/saveWorkOrderNote`,

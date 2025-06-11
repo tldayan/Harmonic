@@ -3,7 +3,7 @@ import React, { Dispatch, SetStateAction, useState } from 'react'
 import Participants from "../../assets/icons/participants.svg"
 import Clock from "../../assets/icons/clock.svg"
 import { CardShadowStyles } from '../../styles/global-styles'
-import { formatDate, formatProperDate } from '../../utils/helpers'
+import { formatProperDate } from '../../utils/helpers'
 import { colors } from '../../styles/colors'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
@@ -11,8 +11,6 @@ import { useNavigation } from '@react-navigation/native'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { Event } from '../../types/event.types'
-import CustomButton from '../CustomButton'
-import ThreeDots from "../../assets/icons/three-dots-horizontal.svg"
 import { EventActionDropdownComponent } from '../../dropdowns/EventActionDropdown'
 import { CustomModal } from '../CustomModal'
 import ConfirmationModal from '../../modals/ConfirmationModal'
@@ -20,6 +18,7 @@ import { cancelEvent } from '../../api/network-utils'
 import { STATUS_CODE } from '../../utils/constants'
 import Toast from 'react-native-toast-message'
 import EventCreation from '../../modals/Event/EventCreation'
+import ImageSkeleton from '../../skeletons/ImageSkeleton'
 
 interface EventItemProps {
     event: Event;
@@ -37,7 +36,8 @@ export default function EventItem({ event, index, scrollX,setEvents,fetchEventsL
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
-  const [action, setAction] = useState<string | null>(null);
+    const [action, setAction] = useState<string | null>(null);
+    const [imageLoading, setImageLoading] = useState(true);
 
 
     const inputRange = [
@@ -85,7 +85,15 @@ export default function EventItem({ event, index, scrollX,setEvents,fetchEventsL
         activeOpacity={0.7}
         style={[styles.eventContainer, CardShadowStyles, { transform: [{ scale }, { rotate }] }]}
         >
-        <Image style={styles.banner} source={{ uri: event.EventBanner }} />
+        <View style={{ height: 200 }}>
+        {imageLoading && <ImageSkeleton oneImage={true} />}
+
+        <Image
+            style={[styles.banner, { opacity: imageLoading ? 0 : 1 }]}
+            source={{ uri: event.EventBanner }}
+            onLoadEnd={() => setImageLoading(false)}
+        />
+        </View>
 
         <View style={styles.eventCategoryContainer}>
             <Text style={styles.eventCategory}>{event.StatusItemCode}</Text>

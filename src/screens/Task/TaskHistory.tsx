@@ -16,9 +16,9 @@ interface TimelineItemProps {
 }
 
 interface TaskInfoHistoryProps {
-  taskUUID: string;
-  workOrderDetails?: WorkOrderDetails
-  workRequestDetails?: WorkRequestDetails
+  workOrderUUID?: string;
+  workRequestUUID?: string
+  taskDetails: any
 }
 
 const TimelineItem: React.FC<TimelineItemProps> = ({
@@ -52,7 +52,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
 );
 
 
-function TaskHistory({ taskUUID, workRequestDetails}: TaskInfoHistoryProps) {
+function TaskHistory({ workOrderUUID, workRequestUUID, taskDetails}: TaskInfoHistoryProps) {
   const [loading, setLoading] = useState(true);
   const [taskHistory, setTaskHistory] = useState<(WorkRequestHistory | WorkOrderHistory)[]>([]);
   const [expanded, setExpanded] = useState(false);
@@ -60,11 +60,9 @@ function TaskHistory({ taskUUID, workRequestDetails}: TaskInfoHistoryProps) {
   useEffect(() => {
     const fetchTaskHistory = async () => {
       try {
-        const workRequestHistoryResponse = await getWorkRequestHistory(taskUUID); 
-        const workOrderHistoryResponse = await getWorkOrderHistory(taskUUID); //FETCH WORK ORDER IF USER ROLE IS COMMUNITY ADMIN ??
-
-
-        setTaskHistory(workRequestHistoryResponse.Payload);
+        const taskHistory = await (workRequestUUID ? getWorkRequestHistory(workRequestUUID) : getWorkOrderHistory(workOrderUUID!)); 
+        console.log(taskHistory.Payload)
+        setTaskHistory(taskHistory.Payload);
       } catch (err) {
         console.log(err);
       } finally {
@@ -72,7 +70,7 @@ function TaskHistory({ taskUUID, workRequestDetails}: TaskInfoHistoryProps) {
       }
     };
     fetchTaskHistory();
-  }, [workRequestDetails]);
+  }, [taskDetails]);
 
   return (
     <TouchableOpacity activeOpacity={0.7} onPress={() => setExpanded((prev) => !prev)}  style={[styles.container, CardShadowStyles]}>
@@ -92,9 +90,15 @@ function TaskHistory({ taskUUID, workRequestDetails}: TaskInfoHistoryProps) {
               {taskHistory.map((item, index) => {
                 const date = formatLongDate(item.CreatedDateTime);
                 const time = getTimeFromISO(item.CreatedDateTime);
+
+                        const key =
+              'WorkRequestStatusUUID' in item
+                ? item.WorkRequestStatusUUID
+                : item.WorkOrderStatusUUID;
+
                 return (
                   <TimelineItem
-                    key={item.EntityUUID}
+                    key={key}
                     heading={item.StatusItemName}
                     time={time}
                     date={date}

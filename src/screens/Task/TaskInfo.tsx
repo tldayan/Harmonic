@@ -2,7 +2,7 @@ import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 're
 import React, { useEffect, useState } from 'react'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
-import { getWorkRequestDetails } from '../../api/network-utils'
+import { getWorkOrderDetails, getWorkRequestDetails } from '../../api/network-utils'
 import TaskInfoDetails from './TaskInfoDetails'
 import TaskHistory from './TaskHistory'
 import TaskHeading from './TaskHeading'
@@ -22,8 +22,8 @@ export type TaskInfoScreenRouteProp = RouteProp<RootStackParamList, "TaskInfo">
 export default function TaskInfo() {
 
     const route = useRoute<TaskInfoScreenRouteProp>()
-    const [workRequestDetails, setWorkRequestDetails] = useState<WorkRequestDetails>({})
-    const {workRequestUUID, workRequestNumber} = route.params || {}
+    const [taskDetails, setTaskDetails] = useState<WorkRequestDetails>({})
+    const {workOrderUUID, workRequestUUID, workRequestNumber} = route.params || {}
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
     const [action, setAction] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -31,9 +31,15 @@ export default function TaskInfo() {
     const fetchWorkRequestDetails = async() => {
         
         try {
-            const workRequestDetailsResponse = await getWorkRequestDetails(workRequestUUID)
-            console.log(workRequestDetailsResponse)
-            setWorkRequestDetails(workRequestDetailsResponse.Payload)
+          const taskDetailsResponse = await (
+            workOrderUUID
+              ? getWorkOrderDetails(workOrderUUID)
+              : getWorkRequestDetails(workRequestUUID!)
+          );
+          
+          
+            console.log(taskDetailsResponse)
+            setTaskDetails(taskDetailsResponse.Payload)
 
         } catch(err) {
             console.log(err)
@@ -53,25 +59,27 @@ export default function TaskInfo() {
         <View style={styles.taskHeadingContainer}>
            {loading ? <ActivityIndicator style={{marginVertical: "10%", marginHorizontal: "50%"}} size={"small"} /> : 
            <>
-            <TaskHeading workRequestDetails={workRequestDetails} />
-           {(workRequestDetails?.StatusItemCode === TASK_STATUS_CODES.PENDING) && <WorkRequestActionDropdownComponent horizontalDots action={action} setAction={setAction} />}
+            <TaskHeading taskDetails={taskDetails} />
+           {(taskDetails?.StatusItemCode === TASK_STATUS_CODES.PENDING) && <WorkRequestActionDropdownComponent horizontalDots action={action} setAction={setAction} />}
           </>}
           </View>
 
-        <TaskInfoDetails workRequestDetails={workRequestDetails} workRequestUUID={workRequestUUID} />
-        <TaskHistory workRequestDetails={workRequestDetails} taskUUID={workRequestUUID} />
-        {workRequestDetails?.PrimaryRequestorUserUUID && (
-          <TaskRequestorInfo workRequestorUUID={workRequestDetails?.PrimaryRequestorUserUUID} />
+        <TaskInfoDetails taskDetails={taskDetails} workOrderUUID={workOrderUUID} workRequestUUID={workRequestUUID} />
+        <TaskHistory taskDetails={taskDetails} workOrderUUID={workOrderUUID} workRequestUUID={workRequestUUID} />
+        {taskDetails?.PrimaryRequestorUserUUID && (
+          <TaskRequestorInfo workRequestorUUID={taskDetails?.PrimaryRequestorUserUUID} />
         )}
 
          
+        {workRequestUUID &&
+        <>
         <CustomModal onClose={() => setAction(null)} isOpen={action === "1"}>
           <ApproveWorkRequest fetchWorkRequestDetails={fetchWorkRequestDetails} workRequestNumber={workRequestNumber ?? ""} workRequestUUID={workRequestUUID} onClose={() => setAction(null)} />
         </CustomModal>
 
         <CustomModal onClose={() => setAction(null)} isOpen={action === "2"}>
           <CancelWorkRequest fetchWorkRequestDetails={fetchWorkRequestDetails} workRequestNumber={workRequestNumber ?? ""} workRequestUUID={workRequestUUID} onClose={() => setAction(null)} />
-        </CustomModal>
+        </CustomModal></>}
 
       </ScrollView>
     );

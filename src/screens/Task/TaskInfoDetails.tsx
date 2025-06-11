@@ -2,7 +2,7 @@ import { ActivityIndicator, Alert, Image, Linking, StyleSheet, Text, TouchableOp
 import React, { useEffect, useState } from 'react'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { RootStackParamList } from '../../types/navigation-types'
-import { getWorkRequestAttachments } from '../../api/network-utils'
+import { getWorkOrderAttachments, getWorkRequestAttachments } from '../../api/network-utils'
 import PDFIcon from "../../assets/icons/pdf.svg"
 import PhotoIcon from "../../assets/icons/photo.svg"
 import DefaultIcon from "../../assets/icons/document.svg"
@@ -13,23 +13,29 @@ import { colors } from '../../styles/colors'
 export type TaskInfoScreenRouteProp = RouteProp<RootStackParamList, "TaskInfo">
 
 interface TaskInfoDetailsProps {
-    workRequestUUID: string; 
-    workRequestDetails: WorkRequestDetails
+    workRequestUUID?: string; 
+    workOrderUUID?: string; 
+    taskDetails: any
   }
   
 
-export default function TaskInfoDetails({workRequestUUID, workRequestDetails} : TaskInfoDetailsProps) {
+export default function TaskInfoDetails({workRequestUUID, workOrderUUID, taskDetails} : TaskInfoDetailsProps) {
 
     const route = useRoute<TaskInfoScreenRouteProp>()
-    const [workRequestAttachments, setWorkRequestAttachments] = useState<WorkRequestAttachment[]>([])
+    const [taskAttachments, setTaskAttachments] = useState<WorkRequestAttachment[]>([])
     const [loading, setLoading] = useState(true)
 
 
     const fetchWorkRequestAttachments = async() => {
         
         try {
-            const workRequestAttachmentsRespose = await getWorkRequestAttachments(workRequestUUID)
-            setWorkRequestAttachments(workRequestAttachmentsRespose.Payload)
+          const taskAttachmentsResponse = await (
+            workRequestUUID
+              ? getWorkRequestAttachments(workRequestUUID)
+              : getWorkOrderAttachments(workOrderUUID!)
+          );
+          
+            setTaskAttachments(taskAttachmentsResponse.Payload)
         } catch(err) {
             console.log(err)
         } finally {
@@ -99,7 +105,7 @@ export default function TaskInfoDetails({workRequestUUID, workRequestDetails} : 
               <Text style={styles.labelText}>Asset</Text>
             </View>
             <View style={styles.valueContainer}>
-              <Text style={styles.valueText}>{workRequestDetails?.AssetName}</Text>
+              <Text style={styles.valueText}>{taskDetails?.AssetName}</Text>
             </View>
           </View>
   
@@ -108,7 +114,7 @@ export default function TaskInfoDetails({workRequestUUID, workRequestDetails} : 
               <Text style={styles.labelText}>Issue</Text>
             </View>
             <View style={styles.valueContainer}>
-              <Text style={styles.valueText}>{workRequestDetails?.ProblemDescription}</Text>
+              <Text style={styles.valueText}>{taskDetails?.ProblemDescription}</Text>
             </View>
           </View> */}
   
@@ -118,7 +124,7 @@ export default function TaskInfoDetails({workRequestUUID, workRequestDetails} : 
             </View>
             <View style={styles.valueContainer}>
               <Text style={styles.valueText}>
-                {workRequestDetails?.ProblemDescription}
+                {taskDetails?.ProblemDescription}
               </Text>
             </View>
           </View>
@@ -139,13 +145,13 @@ export default function TaskInfoDetails({workRequestUUID, workRequestDetails} : 
             </View>
   
             <View style={styles.filesContainer}>
-              {workRequestAttachments.length === 0 ? (
+              {taskAttachments.length === 0 ? (
                 <Text style={{ textAlign: "right", color: colors.LIGHT_TEXT }}>
                   No files attached
                 </Text>
               ) : (
                 <>
-                  {workRequestAttachments.map((eachAttachment) => {
+                  {taskAttachments?.map((eachAttachment) => {
                     const IconComponent = getFileIconComponent(eachAttachment.Attachment);
                     return (
                       <TouchableOpacity

@@ -28,8 +28,8 @@ export default function WorkOrderItem({workOrderItem, setTaskDetails}: WorkOrder
       return
     }
 
-    if(workOrderItem.WorkRequestUUID) {
-      navigation.navigate("TaskInfo", {workRequestUUID: workOrderItem.WorkRequestUUID})
+    if(workOrderItem.WorkOrderUUID) {
+      navigation.navigate("TaskInfo", {workOrderUUID: workOrderItem.WorkOrderUUID})
     }
 
   }

@@ -71,11 +71,7 @@ export const RootNavigator: React.FC = () => {
 
   
   const loading = !!user && !userProfile;
-  console.log(userProfile)
-  console.log(userProfile?.FirstName)
-  console.log(userProfile?.EmailAddress)
-  console.log(userProfile?.PhoneNumber)
-  console.log(userProfile?.Description)
+
   const userProfileComplete =
   !!userProfile?.FirstName &&
   !!userProfile?.EmailAddress &&

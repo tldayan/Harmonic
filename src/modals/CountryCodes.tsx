@@ -71,7 +71,7 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
             <ModalsHeader title='Country Code' onClose={() => setIsDropdownVisible(false)} />
             
             <TextInput placeholderTextColor={colors.LIGHT_TEXT_COLOR} style={styles.input} placeholder='Search for a country' value={search} onChangeText={setSearch} />
-            {countryCodes.length === 0 ? <ActivityIndicator size={"small"} /> :
+            {countryCodes?.length === 0 ? <ActivityIndicator size={"small"} /> :
             <FlatList
                 keyboardShouldPersistTaps="handled"
                 style={styles.list}

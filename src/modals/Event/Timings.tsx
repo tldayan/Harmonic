@@ -7,6 +7,8 @@ import CustomKeyboardAvoidingView from "../../components/CustomKeyboardAvoidingV
 import Calender from "../../assets/icons/calendar.svg";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { defaultInputLabelStyles } from "../../styles/global-styles";
+import { CustomTextInput } from "../../components/CustomTextInput";
+import CustomTextAreaInput from "../../components/CustomTextAreaInput";
 
 interface EventInformationProps {
   setEventInformation: React.Dispatch<React.SetStateAction<EventInformation>>;
@@ -204,7 +206,12 @@ export const Timings = ({ eventInformation, setEventInformation }: EventInformat
 
         <DateTimePickerModal isVisible={isPublishDatePickerVisible} mode="date" onConfirm={(d) => { setPublishDate(d); setPublishDatePickerVisibility(false); }} onCancel={() => setPublishDatePickerVisibility(false)} minimumDate={new Date()} />
         <DateTimePickerModal isVisible={isPublishTimePickerVisible} mode="time" onConfirm={(t) => { setPublishTime(t); setPublishTimePickerVisibility(false); }} onCancel={() => setPublishTimePickerVisibility(false)} />
+      
+        <CustomTextAreaInput labelStyle={defaultInputLabelStyles} multiline value={eventInformation.InformationForRegisteredUsers} onChangeText={(e) => setEventInformation((prev) => ({...prev, InformationForRegisteredUsers: e}))}  label="Information for registered users" placeholder="Note" />
       </ScrollView>
+
+
+
     </CustomKeyboardAvoidingView>
   );
 };

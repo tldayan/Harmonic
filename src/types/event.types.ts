@@ -51,6 +51,7 @@ export interface EventInformation {
   prevEventBanner: string
   eventBanner: DocumentPickerResponse[]; 
   loading: boolean;
+  InformationForRegisteredUsers: string
 }
 
 

@@ -28,7 +28,7 @@ interface TasksScreenProps {
 
 export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
 
-  const [userRole, setUserRole] = useState("admin")
+  const [userRole, setUserRole] = useState("tenant")
   const [searchTask, setSearchTask] = useState("")
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
   const [workRequests, setWorkRequests] = useState<WorkRequest[]>([])

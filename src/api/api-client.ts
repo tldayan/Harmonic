@@ -9,7 +9,7 @@ export const apiClient = async(url: string, bodyData: object, options: RequestIn
     if(tokenObj) {
         token = tokenObj.password
     }
-    
+    console.log("token is", token)
     const headers = {
         "Content-Type": "application/json",
         Authorization: token ? `Bearer ${token}` : "",
@@ -30,6 +30,8 @@ export const apiClient = async(url: string, bodyData: object, options: RequestIn
         headers,
         ...(Object.keys(bodyData).length > 0 ? {body: JSON.stringify(bodyData)} : {})
     })
+
+    console.log(response)
 
     
 /*     if(!response.ok) {

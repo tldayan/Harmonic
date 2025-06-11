@@ -56,6 +56,7 @@ export default function EventCreation({onClose,fetchEventsList, event} : EventCr
         eventStartDateTime: event?.EventStartDateTime || "",
         eventEndDateTime: event?.EventEndDateTime || "",
         prevEventBanner:event?.EventBanner || "",
+        InformationForRegisteredUsers: "",
         eventBanner: [],
         loading: false
       });

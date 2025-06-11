@@ -3,10 +3,10 @@ import React from 'react'
 import { WORK_PRIORITY_COLOR_CODES, WORK_PRIORITY_TEXT_COLOR_CODES, WORK_STATUS__NOTIFICATION_COLOR_CODES, WORK_STATUS_COLOR_CODES } from '../../utils/constants'
 
 interface TaskHeadingProps {
-    workRequestDetails: WorkRequestDetails
+    taskDetails: any
 }
 
-export default function TaskHeading({workRequestDetails} : TaskHeadingProps) {
+export default function TaskHeading({taskDetails} : TaskHeadingProps) {
 
   return (
     <View>
@@ -14,28 +14,28 @@ export default function TaskHeading({workRequestDetails} : TaskHeadingProps) {
           <Text style={[
             styles.workRequestPriorityName,
             {
-                backgroundColor: WORK_PRIORITY_COLOR_CODES[workRequestDetails?.WorkPriorityName ?? ""] || "#ccc",
-                color: WORK_PRIORITY_TEXT_COLOR_CODES[workRequestDetails?.WorkPriorityName ?? ""] || "#000"                
+                backgroundColor: WORK_PRIORITY_COLOR_CODES[taskDetails?.WorkPriorityName ?? ""] || "#ccc",
+                color: WORK_PRIORITY_TEXT_COLOR_CODES[taskDetails?.WorkPriorityName ?? ""] || "#000"                
             }
           ]}>
-            {workRequestDetails?.WorkPriorityName || "N/A"}
+            {taskDetails?.WorkPriorityName || "N/A"}
           </Text>
           <View style={[
             styles.workRequestStatusItemNameContainer,
-            { backgroundColor: WORK_STATUS_COLOR_CODES[workRequestDetails?.StatusItemName ?? ""] || "#eee" }
+            { backgroundColor: WORK_STATUS_COLOR_CODES[taskDetails?.StatusItemName ?? ""] || "#eee" }
           ]}>
             <View style={[
               styles.workRequestNotificationDot,
-              { backgroundColor: WORK_STATUS__NOTIFICATION_COLOR_CODES[workRequestDetails?.StatusItemName ?? ""] || "#999" }
+              { backgroundColor: WORK_STATUS__NOTIFICATION_COLOR_CODES[taskDetails?.StatusItemName ?? ""] || "#999" }
             ]} />
             <Text style={styles.workRequestStatusItemName}>
-              {workRequestDetails?.StatusItemName || "N/A"}
+              {taskDetails?.StatusItemName || "N/A"}
             </Text>
           </View>
         </View>
 
-        <Text style={styles.workRequestNumber}>{workRequestDetails?.WorkRequestNumber}</Text>
-        <Text style={styles.workRequestDescription}>{workRequestDetails?.ProblemDescription}</Text>
+        <Text style={styles.workRequestNumber}>{taskDetails?.WorkRequestNumber}</Text>
+        <Text style={styles.workRequestDescription}>{taskDetails?.ProblemDescription}</Text>
 
     </View>
   )

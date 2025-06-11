@@ -76,7 +76,6 @@ export const getUserAddress = async(userUUID: string) => {
   export const getCountryCodes = async() => {
 
     try {
-
       const countryCodes = await apiClient(ENDPOINTS.ADDRESS.COUNTRY_CODES, {},{}, "GET")
       console.log(countryCodes)
       return countryCodes.data.Payload
@@ -87,21 +86,6 @@ export const getUserAddress = async(userUUID: string) => {
     
   }
 
-
-
-  export const getAllCountries = async() => {
-
-    try {
-      const getAllCountriesResponse = await apiClient(ENDPOINTS.ADDRESS.GET_ALL_COUNTRIES, {}, {}, "GET")
-      console.log(getAllCountriesResponse)
-      return getAllCountriesResponse.data
-  
-    } catch(err) {
-      console.error(err)
-    }
-  
-  }
-  
   
   
   export const getAllStatesForCountry = async(countryId: string) => {
@@ -1004,6 +988,19 @@ export const getWorkOrderDetails = async(workOrderUUID:string) => {
 }
 
 
+export const getWorkOrderAttachments = async(WorkOrderUUID:string) => {
+
+  try {
+    const getWorkOrderAttachmentsResponse = await apiClient(ENDPOINTS.WORK_ORDER.GET_WORK_ORDER_ATTACHMENTS, {}, {}, "GET", {WorkOrderUUID})
+    console.log(getWorkOrderAttachmentsResponse)
+    return getWorkOrderAttachmentsResponse.data
+
+  } catch(err) {
+    console.error(err)
+  }
+
+}
+
 
 export const getWorkOrderList = async(userUUID: string,organizationUUID:string, startIndex: number) => {
 
@@ -1730,7 +1727,7 @@ export const saveEventConfiguration = async(userUUID:string, eventInformation: E
     "EventRegistrationStartDateTimeFormatted": "EventRegistrationStartDateTime",
     "EventRegistrationEndDateTime": eventInformation.registrationEndDateTime ? eventInformation.registrationEndDateTime : new Date(eventStart.getTime() - 60 * 60 * 1000).toISOString(),
     "EventRegistrationEndDateTimeFormatted": "EventRegistrationEndDateTime",
-    "InformationForRegisteredUsers": null,
+    "InformationForRegisteredUsers": eventInformation.InformationForRegisteredUsers,
     "LoggedInUserUUID": userUUID
 }
   console.log(bodyData)
