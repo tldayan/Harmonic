@@ -23,6 +23,7 @@ import VideoIcon from "../assets/icons/video.svg"
 import { fetchWithErrorHandling } from '../utils/helpers'
 import ImageSkeleton from '../skeletons/ImageSkeleton'
 import { CardShadowStyles, shadowStyles } from '../styles/global-styles'
+import FastImage from '@d11/react-native-fast-image'
 
 interface PostItemChildProps {
   post: PostItemProps
@@ -113,12 +114,16 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
             {loading[index] && (
               <ImageSkeleton oneImage={attachmentData.length === 1} />
             )}
-            <Image
-              style={styles.content}
-              source={{ uri: item?.Attachment }}
-              onLoadStart={() => setLoading((prev) => ({ ...prev, [index]: true }))}
-              onLoadEnd={() => setLoading((prev) => ({ ...prev, [index]: false }))}
-            />
+        <FastImage
+          style={styles.content}
+          source={{
+            uri: item?.Attachment,
+            priority: FastImage.priority.high,
+          }}
+          onLoadStart={() => setLoading((prev) => ({ ...prev, [index]: true }))}
+          onLoadEnd={() => setLoading((prev) => ({ ...prev, [index]: false }))}
+          resizeMode={FastImage.resizeMode.cover}
+        />
           </View>
           ) : (
             <View style={{ position: 'relative' }}>

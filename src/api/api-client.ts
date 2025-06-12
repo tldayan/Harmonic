@@ -1,14 +1,18 @@
-import * as Keychain from 'react-native-keychain';
+
+import { getAuth } from '@react-native-firebase/auth';
+import { getApp } from '@react-native-firebase/app';
 
 
 export const apiClient = async(url: string, bodyData: object, options: RequestInit = {}, method: string, queryParams: Record<string, string> = {}) => {
     
-    const tokenObj = await Keychain.getGenericPassword()
-    let token = ""
-
-    if(tokenObj) {
-        token = tokenObj.password
+    let token = "";
+    const auth = getAuth(getApp());
+    const user = auth.currentUser
+    
+    if (user) {
+      token = await user.getIdToken();
     }
+
     console.log("token is", token)
     const headers = {
         "Content-Type": "application/json",

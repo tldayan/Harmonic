@@ -19,6 +19,8 @@ import { STATUS_CODE } from '../../utils/constants'
 import Toast from 'react-native-toast-message'
 import EventCreation from '../../modals/Event/EventCreation'
 import ImageSkeleton from '../../skeletons/ImageSkeleton'
+import FastImage from '@d11/react-native-fast-image';
+
 
 interface EventItemProps {
     event: Event;
@@ -35,7 +37,7 @@ const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpaci
 export default function EventItem({ event, index, scrollX,setEvents,fetchEventsList }: EventItemProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const { userUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
+    const { userUUID } = useSelector((state: RootState) => state.auth);
     const [action, setAction] = useState<string | null>(null);
     const [imageLoading, setImageLoading] = useState(true);
 
@@ -88,11 +90,15 @@ export default function EventItem({ event, index, scrollX,setEvents,fetchEventsL
         <View style={{ height: 200 }}>
         {imageLoading && <ImageSkeleton oneImage={true} />}
 
-        <Image
+        <FastImage
             style={[styles.banner, { opacity: imageLoading ? 0 : 1 }]}
-            source={{ uri: event.EventBanner }}
+            source={{
+                uri: event.EventBanner,
+                priority: FastImage.priority.high,
+            }}
             onLoadEnd={() => setImageLoading(false)}
-        />
+            />
+
         </View>
 
         <View style={styles.eventCategoryContainer}>
@@ -124,10 +130,6 @@ export default function EventItem({ event, index, scrollX,setEvents,fetchEventsL
          <CustomModal presentationStyle="formSheet" fullScreen isOpen={action === "1"} onClose={() => setAction(null)}>
             <EventCreation fetchEventsList={fetchEventsList} event={event} /* fetchEventsList={fetchEventsList} */  onClose={() => setAction(null)} />
          </CustomModal>
-        
-        {/* <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "2"}>
-            <CreateChat fetchChats={fetchChats} onClose={() => setAction(null)} />
-        </CustomModal> */}
 
     </ScrollView>
   )

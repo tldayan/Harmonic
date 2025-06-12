@@ -19,6 +19,7 @@ import { CHAT_INVITE_STATUS_CODES, chatTypes, STATUS_CODE } from '../../utils/co
 import { getTimeFromISO } from '../../utils/helpers';
 import { SocketContext } from '../../context/SocketContext';
 import { FlashList } from '@shopify/flash-list';
+import FastImage from '@d11/react-native-fast-image';
 
 const ChatsList = () => {
   const [chats, setChats] = useState<ChatEntity[]>([])
@@ -189,7 +190,13 @@ const ChatsList = () => {
 
     return (
       <TouchableOpacity style={styles.chatItem} onPress={() => handleNavigate(item)}>
-        <Image style={styles.chatMemberProfilePic} source={{ uri: item.ChatProfilePictureURL || "https://i.pravatar.cc/150" }} />
+        <FastImage
+          style={styles.chatMemberProfilePic}
+          source={{
+            uri: item.ChatProfilePictureURL || "https://i.pravatar.cc/150",
+            priority: FastImage.priority.high
+          }}
+        />
         <View style={styles.mainChatDetailsContainer}>
           <View style={styles.chatDetailsContainer}>
             <Text style={styles.chatMemberName}>{item.ChatMasterName}</Text>

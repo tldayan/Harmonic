@@ -50,12 +50,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       console.log(authUser)
 
 
-      const userToken = await authUser?.getIdToken(); 
+/*       const userToken = await authUser?.getIdToken(); 
       
       if(userToken) {
         console.log(userToken)
         await storeUserToken(userToken)
-      }
+      } */
       
 
       if(authUser !== null) {

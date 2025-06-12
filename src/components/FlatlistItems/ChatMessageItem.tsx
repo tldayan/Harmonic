@@ -3,6 +3,7 @@ import React, { memo } from 'react';
 import { formatDate } from '../../utils/helpers';
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { colors } from '../../styles/colors';
+import FastImage from '@d11/react-native-fast-image';
 
 interface MessageItemProps {
   item: ChatMessage;
@@ -102,13 +103,14 @@ export function MessageItem({
             }}
           >
             {item.Attachment && (
-              <Image
+              <FastImage
                 style={styles.attachmentImage}
                 source={{
                   uri:
                     typeof item.Attachment === "string"
                       ? item.Attachment
                       : (item.Attachment as { url: string }).url,
+                  priority: FastImage.priority.high,
                 }}
               />
             )}
@@ -188,6 +190,7 @@ const styles = StyleSheet.create({
       padding: 5,
       borderRadius: 50,
       textAlign: "center",
+      marginVertical: 5,
       alignSelf: "center",
       paddingHorizontal: 15,
       fontSize: 13,

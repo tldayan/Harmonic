@@ -9,6 +9,7 @@ import { AttachmentData, PostItemProps, PostLikeProps } from '../types/post-type
 import ChevronLeft from "../assets/icons/chevron-left.svg"
 import { useNavigation } from '@react-navigation/native'
 import { colors } from '../styles/colors'
+import FastImage from '@d11/react-native-fast-image'
 
 interface ProfileHeaderProps {
     name?: string,
@@ -56,7 +57,15 @@ export default function ProfileHeader({name, flex,typing,fetchLatestMessages, on
         {goBack && <CustomButton buttonStyle={{marginLeft: 10, flexDirection :"row", height: "100%", alignItems: "center"}} onPress={() => navigation.goBack()} icon={<ChevronLeft />} />}
         
         <TouchableOpacity style={[{flexDirection: "row", gap: 10, alignItems: "center"}, flex ? {flex: 1} : null]} onPress={onPress}>
-          <Image source={{ uri: postData?.ProfilePic || ProfilePic === "" ? "https://i.pravatar.cc/150" : ProfilePic }} style={styles.profilePicture} />
+        <FastImage
+          style={styles.profilePicture}
+          source={{
+            uri: postData?.ProfilePic?.trim() || "https://i.pravatar.cc/150",
+            priority: FastImage.priority.high, 
+          }}
+          onLoadStart={() => console.log("Loading started")}
+          onLoadEnd={() => console.log("Loading finished")}
+        />
           <View style={styles.userNameContainer}> 
               <Text style={styles.name}>{postData?.FirstName ? postData?.FirstName : name}</Text>
               {/* {showStatus && <View style={styles.memberStatusContainer}>

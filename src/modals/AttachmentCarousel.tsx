@@ -9,6 +9,7 @@ import CustomButton from '../components/CustomButton';
 const Pinchable = require('react-native-pinchable').default;
 import Close from "../assets/icons/close-light.svg"
 import { colors } from '../styles/colors';
+import FastImage from '@d11/react-native-fast-image';
 
 const { width } = Dimensions.get('window'); 
 
@@ -53,7 +54,14 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                             {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                             {!item.AttachmentType.includes("video") ? (
                                 <Pinchable>
-                                    <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.Attachment }} />
+                                    <FastImage
+                                        onLoad={() => setLoading(false)}
+                                        style={styles.content}
+                                        source={{
+                                            uri: item?.Attachment,
+                                            priority: FastImage.priority.high, // Optional
+                                        }}
+                                        />
                                 </Pinchable>
                                
                             ) : (
@@ -86,7 +94,14 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                         <View style={styles.contentWrapper}>
                             {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                                 <Pinchable>
-                                    <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: `file://${item.path}` }} />
+                                <FastImage
+                                    onLoad={() => setLoading(false)}
+                                    style={styles.content}
+                                    source={{
+                                        uri: `file://${item.path}`,
+                                        priority: FastImage.priority.high,
+                                    }}
+                                    />
                                 </Pinchable>
                         </View>
                     </View>
@@ -112,7 +127,14 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                             {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                             {!item.type?.includes("video") ? (
                                 <Pinchable>
-                                    <Image onLoad={() => setLoading(false)} style={styles.content} source={{ uri: item?.uri }} />
+                                    <FastImage
+                                        onLoad={() => setLoading(false)}
+                                        style={styles.content}
+                                        source={{
+                                            uri: item?.uri,
+                                            priority: FastImage.priority.high,
+                                        }}
+                                        />
                                 </Pinchable>
                                 
                             ) : (
@@ -194,7 +216,14 @@ export default function AttachmentCarousel({onClose,AttachmentData, initialIndex
                 <ModalsHeader lightCloseIcon={true} onClose={onClose} />
                 {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
                 <Pinchable>
-                   <Image style={styles.content} onLoad={() => setLoading(false)} source={{uri: Attachment || ""}} /> 
+                <FastImage
+                    style={styles.content}
+                    onLoad={() => setLoading(false)}
+                    source={{
+                        uri: Attachment || '',
+                        priority: FastImage.priority.high,
+                    }}
+                />
                 </Pinchable>
                 
             </View>

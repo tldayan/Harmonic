@@ -2,6 +2,7 @@ import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
 import { Asset } from "react-native-image-picker";
 import CustomButton from "../CustomButton";
 import Video from "react-native-video";
+import FastImage from "@d11/react-native-fast-image";
 
 
 interface AttachmentItemProps {
@@ -17,19 +18,62 @@ interface AttachmentItemProps {
 
 export const Attachmentitem = ({item,index,deleteAttachment, setViewingAttachments, setInitialAttachmentIndex, setAttachment, imageSize} : AttachmentItemProps) => {
   return (
-        <View style={styles.imageContainer}>
-            <CustomButton onPress={() => deleteAttachment(item.fileName || "")} buttonStyle={styles.deleteImage} icon={<Image width={10} height={10} source={require("../../assets/images/x.png")} />} />
-            <CustomButton buttonStyle={styles.contentButtonContainer} onPress={() => {setAttachment?.(null);setViewingAttachments(true); setInitialAttachmentIndex(index)}} icon={item.type?.includes("video") ? 
-                <Video 
-                    paused 
-                    renderLoader={<ActivityIndicator style={styles.loader} size={'small'} color={"black"} />} 
-                    style={[styles.content, imageSize ? {width : imageSize, height: imageSize} : null]}
-                    controls={false}
-                    source={{ uri: item.uri }}
-                /> 
-                : 
-                <Image style={[styles.content, imageSize ? {width : imageSize, height: imageSize} : null]} source={{uri: item.uri ? item.uri : undefined}} />} />
-        </View>
+    <View style={styles.imageContainer}>
+      <CustomButton
+        onPress={() => deleteAttachment(item.fileName || "")}
+        buttonStyle={styles.deleteImage}
+        icon={
+          <Image
+            width={10}
+            height={10}
+            source={require("../../assets/images/x.png")}
+          />
+        }
+      />
+      <CustomButton
+        buttonStyle={styles.contentButtonContainer}
+        onPress={() => {
+          setAttachment?.(null);
+          setViewingAttachments(true);
+          setInitialAttachmentIndex(index);
+        }}
+        icon={
+          item.type?.includes("video") ? (
+            <Video
+              paused
+              renderLoader={
+                <ActivityIndicator
+                  style={styles.loader}
+                  size="small"
+                  color="black"
+                />
+              }
+              style={[
+                styles.content,
+                imageSize ? { width: imageSize, height: imageSize } : null,
+              ]}
+              controls={false}
+              source={{ uri: item.uri }}
+            />
+          ) : (
+            <FastImage
+              style={[
+                styles.content,
+                imageSize ? { width: imageSize, height: imageSize } : null,
+              ]}
+              source={
+                item.uri
+                  ? {
+                      uri: item.uri,
+                      priority: FastImage.priority.high,
+                    }
+                  : undefined
+              }
+            />
+          )
+        }
+      />
+    </View>
     )
 }
 

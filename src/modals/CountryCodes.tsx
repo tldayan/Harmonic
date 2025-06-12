@@ -12,16 +12,13 @@ interface CountryCodesProps {
   }
   
 type Country = {
-    CountryId: number;
-    CountryName: string;
-    CountryISO3Code: string;
-    CountryISO2Code: string;
+    PhoneCountryId: number;
+    PhoneCountryName: string;
+    PhoneCountryISO2: string;
+    PhoneCountryISO3: string;
     PhoneCode: string;
-    Capital: string;
-    Currency: string;
-    Native: string;
-    Emoji: string;
-    Nationality: string;
+    PhoneCountryEmoji: string;    
+    PhoneCountryEmojiRaw: string;
   }
   
 
@@ -45,7 +42,7 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
         if(countryCodes.length === 0 || !countryCodes) return
 
         return countryCodes.filter((eachCountry) => {
-            return eachCountry.CountryName.toLowerCase().includes(search.toLowerCase()) || eachCountry.PhoneCode.includes(search)
+            return eachCountry.PhoneCountryName.toLowerCase().includes(search.toLowerCase()) || eachCountry.PhoneCode.includes(search)
         })
     }, [search])
 
@@ -59,7 +56,7 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
         <TouchableOpacity style={styles.countryOption} onPress={() => handleCountryCodeSelect(item.PhoneCode)}>
             <View style={styles.countryContent} >
                 <View>
-                    <Text style={styles.countryText}>{item.Emoji} {item.CountryName} ({item.PhoneCode})</Text>
+                    <Text style={styles.countryText}>{item.PhoneCountryEmojiRaw} {item.PhoneCountryName} ({item.PhoneCode})</Text>
                 </View>
             </View>
         </TouchableOpacity>
@@ -75,7 +72,7 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
             <FlatList
                 keyboardShouldPersistTaps="handled"
                 style={styles.list}
-                keyExtractor={(item) => item.CountryId?.toString()}
+                keyExtractor={(item) => item.PhoneCountryId?.toString()}
                 renderItem={renderItem}
                 data={(filteredCountries && filteredCountries?.length > 0) ? filteredCountries : countryCodes}
             />}

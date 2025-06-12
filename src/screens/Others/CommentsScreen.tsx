@@ -17,6 +17,7 @@ import { RootState } from '../../store/store'
 import PostActions from '../../modals/Post/PostActions'
 import { CustomModal } from '../../components/CustomModal'
 import { STATUS_CODE } from '../../utils/constants'
+import FastImage from '@d11/react-native-fast-image'
 
 export type CommentsScreenRouteProp = RouteProp<RootStackParamList, "Comments">
 
@@ -206,7 +207,14 @@ export default function CommentsScreen() {
 
     return (
       <View style={styles.commentItemContainer}>
-        <CustomButton onPress={() => {}} icon={<Image style={styles.profilePic} source={{uri: item.ProfilePicURL || "https://i.pravatar.cc/150"}} />} />
+        <CustomButton onPress={() => {}} icon={<FastImage
+            style={styles.profilePic}
+            source={{
+              uri: item.ProfilePicURL || "https://i.pravatar.cc/150",
+              priority: FastImage.priority.high,
+            }}
+          />} 
+        />
         <View style={{flex: 1, marginBottom: 25}}>       
           <TouchableOpacity onLongPress={() => setFocusedComment({state: true, comment: item.Comment, MessageBoardCommentUUID: item.MessageBoardCommentUUID, CreatedBy: item.CreatedBy})} style={styles.commentDetailsContainer}>
             <Text style={styles.name}>{item.FirstName}</Text>
@@ -226,7 +234,13 @@ export default function CommentsScreen() {
           {expandedComments[item.MessageBoardCommentUUID] && replies[item.MessageBoardCommentUUID] && (
           replies[item.MessageBoardCommentUUID].map((reply) => (
             <View key={reply?.MessageBoardCommentUUID} style={styles.repliesContainer}>
-              <Image style={styles.replyProfilePic} source={{ uri: reply?.ProfilePicURL || "https://i.pravatar.cc/150" }} />
+              <FastImage
+                style={styles.replyProfilePic}
+                source={{
+                  uri: reply?.ProfilePicURL || "https://i.pravatar.cc/150",
+                  priority: FastImage.priority.high,
+                }}
+              />
               <TouchableOpacity onPress={() => {}} style={styles.replyContainer}>
                 <Text style={styles.name}>{reply?.FirstName}</Text>
                 <Text style={styles.reply}>{reply?.Comment}</Text>

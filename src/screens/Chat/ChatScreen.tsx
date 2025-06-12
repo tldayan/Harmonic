@@ -759,33 +759,6 @@ const styles = StyleSheet.create({
         elevation: 15 */
 /*         color: colors.LIGHT_TEXT_COLOR */
       },
-      userMessageContainer: {
-/*         borderWidth: 1, */
-        flex: 1,
-        gap: 5,
-      },
-      userGeneratedMessageContainer: {
-  /*       borderWidth:1, */
-        marginBottom: 10,
-        flexDirection: "row",
-        gap: 10,
-        alignItems :"flex-start",
-      },
-      userGeneratedMessage: {
-       /*  borderWidth: 1, */
-/*         borderRadius: 50, */
-        borderBottomRightRadius: 10,
-        borderBottomLeftRadius: 10,
-/*         marginRight: 5, */
-        padding: 10,
-        gap: 5,
-        position: "relative",
-        backgroundColor: colors.LIGHT_COLOR,
-        color: '#111928',
-        alignSelf: "flex-start",  
-        maxWidth: "80%",  
-      },
-      
       username: {
         fontSize: 15,
         fontWeight: 500

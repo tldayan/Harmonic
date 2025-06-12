@@ -152,6 +152,23 @@ PODS:
     - hermes-engine/Pre-built (= 0.77.0)
   - hermes-engine/Pre-built (0.77.0)
   - leveldb-library (1.22.6)
+  - libavif/core (0.11.1)
+  - libavif/libdav1d (0.11.1):
+    - libavif/core
+    - libdav1d (>= 0.6.0)
+  - libdav1d (1.2.0)
+  - libwebp (1.5.0):
+    - libwebp/demux (= 1.5.0)
+    - libwebp/mux (= 1.5.0)
+    - libwebp/sharpyuv (= 1.5.0)
+    - libwebp/webp (= 1.5.0)
+  - libwebp/demux (1.5.0):
+    - libwebp/webp
+  - libwebp/mux (1.5.0):
+    - libwebp/demux
+  - libwebp/sharpyuv (1.5.0)
+  - libwebp/webp (1.5.0):
+    - libwebp/sharpyuv
   - MMKV (1.3.14):
     - MMKVCore (~> 1.3.14)
   - MMKVCore (1.3.14)
@@ -1917,6 +1934,32 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNFastImage (8.9.2):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - libavif/core (~> 0.11.1)
+    - libavif/libdav1d (~> 0.11.1)
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SDWebImage (>= 5.19.1)
+    - SDWebImageAVIFCoder (~> 0.11.0)
+    - SDWebImageWebPCoder (~> 0.14)
+    - Yoga
   - RNFBApp (22.2.0):
     - Firebase/CoreOnly (= 11.12.0)
     - React-Core
@@ -2244,6 +2287,15 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - SDWebImage (5.21.1):
+    - SDWebImage/Core (= 5.21.1)
+  - SDWebImage/Core (5.21.1)
+  - SDWebImageAVIFCoder (0.11.0):
+    - libavif/core (>= 0.11.0)
+    - SDWebImage (~> 5.10)
+  - SDWebImageWebPCoder (0.14.6):
+    - libwebp (~> 1.0)
+    - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
   - SPTPersistentCache (1.1.0)
   - VisionCamera (4.6.4):
@@ -2338,6 +2390,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RealmJS (from `../node_modules/realm`)
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
+  - "RNFastImage (from `../node_modules/@d11/react-native-fast-image`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
@@ -2377,11 +2430,17 @@ SPEC REPOS:
     - GTMAppAuth
     - GTMSessionFetcher
     - leveldb-library
+    - libavif
+    - libdav1d
+    - libwebp
     - MMKV
     - MMKVCore
     - nanopb
     - PromisesObjC
     - RecaptchaInterop
+    - SDWebImage
+    - SDWebImageAVIFCoder
+    - SDWebImageWebPCoder
     - SocketRocket
     - SPTPersistentCache
 
@@ -2537,6 +2596,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/realm"
   RNDateTimePicker:
     :path: "../node_modules/@react-native-community/datetimepicker"
+  RNFastImage:
+    :path: "../node_modules/@d11/react-native-fast-image"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBAuth:
@@ -2596,6 +2657,9 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: 1f783c3d53940aed0d2c84586f0b7a85ab7827ef
   leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
+  libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
+  libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
+  libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   MMKV: 7b5df6a8bf785c6705cc490c541b9d8a957c4a64
   MMKVCore: 3f40b896e9ab522452df9df3ce983471aa2449ba
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
@@ -2669,6 +2733,7 @@ SPEC CHECKSUMS:
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
   RNDateTimePicker: 0e650fd3b08dca6e3a3b901f377e9049df804fa0
+  RNFastImage: 2e4875d5621575b293d6c82e621deb413400b69e
   RNFBApp: 6e738f1d86520e65e7dc4d5a6e7422ff0c908e6a
   RNFBAuth: 5098e2f5e1341d9c06994ceeb216093edb67c749
   RNFBStorage: 65958ae20aa398d35c246cd2d12b985937d12219
@@ -2681,6 +2746,9 @@ SPEC CHECKSUMS:
   RNReanimated: 77b5afa6c29decf9697a9981e864ad9727ae6c61
   RNScreens: 06f586c4bdfda2191dd03ee80fceeccf6a7ac6fb
   RNSVG: c25b1978006ef9d0f200a4d2174617e59dcb9136
+  SDWebImage: f29024626962457f3470184232766516dee8dfea
+  SDWebImageAVIFCoder: 00310d246aab3232ce77f1d8f0076f8c4b021d90
+  SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SPTPersistentCache: df36ea46762d7cf026502bbb86a8b79d0080dff4
   VisionCamera: f56eaedde0d3fa095143b78374d29e89e71735f9
