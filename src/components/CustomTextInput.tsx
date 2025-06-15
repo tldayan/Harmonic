@@ -25,6 +25,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
       inputMode,
       countryCode,
       setCountryCode,
+      countryCodeText,
       password,
       confirmedPassword,
       onPress,
@@ -77,7 +78,7 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
             onPress={!disabled ? toggleDropdown : undefined} 
             activeOpacity={disabled ? 1 : 0.7}
           >
-            <Text style={styles.countryCode}>+{countryCode}</Text>
+            <Text style={styles.countryCode}>{countryCode?.PhoneCountryEmojiRaw} +{countryCodeText}{countryCode?.PhoneCode}</Text>
             <ChevronDown width={10} height={10} />
           </TouchableOpacity>
         )}

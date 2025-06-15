@@ -10,10 +10,11 @@ export const apiClient = async(url: string, bodyData: object, options: RequestIn
     const user = auth.currentUser
     
     if (user) {
+    console.log("token is", token)
       token = await user.getIdToken();
     }
 
-    console.log("token is", token)
+
     const headers = {
         "Content-Type": "application/json",
         Authorization: token ? `Bearer ${token}` : "",

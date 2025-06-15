@@ -19,7 +19,16 @@ const [forgotPasswordIntiated, setForgotPasswordIntiated] = useState(false)
 
 // Phone Auth
 const [userNumber, setUserNumber] = useState<string>("");
-const [countryCode, setCountryCode] = useState<string | null>("1"); 
+const [countryCode, setCountryCode] = useState<Country | null>({
+  PhoneCountryId: 231,
+  PhoneCountryName: "United Arab Emirates",
+  PhoneCountryISO2: "AE",
+  PhoneCountryISO3: "ARE",
+  PhoneCode: "971",
+  PhoneCountryEmoji: "U+1F1E6 U+1F1EA",
+  PhoneCountryEmojiRaw: "🇦🇪"
+});
+
 const [code, setCode] = useState<string>(''); 
 const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | null>(null);
 

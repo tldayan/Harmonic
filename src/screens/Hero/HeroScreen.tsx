@@ -6,6 +6,7 @@ import { colors } from '../../styles/colors'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
 import { CustomSafeAreaView } from '../../components/CustomSafeAreaView'
+import { responsiveFontSize } from '../../utils/helpers'
 
 const { width, height } = Dimensions.get('window');
 
@@ -14,7 +15,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "Hero">;
 export default function HeroScreen({ navigation }: Props) {
   return (
     <CustomSafeAreaView>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
         <View style={styles.subHeadingContainer}>
           <View style={styles.bar} />
           <Text style={styles.heading}>We invest in the world’s potential</Text>
@@ -53,7 +54,7 @@ export default function HeroScreen({ navigation }: Props) {
             <Image style={styles.redditLogoText} source={require("../../assets/images/reddit-logo-text.png")} />
           </View>
         </View>
-      </ScrollView>
+      </View>
     </CustomSafeAreaView>
   )
 }
@@ -68,13 +69,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.08,
     paddingVertical: height * 0.05,
   },
+  container: {
+    flex: 1,
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: width * 0.08,
+    paddingVertical: height * 0.05,
+  },  
   bar: {
     height: 30,
     width: '100%',
     maxWidth: 343,
     borderRadius: 14,
     backgroundColor: "#F3F4F6",
-    marginVertical: 24,
+    marginBottom: 24,
   },
   heading: {
     fontWeight: "800",
@@ -104,7 +112,7 @@ const styles = StyleSheet.create({
   },
   learnMoreText: {
     fontWeight: "500",
-    fontSize: 16,
+    fontSize: responsiveFontSize(16),
     color: "white",
   },
   socialsContainer: {

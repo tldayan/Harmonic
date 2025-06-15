@@ -47,17 +47,14 @@ interface UserAddress {
 }
 
 interface Country {
-  CountryId: number;
-  CountryName: string;
-  CountryISO3Code: string;
-  CountryISO2Code: string;
+  PhoneCountryId: number;
+  PhoneCountryName: string;
+  PhoneCountryISO2: string;
+  PhoneCountryISO3: string;
   PhoneCode: string;
-  Capital: string;
-  Currency: string;
-  Native: string;
-  Emoji: string;
-  Nationality: string;
-}
+  PhoneCountryEmoji: string;
+  PhoneCountryEmojiRaw: string;
+};
 
 interface State {
   StateId: number;

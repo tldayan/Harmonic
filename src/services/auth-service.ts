@@ -125,7 +125,7 @@ export const handleLogin = async(email:string, password:string) => {
 
 
   //HANDLE PHONE AUTH
-  export const signInWithPhoneNumber = async (countryCode: string | null, phoneNumber: string) => {
+  export const signInWithPhoneNumber = async (countryCode: Country | null, phoneNumber: string) => {
     if (!countryCode) {
       throw new Error("Country code is required");
     }
@@ -134,7 +134,7 @@ export const handleLogin = async(email:string, password:string) => {
       throw new Error("Please enter a phone number");
     }
   
-    const joinedNumber = `+${countryCode}${phoneNumber}`;
+    const joinedNumber = `+${countryCode.PhoneCode}${phoneNumber}`;
 
   
     const confirmation = await auth.signInWithPhoneNumber(joinedNumber);
@@ -222,22 +222,3 @@ export const handleLogin = async(email:string, password:string) => {
       throw new Error(error.message);
     }
   };
-
-
-//STORE USER TOKEN IN KEYCHAIN SERVICE
-export const storeUserToken = async (userToken: string) => {
-  try {
-    
-    const result = await Keychain.setGenericPassword("userToken", userToken);
-    
-    if (result) {
-      console.log("Token stored successfully");
-
-    } else {
-      console.log("Failed to store token");
-    }
-
-  } catch (error) {
-    console.error("Failed to access Keychain", error);
-  }
-};

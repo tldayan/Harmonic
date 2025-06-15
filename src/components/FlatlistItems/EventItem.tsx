@@ -30,8 +30,8 @@ interface EventItemProps {
     fetchEventsList?: (latest?: boolean, initial?: boolean) => Promise<void>;
   }
 
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const {width : SCREEN_WIDTH} = Dimensions.get("window")
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function EventItem({ event, index, scrollX,setEvents,fetchEventsList }: EventItemProps) {
@@ -87,19 +87,19 @@ export default function EventItem({ event, index, scrollX,setEvents,fetchEventsL
         activeOpacity={0.7}
         style={[styles.eventContainer, CardShadowStyles, { transform: [{ scale }, { rotate }] }]}
         >
-        <View style={{ height: 200 }}>
-        {imageLoading && <ImageSkeleton oneImage={true} />}
-
-        <FastImage
-            style={[styles.banner, { opacity: imageLoading ? 0 : 1 }]}
-            source={{
+        <View style={[styles.imageContainer, { height: SCREEN_HEIGHT * 0.26 }]}>
+            {imageLoading && <ImageSkeleton oneImage={true} />}
+            <FastImage
+                style={[styles.banner, { opacity: imageLoading ? 0 : 1 }]}
+                source={{
                 uri: event.EventBanner,
                 priority: FastImage.priority.high,
-            }}
-            onLoadEnd={() => setImageLoading(false)}
+                }}
+                onLoadEnd={() => setImageLoading(false)}
             />
-
         </View>
+
+
 
         <View style={styles.eventCategoryContainer}>
             <Text style={styles.eventCategory}>{event.StatusItemCode}</Text>
@@ -136,76 +136,70 @@ export default function EventItem({ event, index, scrollX,setEvents,fetchEventsL
 }
 
 const styles = StyleSheet.create({
-
-    mainEventContainer:{
-        padding: 24,
-/*         borderWidth: 1, */
-        width: SCREEN_WIDTH
+    mainEventContainer: {
+      width: SCREEN_WIDTH,
     },
     eventContainer: {
-        borderRadius: 24,
-        padding: 24,
-        width: "80%",
-        alignSelf: "center",
-        backgroundColor: "white",
-        gap: 10
+      borderRadius: 24,
+      padding: 16,
+      marginTop: 16,
+      width: "70%",
+      alignSelf: "center",
+      backgroundColor: "white",
+      gap: 10,
+      justifyContent: "space-between",
     },
-     banner: {
-        width: "100%",
-        borderRadius: 24,
-        height: 200,
-        resizeMode: "cover"
-     },
+    imageContainer: {
+      width: "100%",
+      borderRadius: 24,
+      overflow: "hidden",
+    },
+    banner: {
+      width: "100%",
+      height: "100%",
+      resizeMode: "cover",
+    },
     eventName: {
-        paddingTop: 5,
-        fontWeight: 600,
-        fontSize: 16
-    },
-    eventInfoContainer : {
-/*         borderWidth: 1, */
-        marginTop: 10,
-        flexDirection: "row",
-        gap: 10,
-        justifyContent: "space-between"
-    },
-    participantInfo: {
-        alignItems: "center",
-        flexDirection: "row",
-        gap: 5,
-    },
-    timeInfoContainer: {
-        alignItems: "center",
-        flexDirection: "row",
-        gap: 5
-    },
-    time : {
-        fontSize: 10,
-        color: colors.LIGHT_TEXT
+      fontWeight: "600",
+      fontSize: 16,
     },
     eventDescription: {
-        textAlign: "left",
+      textAlign: "left",
+      fontSize: 12,
+    },
+    eventInfoContainer: {
+      flexDirection: "row",
+      gap: 10,
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    participantInfo: {
+      flexDirection: "row",
+      gap: 5,
+      alignItems: "center",
+    },
+    timeInfoContainer: {
+      flexDirection: "row",
+      gap: 5,
+      alignItems: "center",
+    },
+    time: {
+      fontSize: 10,
+      color: colors.LIGHT_TEXT,
     },
     eventCategoryContainer: {
-/*         borderWidth: 1, */
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
     },
-     eventCategory: {
-        paddingHorizontal: 10,
-        marginTop: 5,
-        backgroundColor: colors.LIGHT_COLOR,
-        fontSize: 12,
-        fontWeight: "500",
-        borderRadius: 24,
-        paddingVertical: 2
-     },
-    threeDots: {
-        marginLeft: "auto",
-        flexDirection: "row", 
-        alignItems: 'center',
-        padding: 5,
-        opacity: 0.7
-    }
-
-})
+    eventCategory: {
+      paddingHorizontal: 10,
+      paddingVertical: 2,
+      marginTop: 5,
+      backgroundColor: colors.LIGHT_COLOR,
+      fontSize: 12,
+      fontWeight: "500",
+      borderRadius: 24,
+    },
+  });
+  

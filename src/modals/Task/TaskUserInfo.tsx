@@ -85,7 +85,7 @@ export default function TaskUserInfo({
         inputStyle={[styles.inputField, styles.numberField]}
         placeholderTextColor={colors.LIGHT_TEXT_COLOR}
         placeholder="123 456 7890"
-        countryCode={'971'}
+        countryCodeText={'971'}
         onChangeText={(e) =>
           setState &&
           setState((prev: any) => ({

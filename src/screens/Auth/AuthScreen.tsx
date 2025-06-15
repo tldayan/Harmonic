@@ -12,10 +12,11 @@ import OTPInput from "../../components/OPTInput";;
 import { useLogin } from "../../hooks/useLogin";
 import checkIcon from '../../assets/images/check.png';
 import xIcon from "../../assets/images/x.png";
-import { getRectangleColor } from "../../utils/helpers";
+import { getRectangleColor, responsiveFontSize } from "../../utils/helpers";
 import { CustomModal } from "../../components/CustomModal";
 import ForgotPassword from "../../modals/ForgotPassword";
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from "../../styles/button-styles";
+
 
 const AuthScreen = () => {
 
@@ -127,7 +128,7 @@ const AuthScreen = () => {
 				</View>
 				: 
 				<View>
-					<CustomTextInput inputStyle={[styles.inputField, styles.numberField]} labelStyle={styles.inputLabel} placeholder="123 456 7890" label="Phone Number*" onChangeText={(e) => setUserNumber(e)} value={userNumber} inputMode="tel" setCountryCode={setCountryCode} countryCode={countryCode} setErrorMessage={setErrorMessage} errorMessage={errorMessage.phone}/>
+					<CustomTextInput inputStyle={[styles.inputField, styles.numberField]} labelStyle={styles.inputLabel} placeholder="123 456 7890" label="Phone Number*" onChangeText={(e) => setUserNumber(e)} value={userNumber} inputMode="tel" setCountryCode={setCountryCode} countryCode={countryCode ?? undefined} setErrorMessage={setErrorMessage} errorMessage={errorMessage.phone}/>
 					{confirm && <OTPInput errorMessage={errorMessage.otpCode} setCode={setCode} />}
 				</View>
 			}
@@ -234,13 +235,11 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingHorizontal: 8,
-		paddingVertical: 4
 	},
 	signinMehtodButtonText: {
 		color : colors.TEXT_COLOR,
 		fontWeight: 500,
-		fontSize: 14,
+		fontSize: responsiveFontSize(14),
 	},
 	activeButtonState : {
 		borderColor : colors.ACTIVE_ACCENT_COLOR

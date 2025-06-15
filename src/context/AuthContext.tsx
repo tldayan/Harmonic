@@ -3,7 +3,6 @@ import { FirebaseAuthTypes, getAuth } from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { ANDROID_GOOGLE_CLIENT_ID, IOS_GOOGLE_CLIENT_ID} from '../utils/constants';
 import { Alert, Platform } from 'react-native';
-import { storeUserToken } from '../services/auth-service';
 import { getOrganizationBasedModules, getUserAddress, getUserProfile, getUuidBySignIn } from '../api/network-utils';
 import { saveDataMMKV } from '../services/storage-service';
 import { saveUserProfileToRealm } from '../database/management/realmUtils/saveUserProfileToRealm';
@@ -48,15 +47,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       setUser(authUser);
       console.log(authUser)
-
-
-/*       const userToken = await authUser?.getIdToken(); 
-      
-      if(userToken) {
-        console.log(userToken)
-        await storeUserToken(userToken)
-      } */
-      
 
       if(authUser !== null) {
 

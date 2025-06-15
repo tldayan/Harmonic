@@ -23,8 +23,9 @@ export type CustomTextInputFieldProps = {
     placeholderTextColor?: string
     rightIcon?: React.ReactNode
     leftIcon?: React.ReactNode
-    setCountryCode?: (code: string | null) => void
-    countryCode?: string | null
+    setCountryCode?: (code: Country | null) => void
+    countryCode?: Country
+    countryCodeText?: string
     inputMode?: "none" | "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url";
     modalOpen?: boolean
     password?: string

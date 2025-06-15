@@ -7,18 +7,8 @@ import ModalsHeader from '../modals/ModalsHeader';
 import { getCountryCodes } from '../api/network-utils';
 
 interface CountryCodesProps {
-    setCountryCode: (value: string | null) => void | undefined;
+    setCountryCode: (value: Country | null) => void | undefined;
     setIsDropdownVisible: React.Dispatch<React.SetStateAction<boolean>>; 
-  }
-  
-type Country = {
-    PhoneCountryId: number;
-    PhoneCountryName: string;
-    PhoneCountryISO2: string;
-    PhoneCountryISO3: string;
-    PhoneCode: string;
-    PhoneCountryEmoji: string;    
-    PhoneCountryEmojiRaw: string;
   }
   
 
@@ -46,14 +36,14 @@ export const CountryCodes: React.FC<CountryCodesProps> = ({ setCountryCode, setI
         })
     }, [search])
 
-    const handleCountryCodeSelect = (code: string) => {
+    const handleCountryCodeSelect = (item: Country) => {
         setIsDropdownVisible(false)
-        setCountryCode(code)
+        setCountryCode(item)
     }
 
 
     const renderItem = useCallback(({item} : {item: Country}) => (
-        <TouchableOpacity style={styles.countryOption} onPress={() => handleCountryCodeSelect(item.PhoneCode)}>
+        <TouchableOpacity style={styles.countryOption} onPress={() => handleCountryCodeSelect(item)}>
             <View style={styles.countryContent} >
                 <View>
                     <Text style={styles.countryText}>{item.PhoneCountryEmojiRaw} {item.PhoneCountryName} ({item.PhoneCode})</Text>

@@ -1,6 +1,7 @@
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { CustomButtonProps } from "../types/button.types";
+import { responsiveFontSize } from "../utils/helpers";
 
 const CustomButton: React.FC<CustomButtonProps> = ({
   title,
@@ -29,7 +30,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 const styles = StyleSheet.create({
   text: {
     textAlign: "center",
-    fontSize: 14,
+    fontSize: responsiveFontSize(14),
   },
   icon: {
    /*  marginRight: 8, */
