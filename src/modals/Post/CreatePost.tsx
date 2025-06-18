@@ -29,6 +29,8 @@ interface CreatePostProps {
     onClose: () => void
     creatingPost?: CreatingPostState
     categories?: Category[]
+    navigation?: any;
+    route?: any;
     post?: PostItemProps
     attachmentData?: AttachmentData[]
     fetchLatestMessages?: (messageBoardUUID?: string) => void
@@ -36,7 +38,7 @@ interface CreatePostProps {
 
   
 
-export default function CreatePost({onClose, creatingPost, post, attachmentData,fetchLatestMessages}: CreatePostProps) {
+export default function CreatePost({onClose, route, navigation,creatingPost, post, attachmentData,fetchLatestMessages}: CreatePostProps) {
 
     const {user} = useUser()
     const [postText, setPostText] = useState(post?.Message ? post.Message : "")
@@ -50,8 +52,8 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
     const [creatingPoll, setCreatingPoll] = useState(false)
     const [loading, setLoading] = useState(false)
     const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth);
-        const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const route = useRoute()
+  /*       const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); */
+ /*    const route = useRoute() */
 
 
     const handlePostClose = () => {
@@ -157,8 +159,8 @@ export default function CreatePost({onClose, creatingPost, post, attachmentData,
                     fetchLatestMessages?.(post.MessageBoardUUID)
                 }
                 onClose()
-                if (route.name !== "Social") {
-                    navigation.dispatch(
+                if (route?.name !== "Social") {
+                    navigation?.dispatch(
                       CommonActions.reset({
                         index: 0,
                         routes: [

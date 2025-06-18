@@ -18,6 +18,7 @@ import PostActions from '../../modals/Post/PostActions'
 import { CustomModal } from '../../components/CustomModal'
 import { STATUS_CODE } from '../../utils/constants'
 import FastImage from '@d11/react-native-fast-image'
+import { useBottomSheet } from '../../components/BottomSheetContext'
 
 export type CommentsScreenRouteProp = RouteProp<RootStackParamList, "Comments">
 
@@ -40,7 +41,7 @@ export default function CommentsScreen() {
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
   const commentInput = useRef<any>(null)
   const isFetching = useRef(false)
-
+  const { open: openBottomSheet, close: closeBottomSheet } = useBottomSheet();
   const flatListRef = useRef<FlatList>(null);
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
@@ -199,6 +200,31 @@ export default function CommentsScreen() {
     commentInput?.current?.focus();
   };
 
+  const handleClose = () => {
+    closeBottomSheet()
+    setFocusedComment({state: false, comment: "" ,MessageBoardCommentUUID: "", CreatedBy: ""})
+  }
+
+  const handleOpenCommentActions = (item: CommentItemProps) => {
+    setFocusedComment({
+      state: true,
+      comment: item.Comment,
+      MessageBoardCommentUUID: item.MessageBoardCommentUUID,
+      CreatedBy: item.CreatedBy,
+    });
+  
+    openBottomSheet(
+      <PostActions
+        setComments={setComments}
+        focusedComment={item.Comment}
+        setEditPost={setEditPost}
+        CreatedBy={item.CreatedBy}
+        MessageBoardCommentUUID={item.MessageBoardCommentUUID}
+        onClose={handleClose}
+      />
+    );
+  };
+  
   const commentItem = ({ item, index }: { item: CommentItemProps; index: number }) => {
 
     if(!item) {
@@ -216,7 +242,7 @@ export default function CommentsScreen() {
           />} 
         />
         <View style={{flex: 1, marginBottom: 25}}>       
-          <TouchableOpacity onLongPress={() => setFocusedComment({state: true, comment: item.Comment, MessageBoardCommentUUID: item.MessageBoardCommentUUID, CreatedBy: item.CreatedBy})} style={styles.commentDetailsContainer}>
+          <TouchableOpacity onLongPress={() => handleOpenCommentActions(item)} style={styles.commentDetailsContainer}>
             <Text style={styles.name}>{item.FirstName}</Text>
             {(editPost.postUUID !== item.MessageBoardCommentUUID) && <Text style={styles.comment}>{item.Comment}</Text>}
             {(editPost.state && editPost.postUUID === item.MessageBoardCommentUUID) && <CustomTextInput multiline inputStyle={styles.editField} onChangeText={(e) => setEditPost((prev) => ({...prev, updatedEdit: e}))} value={editPost.updatedEdit} placeholder='Edit your comment...' />}
@@ -312,10 +338,6 @@ export default function CommentsScreen() {
           </View>
         </View>
       </View>
-
-      <CustomModal halfModal  isOpen={focusedComment.state} onClose={() => setFocusedComment({state: false, comment: "", MessageBoardCommentUUID: "", CreatedBy: ""})}>
-        <PostActions setComments={setComments} focusedComment={focusedComment.comment} setEditPost={setEditPost} CreatedBy={focusedComment.CreatedBy} MessageBoardCommentUUID={focusedComment.MessageBoardCommentUUID}  onClose={() => setFocusedComment({state: false, comment: "" ,MessageBoardCommentUUID: "", CreatedBy: ""})} />
-      </CustomModal>
 
     </View>
   )

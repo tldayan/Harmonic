@@ -10,13 +10,15 @@ import { STATUS_CODE } from '../../utils/constants'
 import { CustomModal } from '../../components/CustomModal'
 import ReportForm from './ReportForm'
 import { AttachmentData, CommentItemProps, EditPostState, PostItemProps } from '../../types/post-types'
-import { useRoute } from '@react-navigation/native'
+import { CommonActions, NavigationProp, RouteProp, useRoute } from '@react-navigation/native'
 import { CommentsScreenRouteProp } from '../../screens/Others/CommentsScreen'
 import CreatePost from './CreatePost'
 import { fetchWithErrorHandling } from '../../utils/helpers'
 
 interface PostActionsProps {
   focusedComment?: string,
+  navigation?: any
+  route?: any
   onClose: () => void
   MessageBoardCommentUUID?: string
   CreatedBy?: string
@@ -27,22 +29,22 @@ interface PostActionsProps {
   fetchLatestMessages?: (messageBoardUUID?: string) => void
 }
 
-export default function PostActions({onClose, CreatedBy,fetchLatestMessages, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
+export default function PostActions({onClose,  navigation,
+  route, CreatedBy,fetchLatestMessages, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
   
   const [loading, setLoading] = useState(false)
   const [isReportingPost, setIsReportingPost] = useState(false)
   const [isUserMessageOwner, setIsUserMessageOwner] = useState(false)
   const [isEditingPost, setIsEditingPost] = useState(false)
 
-const route = useRoute<CommentsScreenRouteProp>()
-  const { createdBy } = route.params || {}
+
+  const { createdBy } = route?.params || {}
   
 
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
 
 
   useEffect(() => {
-    console.log(createdBy, CreatedBy, post?.CreatedBy)
     const messageOwnerUUID = CreatedBy ?? createdBy ?? post?.CreatedBy;
     if (messageOwnerUUID === userUUID) {
       console.log("user is owner")
@@ -63,6 +65,22 @@ const route = useRoute<CommentsScreenRouteProp>()
 
         if(deleteMessageResponse.Status === STATUS_CODE.SUCCESS) {
           onClose()
+          if(route.name === "Comments") {
+            navigation?.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: "Tabs",
+                    state: {
+                      index: 0,
+                      routes: [{ name: "Social" }],
+                    },
+                  },
+                ],
+              })
+            );
+          }
         } else {
           Alert.alert(deleteMessageResponse.Message)
         }
@@ -109,7 +127,7 @@ const route = useRoute<CommentsScreenRouteProp>()
 
   return (
       <View style={styles.container}>
-        <ModalsHeader onClose={onClose} title={"Post Actions"} />
+{/*         <ModalsHeader onClose={onClose} title={"Post Actions"} /> */}
         <View style={styles.postActionButtonsContainer}>
           {!isUserMessageOwner && <CustomButton onPress={() => setIsReportingPost(true)} textStyle={styles.reportText} buttonStyle={styles.report} title={"Report"} />}
           {isUserMessageOwner && <CustomButton onPress={handleEditPost} textStyle={styles.editText} buttonStyle={styles.edit} title={"Edit"} />}
@@ -122,7 +140,7 @@ const route = useRoute<CommentsScreenRouteProp>()
         </CustomModal>
 
         <CustomModal fullScreen presentationStyle='formSheet' isOpen={isEditingPost} onClose={handleCloseAllModals}>
-          <CreatePost fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} post={post} onClose={handleCloseAllModals} />
+          <CreatePost navigation={navigation} route={route}  fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} post={post} onClose={handleCloseAllModals} />
         </CustomModal> 
 
       </View>

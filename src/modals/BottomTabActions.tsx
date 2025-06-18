@@ -3,7 +3,7 @@ import { colors } from "../styles/colors";
 import { CardShadowStyles, shadowStyles } from "../styles/global-styles";
 import CustomButton from "../components/CustomButton";
 import ChevronDown from "../assets/icons/chevron-down.svg"
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import ImageUpload from "../assets/icons/image-black.svg"
 import ClipBoard from "../assets/icons/clipboard-list.svg"
 import Calender from "../assets/icons/calendar-day.svg"
@@ -23,6 +23,7 @@ import EventCreation from "./Event/EventCreation";
 export default function AddModalScreen() {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+    const route = useRoute()
 
     const [creatingPost, setCreatingPost] = useState(false)
     const [creatingTask, setCreatingTask] = useState(false)
@@ -84,7 +85,8 @@ export default function AddModalScreen() {
           </View>
     
           <CustomModal fullScreen isOpen={creatingPost} onClose={closeCreatePostModal} presentationStyle="fullScreen">
-            <CreatePost onClose={closeCreatePostModal} />
+            <CreatePost   navigation={navigation}
+  route={route} onClose={closeCreatePostModal} />
           </CustomModal>
     
           <CustomModal fullScreen isOpen={creatingTask} onClose={closeCreateTaskModal} presentationStyle="fullScreen">

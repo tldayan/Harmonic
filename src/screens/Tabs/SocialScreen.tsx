@@ -205,6 +205,8 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
           <Filters filtering={filtering} setFiltering={setFiltering} onClose={() => setFiltering((prev) => ({...prev, state: false}))}  />
         </CustomModal>
 
+        
+
     </View>
 )
 }

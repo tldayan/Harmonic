@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
         marginBottom: 5
     },
     reportField: {
+        borderWidth: 1,
         width : "100%",
         height: 100,
         borderColor: colors.ACTIVE_ORANGE,

@@ -79,8 +79,6 @@ export default function AssignCrew({setWorkOrderInformation, workOrderInformatio
         </CustomModal>
 
         <CrewScheduler setWorkOrderInformation={setWorkOrderInformation} workOrderInformation={workOrderInformation} />
-
-
     </View>
   )
 }

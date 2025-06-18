@@ -50,32 +50,6 @@ const ChatsList = () => {
     fetchChats()
   }, [])
 
-  useEffect(() => {
-    if (!socket) return;
-  
-    const registerSocket = () => {
-      if (socket.connected && userUUID) {
-        socket.emit("register", userUUID);
-        console.log("Registered socket with userUUID:", userUUID);
-      }
-    };
-  
-    if (socket.connected) {
-      registerSocket();
-    }
-  
-    socket.on("connect", registerSocket);
-  
-    return () => {
-      socket.off("connect", registerSocket);
-      if (userUUID) {
-    
-        socket.emit("deregister", userUUID);
-        console.log("Deregistered socket with userUUID:", userUUID);
-      }
-    };
-  }, [socket, userUUID]);
-
 
   useFocusEffect(
     useCallback(() => {

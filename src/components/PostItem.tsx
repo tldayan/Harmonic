@@ -177,7 +177,7 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
         <PostLikes MessageBoardUUID={post.MessageBoardUUID} onClose={() => setViewingLikes(false)} />
       </CustomModal>
       
-      <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false); setVideoPlaying(false)}}>
+      <CustomModal blackBackground isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false); setVideoPlaying(false)}}>
         <AttachmentCarousel initialIndex={initialAttachmentIndex} AttachmentData={attachmentData} onClose={() => {setViewingAttachments(false); setVideoPlaying(false)}} />
       </CustomModal>  
 
