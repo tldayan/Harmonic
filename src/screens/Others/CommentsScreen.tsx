@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, Keyboard, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, Keyboard, ActivityIndicator, Platform } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -308,7 +308,7 @@ export default function CommentsScreen() {
         />
 
 
-      <View style={[styles.mainCommentContainer, {paddingBottom: isKeyboardVisible ? 0 : 20}]}>
+      <View style={[styles.mainCommentContainer, {paddingBottom: (isKeyboardVisible && Platform.OS === "ios") ? 0 : 10}]}>
           <CustomButton
             onPress={() => {}} 
             icon={<Image source={require("../../assets/images/frame.png")} />} 
@@ -371,6 +371,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop:5,
     borderTopWidth: 1,
+    paddingBottom: Platform.OS === "ios" ? 20 : 10,
     borderTopColor: colors.BORDER_COLOR,
   },
   commentContainer : {

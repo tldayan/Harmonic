@@ -78,7 +78,7 @@ export default function TaskRequestorInfo({workRequestorUUID} : TaskRequestorInf
               <Text style={styles.labelText}>Phone</Text>
             </View>
             <View style={styles.valueContainer}>
-              <Text style={styles.valueText}>{userProfile?.PhoneNumberWithCode}</Text>
+              <Text style={styles.valueText}>{userProfile?.PhoneNumberWithCode ? userProfile?.PhoneNumberWithCode : "-" }</Text>
             </View>
           </View>
         </View>}

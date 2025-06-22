@@ -12,6 +12,7 @@ import { RootState } from '../store/store'
 import { getAllCategories, getCategoryItemsForACategory } from '../api/network-utils'
 import { fetchWithErrorHandling } from '../utils/helpers'
 import Toast from 'react-native-toast-message'
+import { useCreds } from '../hooks/useCreds'
 
 interface FiltersProps {
     onClose: () => void
@@ -26,7 +27,7 @@ interface FiltersProps {
 
 export default function Filters({onClose, setFiltering, filtering, setPostCategories, postCategories,editingCategories,setEditingCategories} : FiltersProps) {
 
-    const { organizationUUID } = useSelector((state: RootState) => state.auth);
+    const { organizationUUID } = useCreds()
 
     const [categories, setCategories] = useState<Category[]>([])
     const [nestedCategoriesIndex, setNestedCategoriesIndex] = useState<{ CategoryUUID: string; index: number }[]>([]);

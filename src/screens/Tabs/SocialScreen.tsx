@@ -23,7 +23,6 @@ interface SocialScreenProps {
 }
 
 export default function SocialScreen({authUserUUID}: SocialScreenProps) {
-  
   const route = useRoute<RouteProp<TabParamList, 'Social'>>(); 
   const navigation = useNavigation<NativeStackNavigationProp<TabParamList>>();
   const [creatingPost, setCreatingPost] = useState<CreatingPostState>({state: false, action: ""})

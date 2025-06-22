@@ -91,8 +91,6 @@ export default function ProfileHeader({
             uri: postData?.ProfilePic?.trim() || "https://i.pravatar.cc/150",
             priority: FastImage.priority.high,
           }}
-          onLoadStart={() => console.log("Loading started")}
-          onLoadEnd={() => console.log("Loading finished")}
         />
         <View style={styles.userNameContainer}>
           <Text style={styles.name}>{postData?.FirstName ? postData?.FirstName : name}</Text>

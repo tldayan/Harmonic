@@ -8,7 +8,7 @@ import Close from "../assets/icons/close-light.svg"
 import CameraSwitch from "../assets/icons/switch-camera.svg"
 import FlashOff from "../assets/icons/flash-off.svg"
 import FlashOn from "../assets/icons/flash-on.svg"
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import Check from "../assets/icons/check-2.svg"
 import ArrowRight from "../assets/icons/arrow-right.svg"
 const Pinchable = require('react-native-pinchable').default;

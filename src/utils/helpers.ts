@@ -3,7 +3,7 @@ import storage from "@react-native-firebase/storage"
 import { useEffect } from "react";
 import { PasswordCheck } from "../types/password.types";
 import Toast from "react-native-toast-message"
-import { Keyboard } from "react-native";
+import { Keyboard, Platform } from "react-native";
 import { Asset, launchImageLibrary } from "react-native-image-picker";
 import { DocumentPickerResponse, keepLocalCopy, pick } from "@react-native-documents/picker";
 import { Dimensions, PixelRatio } from 'react-native';
@@ -361,10 +361,13 @@ export const uploadLocalDocuments = async (data: any) => {
 
 
 
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const scale = SCREEN_WIDTH / 375; 
+const baseWidth = 375;
 
 export function responsiveFontSize(size: number) {
+  const scale = SCREEN_WIDTH / baseWidth;
   const newSize = size * scale;
-  return Math.round(PixelRatio.roundToNearestPixel(newSize));
+
+  return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 1;
 }

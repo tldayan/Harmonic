@@ -19,10 +19,7 @@ function App(): React.JSX.Element {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <SocketProvider>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
-          >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, flexGrow : 1 }}>
             <CustomSafeAreaView>
               <RealmProvider>
                 <AuthModeProvider>

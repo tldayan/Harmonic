@@ -43,6 +43,9 @@ export const BottomSheetProvider = ({ children }: { children: React.ReactNode })
 
   const close = () => {
     bottomSheetRef.current?.close();
+  };
+  
+  const handleDismiss = () => {
     setSheetContent(null);
   };
 
@@ -67,12 +70,13 @@ export const BottomSheetProvider = ({ children }: { children: React.ReactNode })
   snapPoints={dynamicSnapPoints}
   enablePanDownToClose
   enableDismissOnClose
-  onDismiss={close}
+  onDismiss={handleDismiss}
   backdropComponent={renderBackdrop}
 >
-  <BottomSheetView style={{ padding: 20 }}>
-    {sheetContent}
-  </BottomSheetView>
+<BottomSheetView key="bottom-sheet-view" style={{ padding: 20 }}>
+  {sheetContent}
+</BottomSheetView>
+
 </BottomSheetModal>
       </BottomSheetContext.Provider>
     </BottomSheetModalProvider>

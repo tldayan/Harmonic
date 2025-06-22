@@ -530,7 +530,7 @@ useFocusEffect(
   estimatedItemSize={100}
   ListFooterComponent={
     chatLoading ? (
-      <ActivityIndicator size="small" />
+      <ActivityIndicator size="small" style={{marginVertical: "75%"}} />
     ) : (
       <Text style={styles.systemGeneratedMessage}>
         {formatLongDate(createdDateTime)}

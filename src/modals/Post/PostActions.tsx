@@ -149,14 +149,14 @@ export default function PostActions({onClose,  navigation,
 
 const styles = StyleSheet.create({
   container : {
-    paddingBottom: 20,
+    paddingBottom: 10,
     width: "100%",
     borderRadius: 20,
     backgroundColor :"white",
   },
   postActionButtonsContainer: {
 /*     borderWidth: 1, */
-    padding: 16,
+    padding: 5,
     gap: 15
   },
   report: {
@@ -169,12 +169,12 @@ const styles = StyleSheet.create({
   },
   reportText: {
     color: colors.RED_TEXT,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 500
   },
   deleteText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 600
   },
   delete: {
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   editText: {
     color: colors.ACCENT_COLOR,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 500
   },
   edit: {
