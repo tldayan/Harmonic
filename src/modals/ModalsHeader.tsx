@@ -7,7 +7,7 @@ import ChevronLeft from "../assets/icons/chevron-left.svg"
 
 interface ModalsHeaderProps {
     title?: string,
-    onClose: () => void
+    onClose?: () => void
     lightCloseIcon?: boolean
     goBack?: boolean
     goBackFunc?: () => void
@@ -19,7 +19,7 @@ export default function ModalsHeader({title, onClose, lightCloseIcon, goBack = f
     <View style={[styles.headerContainer]}>
         {(goBack && goBackFunc) && <CustomButton buttonStyle={styles.goBackButton} onPress={goBackFunc} icon={<ChevronLeft />} />}
         <Text style={styles.title}>{title}</Text>
-        <CustomButton buttonStyle={styles.closeButton} onPress={onClose} icon={lightCloseIcon ? <CloseIconLight /> : <CloseIconDark /> } />
+        {onClose && <CustomButton buttonStyle={styles.closeButton} onPress={onClose} icon={lightCloseIcon ? <CloseIconLight /> : <CloseIconDark /> } />}
     </View>
   )
 }

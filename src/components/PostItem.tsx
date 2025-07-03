@@ -24,6 +24,7 @@ import { fetchWithErrorHandling } from '../utils/helpers'
 import ImageSkeleton from '../skeletons/ImageSkeleton'
 import { CardShadowStyles, shadowStyles } from '../styles/global-styles'
 import FastImage from '@d11/react-native-fast-image'
+import { useCreds } from '../hooks/useCreds'
 
 interface PostItemChildProps {
   post: PostItemProps
@@ -36,7 +37,7 @@ interface PostItemChildProps {
 export default function PostItem({ post, showProfileHeader, childAttachmentData, fetchLatestMessages}: PostItemChildProps) {
   const [attachmentData, setAttachmentData] = useState<AttachmentData[]>(childAttachmentData || [])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-  const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+  const {userUUID} = useCreds()
   const [viewingLikes, setViewingLikes] = useState(false)
   const [viewingAttachments, setViewingAttachments] = useState(false)
   const [initialAttachmentIndex, setInitialAttachmentIndex] = useState(0)
@@ -173,13 +174,14 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
         {post.NoOfComments > 0 && <CustomButton textStyle={styles.commentStats} icon={<Comment stroke='none' fill={colors.ACTIVE_ORANGE} width={15} height={15} />} title={post.NoOfComments} onPress={() => navigation.navigate("Comments", {postUUID: post.MessageBoardUUID, attachmentData: attachmentData, createdBy: post.CreatedBy})} buttonStyle={styles.commentStatsContainer} />}
       </View> */}
         
-      <CustomModal presentationStyle="formSheet" fullScreen isOpen={viewingLikes} onClose={() => setViewingLikes(false)}>
+
+      {viewingLikes && <CustomModal presentationStyle="formSheet" fullScreen isOpen={viewingLikes} onClose={() => setViewingLikes(false)}>
         <PostLikes MessageBoardUUID={post.MessageBoardUUID} onClose={() => setViewingLikes(false)} />
-      </CustomModal>
+      </CustomModal>}
       
-      <CustomModal blackBackground isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false); setVideoPlaying(false)}}>
+      {viewingAttachments && <CustomModal blackBackground isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false); setVideoPlaying(false)}}>
         <AttachmentCarousel initialIndex={initialAttachmentIndex} AttachmentData={attachmentData} onClose={() => {setViewingAttachments(false); setVideoPlaying(false)}} />
-      </CustomModal>  
+      </CustomModal>}  
 
     </View>
   )

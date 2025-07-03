@@ -8,13 +8,13 @@ import { ScrollView } from 'react-native-gesture-handler'
 interface SelectCountryProps {
   onClose: () => void;
   setUserAddressInformation: React.Dispatch<React.SetStateAction<UserAddress>>;
-  countries: Country[]
+  countries: CountryName[]
 }
 
 export default function SelectCountry({ onClose, setUserAddressInformation,countries }: SelectCountryProps) {
 
 
-  const renderCountryTypeItem = ({ item }: { item: Country }) => (
+  const renderCountryTypeItem = ({ item }: { item: CountryName }) => (
     <CustomButton
       buttonStyle={styles.eventType}
       onPress={() => {
@@ -27,7 +27,7 @@ export default function SelectCountry({ onClose, setUserAddressInformation,count
 
   return (
     <View style={styles.container}>
-      <ModalsHeader onClose={onClose} title='Select Country' />
+{/*       <ModalsHeader onClose={onClose} title='Select Country' /> */}
         <ScrollView style={styles.mainEventTypeList} horizontal={true} scrollEnabled={true} showsHorizontalScrollIndicator={false}>
           <FlatList
             style={styles.eventTypeList}
@@ -44,10 +44,11 @@ export default function SelectCountry({ onClose, setUserAddressInformation,count
 
 const styles = StyleSheet.create({
   container: {
+/*     borderWidth: 2, */
     backgroundColor: "white",
     borderRadius: 20,
-    width: 343,
-    paddingBottom: 10,
+/*     width: 343, */
+    paddingBottom: 30,
     maxHeight: 500
   },
   mainEventTypeList: {

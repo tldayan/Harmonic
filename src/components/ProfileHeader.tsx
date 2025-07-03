@@ -66,6 +66,8 @@ export default function ProfileHeader({
         navigation={navigation}
         route={route}
         onClose={closeBottomSheet}
+        openBottomSheet={openBottomSheet}
+        closeBottomSheet={closeBottomSheet}
       />
     );
     

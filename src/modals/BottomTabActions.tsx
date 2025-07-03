@@ -84,18 +84,18 @@ export default function AddModalScreen() {
             </View>
           </View>
     
-          <CustomModal fullScreen isOpen={creatingPost} onClose={closeCreatePostModal} presentationStyle="fullScreen">
+          {creatingPost && <CustomModal fullScreen onClose={closeCreatePostModal} presentationStyle="fullScreen">
             <CreatePost   navigation={navigation}
-  route={route} onClose={closeCreatePostModal} />
-          </CustomModal>
+            route={route} onClose={closeCreatePostModal} />
+          </CustomModal>}
     
-          <CustomModal fullScreen isOpen={creatingTask} onClose={closeCreateTaskModal} presentationStyle="fullScreen">
+          {creatingTask && <CustomModal fullScreen onClose={closeCreateTaskModal} presentationStyle="fullScreen">
             <WorkRequestCreation onClose={closeCreateTaskModal} />
-          </CustomModal>
+          </CustomModal>}
     
-          <CustomModal fullScreen isOpen={creatingEvent} onClose={closeCreateEventModal} presentationStyle="fullScreen">
+          {creatingEvent && <CustomModal fullScreen isOpen={creatingEvent} onClose={closeCreateEventModal} presentationStyle="fullScreen">
             <EventCreation onClose={closeCreateEventModal} />
-          </CustomModal>
+          </CustomModal>}
         </View>
       </TouchableWithoutFeedback>
     );

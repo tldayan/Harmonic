@@ -74,9 +74,9 @@ export default function AssignCrew({setWorkOrderInformation, workOrderInformatio
     <View style={{flex: 1, marginTop: 10}}>
       <CustomSelectInput label='Select Crew' onSelect={() => setSelectingCrew(true)} placeholder={workOrderInformation.crew.length ? workOrderInformation.crew.map((eachCrew) => eachCrew.FullName).join(",") : "Select crew"} />
         
-        <CustomModal isOpen={selectingCrew} onClose={() => setSelectingCrew(false)} >
+        {selectingCrew && <CustomModal onClose={() => setSelectingCrew(false)} >
             <CrewSelection setWorkOrderInformation={setWorkOrderInformation} workOrderInformation={workOrderInformation} onClose={() => setSelectingCrew(false)}  />
-        </CustomModal>
+        </CustomModal>}
 
         <CrewScheduler setWorkOrderInformation={setWorkOrderInformation} workOrderInformation={workOrderInformation} />
     </View>

@@ -123,9 +123,9 @@ const fetchEventsList = async (latest?: boolean, initial?: boolean) => {
       />}
 
 
-        <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingEvent} onClose={() => setCreatingEvent(false)}>
+        {creatingEvent && <CustomModal presentationStyle="formSheet" fullScreen onClose={() => setCreatingEvent(false)}>
           <EventCreation fetchEventsList={fetchEventsList}  onClose={() => setCreatingEvent(false)} />
-        </CustomModal>
+        </CustomModal>}
 
 
     </View>

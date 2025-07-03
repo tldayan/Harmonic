@@ -10,7 +10,7 @@ interface UserProfile {
   GenderUUID: string 
   CountryUUID: string 
   NationalityUUID: string 
-  PhoneCountryUUID: string | null
+  PhoneCountryUUID: Country | null
   PhoneNumber: string
   DateOfBirth: string
   CreatedBy: string | null
@@ -55,6 +55,20 @@ interface Country {
   PhoneCountryEmoji: string;
   PhoneCountryEmojiRaw: string;
 };
+
+ interface CountryName {
+  CountryId: number;
+  CountryName: string;
+  CountryISO3Code: string;
+  CountryISO2Code: string;
+  PhoneCode: string;
+  Capital: string;
+  Currency: string;
+  Native: string;
+  Emoji: string;
+  Nationality: string;
+}
+
 
 interface State {
   StateId: number;

@@ -36,7 +36,7 @@ export const apiClient = async(url: string, bodyData: object, options: RequestIn
         ...(Object.keys(bodyData).length > 0 ? {body: JSON.stringify(bodyData)} : {})
     })
 
-    console.log(response)
+/*     console.log(response) */
 
     
 /*     if(!response.ok) {

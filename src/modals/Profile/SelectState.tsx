@@ -27,7 +27,7 @@ export default function SelectState({ onClose, setUserAddressInformation,states 
 
   return (
     <View style={styles.container}>
-      <ModalsHeader onClose={onClose} title='Select State' />
+{/*       <ModalsHeader onClose={onClose} title='Select State' /> */}
         <ScrollView style={styles.mainEventTypeList} horizontal={true} scrollEnabled={true} showsHorizontalScrollIndicator={false}>
           <FlatList
             style={styles.eventTypeList}
@@ -46,8 +46,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
     borderRadius: 20,
-    width: 343,
-    paddingBottom: 10,
+/*     width: 343, */
+paddingBottom: 30,
     maxHeight: 500
   },
   mainEventTypeList: {

@@ -73,7 +73,7 @@ export const BottomSheetProvider = ({ children }: { children: React.ReactNode })
   onDismiss={handleDismiss}
   backdropComponent={renderBackdrop}
 >
-<BottomSheetView key="bottom-sheet-view" style={{ padding: 20 }}>
+<BottomSheetView key="bottom-sheet-view" style={{ padding: 20, paddingTop: 0 }}>
   {sheetContent}
 </BottomSheetView>
 

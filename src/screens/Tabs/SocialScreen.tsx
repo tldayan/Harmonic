@@ -141,7 +141,7 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
 
   return (
     <View style={[styles.mainContainer]}>
-        {(!filteredMessages.length && !loading) ? <Text style={styles.noPosts}>No posts yet.</Text> : <FlashList 
+        {(!filteredMessages.length && !loading && !filtering.state) ? <Text style={styles.noPosts}>No posts yet.</Text> : <FlashList 
             ListHeaderComponent={
                 <View style={styles.container}>
                     {/* <View style={styles.createPostContainer}>
@@ -192,17 +192,17 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
           <Text style={styles.noResults}>No posts found for selected filters</Text>
         </View>}
 
-        <CustomModal fullScreen isOpen={creatingPost.state}>
+        {creatingPost.state && <CustomModal fullScreen>
           <CreatePost fetchLatestMessages={fetchLatestMessages} creatingPost={creatingPost} onClose={() => setCreatingPost({ state: false, action: "" })} />
-        </CustomModal>
+        </CustomModal>}
 
-        <CustomModal onClose={() => setIsDeletingPost(false)} isOpen={isDeletingPost}>
+        {isDeletingPost && <CustomModal onClose={() => setIsDeletingPost(false)}>
           <DeletePost onClose={() => setIsDeletingPost(false)} />
-        </CustomModal>
+        </CustomModal>}
 
-        <CustomModal presentationStyle="formSheet" fullScreen onClose={() => setFiltering((prev) => ({...prev, state: false}))} isOpen={filtering.state}>
+        {filtering.state && <CustomModal presentationStyle="formSheet" fullScreen onClose={() => setFiltering((prev) => ({...prev, state: false}))}>
           <Filters filtering={filtering} setFiltering={setFiltering} onClose={() => setFiltering((prev) => ({...prev, state: false}))}  />
-        </CustomModal>
+        </CustomModal>}
 
         
 

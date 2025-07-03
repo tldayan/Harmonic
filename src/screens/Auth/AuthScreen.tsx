@@ -156,9 +156,9 @@ const AuthScreen = () => {
 				<CustomButton title="Resend code" textStyle={styles.resendText} onPress={() => initializeAuth(true)}/>
 			</View>}
 
-			<CustomModal onClose={() => setForgotPasswordIntiated(false)} isOpen={forgotPasswordIntiated}>
+			{forgotPasswordIntiated && <CustomModal onClose={() => setForgotPasswordIntiated(false)}>
 				<ForgotPassword errorMessage={errorMessage.email} onClose={() => { setErrorMessage(prev => ({ ...prev, email: "", password: ""})); }} email={email} setEmail={setEmail} setErrorMessage={setErrorMessage}/>
-			</CustomModal>
+			</CustomModal>}
 		</ScrollView>
 		
 	</TouchableWithoutFeedback>

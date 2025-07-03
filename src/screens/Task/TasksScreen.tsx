@@ -200,14 +200,14 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
       />
 
 
-
-      <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest || !!taskDetails} onClose={() => {setTaskDetails(null);setCreatingRequest(false)}}>
+{/* 
+      {(creatingRequest || !!taskDetails) && <CustomModal presentationStyle="formSheet" fullScreen onClose={() => {setTaskDetails(null);setCreatingRequest(false)}}>
         <WorkOrderCreation workOrder={taskDetails} onClose={() => {setTaskDetails(null);setCreatingRequest(false)}} />
-      </CustomModal>
+      </CustomModal>} */}
 
-      <CustomModal presentationStyle="formSheet" fullScreen isOpen={creatingRequest} onClose={() => setCreatingRequest(false)}>
+      {creatingRequest && <CustomModal presentationStyle="formSheet" fullScreen /* isOpen={creatingRequest} */ onClose={() => setCreatingRequest(false)}>
         <WorkRequestCreation setWorkRequests={setWorkRequests} onClose={() => setCreatingRequest(false)} />
-      </CustomModal>
+      </CustomModal>}
 
       
 

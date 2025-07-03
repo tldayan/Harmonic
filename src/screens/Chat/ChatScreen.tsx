@@ -75,7 +75,6 @@ export default function ChatScreen() {
   const socketChatType = isGroupChat ? "group" : "private"
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
   useKeyboardVisibility(() => setIsKeyboardVisible(true), () => setIsKeyboardVisible(false))
-  console.log(chatProfilePictureURL)
 
 
 useEffect(() => {
@@ -440,22 +439,22 @@ useFocusEffect(
 
 
   
-  useEffect(() => {
-    let toValue = 0;
-  
-    if (isKeyboardVisible) {
-      toValue = 0;
-    } else if (showActions) {
-      toValue = 50;
-    }
-  
-    Animated.spring(paddingAnim, {
-      toValue,            
-      friction: 5,         
-      tension: 50, 
-      useNativeDriver: false,
-    }).start();
-  }, [isKeyboardVisible, showActions]);
+    useEffect(() => {
+      let toValue = 0;
+    
+      if (isKeyboardVisible) {
+        toValue = 0;
+      } else if (showActions) {
+        toValue = 50;
+      }
+    
+      Animated.spring(paddingAnim, {
+        toValue,            
+        friction: 5,         
+        tension: 50, 
+        useNativeDriver: false,
+      }).start();
+    }, [isKeyboardVisible, showActions]);
   
   const AddAdditionalMediaButton = () => {
     if(chatAttachments.length || chatDocuments.length) {
@@ -543,7 +542,8 @@ useFocusEffect(
 
       
 
-    <View style={[styles.mainMessageFieldContainer, { padding: isKeyboardVisible ? 0 : Platform.OS === "ios" ? 20 : 0 }]}>
+  <View style={[styles.mainMessageFieldContainer, { paddingBottom: Platform.OS === "ios" ? (isKeyboardVisible ? 0 : 20) : (isKeyboardVisible ? 10 : 10) }]}>
+
       
       {chatAttachments.length > 0 && <FlatList indicatorStyle='black' horizontal style={styles.mainSelectedAttachments} contentContainerStyle={styles.selectedImagesList} data={chatAttachments} renderItem={({ item, index }) => (
         <Attachmentitem
@@ -621,7 +621,7 @@ useFocusEffect(
             }
           />
     </View>
-    <Animated.View style={[styles.mainActionsContainer, {height: paddingAnim}, showActions ? {marginBottom: 10} : null]}>
+    <Animated.View style={[styles.mainActionsContainer, {height: paddingAnim}, showActions ? {marginBottom: 10} : {display: "none"}]}>
       {showActions && 
       <>
         <CustomButton buttonStyle={styles.mainAttachmentsContainer} onPress={addMedia} icon={<ImageUpload width={23} height={23} />} title={""} />
@@ -634,29 +634,29 @@ useFocusEffect(
 </View>
 </>
 
-    <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false)}}>
+    {viewingAttachments && <CustomModal onClose={() => {setViewingAttachments(false)}}>
       <AttachmentCarousel initialIndex={initialAttachmentIndex} Attachment={attachment} capturedAttachments={capturedAttachments} Assets={chatAttachments} onClose={() => {setViewingAttachments(false)}} />
-    </CustomModal> 
+    </CustomModal> }
 
-    <CustomModal isOpen={chatAction === "3"} onClose={() => setChatAction(null)}>
+    {chatAction === "3" && <CustomModal onClose={() => setChatAction(null)}>
       <MuteNotifications onClose={() => setChatAction(null)} />
-    </CustomModal>
+    </CustomModal>}
 
-    <CustomModal disableCloseOnBackground={true} isOpen={chatAction === "7"} onClose={() => setChatAction(null)}>
+    {chatAction === "7" && <CustomModal disableCloseOnBackground={true} onClose={() => setChatAction(null)}>
       <Block chatMemberUserUUID={chatMemberUserUUID} onClose={() => setChatAction(null)} />
-    </CustomModal>
+    </CustomModal>}
     
-    <CustomModal isOpen={chatAction === "6"} onClose={() => setChatAction(null)}>
+    {chatAction === "6" && <CustomModal onClose={() => setChatAction(null)}>
       <Report onClose={() => setChatAction(null)} />
-    </CustomModal>
+    </CustomModal>}
     
-    <CustomModal isOpen={chatAction === "9"} onClose={() => setChatAction(null)}>
+    {chatAction === "9" && <CustomModal onClose={() => setChatAction(null)}>
       <DeleteChat name={chatMasterName} onClose={() => setChatAction(null)} />
-    </CustomModal>
+    </CustomModal>}
 
-    <CustomModal fullScreen isOpen={showCamera} presentationStyle="fullScreen">
+    {showCamera && <CustomModal fullScreen presentationStyle="fullScreen">
       <CameraView capturedAttachments={capturedAttachments} setCapturedAttachments={setCapturedAttachments} setShowCamera={setShowCamera} />
-    </CustomModal>
+    </CustomModal>}
 
     </View>
   )

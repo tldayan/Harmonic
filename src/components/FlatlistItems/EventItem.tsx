@@ -123,13 +123,13 @@ export default function EventItem({ event, index, scrollX,setEvents,fetchEventsL
         </AnimatedTouchableOpacity>
 
 
-        <CustomModal isOpen={action === "2"} onClose={() => setAction(null)}>
+        {action === "2" && <CustomModal onClose={() => setAction(null)}>
             <ConfirmationModal declineText="No" confirmText='Yes' setConfirmation={handleCancelEvent} warningText='Are you sure you want to cancel this event?' onClose={() => setAction(null)} />
-        </CustomModal>
+        </CustomModal>}
 
-         <CustomModal presentationStyle="formSheet" fullScreen isOpen={action === "1"} onClose={() => setAction(null)}>
+         {action === "1" && <CustomModal presentationStyle="formSheet" fullScreen onClose={() => setAction(null)}>
             <EventCreation fetchEventsList={fetchEventsList} event={event} /* fetchEventsList={fetchEventsList} */  onClose={() => setAction(null)} />
-         </CustomModal>
+         </CustomModal>}
 
     </ScrollView>
   )

@@ -91,9 +91,9 @@ export const Details = ({eventInformation, setEventInformation, formErrors, setF
     <CustomSelectInput label="Event Type" labelStyle={defaultInputLabelStyles} hasError={formErrors.eventType?.hasError} onSelect={() => {setFormErrors((prev) => ({...prev, eventType: {...prev.eventType, hasError: false}}));setSelectingEventType(true);}} placeholder={eventInformation.eventType.eventTypeName ? eventInformation.eventType.eventTypeName : "Event Type"} />
     
 
-    <CustomModal isOpen={selectingEventType} onClose={() => setSelectingEventType(false)}>
+    {selectingEventType && <CustomModal onClose={() => setSelectingEventType(false)}>
         <EventTypes setEventInformation={setEventInformation} onClose={() => setSelectingEventType(false)} />
-    </CustomModal>
+    </CustomModal>}
 
     </ScrollView>
     </CustomKeyboardAvoidingView>

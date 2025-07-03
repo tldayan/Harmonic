@@ -127,7 +127,8 @@ const styles = StyleSheet.create({
         marginTop: 30,
         gap: 15,
         paddingHorizontal: 10,
-/*         borderWidth: 2, */
+ /*        borderWidth: 2, */
+        paddingBottom: 150
     },
     mainCreateGroupForm: {
 /*         borderWidth: 1, */

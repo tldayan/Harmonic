@@ -4,7 +4,6 @@ import { CustomTextInput } from '../../components/CustomTextInput'
 import { defaultInputLabelStyles, defaultInputStyles, defaultNumberInputStyles } from '../../styles/global-styles'
 import CustomSelectInput from '../../components/CustomSelectInput';
 import CustomTextAreaInput from '../../components/CustomTextAreaInput';
-import { CustomModal } from '../../components/CustomModal';
 import SelectCountry from '../../modals/Profile/SelectCountry';
 import { getAllCitiesForCountryAndState, getAllCountries, getAllStatesForCountry } from '../../api/network-utils';
 import SelectState from '../../modals/Profile/SelectState';
@@ -18,6 +17,7 @@ import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/
 import { confirmCode, handlePhoneNumberVerification } from '../../services/auth-service';
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
+import { useBottomSheet } from '../../components/BottomSheetContext';
 
 interface SetupProfileProps {
     setUserInformation: React.Dispatch<React.SetStateAction<UserProfile>>;
@@ -32,25 +32,21 @@ interface SetupProfileProps {
 
 export default function SetupProfile({ setUserInformation, userInformation, setUserAddressInformation, userAddressInformation, termsAccepted, setTermsAccepted, errors }: SetupProfileProps) {  
     
-    
-    const [selectingCountry, setSelectingCountry] = useState(false)
-    const [selectingState, setSelectingState] = useState(false)
-    const [selectingCity, setSelectingCity] = useState(false)
-    const [countries, setCountries] = useState<Country[]>([])
+    const [countries, setCountries] = useState<CountryName[]>([])
     const [states, setStates] = useState<State[]>([])
     const [cities, setCities] = useState<City[]>([])
     const [code, setCode] = useState<string>(''); 
     const [otpError, setOtpError] = useState("")
     const [confirmation, setConfirmation] = useState<FirebaseAuthTypes.PhoneAuthSnapshot | null>(null);
     const [showSendOtp, setShowSendOtp] = useState(false)
-
+  const { open: openBottomSheet, close: closeBottomSheet } = useBottomSheet();
 
     useEffect(() => {
 
         const fetchCountries = async () => {
           try {
             const countriesResponse = await getAllCountries();
-            setCountries(countriesResponse.Payload);
+            setCountries(countriesResponse);
           } catch (err) {
             console.log(err);
           }
@@ -93,6 +89,27 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
       }, [userAddressInformation.CountryId, userAddressInformation.StateId]);
       
 
+      const handleOpenCounties = () => {
+            openBottomSheet(
+                <SelectCountry countries={countries} setUserAddressInformation={setUserAddressInformation} onClose={() => closeBottomSheet()} />,
+              { snapPoints: ['50%'] }
+            );
+      }
+      
+      const handleOpenStates = () => {
+            openBottomSheet(
+              <SelectState states={states} setUserAddressInformation={setUserAddressInformation} onClose={() => closeBottomSheet()} />,
+              { snapPoints: ['50%'] }
+            );
+      }
+
+      const handleOpenCities = () => {
+            openBottomSheet(
+              <SelectCity cities={cities} setUserAddressInformation={setUserAddressInformation} onClose={() => closeBottomSheet()} />,
+              { snapPoints: ['50%'] }
+            );
+      }
+
       const verifyOTP = async () => {
         if (confirmation) {
           const result = await confirmCode(confirmation, code);
@@ -121,7 +138,7 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         setShowSendOtp(false)
         setOtpError("")
         setConfirmation(null)
-        const joinedNumber = `+${userInformation.PhoneCountryUUID}${userInformation.PhoneNumber}`;
+        const joinedNumber = `+${userInformation.PhoneCountryUUID.PhoneCode}${userInformation.PhoneNumber}`;
         console.log(joinedNumber)
         try {
           const phoneConfirmation = await handlePhoneNumberVerification(joinedNumber);
@@ -162,7 +179,7 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         <CustomTextInput value={userInformation.EmailAddress} hasError={errors.EmailAddress} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, EmailAddress: e}))} label='Email' inputStyle={defaultInputStyles} placeholder='jitesh@gmail.com' />
         
         <View style={{flexDirection: "row", gap: 10}}>
-          <CustomTextInput setCountryCode={(phoneCode) => setUserInformation((prev) => ({...prev, PhoneCountryUUID: phoneCode }))} hasError={errors.PhoneNumber} countryCode={userInformation.PhoneCountryUUID ? userInformation.PhoneCountryUUID : "971"} value={userInformation.PhoneNumber} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, PhoneNumber: e}))} label='Phone' inputStyle={defaultNumberInputStyles} placeholder='567136828' /* mainInputStyle={styles.numberInput} */ inputMode='tel' />
+          <CustomTextInput setCountryCode={(phoneCode) => setUserInformation((prev) => ({...prev, PhoneCountryUUID: phoneCode }))} hasError={errors.PhoneNumber} countryCode={userInformation.PhoneCountryUUID ? userInformation.PhoneCountryUUID : undefined} value={userInformation.PhoneNumber} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserInformation((prev) => ({...prev, PhoneNumber: e}))} label='Phone' inputStyle={defaultNumberInputStyles} placeholder='567136828' /* mainInputStyle={styles.numberInput} */ inputMode='tel' />
           {(userInformation.PhoneNumber && showSendOtp) && <CustomButton onPress={handleOTP} title={confirmation ? "Resend OTP" : "Send OTP"} buttonStyle={[PRIMARY_BUTTON_STYLES, {marginTop: "auto", marginBottom: 0, paddingHorizontal: 20}]} textStyle={PRIMARY_BUTTON_TEXT_STYLES} />}
         </View>
         
@@ -175,9 +192,9 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         <CustomTextInput value={userAddressInformation.AddressLine1} hasError={errors.AddressLine1} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, AddressLine1: e}))} label='Address Line 1' inputStyle={defaultInputStyles} placeholder='JVC' />
         <CustomTextInput value={userAddressInformation.AddressLine2} hasError={errors.AddressLine2} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, AddressLine2: e}))} label='Address Line 2' inputStyle={defaultInputStyles} placeholder='Street 10' />
 
-        <CustomSelectInput placeholder={userAddressInformation.CountryName ? userAddressInformation.CountryName : 'Select Country'} hasError={errors.CountryName} label='Country' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingCountry(true)} />
-        <CustomSelectInput placeholder={userAddressInformation.StateName ? userAddressInformation.StateName : "Select State"} hasError={errors.StateName} label='State' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingState(true)} />
-        <CustomSelectInput placeholder={userAddressInformation.CityName ? userAddressInformation.CityName : "Select City"} hasError={errors.CityName} label='City' labelStyle={defaultInputLabelStyles} onSelect={() => setSelectingCity(true)} />
+        <CustomSelectInput placeholder={userAddressInformation.CountryName ? userAddressInformation.CountryName : 'Select Country'} hasError={errors.CountryName} label='Country' labelStyle={defaultInputLabelStyles} onSelect={() => handleOpenCounties()} />
+        <CustomSelectInput placeholder={userAddressInformation.StateName ? userAddressInformation.StateName : "Select State"} hasError={errors.StateName} label='State' labelStyle={defaultInputLabelStyles} onSelect={() => handleOpenStates()} />
+        <CustomSelectInput placeholder={userAddressInformation.CityName ? userAddressInformation.CityName : "Select City"} hasError={errors.CityName} label='City' labelStyle={defaultInputLabelStyles} onSelect={() => handleOpenCities()} />
 
         <CustomTextInput inputMode="numeric" value={userAddressInformation.PostCode} hasError={errors.PostCode} labelStyle={defaultInputLabelStyles} onChangeText={(e) => setUserAddressInformation((prev) => ({...prev, PostCode: e}))} label='Zip Code' inputStyle={defaultInputStyles} placeholder='00000' />
 
@@ -200,17 +217,17 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
 
 
 
-        <CustomModal isOpen={selectingCountry} onClose={() => setSelectingCountry(false)}>
+       {/*  <CustomModal isOpen={selectingCountry} onClose={() => setSelectingCountry(false)}>
             <SelectCountry countries={countries} setUserAddressInformation={setUserAddressInformation} onClose={() => setSelectingCountry(false)} />
-        </CustomModal>
-
+        </CustomModal> */}
+{/* 
         <CustomModal isOpen={selectingState} onClose={() => setSelectingState(false)}>
             <SelectState states={states} setUserAddressInformation={setUserAddressInformation} onClose={() => setSelectingState(false)} />
-        </CustomModal>
+        </CustomModal> */}
 
-        <CustomModal isOpen={selectingCity} onClose={() => setSelectingCity(false)}>
+   {/*      <CustomModal isOpen={selectingCity} onClose={() => setSelectingCity(false)}>
             <SelectCity cities={cities} setUserAddressInformation={setUserAddressInformation} onClose={() => setSelectingCity(false)} />
-        </CustomModal>
+        </CustomModal> */}
    
 
     </ScrollView>

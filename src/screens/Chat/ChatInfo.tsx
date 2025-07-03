@@ -216,26 +216,26 @@ const removeGroupMember = async() => {
         </TouchableOpacity>
       </View> 
 
-        <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={addingMembers}>
+        {addingMembers && <CustomModal presentationStyle="overFullScreen" fullScreen>
           <CreateGroup fetchGroupDetails={fetchGroupDetails} chatMasterUUID={chatMasterUUID} addingMembers={true} onClose={() => setAddingMembers(false)} />
-        </CustomModal>
+        </CustomModal>}
 
-        <CustomModal isOpen={isBlockingUser} onClose={() => setIsBlockingUser(false)}>
+        {isBlockingUser && <CustomModal onClose={() => setIsBlockingUser(false)}>
           <Block noReport={true} chatMemberUserUUID={chatMasterUUID} onClose={() => setIsBlockingUser(false)} />
-        </CustomModal>
+        </CustomModal>}
 
-        <CustomModal isOpen={isReportingUser} onClose={() => setIsReportingUser(false)}>
+        {isReportingUser && <CustomModal onClose={() => setIsReportingUser(false)}>
           <Report onClose={() => setIsReportingUser(false)} />
-        </CustomModal>
+        </CustomModal>}
         
-        <CustomModal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)}>
+        {showConfirmModal && <CustomModal onClose={() => setShowConfirmModal(false)}>
           {action === "1" ? <ConfirmationModal confirmText='Yes' declineText="No, Cancel" warningText='You and this person will share all Admin privileges!' setConfirmation={addAdmin} onClose={() => setShowConfirmModal(false)} /> 
           : action === "2" ? 
           <ConfirmationModal confirmText='Yes' declineText="No, Cancel" warningText="Are you sure you want to remove this person's admin privileges?" setConfirmation={removeAdmin} onClose={() => setShowConfirmModal(false)} /> 
           : 
           <ConfirmationModal confirmText='Yes' declineText="No, Cancel" warningText="This person will be removed permanently!" setConfirmation={removeGroupMember} onClose={() => setShowConfirmModal(false)} />
         }
-        </CustomModal>
+        </CustomModal>}
 
     </SafeAreaView>
   )

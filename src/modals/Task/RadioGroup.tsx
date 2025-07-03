@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import CheckIcon from "../../assets/icons/check.svg";
 import { colors } from "../../styles/colors";
 import { WorkOrderInformationState } from "../../types/work-order.types";
@@ -28,15 +28,25 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   onSelect,
 }) => {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
-
+  const [loading, setLoading] = React.useState(true)
 
 
   React.useEffect(() => {
-    if(taskInformation?.workPriority?.workPriorityUUID) {
-      setSelectedId(taskInformation.workPriority.workPriorityUUID)
+    if (!options) {
+      setLoading(true);
+      return;
     }
-  }, [taskInformation])
-
+  
+    if (options.length > 0) {
+      setLoading(false);
+    }
+  
+    if (taskInformation?.workPriority?.workPriorityUUID) {
+      setSelectedId(taskInformation.workPriority.workPriorityUUID);
+    }
+  }, [options, taskInformation]);
+  
+  
   const handleSelect = (selectedOption: WorkPriority) => {
     setSelectedId(selectedOption.WorkPriorityUUID);
     if (onSelect) {
@@ -46,7 +56,9 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 
   return (
     <View style={styles.container}>
-        <Text style={styles.labelText}>{label}</Text>
+      {loading ? <ActivityIndicator size={"small"} /> : 
+      <>
+      <Text style={styles.labelText}>{label}</Text>
       <View style={styles.optionsContainer}>
         {options?.map((option) => (
           <TouchableOpacity
@@ -71,6 +83,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
           </TouchableOpacity>
         ))}
       </View>
+      </>}
     </View>
   );
 };

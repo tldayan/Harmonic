@@ -76,9 +76,9 @@ export const Guests = ({ eventInformation, setEventInformation }: EventGuestsPro
       </View>
 
 
-      <CustomModal presentationStyle="formSheet" fullScreen isOpen={addingGuests} onClose={() => setAddingGuests(false)}>
+      {addingGuests && <CustomModal presentationStyle="formSheet" fullScreen onClose={() => setAddingGuests(false)}>
         <AddParticipants eventInformation={eventInformation} setEventInformation={setEventInformation} onClose={() => setAddingGuests(false)} />
-      </CustomModal>
+      </CustomModal>}
     </CustomKeyboardAvoidingView>
   );
 };

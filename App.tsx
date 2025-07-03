@@ -19,18 +19,25 @@ function App(): React.JSX.Element {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <SocketProvider>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, flexGrow : 1 }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1, flexGrow: 1}}
+          >
             <CustomSafeAreaView>
               <RealmProvider>
                 <AuthModeProvider>
                   <UserProvider>
-                  <BottomSheetProvider>
-                    <SafeAreaProvider>
-                      <NavigationContainer>
-                        <StatusBar translucent barStyle="dark-content" backgroundColor="white" />
-                        <RootNavigator />
-                      </NavigationContainer>
-                    </SafeAreaProvider>
+                    <BottomSheetProvider>
+                      <SafeAreaProvider>
+                        <StatusBar
+                          translucent
+                          barStyle="dark-content"
+                          backgroundColor="transparent"
+                        />
+                        <NavigationContainer>
+                          <RootNavigator />
+                        </NavigationContainer>
+                      </SafeAreaProvider>
                     </BottomSheetProvider>
                   </UserProvider>
                 </AuthModeProvider>
@@ -43,5 +50,6 @@ function App(): React.JSX.Element {
     </GestureHandlerRootView>
   );
 }
+
 
 export default App;

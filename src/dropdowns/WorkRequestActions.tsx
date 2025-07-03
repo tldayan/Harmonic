@@ -2,8 +2,6 @@ import { StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import ThreeDotsVertical from "../assets/icons/three-dots-vertical.svg";
 import ThreeDotsHorizontal from "../assets/icons/three-dots-horizontal.svg";
-import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
 
 
 interface DropdownComponentProps {
@@ -17,8 +15,6 @@ export const WorkRequestActionDropdownComponent = ({
   setAction,
   horizontalDots,
 }: DropdownComponentProps) => {
-
-    const userUUID = useSelector((state: RootState) => state.auth.userUUID)
 
     const actions: { label: string; value: string }[] = [
       { label: "Approve Task", value: "1" },

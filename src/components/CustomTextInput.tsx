@@ -113,9 +113,9 @@ export const CustomTextInput = forwardRef<TextInput, CustomTextInputFieldProps>(
           {rightIcon && <View style={styles.rightIconContainer}>{rightIcon}</View>}
         </View>
 
-        <CustomModal fullScreen={true} isOpen={isDropdownVisible}>
+        {isDropdownVisible && <CustomModal fullScreen={true} isOpen={isDropdownVisible}>
           <CountryCodes setIsDropdownVisible={setIsDropdownVisible} setCountryCode={setCountryCode || (() => {})} />
-        </CustomModal>
+        </CustomModal>}
         {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
       </View>
     );

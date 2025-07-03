@@ -15,7 +15,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 interface Props extends ModalProps {
-  isOpen: boolean;
+  isOpen?: boolean;
   children: React.ReactNode;
   fullScreen?: boolean;
   onClose?: () => void;
@@ -35,7 +35,7 @@ export const CustomModal: React.FC<Props> = ({
   blackBackground,
   disableCloseOnBackground
 }) => {
-  
+  console.log("REN DERING MODAL")
   const slideAnim = useRef(new Animated.Value(0)).current;
   const [visible, setVisible] = useState(isOpen);
   const [contentKey, setContentKey] = useState(0);

@@ -236,20 +236,20 @@ export default function CreatePost({onClose, route, navigation,creatingPost, pos
             <CustomButton onPress={() => setPostCategories((prev) => ({...prev, state: true}))} textStyle={{color: colors.PRIMARY_COLOR, paddingTop: 10}} title={postCategories.categories.length || editingCategories.length ? "Edit Categories" : "Add Categories"} />
             <CustomButton onPress={handlePost} textStyle={PRIMARY_BUTTON_TEXT_STYLES} buttonStyle={[PRIMARY_BUTTON_STYLES, shadowStyles]} title={!loading ? "Post" : null} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />
             
-            <CustomModal isOpen={postCategories.state} fullScreen presentationStyle='formSheet' onClose={() => setPostCategories((prev) => ({...prev, state: false}))}>
+            {postCategories.state && <CustomModal fullScreen presentationStyle='formSheet' onClose={() => setPostCategories((prev) => ({...prev, state: false}))}>
                 <Filters setEditingCategories={setEditingCategories} editingCategories={editingCategories} setPostCategories={setPostCategories} postCategories={postCategories.categories} /* categories={categories}  */onClose={() => setPostCategories((prev) => ({...prev, state: false}))} />
-            </CustomModal>
+            </CustomModal>}
 
 
         </View>
         
-           <CustomModal isOpen={viewingAttachments} onClose={() => {setViewingAttachments(false)}}>
+           {viewingAttachments && <CustomModal onClose={() => {setViewingAttachments(false)}}>
             <AttachmentCarousel initialIndex={initialAttachmentIndex} Assets={selectedAttachments} AttachmentData={attachmentData} onClose={() => {setViewingAttachments(false)}} />
-           </CustomModal>  
+           </CustomModal>}  
         
-        <CustomModal fullScreen isOpen={creatingPoll} >
+        {creatingPoll && <CustomModal fullScreen >
             <Poll onClose={() => {setCreatingPoll(false)}} closeAllModals={() => {setCreatingPoll(false); handlePostClose()}} />
-        </CustomModal>
+        </CustomModal>}
 
     </SafeAreaView>
   )

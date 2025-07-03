@@ -74,13 +74,13 @@ export default function WorkOrderInformation({ priorityOptions, setWorkOrderInfo
         }}
       />
 
-      <CustomModal isOpen={selectingWorkType} onClose={() => setSelectingWorkType(false)}>
+      {selectingWorkType && <CustomModal onClose={() => setSelectingWorkType(false)}>
         <WorkOrderTypes setWorkOrderInformation={setWorkOrderInformation} onClose={() => setSelectingWorkType(false)} />
-      </CustomModal>
+      </CustomModal>}
 
-      <CustomModal isOpen={selectingAsset} onClose={() => setSelectingAsset(false)}>
+      {selectingAsset && <CustomModal onClose={() => setSelectingAsset(false)}>
         <AssetTypes setWorkOrderInformation={setWorkOrderInformation} onClose={() => setSelectingAsset(false)} />
-      </CustomModal>
+      </CustomModal>}
     </View>
   );
 }

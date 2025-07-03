@@ -86,6 +86,20 @@ export const getUserAddress = async(userUUID: string) => {
     
   }
 
+
+  export const getAllCountries = async() => {
+
+    try {
+      const countriesPayload = await apiClient(ENDPOINTS.ADDRESS.GET_ALL_COUNTRIES, {},{}, "GET")
+      console.log(countriesPayload)
+      return countriesPayload.data.Payload
+
+    } catch (err) {
+      console.error(err)
+    }
+    
+  }
+
   
   
   export const getAllStatesForCountry = async(countryId: string) => {

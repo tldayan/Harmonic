@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ScrollView, Alert, ActivityIndicator, InteractionManager } from 'react-native'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors';
@@ -20,6 +20,7 @@ import { getTimeFromISO } from '../../utils/helpers';
 import { SocketContext } from '../../context/SocketContext';
 import { FlashList } from '@shopify/flash-list';
 import FastImage from '@d11/react-native-fast-image';
+import ChatItem from '../../components/FlatlistItems/ChatItem';
 
 const ChatsList = () => {
   const [chats, setChats] = useState<ChatEntity[]>([])
@@ -33,6 +34,7 @@ const ChatsList = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const [refreshing, setRefreshing] = useState(false)
   const socket = useContext(SocketContext);
+  
 
   const fetchChats = async () => {
     setLoading(true)
@@ -47,11 +49,15 @@ const ChatsList = () => {
   }
 
   useEffect(() => {
-    fetchChats()
-  }, [])
+    const task = InteractionManager.runAfterInteractions(() => {
+      console.log("Calling")
+      fetchChats();
+    });
+    return () => task.cancel();
+  }, []);
 
 
-  useFocusEffect(
+/*   useFocusEffect(
     useCallback(() => {
       if (!socket) return;
   
@@ -79,7 +85,7 @@ const ChatsList = () => {
         socket.off("notify_stop_typing", handleStopTyping);
       };
     }, [socket])
-  );
+  ); */
 
 
   const handleNavigate = (item: ChatEntity) => {
@@ -161,45 +167,17 @@ const ChatsList = () => {
 
   const renderChatItem = ({ item }: { item: ChatEntity }) => {
     const isLoading = chatActionLoadingUUID === item.ChatMasterUUID;
-
+  
     return (
-      <TouchableOpacity style={styles.chatItem} onPress={() => handleNavigate(item)}>
-        <FastImage
-          style={styles.chatMemberProfilePic}
-          source={{
-            uri: item.ChatProfilePictureURL || "https://i.pravatar.cc/150",
-            priority: FastImage.priority.high
-          }}
-        />
-        <View style={styles.mainChatDetailsContainer}>
-          <View style={styles.chatDetailsContainer}>
-            <Text style={styles.chatMemberName}>{item.ChatMasterName}</Text>
-            <Text style={styles.chatTime}>{getTimeFromISO(item.LastMessageTimestamp)}</Text>
-          </View>
-
-          {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.PENDING &&
-            <View style={styles.mainChatInviteButtonsContainer}>
-              {isLoading ? (
-                <ActivityIndicator size="small" color={colors.ACTIVE_ORANGE} />
-              ) : (
-                <>
-                  <Text style={styles.pending}>Pending Invite:</Text>
-                  <View style={styles.chatInviteButtonsContainer}>
-                    <CustomButton onPress={() => handleChatInvite(item, CHAT_INVITE_STATUS_CODES.DECLINED)} buttonStyle={styles.decline} textStyle={styles.declineText} title="Decline" />
-                    <CustomButton onPress={() => handleChatInvite(item, CHAT_INVITE_STATUS_CODES.APPROVED)} buttonStyle={styles.accept} textStyle={styles.acceptText} title="Accept" />
-                  </View>
-                </>
-              )}
-            </View>
-          }
-
-          {item.LoggedInUserInviteStatusItemCode === CHAT_INVITE_STATUS_CODES.APPROVED && (
-            typingChats.has(item.ChatMemberUserUUID) && item.ChatTypeCode === chatTypes.PRIVATE ? <Text style={{color: colors.GREEN}}>Typing...</Text> : <Text ellipsizeMode="tail" numberOfLines={1} style={styles.latestText}>{item.LastMessage ? item.LastMessage : "Attachment"}</Text>
-          )}
-        </View>
-      </TouchableOpacity>
+      <ChatItem
+        item={item}
+        isLoading={isLoading}
+        typingChats={typingChats}
+        onNavigate={handleNavigate}
+        onChatInvite={handleChatInvite}
+      />
     );
-  }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
@@ -219,7 +197,7 @@ const ChatsList = () => {
               <ChatListDropdownComponent action={action} setAction={setAction} />
             </View>
 
-              <ScrollView contentContainerStyle={styles.chatCategoryButtonsContainer}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chatCategoryButtonsContainer}>
                 <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"All"} />
                 <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"Unread"} />
                 <CustomButton buttonStyle={styles.chatCategoryButton} textStyle={styles.chatCategory} onPress={() => {}} title={"Groups"} />
@@ -239,13 +217,16 @@ const ChatsList = () => {
         ListEmptyComponent={!loading ? (<Text style={{alignSelf: 'center', textAlign: "center", marginVertical: "50%", marginHorizontal: "20%", color: colors.LIGHT_TEXT}}>No chats yet. Start a chat to connect with someone!</Text>) : null}
       />
 
-      <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "1"}>
+    {action === "1" && (
+      <CustomModal isOpen={action === "1"} presentationStyle="overFullScreen" fullScreen>
         <CreateGroup fetchChats={fetchChats} onClose={() => setAction(null)} />
       </CustomModal>
+    )}
 
-      <CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "2"}>
-        <CreateChat fetchChats={fetchChats} onClose={() => setAction(null)} />
-      </CustomModal>
+    {action === "2" && (<CustomModal presentationStyle="overFullScreen" fullScreen isOpen={action === "2"}>
+      <CreateChat fetchChats={fetchChats} onClose={() => setAction(null)} />
+    </CustomModal>)}
+
     </View>
   )
 }
@@ -256,76 +237,34 @@ export default ChatsList
 
 const styles = StyleSheet.create({
   chatList: {
-/*     borderWidth: 1, */
     flexGrow: 1,
     position: "relative",
     gap: 0,
     paddingHorizontal: 5
   },
-  chatItem: {
-  /*   borderWidth: 1, */
-    flexDirection : 'row',
-    alignItems: "center",
-    gap: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 5,
-    backgroundColor: "white"
-  },
-  chatMemberProfilePic: {
-    width: 45,
-    height: 45,
-    borderRadius: 50
-  },
-  chatMemberName: {
-    fontWeight: 500,
-    fontSize: 16,
-  },
-  mainChatDetailsContainer: {
-  /*   borderWidth: 1, */
-    justifyContent: 'space-between',
-    height: 45,
-    flexGrow: 1,
-    width: "50%"
-  },
-  chatDetailsContainer: {
-  /*   borderWidth: 1, */
-/*     flex: 1, */
-/*     width: "100%", */
-    flexDirection: "row",
-  },
-  chatTime: {
-    marginLeft: "auto",
-    opacity: 0.5
-  },
-  latestText: {
-    opacity: 0.5,
-    paddingRight: 8,  
-/*     flexWrap: "wrap",  */
-/*     flexGrow: 1 */
-/*     maxWidth: "85%",  */
-  },
+
   chatCategoryButton: {
-/*     borderWidth: 1, */
     paddingHorizontal: 15,
-    paddingVertical:5,
+    paddingVertical: 5,
     borderRadius: 50,
     backgroundColor: colors.LIGHT_COLOR,
     marginVertical: 10
   },
   chatCategoryButtonsContainer: {
+    width: "100%",
     backgroundColor: "white",
     flexDirection: "row",
     justifyContent: "space-evenly"
   },
   chatCategory: {
-/*     fontWeight: 500 */
+    // fontWeight: 500
   },
   mainSearchFieldContainer: {
     marginTop: 15,
-    flexDirection: "row", 
+    flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    width:"98%",
+    width: "98%",
     marginHorizontal: "1%",
   },
   searchFieldContainer: {
@@ -339,13 +278,9 @@ const styles = StyleSheet.create({
     paddingLeft: 40
   },
 
-
-
-
   dropdown: {
-/*     backgroundColor: "red", */
     position: "relative",
-    width : "6%",
+    width: "6%",
     marginLeft: "auto",
     height: 50,
   },
@@ -367,40 +302,5 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
-  },
-  mainChatInviteButtonsContainer: {
-/*     borderWidth: 2, */
-    flexDirection: "row",
-    marginLeft: "auto",
-    alignItems: "center",
-    marginTop: 5
-  },
-  chatInviteButtonsContainer: {
-    flexDirection: "row",
-    gap: 5
-  },
-  acceptText: {
-    fontSize: 13,
-    color: "white",
-    fontWeight: "bold"
-  },
-  declineText: {
-    color: colors.RED_TEXT,
-    fontSize: 13,
-    fontWeight: "bold"
-  },
-  accept: {
-    padding: 5,
-    backgroundColor: colors.ACTIVE_ORANGE,
-    borderRadius: 4,
-  },
-  decline: {
-    padding: 5,
-    borderRadius: 4,
-    color: colors.RED_TEXT,
-  },
-  pending: {
-    color: colors.LIGHT_TEXT,
-    fontSize: 12
   }
-})
+});

@@ -27,9 +27,11 @@ interface PostActionsProps {
   post?: PostItemProps
   attachmentData?: AttachmentData[]
   fetchLatestMessages?: (messageBoardUUID?: string) => void
+  openBottomSheet?: any
+  closeBottomSheet?: any
 }
 
-export default function PostActions({onClose,  navigation,
+export default function PostActions({onClose,openBottomSheet,closeBottomSheet,  navigation,
   route, CreatedBy,fetchLatestMessages, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
   
   const [loading, setLoading] = useState(false)
@@ -43,6 +45,18 @@ export default function PostActions({onClose,  navigation,
 
   const userUUID = useSelector((state: RootState) => state.auth.userUUID)
 
+
+  const handleOpenReportModal = () => {
+    openBottomSheet(
+      <ReportForm
+        MessageBoardCommentUUID={MessageBoardCommentUUID}
+        MessageBoardUUID={post?.MessageBoardUUID}
+        onClose={closeBottomSheet}
+      />,
+      { snapPoints: ['80%', '90%'] }
+    );
+  };
+  
 
   useEffect(() => {
     const messageOwnerUUID = CreatedBy ?? createdBy ?? post?.CreatedBy;
@@ -129,19 +143,19 @@ export default function PostActions({onClose,  navigation,
       <View style={styles.container}>
 {/*         <ModalsHeader onClose={onClose} title={"Post Actions"} /> */}
         <View style={styles.postActionButtonsContainer}>
-          {!isUserMessageOwner && <CustomButton onPress={() => setIsReportingPost(true)} textStyle={styles.reportText} buttonStyle={styles.report} title={"Report"} />}
+          {!isUserMessageOwner && <CustomButton onPress={() => handleOpenReportModal()} textStyle={styles.reportText} buttonStyle={styles.report} title={"Report"} />}
           {isUserMessageOwner && <CustomButton onPress={handleEditPost} textStyle={styles.editText} buttonStyle={styles.edit} title={"Edit"} />}
           {isUserMessageOwner && <CustomButton onPress={handleDeletePost} textStyle={styles.deleteText} buttonStyle={styles.delete} title={loading ? null : "Delete"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />}
         </View>
 
 
-        <CustomModal fullScreen presentationStyle="formSheet" isOpen={isReportingPost} onClose={() => setIsReportingPost(false)} >
+{/*         {isReportingPost && <CustomModal fullScreen presentationStyle="formSheet" isOpen={isReportingPost} onClose={() => setIsReportingPost(false)} >
           <ReportForm MessageBoardCommentUUID={MessageBoardCommentUUID} MessageBoardUUID={post?.MessageBoardUUID} onClose={handleCloseAllModals} />
-        </CustomModal>
+        </CustomModal>} */}
 
-        <CustomModal fullScreen presentationStyle='formSheet' isOpen={isEditingPost} onClose={handleCloseAllModals}>
+        {isEditingPost && <CustomModal fullScreen presentationStyle='formSheet' isOpen={isEditingPost} onClose={handleCloseAllModals}>
           <CreatePost navigation={navigation} route={route}  fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} post={post} onClose={handleCloseAllModals} />
-        </CustomModal> 
+        </CustomModal>} 
 
       </View>
   )

@@ -76,9 +76,9 @@ export default function ApproveWorkRequest({onClose, workRequestUUID, workReques
         </View>
 
 
-        <CustomModal onClose={() => {setCreatingWorkOrder(false); onClose()}} isOpen={creatingWorkOrder} >
+        {creatingWorkOrder && <CustomModal onClose={() => {setCreatingWorkOrder(false); onClose()}} >
             <WorkOrderCreation workOrder={workOrder} onClose={() => {setCreatingWorkOrder(false); onClose()}} />
-        </CustomModal>
+        </CustomModal>}
 
     </View>
   )

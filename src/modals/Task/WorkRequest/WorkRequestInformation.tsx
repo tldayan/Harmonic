@@ -109,13 +109,14 @@ export default function WorkRequestInformation({
                 }}
             />}
 
-            <CustomModal isOpen={selectingWorkRequestType} onClose={() => setSelectingWorkRequestType(false)}>
+            {selectingWorkRequestType && <CustomModal onClose={() => setSelectingWorkRequestType(false)}>
                 <WorkRequestTypes setWorkRequestInformation={setWorkRequestInformation} onClose={() => setSelectingWorkRequestType(false)} />
-            </CustomModal>
+            </CustomModal>}
 
-            <CustomModal isOpen={selectingAsset} onClose={() => setSelectingAsset(false)}>
+            {selectingAsset && <CustomModal onClose={() => setSelectingAsset(false)}>
                 <AssetTypes setWorkRequestInformation={setWorkRequestInformation} onClose={() => setSelectingAsset(false)} />
-            </CustomModal>
+            </CustomModal>}
+            
         </View>
     )
 }
