@@ -1,19 +1,17 @@
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import ModalsHeader from '../ModalsHeader'
 import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../store/store'
 import { deleteMBComment, deleteMBMessage } from '../../api/network-utils'
 import { STATUS_CODE } from '../../utils/constants'
 import { CustomModal } from '../../components/CustomModal'
 import ReportForm from './ReportForm'
 import { AttachmentData, CommentItemProps, EditPostState, PostItemProps } from '../../types/post-types'
-import { CommonActions, NavigationProp, RouteProp, useRoute } from '@react-navigation/native'
+import { CommonActions } from '@react-navigation/native'
 import { CommentsScreenRouteProp } from '../../screens/Others/CommentsScreen'
 import CreatePost from './CreatePost'
 import { fetchWithErrorHandling } from '../../utils/helpers'
+import { useCreds } from '../../hooks/useCreds'
 
 interface PostActionsProps {
   focusedComment?: string,
@@ -35,15 +33,16 @@ export default function PostActions({onClose,openBottomSheet,closeBottomSheet,  
   route, CreatedBy,fetchLatestMessages, MessageBoardCommentUUID,setEditPost, focusedComment, setComments,post, attachmentData} : PostActionsProps) {
   
   const [loading, setLoading] = useState(false)
-  const [isReportingPost, setIsReportingPost] = useState(false)
-  const [isUserMessageOwner, setIsUserMessageOwner] = useState(false)
   const [isEditingPost, setIsEditingPost] = useState(false)
 
 
-  const { createdBy } = route?.params || {}
-  
+  const {userUUID} = useCreds()
 
-  const userUUID = useSelector((state: RootState) => state.auth.userUUID)
+  const { createdBy } = route?.params || {}
+    const messageOwnerUUID = CreatedBy ?? createdBy ?? post?.CreatedBy;
+    const isUserMessageOwner = messageOwnerUUID === userUUID;
+
+ 
 
 
   const handleOpenReportModal = () => {
@@ -57,14 +56,6 @@ export default function PostActions({onClose,openBottomSheet,closeBottomSheet,  
     );
   };
   
-
-  useEffect(() => {
-    const messageOwnerUUID = CreatedBy ?? createdBy ?? post?.CreatedBy;
-    if (messageOwnerUUID === userUUID) {
-      console.log("user is owner")
-      setIsUserMessageOwner(true);
-    }
-  }, [post]);
   
 
   const handleDeletePost = async() => {
@@ -128,10 +119,8 @@ export default function PostActions({onClose,openBottomSheet,closeBottomSheet,  
     }
   }
 
-/*   const isUserMessageOwner = ((CreatedBy ?? createdBy) || post?.CreatedBy) === userUUID */
 
   const handleCloseAllModals = () => {
-    setIsReportingPost(false)
     setIsEditingPost(false)
     setTimeout(() => {
       onClose()
@@ -141,17 +130,11 @@ export default function PostActions({onClose,openBottomSheet,closeBottomSheet,  
 
   return (
       <View style={styles.container}>
-{/*         <ModalsHeader onClose={onClose} title={"Post Actions"} /> */}
         <View style={styles.postActionButtonsContainer}>
-          {!isUserMessageOwner && <CustomButton onPress={() => handleOpenReportModal()} textStyle={styles.reportText} buttonStyle={styles.report} title={"Report"} />}
+          {!isUserMessageOwner && <CustomButton onPress={handleOpenReportModal} textStyle={styles.reportText} buttonStyle={styles.report} title={"Report"} />}
           {isUserMessageOwner && <CustomButton onPress={handleEditPost} textStyle={styles.editText} buttonStyle={styles.edit} title={"Edit"} />}
           {isUserMessageOwner && <CustomButton onPress={handleDeletePost} textStyle={styles.deleteText} buttonStyle={styles.delete} title={loading ? null : "Delete"} icon={loading ? <ActivityIndicator size="small" color="#fff" /> : null} />}
         </View>
-
-
-{/*         {isReportingPost && <CustomModal fullScreen presentationStyle="formSheet" isOpen={isReportingPost} onClose={() => setIsReportingPost(false)} >
-          <ReportForm MessageBoardCommentUUID={MessageBoardCommentUUID} MessageBoardUUID={post?.MessageBoardUUID} onClose={handleCloseAllModals} />
-        </CustomModal>} */}
 
         {isEditingPost && <CustomModal fullScreen presentationStyle='formSheet' isOpen={isEditingPost} onClose={handleCloseAllModals}>
           <CreatePost navigation={navigation} route={route}  fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} post={post} onClose={handleCloseAllModals} />

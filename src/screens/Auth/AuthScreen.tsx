@@ -16,6 +16,7 @@ import { getRectangleColor, responsiveFontSize } from "../../utils/helpers";
 import { CustomModal } from "../../components/CustomModal";
 import ForgotPassword from "../../modals/ForgotPassword";
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from "../../styles/button-styles";
+import { CustomTypingModal } from "../../components/CustomTypingModal";
 
 
 const AuthScreen = () => {
@@ -156,9 +157,9 @@ const AuthScreen = () => {
 				<CustomButton title="Resend code" textStyle={styles.resendText} onPress={() => initializeAuth(true)}/>
 			</View>}
 
-			{forgotPasswordIntiated && <CustomModal onClose={() => setForgotPasswordIntiated(false)}>
+			{forgotPasswordIntiated && <CustomTypingModal onClose={() => setForgotPasswordIntiated(false)}>
 				<ForgotPassword errorMessage={errorMessage.email} onClose={() => { setErrorMessage(prev => ({ ...prev, email: "", password: ""})); }} email={email} setEmail={setEmail} setErrorMessage={setErrorMessage}/>
-			</CustomModal>}
+			</CustomTypingModal>}
 		</ScrollView>
 		
 	</TouchableWithoutFeedback>
@@ -200,6 +201,7 @@ const styles = StyleSheet.create({
 	},
 	signupContainer: {
 		flexDirection : "row",
+		alignItems: "center",
 		fontSize: 14,
 		lineHeight: 21,
 		fontWeight: "500",
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
 	},
 	signupText: {
 		color : colors.ACCENT_COLOR,
-		fontWeight: 500
+		fontWeight: 500,
 	},
 	signUpPrompt : {
 		color: colors.TEXT_COLOR,

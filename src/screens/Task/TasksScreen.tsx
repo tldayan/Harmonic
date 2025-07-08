@@ -36,7 +36,7 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
   const [filteredWorkRequests, setFilteredWorkRequests] = useState<WorkRequest[]>([])
 
   const [pendingWorkRequests, setPendingWorkRequests] = useState(0)
-  const [startIndex, setStartIndex] = useState(0)
+  const [startIndex, setStartIndex] = useState(0) 
   const [creatingRequest, setCreatingRequest] = useState(false)
   const [taskDetails, setTaskDetails] = useState<WorkOrderDetails | null>(null)
   const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)

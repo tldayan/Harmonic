@@ -638,21 +638,21 @@ useFocusEffect(
       <AttachmentCarousel initialIndex={initialAttachmentIndex} Attachment={attachment} capturedAttachments={capturedAttachments} Assets={chatAttachments} onClose={() => {setViewingAttachments(false)}} />
     </CustomModal> }
 
-    {chatAction === "3" && <CustomModal onClose={() => setChatAction(null)}>
+    <CustomModal isOpen={chatAction === "3"} onClose={() => setChatAction(null)}>
       <MuteNotifications onClose={() => setChatAction(null)} />
-    </CustomModal>}
+    </CustomModal>
 
-    {chatAction === "7" && <CustomModal disableCloseOnBackground={true} onClose={() => setChatAction(null)}>
+    <CustomModal disableCloseOnBackground={true} isOpen={chatAction === "7"} onClose={() => setChatAction(null)}>
       <Block chatMemberUserUUID={chatMemberUserUUID} onClose={() => setChatAction(null)} />
-    </CustomModal>}
+    </CustomModal>
     
-    {chatAction === "6" && <CustomModal onClose={() => setChatAction(null)}>
+    <CustomModal isOpen={chatAction === "6"} onClose={() => setChatAction(null)}>
       <Report onClose={() => setChatAction(null)} />
-    </CustomModal>}
+    </CustomModal>
     
-    {chatAction === "9" && <CustomModal onClose={() => setChatAction(null)}>
+    <CustomModal isOpen={chatAction === "9"} onClose={() => setChatAction(null)}>
       <DeleteChat name={chatMasterName} onClose={() => setChatAction(null)} />
-    </CustomModal>}
+    </CustomModal>
 
     {showCamera && <CustomModal fullScreen presentationStyle="fullScreen">
       <CameraView capturedAttachments={capturedAttachments} setCapturedAttachments={setCapturedAttachments} setShowCamera={setShowCamera} />
@@ -672,6 +672,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0.3,
         borderBottomColor: colors.TEXT_COLOR,
         backgroundColor: "white",
+        paddingVertical: 10,
+        paddingHorizontal: 10,
   /*       backgroundColor: colors.LIGHT_COLOR, */
         flexDirection :"row",
         alignItems: "center",

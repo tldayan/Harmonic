@@ -16,6 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation-types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Chat from "../assets/icons/chats.svg"
+import { useBottomSheet } from "./BottomSheetContext";
 
 
 const Header = () => {
@@ -27,9 +28,8 @@ const Header = () => {
     const [notificationsOpen, setNotificationsOpen] = useState(false)
     const [organizationsList, setOrganizationsList] = useState([])
     const [organization, setOrganization] = useState<Organization | null>(null);
-    const [switchingOrganization, setSwitchingOrganization] = useState(false)
-
-
+  const { open: openBottomSheet, close: closeBottomSheet } = useBottomSheet();
+  
 
       const fetchOranizatoinslist = async() => {
         if(!userUUID) return
@@ -42,9 +42,16 @@ const Header = () => {
       fetchOranizatoinslist()
     }, [userUUID])
 
+
+    const openOraganizationListModal = () => {
+          openBottomSheet(
+            <OrganizationsList onClose={closeBottomSheet} setOrganization={setOrganization} organizationsList={organizationsList} />
+          );
+    }
+
   return (
     <View style={styles.container}>
-    <TouchableOpacity style={styles.organization} onPress={() => setSwitchingOrganization(true)}>
+    <TouchableOpacity style={styles.organization} onPress={openOraganizationListModal}>
       {organization?.OrganizationShortLogo ? (
         <Image
           width={30}
@@ -65,15 +72,15 @@ const Header = () => {
         <CustomButton buttonStyle={styles.bell} onPress={() => setNotificationsOpen(true)} icon={<BellIcon width={20} height={20} />} />
         <CustomButton buttonStyle={styles.chat} onPress={() => navigation.navigate("ChatsScreen")} icon={<Chat width={20} height={20} />} />
         
-        <CustomButton onPress={() => navigation.navigate("Profile", {userUUID : userUUID})} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
+        <CustomButton buttonStyle={{marginLeft: 14}} onPress={() => navigation.navigate("Profile", {userUUID : userUUID})} icon={<Image source={{uri: user?.photoURL ?? ""}} style={styles.profileIcon} />} />
 
-        <CustomModal presentationStyle="fullScreen" fullScreen={true} isOpen={notificationsOpen}>
+        {notificationsOpen && <CustomModal presentationStyle="fullScreen" fullScreen={true}>
             <Notifications onClose={() => setNotificationsOpen(false)} />
-        </CustomModal>
+        </CustomModal>}
 
-        <CustomModal isOpen={switchingOrganization} onClose={() => setSwitchingOrganization(false)} fullScreen={false} >
+      {/*   {switchingOrganization && <CustomModal onClose={() => setSwitchingOrganization(false)} fullScreen={false} >
           <OrganizationsList onClose={() => setSwitchingOrganization(false)} setOrganization={setOrganization} organizationsList={organizationsList} />
-        </CustomModal>
+        </CustomModal>} */}
 
     </View>
   );
@@ -108,7 +115,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 20,
-    marginLeft: 14,
+/*     marginLeft: 14, */
   },
   signOut: {
     marginLeft: "auto"

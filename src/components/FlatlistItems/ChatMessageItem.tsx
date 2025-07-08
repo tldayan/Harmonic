@@ -61,7 +61,11 @@ export function MessageItem({
           isMessagefromOwner && { flexDirection: 'row-reverse', alignSelf: 'flex-end' },
         ]}
       >
-        <Image style={styles.profilePic} source={{ uri: avatarUri }} />
+        <FastImage style={styles.profilePic} source={{
+          uri: avatarUri,
+          priority: FastImage.priority.normal,
+          cache: FastImage.cacheControl.immutable,
+        }} />
         <View
           style={[
             styles.userMessageContainer,

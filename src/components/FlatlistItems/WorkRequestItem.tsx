@@ -8,7 +8,7 @@ import {
   WORK_STATUS_COLOR_CODES
 } from '../../utils/constants';
 import { CardShadowStyles, shadowStyles } from '../../styles/global-styles';
-import { formatProperDate } from '../../utils/helpers';
+import { formatProperDate, responsiveFontSize } from '../../utils/helpers';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation-types';
@@ -47,7 +47,7 @@ export default function WorkRequestItem({ workRequestItem }: WorkRequestItemProp
     >
       <View style={[styles.workRequestContainer, CardShadowStyles]}>
         <View style={styles.workRequestStatsContainer}>
-          <Text style={{color: "#111827", fontWeight: "500" }}>
+          <Text style={{color: "#111827", fontWeight: "500", fontSize: responsiveFontSize(15) }}>
             {workRequestItem.WorkRequestNumber || "N/A"}
           </Text>
           <Text style={[
@@ -81,7 +81,7 @@ export default function WorkRequestItem({ workRequestItem }: WorkRequestItemProp
 
         <View style={{ marginTop: 10 }}>
           {Object.entries(displayedKeys).map(([key, value]) => (
-            <Text key={key} style={{ fontSize: 14, marginBottom: 4 }}>
+            <Text key={key} style={{ fontSize: responsiveFontSize(14), marginBottom: 4 }}>
               <Text style={{ fontWeight: "bold" }}>{key}: </Text>
               {value !== null && value !== undefined && value !== "" ? String(value) : "N/A"}
             </Text>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    fontSize: 10,
+    fontSize: responsiveFontSize(10),
     fontWeight: '500',
     borderRadius: 24
   },
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   },
   workRequestStatusItemName: {
     color: "#1A202C",
-    fontSize: 10
+    fontSize: responsiveFontSize(10),
   },
   workRequestNotificationDot: {
     height: 10,

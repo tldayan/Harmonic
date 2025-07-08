@@ -90,7 +90,7 @@ export default function ProfileHeader({
         <FastImage
           style={styles.profilePicture}
           source={{
-            uri: postData?.ProfilePic?.trim() || "https://i.pravatar.cc/150",
+            uri: postData?.ProfilePic?.trim() || ProfilePic.trim() || "https://i.pravatar.cc/150",
             priority: FastImage.priority.high,
           }}
         />
@@ -110,7 +110,7 @@ export default function ProfileHeader({
       {showPostActions && (
         <CustomButton
           buttonStyle={styles.threeDots}
-          icon={<ThreeDots width={18} height={18} />}
+          icon={<ThreeDots width={20} height={20} />}
           onPress={handleOpenPostActions}
         />
       )}

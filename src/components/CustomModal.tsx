@@ -5,14 +5,12 @@ import {
   Modal,
   ModalProps,
   Platform,
-  ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
-  View
+  View,
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
 
 interface Props extends ModalProps {
   isOpen?: boolean;
@@ -20,9 +18,8 @@ interface Props extends ModalProps {
   fullScreen?: boolean;
   onClose?: () => void;
   presentationStyle?: "fullScreen" | "pageSheet" | "formSheet" | "overFullScreen";
-  halfModal?: boolean;
   disableCloseOnBackground?: boolean;
-  blackBackground?: boolean
+  blackBackground?: boolean;
 }
 
 export const CustomModal: React.FC<Props> = ({
@@ -31,83 +28,132 @@ export const CustomModal: React.FC<Props> = ({
   children,
   fullScreen,
   presentationStyle,
-  halfModal,
   blackBackground,
-  disableCloseOnBackground
+  disableCloseOnBackground,
 }) => {
-  console.log("REN DERING MODAL")
-  const slideAnim = useRef(new Animated.Value(0)).current;
-  const [visible, setVisible] = useState(isOpen);
-  const [contentKey, setContentKey] = useState(0);
+  // If isOpen is undefined, default to visible true
+  const [visible, setVisible] = useState(isOpen ?? true);
+
+  // Animated values for non-fullscreen modal only
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const contentOpacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(30)).current;
+
+  // Animate in/out only for non-fullscreen modal
+  const animateIn = () => {
+    Animated.parallel([
+      Animated.timing(backdropOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(contentOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(translateY, {
+        toValue: 0,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const animateOut = (callback: () => void) => {
+    Animated.parallel([
+      Animated.timing(backdropOpacity, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(contentOpacity, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 30,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start(() => callback());
+  };
 
   useEffect(() => {
-    if (halfModal) {
-      if (isOpen) {
-        setVisible(true);
-        Animated.timing(slideAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-        setContentKey(prev => prev + 1);
-      } else {
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => setVisible(false));
-      }
+    if (isOpen === undefined || isOpen) {
+      setVisible(true);
+      if (!fullScreen) animateIn();
     } else {
-      setVisible(isOpen);
-      if (isOpen) setContentKey(prev => prev + 1);
+      if (!fullScreen) {
+        animateOut(() => setVisible(false));
+      } else {
+        setVisible(false);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, fullScreen]);
 
-  const translateY = slideAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [500, 0],
-  });
+  if (!visible) return null;
 
   return (
     <Modal
       presentationStyle={presentationStyle}
       transparent={!fullScreen}
       statusBarTranslucent
-      animationType={fullScreen ? "slide" : "fade"}
+      animationType={fullScreen ? "slide" : "none"} // native animation only for fullscreen
       visible={visible}
+      onRequestClose={onClose}
     >
       <GestureHandlerRootView>
-      <SafeAreaProvider>
-        {fullScreen ? (
-          <View style={styles.fullScreenSafeArea} key={contentKey}>
-            {children}
-          </View>
-        ) : (
-          <TouchableWithoutFeedback onPress={disableCloseOnBackground ? () => {} : onClose}>
-            <View style={halfModal ? styles.halfModalSafeArea : [styles.safeArea, blackBackground ? {backgroundColor: "black"} : null]}>
-              <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                <Animated.View
-                  style={[
-                    halfModal ? styles.halfModalContainer : null,
-                    halfModal ? { transform: [{ translateY }] } : null
-                  ]}
-                  key={contentKey}
-                >
-                  <ScrollView
-                    scrollEnabled={false}
-                    contentContainerStyle={!halfModal && styles.scrollView}
-                    keyboardShouldPersistTaps="handled"
-                  >
-                    <TouchableWithoutFeedback onPress={() => {}}>
-                      <View>{children}</View>
-                    </TouchableWithoutFeedback>
-                  </ScrollView>
-                </Animated.View>
-              </KeyboardAvoidingView>
+        <SafeAreaProvider>
+          {fullScreen ? (
+            // Fullscreen modal: no custom animation, native modal animation used
+            <View style={styles.fullScreenSafeArea}>
+              {children}
             </View>
-          </TouchableWithoutFeedback>
-        )}
-      </SafeAreaProvider></GestureHandlerRootView>
+          ) : (
+            // Non-fullscreen modal: custom animated backdrop + content
+            <TouchableWithoutFeedback
+              onPress={disableCloseOnBackground ? () => {} : onClose}
+            >
+              <Animated.View
+                style={[
+                  styles.safeArea,
+                  {
+                    backgroundColor: blackBackground
+                      ? backdropOpacity.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,1)'],
+                        })
+                      : backdropOpacity.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.5)'],
+                        }),
+                  },
+                ]}
+              >
+                <KeyboardAvoidingView
+                  behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+                  style={{ flex: 1 }}
+                >
+                  <View style={styles.contentWrapper}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                      <Animated.View
+                        style={{
+                          transform: [{ translateY }],
+                          opacity: contentOpacity,
+                          width: '100%',
+                        }}
+                      >
+                        {children}
+                      </Animated.View>
+                    </TouchableWithoutFeedback>
+                  </View>
+                </KeyboardAvoidingView>
+              </Animated.View>
+            </TouchableWithoutFeedback>
+          )}
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
     </Modal>
   );
 };
@@ -119,27 +165,13 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scrollView: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  halfModalSafeArea: {
+  contentWrapper: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  halfModalContainer: {
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
 });

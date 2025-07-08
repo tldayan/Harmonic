@@ -4,9 +4,9 @@ const { height } = Dimensions.get('window');
 
 export const globalScreenOptions = {
   headerShown: false,
-  animation: "fade" as const,
+  animationEnabled: false,
   tabBarStyle: {
     height: height * 0.07,
   },
-
 };
+

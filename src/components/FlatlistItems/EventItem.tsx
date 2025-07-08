@@ -103,7 +103,7 @@ export default function EventItem({ event, index, scrollX,setEvents,fetchEventsL
 
         <View style={styles.eventCategoryContainer}>
             <Text style={styles.eventCategory}>{event.StatusItemCode}</Text>
-            <Text style={styles.eventCategory}>{event.EventType}</Text>
+            <Text style={[styles.eventCategory, {marginRight: "auto"}]}>{event.EventType}</Text>
             <EventActionDropdownComponent createdBy={event.CreatedBy} horizontalDots action={action} setAction={setAction} />
         </View>
 

@@ -5,7 +5,7 @@ export const modalContainer = {
     backgroundColor: "white",
     borderRadius: 20,
     width: 343, 
-    padding: 20,
+    padding: 15,
 }
 
 export const modalTitle: TextStyle = {

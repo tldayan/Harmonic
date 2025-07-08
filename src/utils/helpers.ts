@@ -362,6 +362,7 @@ export const uploadLocalDocuments = async (data: any) => {
 
 
 
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const baseWidth = 375;
 
@@ -369,5 +370,20 @@ export function responsiveFontSize(size: number) {
   const scale = SCREEN_WIDTH / baseWidth;
   const newSize = size * scale;
 
-  return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 1;
+  if (Platform.OS === 'ios') {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2;
+  } else {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2;
+  }
 }
+
+//OLD RESPONSIVE TEXT FUNCTION
+/* const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const baseWidth = 375;
+
+export function responsiveFontSize(size: number) {
+  const scale = SCREEN_WIDTH / baseWidth;
+  const newSize = size * scale;
+
+  return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 1;
+} */
