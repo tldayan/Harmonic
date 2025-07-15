@@ -16,10 +16,10 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 
   const flattenedStyle = StyleSheet.flatten(textStyle || {}) as TextStyle;
   return (
-    <TouchableOpacity  activeOpacity={disableOpacity ? 1 : 0.5} style={[buttonStyle]} onPress={() => onPress?.()}>
+    <TouchableOpacity activeOpacity={disableOpacity ? 1 : 0.5} style={buttonStyle} onPress={() => onPress?.()}>
       {loading ? <ActivityIndicator color={"white"} size={"small"} /> : 
       <>
-        {(icon && iconPosition === "left") && <View style={styles.icon}>{icon}</View>}
+        {(icon && iconPosition === "left") && <View>{icon}</View>}
         {title && (
           <Text
           style={[
@@ -32,7 +32,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         </Text>
         )}
 
-        {(icon && iconPosition === "right") && <View style={styles.icon}>{icon}</View>}
+        {(icon && iconPosition === "right") && <View>{icon}</View>}
       </>
       }
 
@@ -43,9 +43,6 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 const styles = StyleSheet.create({
   text: {
     textAlign: "center"
-  },
-  icon: {
-   /*  marginRight: 8, */
   },
 });
 

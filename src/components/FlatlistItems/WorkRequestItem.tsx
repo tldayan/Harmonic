@@ -95,6 +95,7 @@ export default function WorkRequestItem({ workRequestItem }: WorkRequestItemProp
 const styles = StyleSheet.create({
   mainWorkRequestContainer: {
     width: "95%",
+    marginBottom: 10,
     borderRadius: 24,
     alignSelf: "center"
   },

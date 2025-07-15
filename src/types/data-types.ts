@@ -10,7 +10,7 @@ interface UserProfile {
   GenderUUID: string 
   CountryUUID: string 
   NationalityUUID: string 
-  PhoneCountryUUID: Country | null
+  PhoneCountryUUID?: Country | null
   PhoneNumber: string
   DateOfBirth: string
   CreatedBy: string | null

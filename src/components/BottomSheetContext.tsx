@@ -1,10 +1,11 @@
-import React, { createContext, useRef, useMemo, useContext, useState } from 'react';
+import React, { createContext, useRef, useContext, useState } from 'react';
 import {
     BottomSheetBackdrop,
     BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetView,
+  useBottomSheetSpringConfigs,
 } from '@gorhom/bottom-sheet';
 
 type BottomSheetContextType = {
@@ -57,7 +58,13 @@ export const BottomSheetProvider = ({ children }: { children: React.ReactNode })
       pressBehavior="close" 
     />
   );
-
+  const animationConfigs = useBottomSheetSpringConfigs({
+    damping: 80,
+    stiffness: 500,
+    overshootClamping: true,
+    restDisplacementThreshold: 0.1,
+    restSpeedThreshold: 0.1,
+  });
 
   return (
     <BottomSheetModalProvider>
@@ -69,8 +76,10 @@ export const BottomSheetProvider = ({ children }: { children: React.ReactNode })
   index={0}
   snapPoints={dynamicSnapPoints}
   enablePanDownToClose
+  animationConfigs={animationConfigs}
   enableDismissOnClose
   onDismiss={handleDismiss}
+  keyboardBehavior="interactive"              
   backdropComponent={renderBackdrop}
 >
 <BottomSheetView key="bottom-sheet-view" style={{ padding: 20, paddingTop: 0 }}>

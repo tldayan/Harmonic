@@ -19,6 +19,7 @@ import TasksScreen from '../Task/TasksScreen'
 import { CardShadowStyles } from '../../styles/global-styles'
 import EditIcon from "../../assets/icons/pencil-edit.svg"
 import ChevronLeft from "../../assets/icons/chevron-left.svg"
+import FastImage from '@d11/react-native-fast-image'
 
 const Tab = createMaterialTopTabNavigator()
 type ProfileRouteProp = RouteProp<RootStackParamList, 'Profile'>;
@@ -35,6 +36,7 @@ export default function ProfileScreen() {
   const fetchUserProfile = async () => {
     try {
       const userProfileResponse = await getUserProfile(userUUID)
+      console.log("REs", userProfileResponse)
       setUserProfile(userProfileResponse?.data.Payload)
     } catch (err) {
       console.log(err)
@@ -54,7 +56,7 @@ export default function ProfileScreen() {
       <CustomButton buttonStyle={styles.back} onPress={() => navigation.goBack()} icon={<ChevronLeft width={23} height={23} />} />
       {loading ? <ActivityIndicator size={"small"} style={{marginVertical: "10%"}} /> : <View>
         <View style={styles.mainInnerProfileInfoContainer}>
-          <Image style={styles.profilePic} source={{ uri: "https://i.pravatar.cc/150" }} />
+          <FastImage style={styles.profilePic} source={{ uri: userProfile?.ProfilePicURL ? userProfile.ProfilePicURL : "https://i.pravatar.cc/150" }} />
           <View style={styles.profileInfoContainer}>
             <View style={styles.tenantInfoContainer}>
               <View>

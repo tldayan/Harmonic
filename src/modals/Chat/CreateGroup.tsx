@@ -1,29 +1,24 @@
-import { ActivityIndicator, Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { ActivityIndicator, Dimensions, FlatList, Image, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import ModalsHeader from '../ModalsHeader'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import CustomButton from '../../components/CustomButton'
 import { colors } from '../../styles/colors'
 import X from "../../assets/icons/x.svg"
-import ProfileHeader from '../../components/ProfileHeader'
-import Check from "../../assets/icons/circle-check.svg"
 import ChevronRight from "../../assets/icons/chevron-right.svg"
 import Group from "../../assets/icons/group.svg"
-import { Dropdown } from 'react-native-element-dropdown'
 import { addMembersToGroup, getOrganizationUsers, saveGroup } from '../../api/network-utils'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../store/store'
 import { STATUS_CODE } from '../../utils/constants'
 import { defaultInputStyles } from '../../styles/global-styles'
 import EditIcon from "../../assets/icons/edit.svg"
 import { pickMedia, uploadMedia } from '../../utils/helpers'
 import { Asset } from 'react-native-image-picker'
-
 import CloseIcon from "../../assets/icons/close-light.svg"
 import { firebaseStoragelocations } from '../../utils/constants'
 import { OrganizationUserItem } from '../../components/FlatlistItems/OrganizationUserItem'
 import { FlashList } from '@shopify/flash-list'
+import { useCreds } from '../../hooks/useCreds'
 
 interface CreateGroupProps {
     onClose: () => void
@@ -39,53 +34,7 @@ interface CreateGroupProps {
     { id: "3", title: "Review & Create" },
   ];
 
-  interface DropdownComponentProps {
-    groupSubject: string | null
-    setGroupSubject: React.Dispatch<React.SetStateAction<string | null>>
-  }
-
-  const groupSubjects = [
-    { label: 'Subject 1', value: '1' },
-    { label: 'Subject 2', value: '2' },
-  ];
-  
   const width = Dimensions.get("window").width
-
-  const DropdownComponent = ({groupSubject, setGroupSubject} : DropdownComponentProps) => {
-
-    return (
-      <Dropdown
-        style={styles.dropdown}
-        data={groupSubjects}
-        mode= "auto"
-        placeholder='Group Subject'
-        placeholderStyle={{color: "black", fontWeight: 300}}
-        itemTextStyle={{color: "black"}}
-        containerStyle={{
-          borderRadius: 5,
-          width: "90%",
-          marginHorizontal: "5%",
-          left: "auto",
-          shadowColor: "#000", 
-          shadowOpacity: 0.1, 
-          shadowRadius: 5, 
-          shadowOffset: { width: 0, height: 4 }, 
-          elevation: 5,
-        }}
-        onFocus={() => setGroupSubject(null)}
-        maxHeight={300}
-        labelField="label"
-        valueField="value"
-        value={groupSubject}
-        onChange={item => {
-          setGroupSubject(item.value);
-        }}
-/*         renderRightIcon={() => (
-          <View style={styles.iconStyle}><ThreeDots width={18} height={18} /></View>
-        )} */
-      />
-    );
-  };
 
 export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addingMembers, chatMasterUUID}: CreateGroupProps) {
 
@@ -97,9 +46,8 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
   const [groupNameErrorMessage, setGroupNameErrorMessage] = useState("")
   const [loading, setLoading] = useState(false)
   const [organizationUsers, setOrganizationUsers] = useState<OrganizationUser[]>([])
-  const [groupSubject, setGroupSubject] = useState<string | null>(null);
   const flatListRef = useRef<FlatList<any>>(null);
-  const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)
+  const {userUUID, organizationUUID} = useCreds()
 
 
   
@@ -216,7 +164,6 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
   
 
   const handleAddMember = (member: OrganizationUser) => {
-
     if(member.UserUUID === userUUID) return
     
     let isMemberAlreadyAdded = addedMembers.some((eachMember) => eachMember.memberUUID === member.UserUUID)
@@ -228,18 +175,6 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
         handleRemoveMember(member.UserUUID)
     }
   }
-
-/*   const memberItem = ({item} : {item: OrganizationUser}) => {
-
-    return <TouchableOpacity style={styles.memberItemContainer} onPress={() => handleAddMember(item)}>
-                <View style={{flexDirection: "row", alignItems: "center"}}>
-                  <ProfileHeader noDate ProfilePic={item.ProfilePicURL} name={item.FullName} />
-                  {item.UserUUID === userUUID && <Text style={styles.you}>You</Text>}
-                </View>
-                
-                {addedMembers.some((member) => member.memberUUID === item.UserUUID) && <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />}
-            </TouchableOpacity>
-  } */
 
 
   const handleRemoveMember = (memberUUID: string) => {
@@ -260,7 +195,6 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
             </View>
             {loading ? <ActivityIndicator style={{marginTop: "50%"}} size={"small"} /> : 
             <FlashList
-           /*  contentContainerStyle={{ marginTop: 16 }} */
             data={organizationUsers}
             renderItem={({ item }) => (
               <OrganizationUserItem
@@ -270,8 +204,8 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
               />
             )}
             keyExtractor={(item) => item.UserUUID}
+            extraData={addedMembers}
             estimatedItemSize={80}
-            ItemSeparatorComponent={() => <View style={{ height: 12 }} />} // acts like a vertical gap
           />
           }
         </View>
@@ -286,7 +220,6 @@ export default function CreateGroup({onClose,fetchGroupDetails, fetchChats, addi
                 {groupImage?.uri && <Image style={{borderRadius: 75}} width={150} height={150} source={{uri : groupImage?.uri ? groupImage?.uri : ""}}/>}
                 <CustomButton onPress={handleGroupImage} buttonStyle={[styles.editGroupImage, groupImage?.uri ? {backgroundColor: "red"} : null]} icon={loading ? <ActivityIndicator size={"small"} color={"white"} /> : groupImage.uri ? <CloseIcon width={20} height={20} /> : <EditIcon fill={"white"} color={colors.ACTIVE_ORANGE} width={20} height={20} />} /> 
             </View>
-           {/*  <DropdownComponent groupSubject={groupSubject} setGroupSubject={setGroupSubject} /> */}
             <CustomTextInput errorMessage={groupNameErrorMessage} label='Group Name' labelStyle={styles.groupName} inputStyle={defaultInputStyles} value={groupName} onChangeText={handleGroupNameChange} />
         </View>
     )
@@ -325,11 +258,6 @@ const styles = StyleSheet.create({
         padding: 16,
         width: width
 /*         flex: 1, */
-/*         borderWidth: 2, */
-    },
-    friendList: {
-        marginTop: 30,
-        gap: 15,
 /*         borderWidth: 2, */
     },
     mainCreateGroupForm: {
@@ -371,19 +299,6 @@ const styles = StyleSheet.create({
         flex: 1
  /*        width: 250 */
     },
-    memberItemContainer : {
-       /*  borderWidth: 1, */
-        position: "relative",
-        padding: 5
-    },
-    checkLogo : {
-        position: "absolute",
-        bottom: 0,
-        left: 0
-        /* top: "50%",
-        left: "-3%", */
-/*         transform: [{ translateX: "110%" }, { translateY: "0%" }] */
-    },
     dropdown: {
         marginTop: 20,
         borderBottomWidth: 2,
@@ -397,14 +312,6 @@ const styles = StyleSheet.create({
       fontSize: 16,
       marginBottom: 5
     },
-    you: {
-      paddingHorizontal: 5,
-      paddingVertical: 2,
-      fontSize: 10,
-      borderRadius: 3,
-      backgroundColor: colors.LIGHT_COLOR,
-      color: colors.LIGHT_TEXT
-    },
     groupImageContainer: {
       position: "relative",
       backgroundColor: "#FEECDC", 
@@ -416,16 +323,6 @@ const styles = StyleSheet.create({
       borderRadius: 50,
       position: "absolute",
       right: 6,
-      bottom: 6,
-      backgroundColor: colors.ACTIVE_ORANGE,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    closeGroupImage: {
-      padding: 8,
-      borderRadius: 50,
-      position: "absolute",
-      left: 6,
       bottom: 6,
       backgroundColor: colors.ACTIVE_ORANGE,
       justifyContent: "center",

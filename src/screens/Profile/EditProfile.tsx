@@ -37,7 +37,7 @@ export default function EditProfile() {
   GenderUUID: "",
   CountryUUID: "",
   NationalityUUID: "",
-  PhoneCountryUUID: "",
+/*   PhoneCountryUUID: "", */
   PhoneNumber: "",
   DateOfBirth: "",
   CreatedBy: "",
@@ -69,7 +69,7 @@ export default function EditProfile() {
           GenderUUID: userProfile.GenderUUID || "",
           CountryUUID: userProfile.CountryUUID || "",
           NationalityUUID: userProfile.NationalityUUID || "",
-          PhoneCountryUUID: userProfile.PhoneCountryUUID || "",
+/*           PhoneCountryUUID: userProfile.PhoneCountryUUID || "", */
           PhoneNumber: userProfile.PhoneNumber || "",
           DateOfBirth: userProfile.DateOfBirth || "",
           CreatedBy: userProfile.CreatedBy || "",

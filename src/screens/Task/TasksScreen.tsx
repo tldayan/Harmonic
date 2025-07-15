@@ -2,7 +2,7 @@ import { ActivityIndicator, FlatList, ScrollView, StyleSheet, Text, View } from 
 import React, { useCallback, useEffect, useState } from 'react'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import SearchIcon from "../../assets/icons/search.svg"
-import { CardShadowStyles, defaultInputStyles, shadowStyles } from '../../styles/global-styles'
+import { CardShadowStyles, defaultInputStyles } from '../../styles/global-styles'
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
 import CirclePlus from "../../assets/icons/circle-plus.svg"
@@ -11,16 +11,12 @@ import WorkOrderItem from '../../components/FlatlistItems/WorkOrderItem'
 import { getPendingWorkRequestCount, getWorkOrderList, getWorkRequestList } from '../../api/network-utils'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
-import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootStackParamList, TabParamList } from '../../types/navigation-types'
+import {useFocusEffect} from '@react-navigation/native'
 import Alert from "../../assets/icons/circle-alert.svg"
 import { CustomModal } from '../../components/CustomModal'
-import TaskCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
-import WorkOrderCreation from '../../modals/Task/WorkOrder/WorkOrderCreation'
 import WorkRequestCreation from '../../modals/Task/WorkRequest/WorkRequestCreation'
 import WorkRequestItem from '../../components/FlatlistItems/WorkRequestItem'
-import { TASK_STATUS_CODES } from '../../utils/constants'
+import { FlashList } from '@shopify/flash-list'
 
 interface TasksScreenProps {
   filterUserTasks?: boolean
@@ -36,7 +32,7 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
   const [filteredWorkRequests, setFilteredWorkRequests] = useState<WorkRequest[]>([])
 
   const [pendingWorkRequests, setPendingWorkRequests] = useState(0)
-  const [startIndex, setStartIndex] = useState(0) 
+  const [startIndex, setStartIndex] = useState(0)
   const [creatingRequest, setCreatingRequest] = useState(false)
   const [taskDetails, setTaskDetails] = useState<WorkOrderDetails | null>(null)
   const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)
@@ -48,7 +44,6 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
   
     if (!initial && (!hasMore || loading)) return;
   
-    console.log("Fetching tasks...");
     setLoading(true);
   
     try {
@@ -85,21 +80,21 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
 
   useFocusEffect(
     useCallback(() => {
-      fetchTasksList(true);
-    }, [])
+      const fetchData = async () => {
+        await fetchTasksList(true);
+  
+        try {
+          const pendingWorkRequestResponse = await getPendingWorkRequestCount(organizationUUID);
+          setPendingWorkRequests(pendingWorkRequestResponse.Payload.count);
+        } catch (error) {
+          console.error("Failed to fetch pending work requests:", error);
+        }
+      };
+  
+      fetchData();
+    }, [organizationUUID])
   );
-
-
-  useEffect(() => {
-
-    const fetchPendingWorkRequestCount = async() => {
-      const pendingWorkRequestResponse = await getPendingWorkRequestCount(organizationUUID)
-      setPendingWorkRequests(pendingWorkRequestResponse.Payload.count)
-    }
-
-    fetchPendingWorkRequestCount()
-
-  }, [])
+  
 
   useEffect(() => {
     const task = searchTask.trim().toLowerCase();
@@ -176,11 +171,11 @@ export default function TasksScreen({filterUserTasks}: TasksScreenProps) {
         </View>: null}
       {(flatListData?.length === 0 && loading) && <ActivityIndicator style={{marginTop: "50%"}} size={"small"} color={"black"} />}
       
-      <FlatList
+      <FlashList
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.workOrderContainer} 
-        style={{ marginTop: 15 }} 
         renderItem={renderFlatListItem}
+        estimatedItemSize={190}
         data={
           isAdmin
             ? (searchTask.trim() ? filteredWorkOrders : workOrders)
@@ -259,8 +254,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.LIGHT_COLOR,
   },
   workOrderContainer: {
-    gap: 20,
-    paddingBottom: 100  
+    paddingBottom: 100 
   },
   pendingRequestsContainer: {
     width: "95%",
@@ -269,7 +263,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.RED_SHADE,
     borderRadius: 10,
     padding: 8,
-    marginTop: 10,
+    marginVertical: 10,
     flexDirection : "row",
     alignItems: "center"
   },

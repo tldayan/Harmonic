@@ -1,8 +1,7 @@
-import { Image, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
+import {StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import CustomButton from '../components/CustomButton'
 import { colors } from '../styles/colors'
-import ModalsHeader from './ModalsHeader'
 import TriangleAlert from "../assets/icons/triangle-alert.svg"
 import Close from "../assets/icons/close-dark.svg"
 
@@ -19,7 +18,6 @@ export default function ConfirmationModal({onClose,setConfirmation, warningText,
 
   return (
     <View style={styles.container}>
-        {/* <ModalsHeader onClose={onClose} title='' /> */}
         <CustomButton buttonStyle={styles.close} onPress={onClose} icon={<Close width={25} height={25} />} />
         <View style={styles.innerContainer}>
             <TriangleAlert width={30} height={30} />
@@ -39,7 +37,8 @@ const styles = StyleSheet.create({
     container : {
         backgroundColor: "white",
         borderRadius: 8,
-        width: "90%", 
+        width: "80%", 
+        marginHorizontal: "10%",
         paddingTop: 20
     },
     innerContainer :{

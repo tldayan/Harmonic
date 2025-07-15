@@ -19,7 +19,7 @@ export default function OrganizationsList({organizationsList, onClose, setOrgani
         <View style={styles.organizationList}>
             {organizationsList?.map((oraganization) => (
                 <TouchableOpacity key={oraganization.OrganizationUUID} onPress={() => {setOrganization?.(oraganization); onClose()}} style={styles.organization}>
-                    <FastImage style={styles.shortLogo} source={{uri: oraganization.OrganizationShortLogo ?? ""}} />
+                    <FastImage style={styles.shortLogo} source={{uri: oraganization.OrganizationShortLogo ?? "", priority: FastImage.priority.high }} />
                     <Text style={{fontWeight: "500"}} key={oraganization.OrganizationUUID}>{oraganization.OrganizationName}</Text>
                 </TouchableOpacity>
             ))}
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         marginBottom : 10
     },
     organizationList: {
-        gap: 10
+        gap: 10,
      /*    borderWidth: 2, */
     },
     organization: {

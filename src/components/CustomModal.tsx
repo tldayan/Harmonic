@@ -31,15 +31,13 @@ export const CustomModal: React.FC<Props> = ({
   blackBackground,
   disableCloseOnBackground,
 }) => {
-  // If isOpen is undefined, default to visible true
+  console.log("rendering modal")
   const [visible, setVisible] = useState(isOpen ?? true);
 
-  // Animated values for non-fullscreen modal only
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   const contentOpacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(30)).current;
 
-  // Animate in/out only for non-fullscreen modal
   const animateIn = () => {
     Animated.parallel([
       Animated.timing(backdropOpacity, {
@@ -99,19 +97,17 @@ export const CustomModal: React.FC<Props> = ({
       presentationStyle={presentationStyle}
       transparent={!fullScreen}
       statusBarTranslucent
-      animationType={fullScreen ? "slide" : "none"} // native animation only for fullscreen
+      animationType={fullScreen ? "slide" : "none"}
       visible={visible}
       onRequestClose={onClose}
     >
       <GestureHandlerRootView>
         <SafeAreaProvider>
           {fullScreen ? (
-            // Fullscreen modal: no custom animation, native modal animation used
             <View style={styles.fullScreenSafeArea}>
               {children}
             </View>
           ) : (
-            // Non-fullscreen modal: custom animated backdrop + content
             <TouchableWithoutFeedback
               onPress={disableCloseOnBackground ? () => {} : onClose}
             >

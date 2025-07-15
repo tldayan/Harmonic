@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import React from 'react'
 import Check from '../../assets/icons/circle-check.svg'
 import ProfileHeader from '../ProfileHeader'
@@ -20,34 +20,27 @@ export const OrganizationUserItem: React.FC<Props> = ({ item, addedMembers, hand
   const isYou = item.UserUUID === userUUID
 
   return (
-    <TouchableOpacity style={styles.memberItemContainer} onPress={() => handleAddMember(item)}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <ProfileHeader noDate ProfilePic={item.ProfilePicURL} name={item.FullName} />
-        {isYou && <Text style={styles.you}>You</Text>}
-      </View>
-      {isAdded && (
+
+      <View style={styles.memberItemContainer}>
+        <ProfileHeader you={isYou} flex onPress={() => handleAddMember(item)} noDate ProfilePic={item.ProfilePicURL} name={item.FullName} />
+        {isAdded && (
         <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />
       )}
-    </TouchableOpacity>
+      </View>
+      
+    
   )
 }
 
 const styles = StyleSheet.create({
     memberItemContainer : {
          position: "relative",
-         padding: 5
+         padding: 5,
+         marginVertical: 5
      },
      checkLogo : {
          position: "absolute",
          bottom: 0,
          left: 0
-     },
-     you: {
-       paddingHorizontal: 5,
-       paddingVertical: 2,
-       fontSize: 10,
-       borderRadius: 3,
-       backgroundColor: colors.LIGHT_COLOR,
-       color: colors.LIGHT_TEXT
      },
 })

@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import ModalsHeader from '../ModalsHeader'
@@ -12,6 +12,7 @@ import { getOrganizationUsers, inviteMembersToChat } from '../../api/network-uti
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store/store'
 import { STATUS_CODE } from '../../utils/constants'
+import { useCreds } from '../../hooks/useCreds'
 
 interface CreateChatProps {
     onClose: () => void
@@ -26,7 +27,7 @@ export default function CreateChat({onClose, fetchChats}: CreateChatProps) {
   const [chatMember, setChatMember] = useState<string>("");
   const [loading, setLoading] = useState(false)
   const [organizationUsers, setOrganizationUsers] = useState<OrganizationUser[]>([])
-  const {userUUID, organizationUUID} = useSelector((state: RootState) => state.auth)
+  const {userUUID, organizationUUID} = useCreds()
 
 
   
@@ -73,17 +74,11 @@ export default function CreateChat({onClose, fetchChats}: CreateChatProps) {
 
   const memberItem = ({item} : {item: OrganizationUser}) => {
 
-    return <TouchableOpacity style={styles.memberItemContainer} onPress={() => {item.UserUUID !== userUUID && setChatMember(item.UserUUID)}}>
-                <View style={{flexDirection: "row", alignItems: "center"}}>
-                  <ProfileHeader noDate ProfilePic={item.ProfilePicURL} name={item.FullName} />
-                  {item.UserUUID === userUUID && <Text style={styles.you}>You</Text>}
-                </View>
-                
-                {chatMember === item.UserUUID && <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />}
-            </TouchableOpacity>
+    return <View style={styles.memberItemContainer}>
+              <ProfileHeader flex onPress={() => {item.UserUUID !== userUUID && setChatMember(item.UserUUID)}} you={item.UserUUID === userUUID } noDate ProfilePic={item.ProfilePicURL} name={item.FullName} />
+              {chatMember === item.UserUUID && <Check style={styles.checkLogo} fill={colors.ACTIVE_ORANGE} stroke='white' width={20} height={20} />}
+            </View>
   }
-
-
 
 
   return (
@@ -98,7 +93,7 @@ export default function CreateChat({onClose, fetchChats}: CreateChatProps) {
             {loading ? <ActivityIndicator style={{marginTop: "50%"}} size={"small"} /> :
             <FlatList
                 contentContainerStyle={styles.friendList}
-                renderItem={memberItem} 
+                renderItem={memberItem}
                 keyExtractor={(item) => item.UserUUID}
                 data={organizationUsers}
             />}
@@ -129,9 +124,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
  /*        borderWidth: 2, */
         paddingBottom: 150
-    },
-    mainCreateGroupForm: {
-/*         borderWidth: 1, */
     },
     memberTitle: {
         color: colors.LIGHT_TEXT
@@ -178,12 +170,4 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0
     },
-    you: {
-        paddingHorizontal: 5,
-        paddingVertical: 2,
-        fontSize: 10,
-        borderRadius: 3,
-        backgroundColor: colors.LIGHT_COLOR,
-        color: colors.LIGHT_TEXT
-      }
 })

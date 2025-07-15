@@ -7,7 +7,7 @@ import { getCommentReplies, getListOfComments, getMBMessageDetails, saveMBMessag
 import { CommentItemProps, EditPostState, PostItemProps, ReplyItemProps } from '../../types/post-types'
 import ProfileHeader from '../../components/ProfileHeader'
 import CustomButton from '../../components/CustomButton'
-import PostItem from '../../components/PostItem'
+import PostItem from '../../components/FlatlistItems/PostItem'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import { colors } from '../../styles/colors'
 import SendIcon from "../../assets/icons/send-horizontal.svg"
@@ -288,7 +288,7 @@ export default function CommentsScreen() {
       <View style={styles.headerProfileContainer}>
         {messageDetails && (
           <View style={{ flex: 1}}>
-            <ProfileHeader onPress={() => navigation.navigate("Profile", {userUUID : messageDetails.CreatedBy})} goBack attachmentData={attachmentData} showPostActions post={messageDetails}/>
+            <ProfileHeader onPress={() => navigation.navigate("Profile", {userUUID : messageDetails.CreatedBy})} goBack showPostActions post={messageDetails}/>
           </View>
         )}
       </View>
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   },
   headerProfileContainer: {
    /*  borderWidth: 1, */
-    paddingVertical: 10,
+    paddingTop: 10,
   /*   paddingTop: 16, */
     width: "100%",
     gap: 10,

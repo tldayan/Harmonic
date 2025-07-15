@@ -1,10 +1,9 @@
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useMemo, useState } from 'react'
 import { FlashList } from '@shopify/flash-list';
-
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
-import PostItem from '../../components/PostItem'
+import PostItem from '../../components/FlatlistItems/PostItem'
 import { CustomModal } from '../../components/CustomModal'
 import CreatePost from '../../modals/Post/CreatePost'
 import DeletePost from '../../modals/Post/DeletePost'
@@ -13,10 +12,10 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { TabParamList } from '../../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { getMBMessageDetails, getMBMessages, getMBMessagesForUserProfile } from '../../api/network-utils'
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../../store/store'
+import { useDispatch } from 'react-redux'
 import Filters from '../../modals/Filters'
 import { updateLikes } from '../../store/slices/postLikesSlice'
+import { useCreds } from '../../hooks/useCreds';
  
 interface SocialScreenProps {
   authUserUUID?: string
@@ -35,7 +34,8 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
   const [startIndex, setStartIndex] = useState(0)
   const {question, options} = route?.params ?? {}
 
-  const { userUUID: stateUserUUID, organizationUUID } = useSelector((state: RootState) => state.auth);
+  const { userUUID: stateUserUUID, organizationUUID } = useCreds();
+
   const userUUID = authUserUUID ?? stateUserUUID;
   const dispatch = useDispatch()
   
@@ -52,7 +52,6 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
 
 
   const fetchMBMessages = async() => {
-    console.log(hasMoreMessages)
       if(loading || !hasMoreMessages) return
 
       setLoading(true)
@@ -65,7 +64,6 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
           await getMBMessagesForUserProfile(userUUID, organizationUUID, startIndex)
           
           if(allMBMessages.length < 10) {
-            console.log("setting")
             setHasMoreMessages(false)
           }
 
@@ -132,7 +130,6 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
   }
 
   const handleRefresh = async() => {
-    console.log("refresing")
     setRefreshing(true)
     await fetchLatestMessages()
     setRefreshing(false)
@@ -144,34 +141,12 @@ export default function SocialScreen({authUserUUID}: SocialScreenProps) {
         {(!filteredMessages.length && !loading && !filtering.state) ? <Text style={styles.noPosts}>No posts yet.</Text> : <FlashList 
             ListHeaderComponent={
                 <View style={styles.container}>
-                    {/* <View style={styles.createPostContainer}>
-                        <View style={styles.postInputContainer}>
-                            <Image 
-                              source={{ uri: user?.photoURL ? user?.photoURL : "https://i.pravatar.cc/150" }} 
-                              style={styles.profilePicture} 
-                            />
-                            <CustomButton 
-                                buttonStyle={styles.postInputButton} 
-                                textStyle={styles.placeholderText} 
-                                title={`What’s on your mind, ${user?.displayName}?`} 
-                                onPress={() => setCreatingPost({ state: true, action: "" })} 
-                            />
-                            <CustomButton 
-                                buttonStyle={styles.postActionsButton} 
-                                textStyle={styles.postActionText} 
-                                onPress={() => setCreatingPost({ state: true, action: "media" })} 
-                                icon={<Image source={require("../../assets/images/frame.png")} />} 
-                            />
-                        </View>
-                    </View>
- */}
                     <View style={styles.filterButtonsContainer}>
                       <CustomButton textStyle={styles.filter} onPress={() => setFiltering((prev) => ({...prev, state: true}))} title={`Filters${filtering.categories.length > 0 ? `(${filtering.categories.length})` : ""}`} />
                       {filtering.categories.length ? <CustomButton textStyle={styles.clearFilter} onPress={() => setFiltering({state: false, categories: []})} title={"Clear Filters"} /> : null}
                     </View>
                 </View> 
             }
-      /*       style={styles.mainPostsContainerList} */
             contentContainerStyle={styles.postsContainerList}
             estimatedItemSize={170}
             data={filteredMessages}
@@ -220,67 +195,9 @@ const styles = StyleSheet.create({
     alignItems:"center",
 		flexGrow: 1
 	},
-  createPostContainer : {
-    backgroundColor: "white",
-    width: "100%",
-    paddingTop: 16,
-    paddingHorizontal: 12,
-  },
-
-  mainPostsContainerList: {
-    flex: 1,
-  },
 
   postsContainerList: {
-/*     flexGrow: 1, */
     paddingBottom: 100
-/*     gap: 10 */
-  },
-
-  
-  postInputContainer :  {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  postInputButton: {
-    flexDirection :"row",
-    alignItems :"center",
-    flex: 1,
-    height: 42,
-    justifyContent: "flex-start",
-},
-placeholderText: {
-    color: colors.LIGHT_TEXT,  
-    fontSize: 14,
-},
-
-  profilePicture: {
-    width: 34,
-    height: 34,
-    borderRadius: 50
-  },
-  seperator: {
-		height: 1, 
-		backgroundColor: "#e5e7eb",
-    marginVertical: 16
-  },
-
-  postActionsContainer: {
-    flexDirection: "row",
-    gap: 5,    
-  },
-
-  postActionsButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 5,
-    gap: 5,
-    alignSelf: "stretch",
-  },
-  postActionText: {
-    color: colors.DARK_TEXT,
-    fontWeight: 500
   },
 
 

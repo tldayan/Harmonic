@@ -1,30 +1,25 @@
 import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import CustomButton from './CustomButton'
-import { colors } from '../styles/colors'
-import { AttachmentData, PostItemProps } from '../types/post-types'
-import { getMBMessageAttacment, saveMBMessageLike } from '../api/network-utils'
+import CustomButton from '../CustomButton'
+import { colors } from '../../styles/colors'
+import { AttachmentData, PostItemProps } from '../../types/post-types'
+import { getMBMessageAttacment, saveMBMessageLike } from '../../api/network-utils'
 import { useNavigation, useRoute } from '@react-navigation/native'
-import { RootStackParamList } from '../types/navigation-types'
+import { RootStackParamList } from '../../types/navigation-types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import ProfileHeader from './ProfileHeader'
+import ProfileHeader from '../ProfileHeader'
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../store/store'
-import LikeButton from "../assets/icons/like.svg"
-import Comment from "../assets/icons/comment.svg"
-import CommentIcon from "../assets/icons/comment-icon.svg"
-import Share from "../assets/icons/share-icon.svg"
-import { CustomModal } from './CustomModal'
-import PostLikes from '../modals/Post/PostLikes'
-import { toggleLike } from '../store/slices/postLikesSlice'
-import AttachmentCarousel from '../modals/AttachmentCarousel'
-import Video from 'react-native-video'
-import VideoIcon from "../assets/icons/video.svg"
-import { fetchWithErrorHandling } from '../utils/helpers'
-import ImageSkeleton from '../skeletons/ImageSkeleton'
-import { CardShadowStyles, shadowStyles } from '../styles/global-styles'
-import FastImage from '@d11/react-native-fast-image'
-import { useCreds } from '../hooks/useCreds'
+import { RootState } from '../../store/store'
+import LikeButton from "../../assets/icons/like.svg"
+import CommentIcon from "../../assets/icons/comment-icon.svg"
+import Share from "../../assets/icons/share-icon.svg"
+import { CustomModal } from '../CustomModal'
+import PostLikes from '../../modals/Post/PostLikes'
+import { toggleLike } from '../../store/slices/postLikesSlice'
+import AttachmentCarousel from '../../modals/AttachmentCarousel'
+import { fetchWithErrorHandling } from '../../utils/helpers'
+import { useCreds } from '../../hooks/useCreds'
+import PostAttachmentItem from './PostAttachmentItem'
 
 interface PostItemChildProps {
   post: PostItemProps
@@ -98,65 +93,43 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
     setVideoPlaying(true);
   };
   
-  
-  const attachmentItem = ({item,index}: {item : AttachmentData, index: number}) => {
-
-    if (!item.Attachment) {
-      return null;
-    }
-
-    return (
-      <CustomButton 
-      onPress={() => handleAttachmentPress(index)}
-        buttonStyle={[styles.postContentContainer, attachmentData.length === 1 && { width: "100%", height: 200 }]} 
-        icon={
-          item.AttachmentType.includes("image") ? (
-          <View style={{ position: "relative" }}>
-            {loading[index] && (
-              <ImageSkeleton oneImage={attachmentData.length === 1} />
-            )}
-        <FastImage
-          style={styles.content}
-          source={{
-            uri: item?.Attachment,
-            priority: FastImage.priority.high,
-          }}
-          onLoadStart={() => setLoading((prev) => ({ ...prev, [index]: true }))}
-          onLoadEnd={() => setLoading((prev) => ({ ...prev, [index]: false }))}
-          resizeMode={FastImage.resizeMode.cover}
-        />
-          </View>
-          ) : (
-            <View style={{ position: 'relative' }}>
-              {!videoPlaying && <View style={styles.videoIconBackground}><VideoIcon stroke="white" fill="white" width={14} height={14} /></View>}
-
-              <Video 
-                paused
-                renderLoader={<ActivityIndicator style={styles.contentLoader} size={'small'} color={"black"} />} 
-                style={styles.content}
-                controls={false}
-                /* controls={Platform.OS === "android" ? false : attachmentData.length > 1 ? false : true} */
-                source={{ uri: item?.Attachment }} 
-              />
-            </View>
-          )
-        }
-      />
-    )
-  }
 
   return (
     <View style={[ route.name === "Comments" ?  styles.defaultMainContainer : styles.mainContainer]}>
 
         {showProfileHeader && 
-          <ProfileHeader onPress={() => navigation.navigate("Profile", {userUUID : post.CreatedBy})} fetchLatestMessages={fetchLatestMessages} attachmentData={attachmentData} showPostActions post={post} />
+          <ProfileHeader onPress={() => navigation.navigate("Profile", {userUUID : post.CreatedBy})} fetchLatestMessages={fetchLatestMessages} showPostActions post={post} />
         }
 
 
       {post.Message && <Text style={[styles.postText, !attachmentData.length ? {paddingVertical: 8}: null]}>{post.Message}</Text>}
       
 
-      {attachmentData.length >= 1 && <FlatList indicatorStyle='black' horizontal style={styles.mainImagesList} contentContainerStyle={styles.imagesList} data={attachmentData} renderItem={attachmentItem} keyExtractor={(item) => item.AttachmentUUID} />}
+      {(attachmentData.length >= 1 && post.HasAttachment) && <FlatList
+        horizontal
+        indicatorStyle="black"
+        style={styles.mainImagesList}
+        contentContainerStyle={styles.imagesList}
+        data={attachmentData}
+        keyExtractor={(item) => item.AttachmentUUID}
+        renderItem={({ item, index }) => (
+          <PostAttachmentItem
+            item={item}
+            index={index}
+            attachmentCount={attachmentData.length}
+            loading={loading}
+            videoPlaying={videoPlaying}
+            onPress={handleAttachmentPress}
+            onLoadStart={(index) =>
+              setLoading((prev) => ({ ...prev, [index]: true }))
+            }
+            onLoadEnd={(index) =>
+              setLoading((prev) => ({ ...prev, [index]: false }))
+            }
+          />
+        )}
+      />
+      }
     
      <ScrollView horizontal contentContainerStyle={styles.categoryContainerList}>
         {post.AllMBCategoryItems?.map(eachCategory => {
@@ -259,6 +232,7 @@ const styles = StyleSheet.create({
 /*     flex: 1, */
     height: 'auto',
     paddingBottom: 10,
+    marginTop: 10,
   },
   imagesList : {
     gap: 10,
@@ -294,6 +268,7 @@ const styles = StyleSheet.create({
   },
   postActionButtonText: {
     fontSize: 12,
+    fontWeight: "500"
   },
   postActionButtonIcon: {
     width: 20,

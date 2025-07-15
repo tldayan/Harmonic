@@ -1,6 +1,6 @@
 //global-styles.ts  
 
-import { Platform } from "react-native";
+import { Platform, ViewStyle } from "react-native";
 import { colors } from "./colors"
 
 export const shadowStyles = {
@@ -67,4 +67,14 @@ export const defaultInputLabelStyles = {
   marginVertical: 10,
   color: "black",
   fontWeight: 500
+}
+
+export const profilePictureFallbackStyles: ViewStyle = {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+/*   borderWidth: 1, */
+  backgroundColor: colors.BACKGROUND_COLOR,
+  justifyContent: "center", 
+  alignItems: "center",    
 }

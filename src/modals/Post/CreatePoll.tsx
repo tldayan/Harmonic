@@ -112,6 +112,7 @@ export default function CreatePoll({onClose,closeAllModals} : PollProps) {
         <CustomTextInput
           placeholder="Ask Question"
           value={question}
+          noBackground
           inputStyle={styles.questionField}
           errorMessage={errorMessage}
           onChangeText={e => setQuestion(e)}

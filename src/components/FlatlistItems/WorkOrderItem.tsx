@@ -57,6 +57,7 @@ export default function WorkOrderItem({workOrderItem, setTaskDetails}: WorkOrder
 
 const styles = StyleSheet.create({
   mainWorkOrderContainer: {
+    marginBottom: 10,
     width: "95%",
     borderRadius: 24,
     alignSelf :"center"

@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { colors } from '../../styles/colors'
-import { CardShadowStyles, defaultInputStyles, shadowStyles } from '../../styles/global-styles'
+import { CardShadowStyles, defaultInputStyles } from '../../styles/global-styles'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import CustomButton from '../../components/CustomButton'
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from '../../styles/button-styles'
@@ -37,8 +37,7 @@ export default function EventsScreen({filterUserEvents}: EventsScreenProps) {
 const fetchEventsList = async (latest?: boolean, initial?: boolean) => {
 
   if (!initial && !latest && !hasMoreEvents) return;
-  
-  console.log("here")
+
   try {
     const eventsListResponse = await getEventList(userUUID, organizationUUID, (latest || initial) ? 0 : startIndex);
 

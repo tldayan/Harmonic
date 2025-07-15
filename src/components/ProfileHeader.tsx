@@ -1,15 +1,17 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { formatDate } from '../utils/helpers'
 import CustomButton from './CustomButton'
 import ThreeDots from "../assets/icons/three-dots-horizontal.svg"
 import PostActions from '../modals/Post/PostActions'
-import { AttachmentData, PostItemProps, PostLikeProps } from '../types/post-types'
+import { PostItemProps, PostLikeProps } from '../types/post-types'
 import ChevronLeft from "../assets/icons/chevron-left.svg"
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { colors } from '../styles/colors'
 import FastImage from '@d11/react-native-fast-image'
 import { useBottomSheet } from './BottomSheetContext'
+import User from "../assets/icons/user.svg"
+import { profilePictureFallbackStyles } from '../styles/global-styles'
 
 interface ProfileHeaderProps {
   name?: string,
@@ -17,13 +19,11 @@ interface ProfileHeaderProps {
   post?: PostItemProps
   postLikes?: PostLikeProps
   showPostActions?: boolean
-  showMemberActions?: boolean
-  attachmentData?: AttachmentData[]
   noDate?: boolean
   online?: boolean
   goBack?: boolean
   typing?: boolean
-  showStatus?: boolean,
+  you?: boolean
   onPress?: () => void
   flex?: boolean
   fetchLatestMessages?: (messageBoardUUID?: string) => void
@@ -31,9 +31,8 @@ interface ProfileHeaderProps {
 
 export default function ProfileHeader({
   name, flex, typing, fetchLatestMessages, onPress,
-  goBack, showStatus, online = false, post, postLikes,
-  showMemberActions, showPostActions, attachmentData,
-  noDate, ProfilePic = "https://i.pravatar.cc/150"
+  goBack,you, online = false, post, postLikes, showPostActions,
+  noDate, ProfilePic
 }: ProfileHeaderProps) {
 
 
@@ -87,15 +86,25 @@ export default function ProfileHeader({
         style={[{ flexDirection: "row", gap: 10, alignItems: "center" }, flex ? { flex: 1 } : null]}
         onPress={onPress}
       >
-        <FastImage
-          style={styles.profilePicture}
-          source={{
-            uri: postData?.ProfilePic?.trim() || ProfilePic.trim() || "https://i.pravatar.cc/150",
-            priority: FastImage.priority.high,
-          }}
-        />
-        <View style={styles.userNameContainer}>
-          <Text style={styles.name}>{postData?.FirstName ? postData?.FirstName : name}</Text>
+      {post?.ProfilePic?.trim() || ProfilePic ? (
+          <FastImage
+            style={styles.profilePicture}
+            source={{
+              uri: post?.ProfilePic.trim() || ProfilePic,
+              priority: FastImage.priority.high,
+            }}
+          />
+        ) : (
+          <View style={profilePictureFallbackStyles}>
+            <User color='red' width={18} height={18} />
+          </View>
+        )}
+        <View>
+          <View style={{flexDirection: "row", alignItems: "center", gap: 5}}>
+            <Text style={styles.name}>{postData?.FirstName ? postData?.FirstName : name}</Text>
+            {you && <Text style={styles.you}>You</Text>}
+          </View>
+          
 
           {typing && <Text style={{ color: colors.GREEN, fontSize: 12 }}>Typing...</Text>}
 
@@ -121,6 +130,7 @@ export default function ProfileHeader({
 const styles = StyleSheet.create({
   mainProfileDetialsContainer: {
     flexDirection: "row",
+/*     borderWidth: 1, */
     alignItems: "center",
     gap: 8,
   },
@@ -129,7 +139,7 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: 50
   },
-  userNameContainer: {},
+
   name: {
     fontWeight: '500',
     fontSize: 15,
@@ -150,14 +160,12 @@ const styles = StyleSheet.create({
     padding: 5,
     opacity: 0.7
   },
-  memberStatusContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5
+  you: {
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    fontSize: 10,
+    borderRadius: 3,
+    backgroundColor: colors.LIGHT_COLOR,
+    color: colors.LIGHT_TEXT
   },
-  ellipse: {
-    width: 8,
-    height: 8,
-    borderRadius: 50
-  }
 });

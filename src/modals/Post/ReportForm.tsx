@@ -1,6 +1,5 @@
-import { Modal, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
-import ModalsHeader from '../ModalsHeader'
 import { CustomTextInput } from '../../components/CustomTextInput'
 import { colors } from '../../styles/colors'
 import CustomButton from '../../components/CustomButton'
