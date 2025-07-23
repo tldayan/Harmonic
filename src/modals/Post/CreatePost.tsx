@@ -243,7 +243,7 @@ export default function CreatePost({onClose, route, navigation,creatingPost, pos
 
         </View>
         
-           {viewingAttachments && <CustomModal onClose={() => {setViewingAttachments(false)}}>
+           {viewingAttachments && <CustomModal blackBackground onClose={() => {setViewingAttachments(false)}}>
             <AttachmentCarousel initialIndex={initialAttachmentIndex} Assets={selectedAttachments} AttachmentData={attachmentData} onClose={() => {setViewingAttachments(false)}} />
            </CustomModal>}  
         

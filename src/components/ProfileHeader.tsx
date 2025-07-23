@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { formatDate } from '../utils/helpers'
 import CustomButton from './CustomButton'
@@ -58,6 +58,10 @@ export default function ProfileHeader({
   const formattedDate = formatDate(postData?.CreatedDateTime || "");
 
   const handleOpenPostActions = () => {
+    if(Keyboard.isVisible()) {
+      Keyboard.dismiss()
+    }
+
     openBottomSheet(
       <PostActions
         post={post}
@@ -73,7 +77,7 @@ export default function ProfileHeader({
   };
 
   return (
-    <View style={styles.mainProfileDetialsContainer}>
+    <View style={[styles.mainProfileDetialsContainer, route.name === "Comments" && {paddingVertical: 5}]}>
       {goBack && (
         <CustomButton
           buttonStyle={{ marginLeft: 10, flexDirection: "row", height: "100%", alignItems: "center" }}

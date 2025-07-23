@@ -75,8 +75,8 @@ export default function TabNavigator(): JSX.Element {
             height: 64,
             borderWidth: 1,
           },
-          tabBarHideOnKeyboard: true,
-          tabBarIconStyle: {/* borderWidth: 2 */},
+          tabBarHideOnKeyboard: false,
+/*           tabBarIconStyle: {borderWidth: 2}, */
           tabBarItemStyle: {flexDirection :"row", alignItems:"center", height: 64/* , borderWidth: 1 */},
           tabBarShowLabel: false,
           tabBarActiveTintColor: colors.ACTIVE_ORANGE,

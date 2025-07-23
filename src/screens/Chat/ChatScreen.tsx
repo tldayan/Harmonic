@@ -39,6 +39,7 @@ import uuid from 'react-native-uuid';
 import { FirebaseAttachment } from '../../types/post-types'
 import { MemoedMessageItem } from '../../components/FlatlistItems/ChatMessageItem'
 import { FlashList } from '@shopify/flash-list'
+import { KeyboardAccessoryView } from 'react-native-keyboard-accessory'
 
 export type ChatsScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">
 
@@ -299,8 +300,8 @@ useEffect(() => {
 
 
   const handleSendMessage = () => {
-    
-    if(!message.trim()) return
+    if(!message.trim() && !chatAttachments.length && !chatDocuments.length) return
+
     const timestamp = new Date().toISOString();
 
     const payload = {
@@ -490,58 +491,83 @@ useFocusEffect(
   }
   
   
-  const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => (
-    <MemoedMessageItem
-      item={item}
-      index={index}
-      userUUID={userUUID}
-      user={user}
-      chats={chats}
-      chatProfilePictureURL={chatProfilePictureURL}
-      chatMasterName={chatMasterName}
-      setAttachment={setAttachment}
-      setViewingAttachments={setViewingAttachments}
-      setChatAttachments={setChatAttachments}
-    />
-  );
+  const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => {
+
+    const currentMessageTime = new Date(item.Timestamp);
+
+    let showDateSeparator = false;
+  
+    if (index < chats.length - 1) {
+      const previousMessage = chats[index + 1];
+      const previousMessageTime = new Date(previousMessage.Timestamp);
+  
+      const timeDiffInMs = Math.abs(currentMessageTime.getTime() - previousMessageTime.getTime());
+      const timeDiffInHours = timeDiffInMs / (1000 * 60 * 60);
+  
+      if (timeDiffInHours >= 24) {
+        showDateSeparator = true;
+      }
+    } else {
+      showDateSeparator = true;
+    }
+  
+    
+      return (
+        <>
+          {showDateSeparator && (
+            <Text style={styles.systemGeneratedMessage}>
+                {formatLongDate(item.Timestamp)}
+            </Text>
+          )}
+          <MemoedMessageItem
+            item={item}
+            index={index}
+            userUUID={userUUID}
+            user={user}
+            chats={chats}
+            chatProfilePictureURL={chatProfilePictureURL}
+            chatMasterName={chatMasterName}
+            setAttachment={setAttachment}
+            setViewingAttachments={setViewingAttachments}
+            setChatAttachments={setChatAttachments}
+          />
+        </>
+      );
+};
   
 
   return (
     <View style={styles.container}>
       <>
       <View style={styles.header}>
-        <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} showStatus goBack typing={isOtherUserTyping} /* online */ noDate name={chatMasterName} showMemberActions  />
+        <ProfileHeader onPress={() => navigation.navigate("ChatInfo", {chatMasterUUID: chatMasterUUID, chatType: chatType })} ProfilePic={chatProfilePictureURL ?? undefined} goBack typing={isOtherUserTyping} /* online */ noDate name={chatMasterName}  />
         <ChatActionDropdownComponent chatAction={chatAction} setChatAction={setChatAction} />
       </View>
 
       <FlashList
-  contentContainerStyle={{
-    ...styles.chatHistoryList,
-    paddingTop: 80,
-  }}
-  data={chats}
-  keyExtractor={(item) => item.id}
-  renderItem={renderMessage}
-  inverted
-  onEndReached={() => fetchChats(false)}
-  onEndReachedThreshold={0.5}
-  showsVerticalScrollIndicator={false}
-  estimatedItemSize={100}
-  ListFooterComponent={
-    chatLoading ? (
-      <ActivityIndicator size="small" style={{marginVertical: "75%"}} />
-    ) : (
-      <Text style={styles.systemGeneratedMessage}>
-        {formatLongDate(createdDateTime)}
-      </Text>
-    )
-  }
+        contentContainerStyle={{
+          ...styles.chatHistoryList,
+          paddingTop: 80,
+        }}
+        data={chats}
+        keyExtractor={(item) => item.id}
+        renderItem={renderMessage}
+        inverted
+        onEndReached={() => fetchChats(false)}
+        onEndReachedThreshold={0.5}
+        showsVerticalScrollIndicator={false}
+        estimatedItemSize={100}
+        ListFooterComponent={
+          chatLoading
+            ? <ActivityIndicator size="small" style={{ marginVertical: "75%" }} />
+            : null
+        }
 />
 
 
 
       
-
+<KeyboardAccessoryView animateOn='ios' androidAdjustResize avoidKeyboard alwaysVisible style={{backgroundColor: "white"}} >
   <View style={[styles.mainMessageFieldContainer, { paddingBottom: Platform.OS === "ios" ? (isKeyboardVisible ? 0 : 20) : (isKeyboardVisible ? 10 : 10) }]}>
 
       
@@ -631,10 +657,10 @@ useFocusEffect(
     </Animated.View>
     </>
   )}
-</View>
+</View></KeyboardAccessoryView>
 </>
 
-    {viewingAttachments && <CustomModal onClose={() => {setViewingAttachments(false)}}>
+    {viewingAttachments && <CustomModal blackBackground onClose={() => {setViewingAttachments(false)}}>
       <AttachmentCarousel initialIndex={initialAttachmentIndex} Attachment={attachment} capturedAttachments={capturedAttachments} Assets={chatAttachments} onClose={() => {setViewingAttachments(false)}} />
     </CustomModal> }
 
@@ -742,24 +768,11 @@ const styles = StyleSheet.create({
       },
 
       systemGeneratedMessage: {
-        padding: 5,
-        borderRadius: 50,
         textAlign: "center",
-        alignSelf: "center",
-      /*   width: "70%", */
-        paddingHorizontal: 15,
         fontSize: 13,
-        fontWeight: 300,
         color: colors.LIGHT_TEXT,
         opacity: 0.8,
-        backgroundColor: "white",
-        borderWidth: 1,
-        borderColor: colors.LIGHT_COLOR
-/*         shadowColor: "#000", 
-        shadowOpacity: 0.1, 
-        shadowOffset: { width: 0, height: 1 }, 
-        elevation: 15 */
-/*         color: colors.LIGHT_TEXT_COLOR */
+        marginVertical: 10
       },
       username: {
         fontSize: 15,

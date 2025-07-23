@@ -1,8 +1,7 @@
-import { FlatList, StyleSheet, View, Dimensions, TouchableWithoutFeedback, ActivityIndicator, Image } from 'react-native'
+import { FlatList, StyleSheet, View, Dimensions, TouchableWithoutFeedback, ActivityIndicator, Image, Platform } from 'react-native'
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react'
 import { AttachmentData } from '../types/post-types'
 import ModalsHeader from './ModalsHeader';
-import Video from 'react-native-video';
 import { Asset } from 'react-native-image-picker';
 import { PhotoFile } from 'react-native-vision-camera';
 import CustomButton from '../components/CustomButton';
@@ -10,6 +9,9 @@ const Pinchable = require('react-native-pinchable').default;
 import Close from "../assets/icons/close-light.svg"
 import { colors } from '../styles/colors';
 import FastImage from '@d11/react-native-fast-image';
+import CustomVideoPlayer from './CustomVideoPlayer';
+import SwipeToDismissWrapper from './SwiperToDismissWrapper';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 const { width, height: screenHeight } = Dimensions.get('window');
 
@@ -40,6 +42,8 @@ export default function AttachmentCarousel({
   const [visibleIndex, setVisibleIndex] = useState<number | null>(null)
   const [imageSizes, setImageSizes] = useState<Record<string, { width: number, height: number }>>({})
   const flatListRef = useRef<FlatList>(null)
+
+  const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null);
 
   // Prepare a unified data array of items with uri and isVideo flags and keys
   const unifiedData: ItemType[] = useMemo(() => {
@@ -93,41 +97,46 @@ export default function AttachmentCarousel({
     itemVisiblePercentThreshold: 50
   }
 
+  const horizontalPanGesture = useMemo(() =>
+    Gesture.Pan()
+      .activeOffsetX([-10, 10]) // small horizontal threshold to activate
+      .failOffsetY([-10, 10])   // fail if vertical movement > 10 px to avoid conflicts
+  , []);
+
   // Render function for all items (images/videos)
   const renderItem = useCallback(({ item, index }: { item: ItemType; index: number }) => {
-    const imageSize = imageSizes[item.key]
-
     return (
       <TouchableWithoutFeedback>
-        <View style={styles.postImageContainer}>
-          <CustomButton buttonStyle={styles.close} onPress={onClose} icon={<Close width={20} height={20} />} />
+         {/*  {!loading && <CustomButton buttonStyle={[styles.close, (Platform.OS === "ios" && styles.closeIconPosition)]} onPress={onClose} icon={<Close width={20} height={20} />} />} */}
           <View style={styles.contentWrapper}>
-            {loading && <ActivityIndicator style={styles.loader} size={"small"} color={"white"} />}
             {!item.isVideo ? (
-              <Pinchable>
-                <FastImage
-                  onLoad={() => setLoading(false)}
-                  style={[styles.content,{ width, aspectRatio: 1 }]}
-                  source={{
-                    uri: item.uri,
-                    priority: FastImage.priority.high,
-                  }}
-                  resizeMode="contain"
-                />
-              </Pinchable>
+               <SwipeToDismissWrapper
+               onSwipeDown={onClose}
+               simultaneousHandlers={horizontalPanGesture} 
+             >
+             
+               <Pinchable>
+                 <FastImage
+                   onLoad={() => setLoading(false)}
+                   style={[styles.content, { width, aspectRatio: 1 }]}
+                   source={{
+                     uri: item.uri,
+                     priority: FastImage.priority.high,
+                   }}
+                   resizeMode="contain"
+                 />
+               </Pinchable>
+             </SwipeToDismissWrapper>
             ) : (
-              <Video
-                controls
-                paused={visibleIndex !== index}
-                style={[styles.content]}
-                source={{ uri: item.uri }}
-                onLoadStart={() => setLoading(true)}
-                onLoad={() => setLoading(false)}
-   /*              resizeMode="contain" */
-              />
+              <CustomVideoPlayer
+              uri={item.uri}
+              isVisible={visibleIndex === index}
+              onSwipeDown={onClose} // Pass it here
+            />
+            
+
             )}
           </View>
-        </View>
       </TouchableWithoutFeedback>
     )
   }, [loading, visibleIndex, onClose, imageSizes])
@@ -143,43 +152,47 @@ export default function AttachmentCarousel({
   }
 
   return (
-    <View style={styles.container}>
+    <GestureDetector gesture={horizontalPanGesture}>
       <FlatList
         ref={flatListRef}
         style={styles.carouselMainContainer}
         data={unifiedData}
         horizontal
-        renderItem={renderItem}
-        keyExtractor={(item) => item.key}
         pagingEnabled
         bounces={false}
         showsHorizontalScrollIndicator={false}
-        indicatorStyle="white"
+        renderItem={renderItem}
+        keyExtractor={(item) => item.key}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         getItemLayout={(data, index) => ({
-          length: width, offset: width * index, index
+          length: width,
+          offset: width * index,
+          index,
         })}
         initialScrollIndex={initialIndex}
       />
-    </View>
-  )
+    </GestureDetector>
+  );
+  
 }
 
 const styles = StyleSheet.create({
-  container: {},
   carouselMainContainer: {
     width,
   },
   postImageContainer: {
+/*     borderWidth: 2,
+    borderColor: "red", */
     width,
-    height: "100%",
+    height: "auto",
     paddingHorizontal: 10,
-    justifyContent: "center",
+/*     justifyContent: "center", */
     alignItems: "center",
   },
   contentWrapper: {
     width,
+    
     justifyContent: "center",
     alignItems: "center",
   },
@@ -188,7 +201,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
     aspectRatio: 1.5,
     alignSelf: "center",
-    position: "relative"
+    position: "relative",
   },
   loader: {
     position: "absolute",
@@ -203,5 +216,11 @@ const styles = StyleSheet.create({
     borderColor: colors.ACTIVE_ORANGE,
     borderRadius: 50,
     padding: 10,
+  },
+  closeIconPosition: {
+    position: "absolute",
+    zIndex: 1,
+    right: "2%",
+    top: "2%"
   }
 });

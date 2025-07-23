@@ -127,8 +127,8 @@ export const CustomModal: React.FC<Props> = ({
                   },
                 ]}
               >
-                <KeyboardAvoidingView
-                  behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+                <KeyboardAvoidingView  sge
+                  behavior={'padding'}
                   style={{ flex: 1 }}
                 >
                   <View style={styles.contentWrapper}>

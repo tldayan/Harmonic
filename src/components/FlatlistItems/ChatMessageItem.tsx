@@ -1,9 +1,11 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { memo } from 'react';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, formatLongDate } from '../../utils/helpers';
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { colors } from '../../styles/colors';
 import FastImage from '@d11/react-native-fast-image';
+import User from "../../assets/icons/user.svg"
+import { profilePictureFallbackStyles } from '../../styles/global-styles';
 
 interface MessageItemProps {
   item: ChatMessage;
@@ -47,12 +49,17 @@ export function MessageItem({
       );
 
   if (item.MessageType === "system-generated") {
-    return <Text style={styles.systemGeneratedMessage}>{item.Message}</Text>;
+    return <View>
+            <Text style={[styles.systemGeneratedMessage, { marginTop: -5 }]}>
+              {item.Message}
+            </Text>
+          </View>
+  
   }
 
   if (item.MessageType === "user-generated") {
     const avatarUri =
-      item.SenderUUID === userUUID ? user?.photoURL || "https://i.pravatar.cc/150" : chatProfilePictureURL || "https://i.pravatar.cc/150";
+      item.SenderUUID === userUUID ? user?.photoURL : chatProfilePictureURL;
 
     return (
       <View
@@ -61,11 +68,12 @@ export function MessageItem({
           isMessagefromOwner && { flexDirection: 'row-reverse', alignSelf: 'flex-end' },
         ]}
       >
-        <FastImage style={styles.profilePic} source={{
+        {avatarUri ? <FastImage style={styles.profilePic} source={{
           uri: avatarUri,
-          priority: FastImage.priority.normal,
-          cache: FastImage.cacheControl.immutable,
-        }} />
+          priority: FastImage.priority.normal
+        }} /> : <View style={[profilePictureFallbackStyles, {borderWidth: 1, borderColor: colors.LIGHT_TEXT_COLOR}]}>
+        <User color='red' width={18} height={18} />
+      </View>}
         <View
           style={[
             styles.userMessageContainer,

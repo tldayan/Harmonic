@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Image, StyleSheet, View, Text, TouchableWithoutFeedback, Keyboard, ActivityIndicator, ScrollView } from "react-native";
 import CustomButton from "../../components/CustomButton";
 import { colors } from "../../styles/colors";
@@ -13,10 +13,10 @@ import { useLogin } from "../../hooks/useLogin";
 import checkIcon from '../../assets/images/check.png';
 import xIcon from "../../assets/images/x.png";
 import { getRectangleColor, responsiveFontSize } from "../../utils/helpers";
-import { CustomModal } from "../../components/CustomModal";
 import ForgotPassword from "../../modals/ForgotPassword";
 import { PRIMARY_BUTTON_STYLES, PRIMARY_BUTTON_TEXT_STYLES } from "../../styles/button-styles";
 import { CustomTypingModal } from "../../components/CustomTypingModal";
+import FastImage from "@d11/react-native-fast-image";
 
 
 const AuthScreen = () => {
@@ -64,16 +64,13 @@ const AuthScreen = () => {
 		}
 	}
 
-	/* useEffect(() => {
-		console.log(authMode)
-	},[authMode]) */
-	
+	let passwordCheckIndexes = [0,1,2,3]
 
   return (
 	
 	<TouchableWithoutFeedback onPress={Keyboard.dismiss} >
 		<ScrollView contentContainerStyle={{padding: 32}} style={styles.container} keyboardShouldPersistTaps="handled">
-			<Image style={styles.logo} source={require('../../assets/images/Harmonic-Logo-Horizontal-02.png')} />
+			<FastImage style={styles.logo} source={require('../../assets/images/Harmonic-Logo-Horizontal-02.png')} />
 			<View style={styles.mainSignupContainer}>
 				<Text style={styles.title}>{authMode === "login" ? "Welcome back" : "Create Account"}</Text>
 				<View style={styles.signupContainer}> 
@@ -94,10 +91,9 @@ const AuthScreen = () => {
 
 					{(authMode === "signup" && !confirmedPassword && password) && <View style={[styles.content, styles.contentFlexBox]}>
 						<View style={[styles.rectangles, styles.rectanglesFlexBox]}>
-							<View style={[styles.rectanglesChild, styles.rectanglesLayout, { backgroundColor: getRectangleColor(0, password, passwordCheck) }]} />
-							<View style={[styles.rectanglesChild, styles.rectanglesLayout, { backgroundColor: getRectangleColor(1, password, passwordCheck) }]} />
-							<View style={[styles.rectanglesInner, styles.rectanglesLayout, { backgroundColor: getRectangleColor(2, password, passwordCheck) }]} />
-							<View style={[styles.rectanglesInner, styles.rectanglesLayout, { backgroundColor: getRectangleColor(3, password, passwordCheck) }]} />
+							<View style={[styles.rectangles, styles.rectanglesFlexBox]}>
+								{Array.from({ length: 4 }, (_, i) => <View key={i} style={[styles.rectanglesChild, styles.rectanglesLayout, { backgroundColor: getRectangleColor(i, password, passwordCheck) }]} />)}
+							</View>
 						</View>
 
 						<View style={[styles.popoverBody, styles.rectanglesFlexBox]}>

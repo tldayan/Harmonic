@@ -14,8 +14,8 @@ type Props = {
   loading: { [key: number]: boolean };
   videoPlaying: boolean;
   onPress: (index: number) => void;
-  onLoadStart: (index: number) => void;
-  onLoadEnd: (index: number) => void;
+/*   onLoadStart: (index: number) => void;
+  onLoadEnd: (index: number) => void; */
 };
 
 const PostAttachmentItem: React.FC<Props> = ({
@@ -25,8 +25,8 @@ const PostAttachmentItem: React.FC<Props> = ({
   loading,
   videoPlaying,
   onPress,
-  onLoadStart,
-  onLoadEnd,
+/*   onLoadStart,
+  onLoadEnd, */
 }) => {
   if (!item?.Attachment) return null;
 
@@ -43,15 +43,15 @@ const PostAttachmentItem: React.FC<Props> = ({
       icon={
         isImage ? (
           <View style={{ position: 'relative' }}>
-            {loading[index] && <ImageSkeleton oneImage={isSingle} />}
+         {/*    {loading[index] && <ImageSkeleton oneImage={isSingle} />} */}
             <FastImage
               style={styles.content}
               source={{
                 uri: item.Attachment,
                 priority: FastImage.priority.high,
               }}
-              onLoadStart={() => onLoadStart(index)}
-              onLoadEnd={() => onLoadEnd(index)}
+          /*     onLoadStart={() => onLoadStart(index)}
+              onLoadEnd={() => onLoadEnd(index)} */
               resizeMode={FastImage.resizeMode.cover}
             />
           </View>
@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   content: {
+    overflow: "hidden",
     width: 200,
     height: 200,
     borderRadius: 8,

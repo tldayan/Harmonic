@@ -120,12 +120,12 @@ export default function PostItem({ post, showProfileHeader, childAttachmentData,
             loading={loading}
             videoPlaying={videoPlaying}
             onPress={handleAttachmentPress}
-            onLoadStart={(index) =>
+/*             onLoadStart={(index) =>
               setLoading((prev) => ({ ...prev, [index]: true }))
             }
             onLoadEnd={(index) =>
               setLoading((prev) => ({ ...prev, [index]: false }))
-            }
+            } */
           />
         )}
       />
@@ -197,36 +197,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     color: colors.ACTIVE_ORANGE
   },
-  postContentContainer : {
-/*     borderWidth: 2,
-    borderColor: "red", */
-    borderRadius: 10,
-    overflow: "hidden",
-    marginTop: 8,
-    aspectRatio: 1,
-    width: 150,
-    height: 150,
-    position: "relative",
-/*     backgroundColor: "black" */
-  },
   content: {
 /*     borderWidth: 1,
     borderColor: "red", */
     width: "100%",
     height: "100%",
     borderRadius: 10,
-  },
-  videoIconBackground: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.PRIMARY_COLOR,
-    borderRadius: 50,
-    position: 'absolute',
-    bottom: 8,
-    left: 8,
-    zIndex: 2,
-    width: 25,
-    height: 25
   },
   mainImagesList : {
 /*     flex: 1, */
@@ -301,12 +277,6 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     gap: 2,
     alignItems: "center",
-  },
-  contentLoader :{
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: [{ translateX: "-50%" }, { translateY: "-50%" }]
   }
 
 })

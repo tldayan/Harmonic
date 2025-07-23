@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, Keyboard, ActivityIndicator, Platform } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, Keyboard, ActivityIndicator, Platform, InputAccessoryView } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { RouteProp, useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../types/navigation-types'
 import { getCommentReplies, getListOfComments, getMBMessageDetails, saveMBMessageComment } from '../../api/network-utils'
@@ -19,7 +19,7 @@ import { CustomModal } from '../../components/CustomModal'
 import { STATUS_CODE } from '../../utils/constants'
 import FastImage from '@d11/react-native-fast-image'
 import { useBottomSheet } from '../../components/BottomSheetContext'
-
+import { KeyboardAccessoryView } from 'react-native-keyboard-accessory'
 export type CommentsScreenRouteProp = RouteProp<RootStackParamList, "Comments">
 
 export default function CommentsScreen() {
@@ -308,36 +308,57 @@ export default function CommentsScreen() {
         />
 
 
-      <View style={[styles.mainCommentContainer, {paddingBottom: (isKeyboardVisible && Platform.OS === "ios") ? 0 : 10}]}>
-          <CustomButton
-            onPress={() => {}} 
-            icon={<Image source={require("../../assets/images/frame.png")} />} 
-          />
-        <View style={styles.commentContainer}>
-            {replyingTo.MessageBoardCommentUUID 
-              ? <View style={styles.replyingTo}>
-                  <Text style={styles.replyingToText}>Replying to</Text>
-                  <Text style={styles.replyingToName}>{replyingTo.name}</Text>
-                  <Text style={styles.separator}>·</Text>
-                  <CustomButton onPress={() => setReplyingTo({name: "", MessageBoardCommentUUID: ""})} textStyle={styles.cancelReply} title="Cancel" />
-                </View>
-            
-              : null
-            }
-          <View style={styles.commentInputContainer}>
-            <CustomTextInput 
-              ref={commentInput}
-              value={comment} 
-              onChangeText={(e) => setComment(e)} 
-              inputStyle={styles.commentField} 
-              placeholderTextColor={colors.LIGHT_TEXT_COLOR}
-              placeholder={replyingTo.MessageBoardCommentUUID ? `Reply to ${replyingTo.name}...` : "Write a comment..."} 
+  <KeyboardAccessoryView androidAdjustResize avoidKeyboard alwaysVisible  style={{backgroundColor: "white"}}
+  animateOn="all" hideBorder>
+    <View style={[styles.mainCommentContainer, {paddingBottom: (isKeyboardVisible && Platform.OS === "ios") ? 0 : 10}]}>
+      <CustomButton
+        onPress={() => {}} 
+        icon={<Image source={require("../../assets/images/frame.png")} />} 
+      />
+      <View style={styles.commentContainer}>
+        {replyingTo.MessageBoardCommentUUID && (
+          <View style={styles.replyingTo}>
+            <Text style={styles.replyingToText}>Replying to</Text>
+            <Text style={styles.replyingToName}>{replyingTo.name}</Text>
+            <Text style={styles.separator}>·</Text>
+            <CustomButton
+              onPress={() =>
+                setReplyingTo({ name: "", MessageBoardCommentUUID: "" })
+              }
+              textStyle={styles.cancelReply}
+              title="Cancel"
             />
-          <CustomButton onPress={handleComment} icon={<SendIcon width={30} height={30} strokeWidth={1} fill={comment ? colors.ACTIVE_ORANGE : "grey"} stroke={comment ? "white" : "white"} />} />
-
           </View>
+        )}
+        <View style={styles.commentInputContainer}>
+          <CustomTextInput
+            ref={commentInput}
+            value={comment}
+            onChangeText={(e) => setComment(e)}
+            inputStyle={styles.commentField}
+            placeholderTextColor={colors.LIGHT_TEXT_COLOR}
+            placeholder={
+              replyingTo.MessageBoardCommentUUID
+                ? `Reply to ${replyingTo.name}...`
+                : "Write a comment..."
+            }
+          />
+          <CustomButton
+            onPress={handleComment}
+            icon={
+              <SendIcon
+                width={30}
+                height={30}
+                strokeWidth={1}
+                fill={comment ? colors.ACTIVE_ORANGE : "grey"}
+                stroke={comment ? "white" : "white"}
+              />
+            }
+          />
         </View>
       </View>
+    </View>
+  </KeyboardAccessoryView>
 
     </View>
   )
@@ -360,18 +381,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   mainCommentContainer: {
+/*     borderWidth: 1, */
     alignItems: "center",
     flexDirection: "row",
     gap: 10,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: "white",
     paddingHorizontal: 20,
     paddingTop:5,
     borderTopWidth: 1,
-    paddingBottom: Platform.OS === "ios" ? 20 : 10,
     borderTopColor: colors.BORDER_COLOR,
   },
   commentContainer : {

@@ -18,6 +18,7 @@ import { confirmCode, handlePhoneNumberVerification } from '../../services/auth-
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
 import { useBottomSheet } from '../../components/BottomSheetContext';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 interface SetupProfileProps {
     setUserInformation: React.Dispatch<React.SetStateAction<UserProfile>>;
@@ -169,7 +170,13 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
 
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+    <KeyboardAwareScrollView
+    style={styles.container}
+    keyboardShouldPersistTaps="handled"
+    extraScrollHeight={60}
+    enableOnAndroid={true}
+    showsVerticalScrollIndicator={false}
+  >
 
         <Text style={styles.title}>Setup Profile</Text>
 
@@ -230,7 +237,7 @@ export default function SetupProfile({ setUserInformation, userInformation, setU
         </CustomModal> */}
    
 
-    </ScrollView>
+    </KeyboardAwareScrollView>
   )
 }
 

@@ -19,10 +19,10 @@ function App(): React.JSX.Element {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <SocketProvider>
-          <KeyboardAvoidingView
+      {/*     <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1, flexGrow: 1}}
-          >
+          > */}
             <CustomSafeAreaView>
               <RealmProvider>
                 <AuthModeProvider>
@@ -43,7 +43,7 @@ function App(): React.JSX.Element {
                 </AuthModeProvider>
               </RealmProvider>
             </CustomSafeAreaView>
-          </KeyboardAvoidingView>
+       {/*    </KeyboardAvoidingView> */}
           <Toast />
         </SocketProvider>
       </Provider>
