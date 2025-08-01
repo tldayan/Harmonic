@@ -1,8 +1,3 @@
-
-## 📱 App Demo
-
-🎥 [Watch Demo Video](screenshots/Demo.mp4)
-
 ## 📱 App Screenshots
 
 <p float="left">
