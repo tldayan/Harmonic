@@ -1,7 +1,7 @@
 
 ## 📱 App Demo
 
-🎥 [Watch Demo Video](demo/demo.mp4)
+🎥 [Watch Demo Video](screenshots/Demo.mp4)
 
 ## 📱 App Screenshots
 
